@@ -14,6 +14,7 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     
+    country = Column(String, nullable=False)
     university = Column(String, nullable=False)
     college = Column(String, nullable=False)
     major = Column(String, nullable=False)

@@ -34,6 +34,7 @@ def register(user_data: UserCreate, db: Session = Depends(get_db)):
         last_name=user_data.last_name,
         email=user_data.email,
         hashed_password=get_password_hash(user_data.password),
+        country=user_data.country.value,
         university=user_data.university,
         college=user_data.college,
         major=user_data.major,
