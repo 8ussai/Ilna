@@ -1,4 +1,3 @@
-import shutil
 import os
 import uuid
 
@@ -8,7 +7,7 @@ from typing import List
 from fastapi import BackgroundTasks 
 
 from backend.database import get_db
-from backend.backendConfig import ALLOWED_EXTENSIONS
+from backend.backendConfig import ALLOWED_EXTENSIONS, STORAGE_LIMIT_BYTES
 from backend.models.user import User
 from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial
 from backend.schemas.course import (
@@ -24,8 +23,11 @@ from backend.schemas.course import (
 from backend.core.apiDependencies import get_current_user
 from backend.services.rag_pipeline import index_course_material
 from backend.services.quiz_generator import generate_quiz_from_material
+from backend.services.storage import storage_used
 
 router = APIRouter()
+
+UPLOAD_CHUNK_BYTES = 1024 * 1024
 
 
 @router.post("/", response_model=CourseOut, status_code=status.HTTP_201_CREATED)
@@ -183,22 +185,44 @@ def upload_course_material(
             detail=f"File extension '.{file_extension}' is not allowed."
         )
 
+    remaining = STORAGE_LIMIT_BYTES - storage_used(db, current_user.id)
+    storage_full = HTTPException(
+        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+        detail="This file would go over your storage limit.",
+    )
+
+    # the client-reported size can be missing or wrong, so this only rejects early; the copy below is the real check
+    if file.size is not None and file.size > remaining:
+        raise storage_full
+
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     file_path = f"uploads/courses/{unique_filename}"
 
+    size_bytes = 0
     try:
         with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
+            while chunk := file.file.read(UPLOAD_CHUNK_BYTES):
+                size_bytes += len(chunk)
+                if size_bytes > remaining:
+                    break
+                buffer.write(chunk)
     except Exception as e:
+        if os.path.exists(file_path):
+            os.remove(file_path)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Could not save file: {str(e)}"
         )
 
+    if size_bytes > remaining:
+        os.remove(file_path)
+        raise storage_full
+
     new_material = CourseMaterial(
         course_id=course_id,
         file_name=file.filename,
-        file_path=file_path
+        file_path=file_path,
+        size_bytes=size_bytes,
     )
     
     db.add(new_material)

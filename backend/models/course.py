@@ -28,7 +28,9 @@ class CourseMaterial(Base):
     
     file_name = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
-    
+    # recorded at upload so storage usage is a single SUM instead of reading every file from disk
+    size_bytes = Column(Integer, nullable=False, default=0, server_default="0")
+
     is_rag_indexed = Column(Boolean, default=False) 
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

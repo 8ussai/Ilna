@@ -17,3 +17,6 @@ CHROMA_DB_DIR = "chroma_db"
 os.makedirs(CHROMA_DB_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"pdf", "ppt", "pptx"}
+
+# total size of all files one user can upload
+STORAGE_LIMIT_BYTES = 5 * 1024 ** 3

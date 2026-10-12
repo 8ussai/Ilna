@@ -1,10 +1,15 @@
+import { useCallback, useEffect, useState } from 'react'
 import type { MouseEvent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Me } from '../api/auth'
+import { fetchStorage } from '../api/me'
+import type { Storage } from '../api/me'
 import type { Catalog } from '../api/meta'
+import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
+import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { settingsPath } from '../tabs'
@@ -61,6 +66,13 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
         <ul className="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
           {row('account', <UserAvatar username={me.username} size={40} />)}
           {row(
+            'storage',
+            <RowIcon>
+              <ellipse cx="12" cy="5" rx="8" ry="3" />
+              <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+            </RowIcon>,
+          )}
+          {row(
             'policy',
             <RowIcon>
               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -81,7 +93,85 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
         {t('settings.title')}
       </PageLink>
       {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
+      {page === 'storage' && <StoragePage />}
       {page === 'policy' && <PolicyPage />}
+    </>
+  )
+}
+
+function StoragePage() {
+  const { t, i18n } = useTranslation()
+  const [storage, setStorage] = useState<Storage | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  const load = useCallback(() => {
+    fetchStorage()
+      .then(setStorage)
+      .catch(() => setFailed(true))
+  }, [])
+
+  function retry() {
+    setFailed(false)
+    load()
+  }
+
+  useEffect(load, [load])
+
+  let content: ReactNode
+  if (storage) {
+    const { used_bytes: used, limit_bytes: limit } = storage
+    const percent = Math.min(100, (used / limit) * 100)
+    const usedText = formatBytes(used, i18n.language)
+    const limitText = formatBytes(limit, i18n.language)
+    content = (
+      <>
+        <p className="text-2xl font-semibold">
+          {t('settings.storage.usedOf', { used: usedText, limit: limitText })}
+        </p>
+        <div
+          role="progressbar"
+          aria-label={t('settings.storage.title')}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(percent)}
+          aria-valuetext={t('settings.storage.usedOf', { used: usedText, limit: limitText })}
+          className="mt-4 h-3 overflow-hidden rounded-full bg-surface"
+        >
+          {/* a sliver stays visible for tiny non-zero usage */}
+          <div
+            className={`h-full rounded-full ${percent >= 90 ? 'bg-danger' : 'bg-accent'}`}
+            style={{ width: `${used > 0 ? Math.max(percent, 1) : 0}%` }}
+          />
+        </div>
+        <p className="mt-3 text-sm text-muted">
+          {used >= limit
+            ? t('settings.storage.full')
+            : t('settings.storage.left', { left: formatBytes(limit - used, i18n.language) })}
+        </p>
+      </>
+    )
+  } else if (failed) {
+    content = (
+      <div className="text-center">
+        <p className="text-muted">{t('settings.storage.loadFailed')}</p>
+        <button type="button" onClick={retry} className={`${secondaryButton} mt-4 w-auto`}>
+          {t('auth.retry')}
+        </button>
+      </div>
+    )
+  } else {
+    content = (
+      <p className="text-muted" role="status">
+        {t('feed.loading')}
+      </p>
+    )
+  }
+
+  return (
+    <>
+      <h1 className="mt-3 font-serif text-3xl font-semibold">{t('settings.storage.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('settings.storage.description')}</p>
+      <section className="mt-6 rounded-xl border border-line bg-card p-5">{content}</section>
     </>
   )
 }

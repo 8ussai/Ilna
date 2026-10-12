@@ -42,6 +42,11 @@ class PasswordChange(BaseModel):
         return self
 
 
+class StorageOut(BaseModel):
+    used_bytes: int
+    limit_bytes: int
+
+
 class UserOut(UserBase):
     id: int
     created_at: datetime

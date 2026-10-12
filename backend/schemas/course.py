@@ -22,6 +22,7 @@ class CourseMaterialOut(BaseModel):
     course_id: int
     file_name: str
     file_path: str
+    size_bytes: int
     is_rag_indexed: bool
     created_at: datetime
     updated_at: datetime

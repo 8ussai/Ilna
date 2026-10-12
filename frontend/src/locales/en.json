@@ -137,6 +137,15 @@
       "submit": "Change password",
       "logoutNote": "You'll be logged out and asked to sign in with your new password."
     },
+    "storage": {
+      "title": "Storage",
+      "summary": "Space used by your uploaded files",
+      "description": "All the files you upload to your courses count toward this limit.",
+      "usedOf": "{{used}} of {{limit}} used",
+      "left": "{{left}} left",
+      "full": "Your storage is full. You can't upload more files.",
+      "loadFailed": "Couldn't load your storage."
+    },
     "policy": {
       "title": "Policy",
       "summary": "Community rules, privacy and your files"
