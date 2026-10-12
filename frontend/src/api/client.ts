@@ -22,7 +22,23 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const body = await response.json().catch(() => null)
   if (!response.ok) {
+    if (response.status === 401) onUnauthorized?.()
     throw new ApiError(response.status, body?.detail)
   }
   return body as T
+}
+
+let authToken: string | null = null
+let onUnauthorized: (() => void) | null = null
+
+// App keeps these in sync with the logged-in session.
+export function setAuth(token: string | null, handleUnauthorized: (() => void) | null) {
+  authToken = token
+  onUnauthorized = handleUnauthorized
+}
+
+export function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const headers = new Headers(init.headers)
+  if (authToken) headers.set('Authorization', `Bearer ${authToken}`)
+  return request<T>(path, { ...init, headers })
 }

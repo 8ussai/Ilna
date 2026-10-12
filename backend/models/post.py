@@ -12,6 +12,10 @@ class Post(Base):
 
     content = Column(Text, nullable=False)
 
+    # which blog the post belongs to: general, university, college or major
+    scope = Column(String, nullable=False, default="general", server_default="general", index=True)
+
+    # author's catalog ids at posting time; used to match scoped blogs
     university = Column(String, nullable=False, index=True)
     college = Column(String, nullable=False, index=True)
     major = Column(String, nullable=False, index=True)

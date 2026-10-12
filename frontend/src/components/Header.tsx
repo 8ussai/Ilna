@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import type { MouseEvent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import logo from '../assets/logo.png'
@@ -18,7 +19,13 @@ function applyTheme(theme: Theme) {
 
 const langButton = 'h-8 min-w-10 rounded-md px-2 text-sm font-medium'
 
-export function Header() {
+type HeaderProps = {
+  // extra controls shown after the language/theme toggles (e.g. the account button)
+  children?: ReactNode
+  onLogoClick?: (e: MouseEvent<HTMLAnchorElement>) => void
+}
+
+export function Header({ children, onLogoClick }: HeaderProps) {
   const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState<Theme>(
     document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light',
@@ -40,7 +47,7 @@ export function Header() {
 
   return (
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
-      <a href="/" className="flex items-center gap-2.5">
+      <a href="/" onClick={onLogoClick} className="flex items-center gap-2.5">
         <img src={logo} alt="" className="size-9" />
         <span className="font-serif text-2xl font-semibold tracking-tight">Ilna</span>
       </a>
@@ -85,6 +92,8 @@ export function Header() {
             </svg>
           )}
         </button>
+
+        {children}
       </div>
     </header>
   )

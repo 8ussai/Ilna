@@ -60,10 +60,34 @@
     "generic": "حدث خطأ ما. حاول مرة أخرى.",
     "listFailed": "تعذّر تحميل قائمة الجامعات."
   },
-  "home": {
-    "welcome": "تم تسجيل دخولك.",
-    "soon": "باقي أقسام Ilna قادمة قريباً.",
-    "logout": "تسجيل الخروج"
+  "app": {
+    "sections": "الأقسام"
+  },
+  "tabs": {
+    "general": "عام",
+    "university": "الجامعة",
+    "college": "الكلية",
+    "major": "التخصص",
+    "my-courses": "موادي"
+  },
+  "feed": {
+    "composerLabel": "اكتب منشوراً",
+    "placeholder": "شارك شيئاً في {{name}}…",
+    "post": "نشر",
+    "posting": "جارٍ النشر…",
+    "loading": "جارٍ التحميل…",
+    "loadFailed": "تعذّر تحميل المنشورات.",
+    "empty": "لا توجد منشورات بعد. كن أول من ينشر.",
+    "loadMore": "عرض المزيد",
+    "delete": "حذف",
+    "confirmDelete": "حذف المنشور؟",
+    "yes": "نعم",
+    "cancel": "إلغاء"
+  },
+  "account": {
+    "open": "إعدادات الحساب",
+    "title": "الحساب",
+    "close": "إغلاق"
   },
   "footer": "© {{year}} Ilna"
 }

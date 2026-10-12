@@ -60,10 +60,34 @@
     "generic": "Something went wrong. Please try again.",
     "listFailed": "Couldn't load the university list."
   },
-  "home": {
-    "welcome": "You're signed in.",
-    "soon": "The rest of Ilna is coming soon.",
-    "logout": "Log out"
+  "app": {
+    "sections": "Sections"
+  },
+  "tabs": {
+    "general": "General",
+    "university": "University",
+    "college": "College",
+    "major": "Major",
+    "my-courses": "My Courses"
+  },
+  "feed": {
+    "composerLabel": "Write a post",
+    "placeholder": "Share something in {{name}}…",
+    "post": "Post",
+    "posting": "Posting…",
+    "loading": "Loading…",
+    "loadFailed": "Couldn't load posts.",
+    "empty": "No posts yet. Be the first to post.",
+    "loadMore": "Load more",
+    "delete": "Delete",
+    "confirmDelete": "Delete this post?",
+    "yes": "Yes",
+    "cancel": "Cancel"
+  },
+  "account": {
+    "open": "Account settings",
+    "title": "Account",
+    "close": "Close"
   },
   "footer": "© {{year}} Ilna"
 }

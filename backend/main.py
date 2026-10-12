@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles 
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import inspect, text
 
 from backend.database import engine, Base
 from backend.models import user, post, course
@@ -24,6 +25,11 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+
+# create_all doesn't add columns to existing tables, so add posts.scope to older databases
+if "scope" not in {column["name"] for column in inspect(engine).get_columns("posts")}:
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE posts ADD COLUMN scope VARCHAR NOT NULL DEFAULT 'general'"))
 
 
 app.mount("/files", StaticFiles(directory=UPLOAD_DIR), name="files")

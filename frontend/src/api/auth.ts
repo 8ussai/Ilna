@@ -1,4 +1,20 @@
-import { request } from './client'
+import { authRequest, request } from './client'
+
+export type Me = {
+  id: number
+  username: string
+  first_name: string
+  last_name: string
+  email: string
+  country: string
+  university: string
+  college: string
+  major: string
+}
+
+export function fetchMe() {
+  return authRequest<Me>('/auth/me')
+}
 
 export type RegisterPayload = {
   username: string
