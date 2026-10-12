@@ -18,3 +18,5 @@ sentence-transformers
 pymupdf
 unstructured
 python-pptx
+
+langchain-google-genai
