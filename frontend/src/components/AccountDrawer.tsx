@@ -2,19 +2,22 @@ import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Me } from '../api/auth'
+import { CountBadge } from './CountBadge'
 import { secondaryButton } from './styles'
 import { UserAvatar } from './UserAvatar'
 
 type AccountDrawerProps = {
   open: boolean
   me: Me | null
+  // shown on the Settings button, since that's the way to the notifications
+  unreadCount: number
   onClose: () => void
   onOpenSettings: () => void
   onLogout: () => void
 }
 
 // Slides in from the inline-end side (right in English, left in Arabic).
-export function AccountDrawer({ open, me, onClose, onOpenSettings, onLogout }: AccountDrawerProps) {
+export function AccountDrawer({ open, me, unreadCount, onClose, onOpenSettings, onLogout }: AccountDrawerProps) {
   const { t } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -83,6 +86,8 @@ export function AccountDrawer({ open, me, onClose, onOpenSettings, onLogout }: A
               <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
             </svg>
             {t('account.settings')}
+            {unreadCount > 0 && <span className="sr-only">, {t('settings.notifications.unreadCount', { count: unreadCount })}</span>}
+            <CountBadge count={unreadCount} />
           </button>
           <button type="button" onClick={onLogout} className={`${secondaryButton} text-danger`}>
             {t('account.logout')}

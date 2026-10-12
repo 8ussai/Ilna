@@ -129,6 +129,22 @@
       "email": "Email",
       "created": "Member since"
     },
+    "notifications": {
+      "title": "Notifications",
+      "summary": "Votes and replies on your posts",
+      "description": "Votes and replies on your posts and replies, newest first.",
+      "postUpvote": "{{name}} upvoted your post",
+      "postDownvote": "{{name}} downvoted your post",
+      "replyUpvote": "{{name}} upvoted your reply",
+      "replyDownvote": "{{name}} downvoted your reply",
+      "postReply": "{{name}} replied to your post",
+      "replyReply": "{{name}} replied to your reply",
+      "unread": "Unread",
+      "unreadCount_one": "{{count}} unread notification",
+      "unreadCount_other": "{{count}} unread notifications",
+      "empty": "No notifications yet. When someone votes on or replies to your posts, it shows up here.",
+      "loadFailed": "Couldn't load your notifications."
+    },
     "password": {
       "title": "Change password",
       "current": "Current password",

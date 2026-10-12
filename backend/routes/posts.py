@@ -7,6 +7,7 @@ from backend.database import get_db
 from backend.models.user import User
 from backend.models.post import Post, PostVote, Reply
 from backend.core.apiDependencies import get_current_user
+from backend.services.notifications import NotificationType, sync_vote_notification
 from backend.services.votes import check_vote_dir, toggle_vote
 
 
@@ -215,6 +216,10 @@ def vote_post(
     message, my_vote = toggle_vote(
         db, existing_vote, vote_dir,
         lambda: PostVote(post_id=post_id, user_id=current_user.id, vote_dir=vote_dir),
+    )
+    sync_vote_notification(
+        db, owner_id=post.user_id, actor_id=current_user.id, type=NotificationType.post_vote,
+        post_id=post_id, reply_id=None, vote_dir=my_vote,
     )
     db.commit()
 

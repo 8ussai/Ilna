@@ -9,10 +9,12 @@ import type { PostScope } from '../api/posts'
 import { catalogNames } from '../catalog'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { BlogFeed } from '../components/BlogFeed'
+import { CountBadge } from '../components/CountBadge'
 import { Header } from '../components/Header'
 import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
+import { useUnreadCount } from '../hooks/useUnreadCount'
 import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { Route } from '../tabs'
 import { PostPage } from './PostPage'
@@ -26,6 +28,13 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const accountButtonRef = useRef<HTMLButtonElement>(null)
+  const { count: unreadCount, setCount: setUnreadCount } = useUnreadCount()
+
+  // stable, since the notifications page reloads whenever this changes
+  const onMarkedRead = useCallback(
+    (count: number) => setUnreadCount((current) => Math.max(0, current - count)),
+    [setUnreadCount],
+  )
 
   const loadMe = useCallback(() => {
     fetchMe()
@@ -101,6 +110,8 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           onNavigate={(page) => navigate({ kind: 'settings', page })}
           onPasswordChanged={onPasswordChanged}
           onOpenPost={(postId, replyId) => navigate({ kind: 'post', postId, replyId })}
+          unreadCount={unreadCount}
+          onMarkedRead={onMarkedRead}
         />
       )
     }
@@ -129,11 +140,16 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
             ref={accountButtonRef}
             type="button"
             onClick={() => setDrawerOpen(true)}
-            aria-label={t('account.open')}
+            aria-label={
+              unreadCount > 0
+                ? `${t('account.open')}, ${t('settings.notifications.unreadCount', { count: unreadCount })}`
+                : t('account.open')
+            }
             aria-expanded={drawerOpen}
             title={t('account.open')}
-            className={`grid size-9 place-items-center rounded-full hover:opacity-90 ${me ? '' : 'bg-accent text-accent-fg'}`}
+            className={`relative grid size-9 place-items-center rounded-full hover:opacity-90 ${me ? '' : 'bg-accent text-accent-fg'}`}
           >
+            <CountBadge count={unreadCount} className="absolute -end-1.5 -top-1.5 z-10 ring-2 ring-bg" />
             {me ? (
               <UserAvatar username={me.username} size={36} />
             ) : (
@@ -149,7 +165,14 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-8 sm:px-8">{renderContent()}</main>
 
-      <AccountDrawer open={drawerOpen} me={me} onClose={closeDrawer} onOpenSettings={openSettings} onLogout={onLogout} />
+      <AccountDrawer
+        open={drawerOpen}
+        me={me}
+        unreadCount={unreadCount}
+        onClose={closeDrawer}
+        onOpenSettings={openSettings}
+        onLogout={onLogout}
+      />
     </div>
   )
 }

@@ -1,4 +1,5 @@
 from enum import Enum
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 from pydantic import Field, field_validator
@@ -83,6 +84,31 @@ class ActivityItem(BaseModel):
     # cut to ACTIVITY_PREVIEW_CHARS; the full text is on the post page
     content: str
     created_at: datetime
+
+
+class NotificationOut(BaseModel):
+    id: int
+    # post_vote, reply_vote, post_reply or reply_reply
+    type: str
+    # 1 or -1 for votes, null for replies
+    vote_dir: Optional[int]
+    actor: PostAuthor
+    post_id: int
+    # the reply to open and highlight, if any
+    reply_id: Optional[int]
+    # the start of the reply (or of the post for post votes), cut to NOTIFICATION_PREVIEW_CHARS
+    preview: str
+    is_read: bool
+    created_at: datetime
+
+
+class UnreadCount(BaseModel):
+    count: int
+
+
+class MarkRead(BaseModel):
+    # leave empty to mark all of the user's notifications read
+    ids: Optional[list[int]] = None
 
 
 class PostVoteAction(BaseModel):

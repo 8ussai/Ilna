@@ -2,7 +2,7 @@ export const TABS = ['general', 'university', 'college', 'major', 'my-courses'] 
 export type Tab = (typeof TABS)[number]
 
 // 'home' is the settings menu itself (/settings); the rest are its sub-pages (/settings/<page>)
-export const SETTINGS_PAGES = ['home', 'account', 'storage', 'activity', 'policy'] as const
+export const SETTINGS_PAGES = ['home', 'account', 'notifications', 'activity', 'storage', 'policy'] as const
 export type SettingsPage = (typeof SETTINGS_PAGES)[number]
 
 export type Route =

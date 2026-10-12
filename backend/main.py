@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from backend.database import engine, Base
-from backend.models import user, post, course
+from backend.models import user, post, course, notification
 from backend.routes import auth, me, posts, replies, courses, meta
 
 from backend.backendConfig import UPLOAD_DIR 

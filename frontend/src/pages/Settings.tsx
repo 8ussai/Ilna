@@ -9,12 +9,14 @@ import type { Catalog } from '../api/meta'
 import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
+import { CountBadge } from '../components/CountBadge'
 import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
 import { settingsPath } from '../tabs'
 import { ActivityPage } from './ActivityPage'
+import { NotificationsPage } from './NotificationsPage'
 import type { SettingsPage } from '../tabs'
 
 type SettingsProps = {
@@ -24,6 +26,9 @@ type SettingsProps = {
   onNavigate: (page: SettingsPage) => void
   onPasswordChanged: () => void
   onOpenPost: (postId: number, replyId: number | null) => void
+  unreadCount: number
+  // must be stable (useCallback): the notifications page reloads when it changes
+  onMarkedRead: (count: number) => void
 }
 
 const chevron = (
@@ -40,18 +45,22 @@ function PageLink({ page, onNavigate, className, children }: { page: SettingsPag
   )
 }
 
-export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost }: SettingsProps) {
+export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost, unreadCount, onMarkedRead }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
-    const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode) => (
+    const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode, badge = 0) => (
       <li>
         <PageLink page={target} onNavigate={onNavigate} className="flex items-center gap-4 px-5 py-4 hover:bg-surface">
           {icon}
           <span className="min-w-0 flex-1">
-            <span className="block font-medium">{t(`settings.${target}.title`)}</span>
+            <span className="block font-medium">
+              {t(`settings.${target}.title`)}
+              {badge > 0 && <span className="sr-only">, {t('settings.notifications.unreadCount', { count: badge })}</span>}
+            </span>
             <span className="block text-sm text-muted">{t(`settings.${target}.summary`)}</span>
           </span>
+          <CountBadge count={badge} />
           {chevron}
         </PageLink>
       </li>
@@ -63,16 +72,23 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
         <ul className="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
           {row('account', <UserAvatar username={me.username} size={40} />)}
           {row(
-            'storage',
+            'notifications',
             <RowIcon>
-              <ellipse cx="12" cy="5" rx="8" ry="3" />
-              <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
+              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />
             </RowIcon>,
+            unreadCount,
           )}
           {row(
             'activity',
             <RowIcon>
               <path d="M3 12h4l3-8 4 16 3-8h4" />
+            </RowIcon>,
+          )}
+          {row(
+            'storage',
+            <RowIcon>
+              <ellipse cx="12" cy="5" rx="8" ry="3" />
+              <path d="M4 5v14c0 1.7 3.6 3 8 3s8-1.3 8-3V5M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" />
             </RowIcon>,
           )}
           {row(
@@ -96,8 +112,9 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
         {t('settings.title')}
       </PageLink>
       {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
-      {page === 'storage' && <StoragePage />}
+      {page === 'notifications' && <NotificationsPage onOpenPost={onOpenPost} onMarkedRead={onMarkedRead} />}
       {page === 'activity' && <ActivityPage me={me} catalog={catalog} onOpenPost={onOpenPost} />}
+      {page === 'storage' && <StoragePage />}
       {page === 'policy' && <PolicyPage />}
     </>
   )

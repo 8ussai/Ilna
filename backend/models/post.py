@@ -26,6 +26,7 @@ class Post(Base):
     author = relationship("User", back_populates="posts")
     votes = relationship("PostVote", back_populates="post", cascade="all, delete-orphan")
     replies = relationship("Reply", back_populates="post", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="post", cascade="all, delete-orphan")
 
 
 class PostVote(Base):
@@ -62,6 +63,7 @@ class Reply(Base):
     children = relationship("Reply", back_populates="parent")
     author = relationship("User")
     votes = relationship("ReplyVote", back_populates="reply", cascade="all, delete-orphan")
+    notifications = relationship("Notification", back_populates="reply", cascade="all, delete-orphan")
 
 
 class ReplyVote(Base):
