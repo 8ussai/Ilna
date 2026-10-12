@@ -146,10 +146,24 @@
       "full": "Your storage is full. You can't upload more files.",
       "loadFailed": "Couldn't load your storage."
     },
+    "activity": {
+      "title": "Activity",
+      "summary": "Your posts and replies",
+      "description": "Everything you have posted or replied, newest first.",
+      "posted": "You posted in {{blog}}",
+      "replied": "You replied in {{blog}}",
+      "empty": "You haven't posted or replied yet.",
+      "loadFailed": "Couldn't load your activity."
+    },
     "policy": {
       "title": "Policy",
       "summary": "Community rules, privacy and your files"
     }
+  },
+  "post": {
+    "loadFailed": "Couldn't load this post.",
+    "unavailable": "This post isn't available. It may have been deleted.",
+    "deleted": "The post was deleted."
   },
   "notices": {
     "passwordChanged": "Your password was changed. Log in with your new password."

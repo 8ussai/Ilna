@@ -63,6 +63,23 @@ def _scope_filter(query, scope: PostScope, user: User):
     return query
 
 
+def _posts_with_counts(db: Session, user: User):
+    """Posts with their score, the user's vote and reply count; returns the column expressions too for sorting.
+    Add .group_by(Post.id) after filtering."""
+    votes_count = func.coalesce(func.sum(PostVote.vote_dir), 0)
+    my_vote = func.coalesce(func.sum(case((PostVote.user_id == user.id, PostVote.vote_dir), else_=0)), 0)
+    replies_count = _replies_count_subquery()
+
+    query = db.query(
+        Post,
+        votes_count.label('votes_count'),
+        my_vote.label('my_vote'),
+        replies_count.label('replies_count'),
+    ).outerjoin(PostVote, Post.id == PostVote.post_id).options(joinedload(Post.author))
+
+    return query, votes_count, replies_count
+
+
 @router.post("/", response_model=PostOut, status_code=status.HTTP_201_CREATED)
 def create_post(
     post_data: PostCreate,
@@ -94,17 +111,7 @@ def get_posts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    votes_count = func.coalesce(func.sum(PostVote.vote_dir), 0)
-    my_vote = func.coalesce(func.sum(case((PostVote.user_id == current_user.id, PostVote.vote_dir), else_=0)), 0)
-    replies_count = _replies_count_subquery()
-
-    query = db.query(
-        Post,
-        votes_count.label('votes_count'),
-        my_vote.label('my_vote'),
-        replies_count.label('replies_count'),
-    ).outerjoin(PostVote, Post.id == PostVote.post_id).options(joinedload(Post.author))
-
+    query, votes_count, replies_count = _posts_with_counts(db, current_user)
     query = _scope_filter(query, scope, current_user).group_by(Post.id)
 
     newest = (Post.created_at.desc(), Post.id.desc())
@@ -123,6 +130,30 @@ def get_posts(
     results = query.offset(offset).limit(limit).all()
 
     return [_map_to_post_out(post, votes, mine, replies) for post, votes, mine, replies in results]
+
+
+@router.get("/{post_id}", response_model=PostOut)
+def get_post(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    query, _, _ = _posts_with_counts(db, current_user)
+    result = query.filter(Post.id == post_id).group_by(Post.id).first()
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Post {post_id} not found.",
+        )
+
+    post, votes, mine, replies = result
+    if not can_see_post(post, current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This post is outside your blogs.",
+        )
+
+    return _map_to_post_out(post, votes, mine, replies)
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)

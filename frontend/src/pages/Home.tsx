@@ -13,8 +13,9 @@ import { Header } from '../components/Header'
 import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
-import { routeFromPath, routePath } from '../tabs'
+import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { Route } from '../tabs'
+import { PostPage } from './PostPage'
 import { Settings } from './Settings'
 
 export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; onPasswordChanged: () => void }) {
@@ -47,7 +48,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   useEffect(() => {
     const path = routePath(routeFromPath())
-    if (window.location.pathname !== path) window.history.replaceState(null, '', path)
+    if (currentPath() !== path) window.history.replaceState(null, '', path)
     const onPop = () => setRoute(routeFromPath())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
@@ -55,7 +56,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   function navigate(next: Route) {
     const path = routePath(next)
-    if (path !== window.location.pathname) window.history.pushState(null, '', path)
+    if (path !== currentPath()) window.history.pushState(null, '', path)
     setRoute(next)
     window.scrollTo({ top: 0 })
   }
@@ -99,8 +100,13 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           catalog={catalog}
           onNavigate={(page) => navigate({ kind: 'settings', page })}
           onPasswordChanged={onPasswordChanged}
+          onOpenPost={(postId, replyId) => navigate({ kind: 'post', postId, replyId })}
         />
       )
+    }
+
+    if (route.kind === 'post') {
+      return <PostPage key={route.postId} postId={route.postId} replyId={route.replyId} userId={me.id} />
     }
 
     // 'my-courses' returned above, so what's left is a blog scope

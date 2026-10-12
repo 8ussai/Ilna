@@ -23,6 +23,10 @@ export function fetchPosts(scope: PostScope, sort: PostSort, offset = 0) {
   return authRequest<Post[]>(`/posts/?${params}`)
 }
 
+export function fetchPost(id: number) {
+  return authRequest<Post>(`/posts/${id}`)
+}
+
 export function createPost(scope: PostScope, content: string) {
   return authRequest<Post>('/posts/', {
     method: 'POST',

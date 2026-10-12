@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import type { MouseEvent, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Me } from '../api/auth'
@@ -12,7 +12,9 @@ import { ChangePasswordForm } from '../components/ChangePasswordForm'
 import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
+import { inAppClick } from '../links'
 import { settingsPath } from '../tabs'
+import { ActivityPage } from './ActivityPage'
 import type { SettingsPage } from '../tabs'
 
 type SettingsProps = {
@@ -21,6 +23,7 @@ type SettingsProps = {
   catalog: Catalog | null
   onNavigate: (page: SettingsPage) => void
   onPasswordChanged: () => void
+  onOpenPost: (postId: number, replyId: number | null) => void
 }
 
 const chevron = (
@@ -29,21 +32,15 @@ const chevron = (
   </svg>
 )
 
-// a real link (so ctrl/cmd-click opens a new tab) that otherwise navigates in place
 function PageLink({ page, onNavigate, className, children }: { page: SettingsPage; onNavigate: (page: SettingsPage) => void; className: string; children: ReactNode }) {
-  function onClick(e: MouseEvent<HTMLAnchorElement>) {
-    if (e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return
-    e.preventDefault()
-    onNavigate(page)
-  }
   return (
-    <a href={settingsPath(page)} onClick={onClick} className={className}>
+    <a href={settingsPath(page)} onClick={inAppClick(() => onNavigate(page))} className={className}>
       {children}
     </a>
   )
 }
 
-export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: SettingsProps) {
+export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
@@ -73,6 +70,12 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
             </RowIcon>,
           )}
           {row(
+            'activity',
+            <RowIcon>
+              <path d="M3 12h4l3-8 4 16 3-8h4" />
+            </RowIcon>,
+          )}
+          {row(
             'policy',
             <RowIcon>
               <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
@@ -94,6 +97,7 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
       </PageLink>
       {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
       {page === 'storage' && <StoragePage />}
+      {page === 'activity' && <ActivityPage me={me} catalog={catalog} onOpenPost={onOpenPost} />}
       {page === 'policy' && <PolicyPage />}
     </>
   )

@@ -66,6 +66,25 @@ class PostOut(PostBase):
     model_config = {"from_attributes": True}
 
 
+class ActivityType(str, Enum):
+    post = "post"
+    reply = "reply"
+
+
+class ActivityItem(BaseModel):
+    """One of the user's own posts or replies, for their activity history."""
+    type: ActivityType
+    # the post's or the reply's id, depending on type
+    id: int
+    # the post to open (the post itself, or the one the reply is on)
+    post_id: int
+    # the blog the post is in
+    scope: PostScope
+    # cut to ACTIVITY_PREVIEW_CHARS; the full text is on the post page
+    content: str
+    created_at: datetime
+
+
 class PostVoteAction(BaseModel):
     vote_dir: int = Field(..., description="1 for upvote, -1 for downvote")
 

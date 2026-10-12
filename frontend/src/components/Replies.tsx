@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
@@ -16,6 +16,8 @@ const MAX_INDENT = 5
 
 type Actions = {
   userId: number
+  // the reply opened from a link (#reply-<id>), shown highlighted
+  highlightId: number | null
   childrenOf: Map<number | null, Reply[]>
   onReply: (parentId: number, content: string) => Promise<void>
   onVote: (reply: Reply, dir: 1 | -1) => Promise<void>
@@ -78,72 +80,76 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
     }
   }
 
+  const highlighted = reply.id === actions.highlightId
+
   return (
-    <li>
-      <div className="flex items-center gap-2 text-sm">
-        {author ? (
-          <>
-            <UserAvatar username={author.username} size={28} />
-            <span className="truncate font-medium">
-              {author.first_name} {author.last_name}
-            </span>
-            <span className="truncate text-muted">@{author.username}</span>
-          </>
+    <li id={`reply-${reply.id}`} className="scroll-mt-32">
+      <div className={highlighted ? '-mx-2 rounded-lg bg-accent/10 px-2 py-1.5 ring-1 ring-accent/40' : undefined}>
+        <div className="flex items-center gap-2 text-sm">
+          {author ? (
+            <>
+              <UserAvatar username={author.username} size={28} />
+              <span className="truncate font-medium">
+                {author.first_name} {author.last_name}
+              </span>
+              <span className="truncate text-muted">@{author.username}</span>
+            </>
+          ) : (
+            <span className="text-muted italic">{t('replies.deletedAuthor')}</span>
+          )}
+          <span aria-hidden="true" className="text-muted">
+            ·
+          </span>
+          <time dateTime={created.toISOString()} className="shrink-0 text-muted">
+            {formatDateTime(created, i18n.language)}
+          </time>
+        </div>
+
+        {reply.is_deleted ? (
+          <p className="mt-1.5 text-muted italic">{t('replies.deleted')}</p>
         ) : (
-          <span className="text-muted italic">{t('replies.deletedAuthor')}</span>
+          <p dir="auto" className="mt-1.5 whitespace-pre-wrap break-words">
+            {reply.content}
+          </p>
         )}
-        <span aria-hidden="true" className="text-muted">
-          ·
-        </span>
-        <time dateTime={created.toISOString()} className="shrink-0 text-muted">
-          {formatDateTime(created, i18n.language)}
-        </time>
-      </div>
 
-      {reply.is_deleted ? (
-        <p className="mt-1.5 text-muted italic">{t('replies.deleted')}</p>
-      ) : (
-        <p dir="auto" className="mt-1.5 whitespace-pre-wrap break-words">
-          {reply.content}
-        </p>
-      )}
-
-      <div className="-ms-1.5 mt-1 flex flex-wrap items-center gap-1">
-        {!reply.is_deleted && (
-          <>
-            <VoteButtons count={reply.votes_count} myVote={reply.my_vote} disabled={voting} onVote={vote} />
+        <div className="-ms-1.5 mt-1 flex flex-wrap items-center gap-1">
+          {!reply.is_deleted && (
+            <>
+              <VoteButtons count={reply.votes_count} myVote={reply.my_vote} disabled={voting} onVote={vote} />
+              <button
+                type="button"
+                onClick={() => setReplying((open) => !open)}
+                aria-expanded={replying}
+                className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
+              >
+                {t('replies.reply')}
+              </button>
+            </>
+          )}
+          {children.length > 0 && (
             <button
               type="button"
-              onClick={() => setReplying((open) => !open)}
-              aria-expanded={replying}
+              onClick={() => setCollapsed((c) => !c)}
+              aria-expanded={!collapsed}
               className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
             >
-              {t('replies.reply')}
+              {collapsed
+                ? t('replies.show', { count: countDescendants(reply.id, actions.childrenOf) })
+                : t('replies.hide')}
             </button>
-          </>
-        )}
-        {children.length > 0 && (
-          <button
-            type="button"
-            onClick={() => setCollapsed((c) => !c)}
-            aria-expanded={!collapsed}
-            className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
-          >
-            {collapsed
-              ? t('replies.show', { count: countDescendants(reply.id, actions.childrenOf) })
-              : t('replies.hide')}
-          </button>
-        )}
-        {!reply.is_deleted && reply.user_id === actions.userId && (
-          <DeleteButton question={t('replies.confirmDelete')} onConfirm={remove} />
+          )}
+          {!reply.is_deleted && reply.user_id === actions.userId && (
+            <DeleteButton question={t('replies.confirmDelete')} onConfirm={remove} />
+          )}
+        </div>
+
+        {error && (
+          <p role="alert" className="mt-1 text-sm text-danger">
+            {error}
+          </p>
         )}
       </div>
-
-      {error && (
-        <p role="alert" className="mt-1 text-sm text-danger">
-          {error}
-        </p>
-      )}
 
       {replying && (
         <div className="mt-2">
@@ -188,19 +194,29 @@ function ReplyList({ replies, depth, actions, className }: { replies: Reply[]; d
 type Status = 'loading' | 'ready' | 'error'
 
 // The thread under a post; onCountChange keeps the post's reply count in sync.
+// highlightId is a reply to scroll to and highlight once the thread loads.
 export function RepliesSection({
   postId,
   userId,
+  highlightId = null,
   onCountChange,
 }: {
   postId: number
   userId: number
+  highlightId?: number | null
   onCountChange: (delta: number) => void
 }) {
   const { t } = useTranslation()
   const [replies, setReplies] = useState<Reply[]>([])
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
+  const scrolledRef = useRef(false)
+
+  useEffect(() => {
+    if (status !== 'ready' || highlightId === null || scrolledRef.current) return
+    scrolledRef.current = true
+    document.getElementById(`reply-${highlightId}`)?.scrollIntoView({ block: 'center' })
+  }, [status, highlightId])
 
   useEffect(() => {
     let ignore = false
@@ -238,6 +254,7 @@ export function RepliesSection({
 
   const actions: Actions = {
     userId,
+    highlightId,
     childrenOf,
     onReply: add,
     async onVote(reply, dir) {

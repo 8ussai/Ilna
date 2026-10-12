@@ -14,16 +14,21 @@ export function PostCard({
   onDelete,
   onVote,
   onRepliesChange,
+  initialShowReplies = false,
+  highlightReplyId = null,
 }: {
   post: Post
   userId: number
+  // the single-post page opens the thread right away, optionally highlighting one reply
+  initialShowReplies?: boolean
+  highlightReplyId?: number | null
   onDelete: () => Promise<void>
   onVote: (dir: 1 | -1) => Promise<void>
   onRepliesChange: (delta: number) => void
 }) {
   const { t, i18n } = useTranslation()
   const [voting, setVoting] = useState(false)
-  const [showReplies, setShowReplies] = useState(false)
+  const [showReplies, setShowReplies] = useState(initialShowReplies)
   const [error, setError] = useState('')
 
   async function vote(dir: 1 | -1) {
@@ -94,7 +99,9 @@ export function PostCard({
         </p>
       )}
 
-      {showReplies && <RepliesSection postId={post.id} userId={userId} onCountChange={onRepliesChange} />}
+      {showReplies && (
+        <RepliesSection postId={post.id} userId={userId} highlightId={highlightReplyId} onCountChange={onRepliesChange} />
+      )}
     </article>
   )
 }
