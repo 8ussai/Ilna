@@ -60,3 +60,11 @@ export function markNotificationsRead(ids: number[]) {
     body: JSON.stringify({ ids }),
   })
 }
+
+export function sendContactMessage(subject: string, message: string) {
+  return authRequest<null>('/contact/', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ subject, message }),
+  })
+}

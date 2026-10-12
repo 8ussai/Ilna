@@ -16,6 +16,7 @@ import { formatDate, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
 import { settingsPath } from '../tabs'
 import { ActivityPage } from './ActivityPage'
+import { ContactPage } from './ContactPage'
 import { NotificationsPage } from './NotificationsPage'
 import type { SettingsPage } from '../tabs'
 
@@ -98,6 +99,13 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
               <path d="M14 3v5h5M9 13h6M9 17h6" />
             </RowIcon>,
           )}
+          {row(
+            'contact',
+            <RowIcon>
+              <rect x="3" y="5" width="18" height="14" rx="2" />
+              <path d="m3 7 9 6 9-6" />
+            </RowIcon>,
+          )}
         </ul>
       </>
     )
@@ -116,6 +124,7 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
       {page === 'activity' && <ActivityPage me={me} catalog={catalog} onOpenPost={onOpenPost} />}
       {page === 'storage' && <StoragePage />}
       {page === 'policy' && <PolicyPage />}
+      {page === 'contact' && <ContactPage email={me.email} />}
     </>
   )
 }

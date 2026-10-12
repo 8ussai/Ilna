@@ -6,8 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from backend.database import engine, Base
-from backend.models import user, post, course, notification
-from backend.routes import auth, me, posts, replies, courses, meta
+# imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
+from backend.models import user, post, course, notification, contact as contact_model
+from backend.routes import auth, contact, me, posts, replies, courses, meta
 
 from backend.backendConfig import UPLOAD_DIR 
 
@@ -55,6 +56,7 @@ app.include_router(meta.router, prefix="/meta", tags=["Meta"])
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
 app.include_router(replies.router, tags=["Replies"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
+app.include_router(contact.router, prefix="/contact", tags=["Contact"])
 
 
 @app.get("/health", tags=["Health"])
