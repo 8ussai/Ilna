@@ -1,8 +1,12 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-// Slides in from the inline-end side (right in English, left in Arabic). Content comes later.
-export function AccountDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
+import { secondaryButton } from './styles'
+
+type AccountDrawerProps = { open: boolean; onClose: () => void; onLogout: () => void }
+
+// Slides in from the inline-end side (right in English, left in Arabic). Settings come later.
+export function AccountDrawer({ open, onClose, onLogout }: AccountDrawerProps) {
   const { t } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -54,6 +58,11 @@ export function AccountDrawer({ open, onClose }: { open: boolean; onClose: () =>
           </button>
         </div>
         <div className="flex-1 overflow-y-auto p-5" />
+        <div className="border-t border-line p-5">
+          <button type="button" onClick={onLogout} className={`${secondaryButton} text-danger`}>
+            {t('account.logout')}
+          </button>
+        </div>
       </aside>
     </div>
   )

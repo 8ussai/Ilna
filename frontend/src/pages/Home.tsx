@@ -25,7 +25,7 @@ function scopeNames(catalog: Catalog | null, me: Me, lang: string) {
   return { university: name(university), college: name(college), major: name(major) }
 }
 
-export function Home() {
+export function Home({ onLogout }: { onLogout: () => void }) {
   const { t, i18n } = useTranslation()
   const [tab, setTab] = useState<Tab>(tabFromPath)
   const [me, setMe] = useState<Me | null>(null)
@@ -130,7 +130,7 @@ export function Home() {
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-8 sm:px-8">{renderContent()}</main>
 
-      <AccountDrawer open={drawerOpen} onClose={closeDrawer} />
+      <AccountDrawer open={drawerOpen} onClose={closeDrawer} onLogout={onLogout} />
     </div>
   )
 }

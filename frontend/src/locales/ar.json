@@ -87,7 +87,8 @@
   "account": {
     "open": "إعدادات الحساب",
     "title": "الحساب",
-    "close": "إغلاق"
+    "close": "إغلاق",
+    "logout": "تسجيل الخروج"
   },
   "footer": "© {{year}} Ilna"
 }

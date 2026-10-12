@@ -16,5 +16,5 @@ export default function App() {
   // set during render so child effects already send the token on their first request
   setAuth(token, token ? () => updateToken(null) : null)
 
-  return token ? <Home /> : <Landing onAuthenticated={updateToken} />
+  return token ? <Home onLogout={() => updateToken(null)} /> : <Landing onAuthenticated={updateToken} />
 }

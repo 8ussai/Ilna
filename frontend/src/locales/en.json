@@ -87,7 +87,8 @@
   "account": {
     "open": "Account settings",
     "title": "Account",
-    "close": "Close"
+    "close": "Close",
+    "logout": "Log out"
   },
   "footer": "© {{year}} Ilna"
 }
