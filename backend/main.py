@@ -10,7 +10,7 @@ from backend.backendConfig import UPLOAD_DIR
 
 
 app = FastAPI(
-    title="Elna API",
+    title="ilna API",
     description="Academic Platform API for managing courses, users, and authentication.",
     version="1.0.0",
 )

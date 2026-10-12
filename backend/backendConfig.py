@@ -2,7 +2,7 @@ from fastapi.security import OAuth2PasswordBearer
 import os
 
 
-SQLALCHEMY_DATABASE_URL = "sqlite:///./elna.db"
+SQLALCHEMY_DATABASE_URL = "sqlite:///./ilna.db"
 
 SECRET_KEY = "DEVELOPMENT_TEST_KEY" 
 ALGORITHM = "HS256"               
