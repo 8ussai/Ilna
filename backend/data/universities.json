@@ -613,14 +613,14 @@
               "name_ar": "الهندسة",
               "majors": [
                 {
-                  "id": "just-eng-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
+                  "id": "just-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
                 },
                 {
-                  "id": "just-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
+                  "id": "just-eng-bme",
+                  "name_en": "Biomedical Engineering",
+                  "name_ar": "الهندسة الطبية الحيوية"
                 },
                 {
                   "id": "just-eng-ee",
@@ -628,53 +628,59 @@
                   "name_ar": "الهندسة الكهربائية"
                 },
                 {
+                  "id": "just-eng-chem",
+                  "name_en": "Chemical Engineering",
+                  "name_ar": "الهندسة الكيميائية"
+                },
+                {
                   "id": "just-eng-civil",
                   "name_en": "Civil Engineering",
                   "name_ar": "الهندسة المدنية"
-                }
-              ]
-            },
-            {
-              "id": "just-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "just-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
                 },
                 {
-                  "id": "just-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
+                  "id": "just-eng-mech",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
                 },
                 {
-                  "id": "just-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                }
-              ]
-            },
-            {
-              "id": "just-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "just-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
+                  "id": "just-eng-nuc",
+                  "name_en": "Nuclear Engineering",
+                  "name_ar": "الهندسة النووية"
                 },
                 {
-                  "id": "just-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
+                  "id": "just-eng-set",
+                  "name_en": "Smart Electrical Systems Technology",
+                  "name_ar": "تكنولوجيا الأنظمة الكهربائية الذكية"
                 },
                 {
-                  "id": "just-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
+                  "id": "just-eng-hect",
+                  "name_en": "Hybrid and Electric Car Technology",
+                  "name_ar": "تكنولوجيا السيارات الهجينة والكهربائية"
+                },
+                {
+                  "id": "just-eng-drone",
+                  "name_en": "Drone Technology",
+                  "name_ar": "تكنولوجيا الطائرات المسيرة"
+                },
+                {
+                  "id": "just-eng-aircraft",
+                  "name_en": "Aircraft Maintenance Technology",
+                  "name_ar": "تكنولوجيا صيانة الطائرات"
+                },
+                {
+                  "id": "just-eng-semicon",
+                  "name_en": "Semiconductor Engineering",
+                  "name_ar": "هندسة أشباه الموصلات"
+                },
+                {
+                  "id": "just-eng-aero",
+                  "name_en": "Aviation Engineering",
+                  "name_ar": "هندسة الطيران"
+                },
+                {
+                  "id": "just-eng-pdde",
+                  "name_en": "Product Design and Development Engineering",
+                  "name_ar": "هندسة تصميم وتطوير المنتج"
                 }
               ]
             },
@@ -686,17 +692,380 @@
                 {
                   "id": "just-med-med",
                   "name_en": "Medicine",
-                  "name_ar": "الطب البشري"
+                  "name_ar": "دتور في الطب "
                 },
                 {
-                  "id": "just-med-pharm",
+                  "id": "just-med-hap",
+                  "name_en": "Health Administration and Policy",
+                  "name_ar": "الإدارة والسياسات الصحية"
+                }
+              ]
+            },
+            {
+              "id": "just-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "just-dent-dent",
+                  "name_en": "Dentistry",
+                  "name_ar": "دكتور في طب الأسنان"
+                }
+              ]
+            },
+            {
+              "id": "just-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "just-pharm-dpharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "دكتور في الصيدلة"
+                },
+                {
+                  "id": "just-pharm-pharm",
                   "name_en": "Pharmacy",
                   "name_ar": "الصيدلة"
                 },
                 {
-                  "id": "just-med-nurs",
+                  "id": "just-pharm-bp",
+                  "name_en": "Biopharmaceutical Manufacturing",
+                  "name_ar": "التصنيع الدوائي والبيولوجي"
+                },
+                {
+                  "id": "just-pharm-acs",
+                  "name_en": "Applied Cosmetic Science",
+                  "name_ar": "علم التجميل التطبيقي"
+                }
+              ]
+            },
+            {
+              "id": "just-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "just-nurs-nurs",
                   "name_en": "Nursing",
                   "name_ar": "التمريض"
+                },
+                {
+                  "id": "just-nurs-pn",
+                  "name_en": "Pediatric Nursing",
+                  "name_ar": "القبالة"
+                }
+              ]
+            },
+            {
+              "id": "just-agri",
+              "name_en": "Agriculture",
+              "name_ar": "الزراعة",
+              "majors": [
+                {
+                  "id": "just-agri-ap",
+                  "name_en": "Animal Production",
+                  "name_ar": "الإنتاج الحيواني"
+                },
+                {
+                  "id": "just-agri-pp",
+                  "name_en": "Plant Production",
+                  "name_ar": "الإنتاج النباتي"
+                },
+                {
+                  "id": "just-agri-si",
+                  "name_en": "Soil and Irrigation",
+                  "name_ar": "التربة والري"
+                },
+                {
+                  "id": "just-agri-cln",
+                  "name_en": "Clinical Nutrition",
+                  "name_ar": "التغذية السريرية"
+                },
+                {
+                  "id": "just-agri-nft",
+                  "name_en": "Nutrition and Food Technology",
+                  "name_ar": "التغذية وتكنولوجيا الغذاء"
+                },
+                {
+                  "id": "just-agri-dagr",
+                  "name_en": "Digital Agriculture",
+                  "name_ar": "الزراعة الرقمية"
+                },
+                {
+                  "id": "just-agri-asc",
+                  "name_en": "Animal Technology and Science",
+                  "name_ar": "تكنولوجيا وعلوم الحيوان"
+                },
+                {
+                  "id": "just-agri-psc",
+                  "name_en": "Plant Technology and Science",
+                  "name_ar": "تكنولوجيا وعلوم النبات"
+                }
+              ]
+            },
+            {
+              "id": "just-vet",
+              "name_en": "Veterinary Medicine",
+              "name_ar": "الطب البيطري",
+              "majors": [
+                {
+                  "id": "just-vet-dvet",
+                  "name_en": "Veterinary Medicine",
+                  "name_ar": "دكتور في الطب البيطري"
+                },
+                {
+                  "id": "just-vet-vn",
+                  "name_en": "Veterinary Nursing",
+                  "name_ar": "التمريض والرعاية البيطرية"
+                }
+              ]
+            },
+            {
+              "id": "just-scil",
+              "name_en": "Sciences and Literatures",
+              "name_ar": "العلوم والاداب",
+              "majors": [
+                {
+                  "id": "just-scil-bge",
+                  "name_en": "Biotechnology and Genetic Engineering",
+                  "name_ar": "التقانات الحيوية والهندسة الوراثية"
+                },
+                {
+                  "id": "just-scil-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "just-scil-appmath",
+                  "name_en": "Applied Mathematics and Statistics",
+                  "name_ar": "الرياضيات التطبيقية والإحصاء"
+                },
+                {
+                  "id": "just-scil-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "just-scil-appphys",
+                  "name_en": "Applied Physics",
+                  "name_ar": "الفيزياء التطبيقية"
+                },
+                {
+                  "id": "just-scil-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                },
+                {
+                  "id": "just-scil-appchem",
+                  "name_en": "Applied Chemistry",
+                  "name_ar": "الكيمياء التطبيقية"
+                },
+                {
+                  "id": "just-scil-engl",
+                  "name_en": "English Language and Linguistics",
+                  "name_ar": "اللغة الإنجليزية واللغويات"
+                },
+                {
+                  "id": "just-scil-appengl",
+                  "name_en": "Applied English Language and Linguistics",
+                  "name_ar": "اللغة الانجليزية واللغويات التطبيقية"
+                }
+              ]
+            },
+            {
+              "id": "just-cit",
+              "name_en": "Computer and Information Technology",
+              "name_ar": "تكنولوجيا الحاسوب والمعلومات",
+              "majors": [
+                {
+                  "id": "just-cit-iot",
+                  "name_en": "Internet of Things",
+                  "name_ar": "إنترنت الأشياء"
+                },
+                {
+                  "id": "just-cit-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "just-cit-cc",
+                  "name_en": "Cloud Computing",
+                  "name_ar": "الحوسبة السحابية"
+                },
+                {
+                  "id": "just-cit-qc",
+                  "name_en": "Quantum Computing",
+                  "name_ar": "الحوسبة الكمية"
+                },
+                {
+                  "id": "just-cit-ai",
+                  "name_en": "Artificial Intelligence",
+                  "name_ar": "الذكاء الاصطناعي"
+                },
+                {
+                  "id": "just-cit-vr",
+                  "name_en": "Virtual Reality and Simulation Technology",
+                  "name_ar": "الواقع الافتراضي وتكنولوجيا المحاكاة"
+                },
+                {
+                  "id": "just-cit-gdev",
+                  "name_en": "Computer Games Design and Development",
+                  "name_ar": "تصميم وتطوير ألعاب الحاسوب"
+                },
+                {
+                  "id": "just-cit-ds",
+                  "name_en": "Data Science",
+                  "name_ar": "علم البيانات"
+                },
+                {
+                  "id": "just-cit-rob",
+                  "name_en": "Robotics Science",
+                  "name_ar": "علم الروبوتات"
+                },
+                {
+                  "id": "just-cit-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علوم الحاسوب"
+                },
+                {
+                  "id": "just-cit-cis",
+                  "name_en": "Computer Information Systems",
+                  "name_ar": "نظم المعلومات الحاسوبية"
+                },
+                {
+                  "id": "just-cit-his",
+                  "name_en": "Health Information Systems",
+                  "name_ar": "نظم المعلومات الصحية"
+                },
+                {
+                  "id": "just-cit-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
+                },
+                {
+                  "id": "just-cit-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "just-cit-cns",
+                  "name_en": "Computer Networks and Security Engineering",
+                  "name_ar": "هندسة وأمن شبكات الحاسوب"
+                }
+              ] 
+            },
+            {
+              "id": "just-ams",
+              "name_en": "Applied Medical Sciences",
+              "name_ar": "العلوم الطبية التطبيقية",
+              "majors": [
+                {
+                  "id": "just-ams-em",
+                  "name_en": "Paramedics and Emergency",
+                  "name_ar": "الإسعاف والطوارئ"
+                },
+                {
+                  "id": "just-ams-opt",
+                  "name_en": "Optometry",
+                  "name_ar": "البصريات"
+                },
+                {
+                  "id": "just-ams-rdtech",
+                  "name_en": "Digital Dental Technology",
+                  "name_ar": "التكنولوجيا الرقمية في صناعة الأسنان"
+                },
+                {
+                  "id": "just-ams-sls",
+                  "name_en": "Speech and Language Science",
+                  "name_ar": "السمع والنطق"
+                },
+                {
+                  "id": "just-ams-rt",
+                  "name_en": "Respiratory Therapy",
+                  "name_ar": "العلاج التنفسي"
+                },
+                {
+                  "id": "just-ams-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "just-ams-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "just-ams-mls",
+                  "name_en": "Medical Laboratory Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                },
+                {
+                  "id": "just-ams-rad",
+                  "name_en": "Radiologic Technology",
+                  "name_ar": "تكنولوجيا الأشعة"
+                },
+                {
+                  "id": "just-ams-anes",
+                  "name_en": "Anesthesia Technology",
+                  "name_ar": "تكنولوجيا التخدير"
+                },
+                {
+                  "id": "just-ams-dt",
+                  "name_en": "Dental Technology",
+                  "name_ar": "تكنولوجيا صناعة الأسنان"
+                },
+                {
+                  "id": "just-ams-cpsych",
+                  "name_en": "Clinical Psychology",
+                  "name_ar": "علم النفس السريري"
+                },
+                {
+                  "id": "just-ams-dhs",
+                  "name_en": "Dental Hygiene Sciences",
+                  "name_ar": "علوم طب الأسنان المساندة"
+                },
+                {
+                  "id": "just-ams-dh",
+                  "name_en": "Dental Hygiene and Oral Health",
+                  "name_ar": "فني صحة الفم والأسنان"
+                }
+              ]
+            },
+            {
+              "id": "just-ad",
+              "name_en": "Architecture and Design",
+              "name_ar": "العمارة والتصميم",
+              "majors": [
+                {
+                  "id": "just-ad-vc",
+                  "name_en": "Visual Communication and Design",
+                  "name_ar": "التصميم والتواصل البصري"
+                },
+                {
+                  "id": "just-ad-arch",
+                  "name_en": "Architecture",
+                  "name_ar": "العمارة"
+                },
+                {
+                  "id": "just-ad-upd",
+                  "name_en": "Urban Planning and Design",
+                  "name_ar": "تخطيط وتصميم المدن"
+                },
+                {
+                  "id": "just-ad-ani",
+                  "name_en": "Animation and Games Design",
+                  "name_ar": "تصميم الرسوم المتحركة والألعاب"
+                },
+                {
+                  "id": "just-ad-fm",
+                  "name_en": "Film and Multimedia Technology",
+                  "name_ar": "تكنولوجيا الأفلام و الوسائط المتعددة"
+                },
+                {
+                  "id": "just-ad-envp",
+                  "name_en": "Urban and Environmental Planning Engineering",
+                  "name_ar": "هندسة التخطيط الحضري والبيئي"
                 }
               ]
             }
@@ -796,215 +1165,6 @@
                 },
                 {
                   "id": "yu-med-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "التمريض"
-                }
-              ]
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "saudi_arabia",
-      "name_en": "Saudi Arabia",
-      "name_ar": "المملكة العربية السعودية",
-      "universities": [
-        {
-          "id": "ksu",
-          "name_en": "King Saud University",
-          "name_ar": "جامعة الملك سعود",
-          "domain": "ksu.edu.sa",
-          "colleges": [
-            {
-              "id": "ksu-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
-              "majors": [
-                {
-                  "id": "ksu-eng-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
-                },
-                {
-                  "id": "ksu-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "ksu-eng-ee",
-                  "name_en": "Electrical Engineering",
-                  "name_ar": "الهندسة الكهربائية"
-                },
-                {
-                  "id": "ksu-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                }
-              ]
-            },
-            {
-              "id": "ksu-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "ksu-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "ksu-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
-                },
-                {
-                  "id": "ksu-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                }
-              ]
-            },
-            {
-              "id": "ksu-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "ksu-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "ksu-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "ksu-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                }
-              ]
-            },
-            {
-              "id": "ksu-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
-              "majors": [
-                {
-                  "id": "ksu-med-med",
-                  "name_en": "Medicine",
-                  "name_ar": "الطب البشري"
-                },
-                {
-                  "id": "ksu-med-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
-                },
-                {
-                  "id": "ksu-med-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "التمريض"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "kau",
-          "name_en": "King Abdulaziz University",
-          "name_ar": "جامعة الملك عبدالعزيز",
-          "domain": "kau.edu.sa",
-          "colleges": [
-            {
-              "id": "kau-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
-              "majors": [
-                {
-                  "id": "kau-eng-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
-                },
-                {
-                  "id": "kau-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "kau-eng-ee",
-                  "name_en": "Electrical Engineering",
-                  "name_ar": "الهندسة الكهربائية"
-                },
-                {
-                  "id": "kau-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                }
-              ]
-            },
-            {
-              "id": "kau-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "kau-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "kau-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
-                },
-                {
-                  "id": "kau-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                }
-              ]
-            },
-            {
-              "id": "kau-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "kau-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "kau-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "kau-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                }
-              ]
-            },
-            {
-              "id": "kau-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
-              "majors": [
-                {
-                  "id": "kau-med-med",
-                  "name_en": "Medicine",
-                  "name_ar": "الطب البشري"
-                },
-                {
-                  "id": "kau-med-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
-                },
-                {
-                  "id": "kau-med-nurs",
                   "name_en": "Nursing",
                   "name_ar": "التمريض"
                 }
