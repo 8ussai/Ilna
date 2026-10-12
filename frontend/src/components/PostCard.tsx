@@ -5,6 +5,7 @@ import type { Post } from '../api/posts'
 import { formatDateTime, parseServerDate } from '../dates'
 import { DeleteButton } from './DeleteButton'
 import { RepliesSection } from './Replies'
+import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
 export function PostCard({
@@ -47,15 +48,12 @@ export function PostCard({
   }
 
   const { author } = post
-  const initials = `${author.first_name[0] ?? ''}${author.last_name[0] ?? ''}`.toUpperCase()
   const created = parseServerDate(post.created_at)
 
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">
       <header className="flex items-start gap-3">
-        <div aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-sm font-semibold">
-          {initials}
-        </div>
+        <UserAvatar username={author.username} size={40} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">
             {author.first_name} {author.last_name}

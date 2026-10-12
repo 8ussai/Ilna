@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import type { Me } from '../api/auth'
 import { secondaryButton } from './styles'
+import { UserAvatar } from './UserAvatar'
 
-type AccountDrawerProps = { open: boolean; onClose: () => void; onLogout: () => void }
+type AccountDrawerProps = { open: boolean; me: Me | null; onClose: () => void; onLogout: () => void }
 
 // Slides in from the inline-end side (right in English, left in Arabic). Settings come later.
-export function AccountDrawer({ open, onClose, onLogout }: AccountDrawerProps) {
+export function AccountDrawer({ open, me, onClose, onLogout }: AccountDrawerProps) {
   const { t } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -57,7 +59,17 @@ export function AccountDrawer({ open, onClose, onLogout }: AccountDrawerProps) {
             </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-5" />
+        <div className="flex-1 overflow-y-auto p-5">
+          {me && (
+            <div className="flex flex-col items-center text-center">
+              <UserAvatar username={me.username} size={96} />
+              <p className="mt-3 text-lg font-semibold">
+                {me.first_name} {me.last_name}
+              </p>
+              <p className="text-sm text-muted">@{me.username}</p>
+            </div>
+          )}
+        </div>
         <div className="border-t border-line p-5">
           <button type="button" onClick={onLogout} className={`${secondaryButton} text-danger`}>
             {t('account.logout')}

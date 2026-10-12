@@ -10,7 +10,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@blobatar/react": "^2.7.0",
     "@tailwindcss/vite": "^4.3.3",
+    "blobatar": "^2.7.0",
     "i18next": "^26.4.4",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

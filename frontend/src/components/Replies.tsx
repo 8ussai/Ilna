@@ -8,6 +8,7 @@ import { formatDateTime, parseServerDate } from '../dates'
 import { applyVote } from '../votes'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
+import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
 // deeper replies stop indenting so threads stay readable on phones
@@ -82,9 +83,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
       <div className="flex items-center gap-2 text-sm">
         {author ? (
           <>
-            <span aria-hidden="true" className="grid size-7 shrink-0 place-items-center rounded-full bg-surface text-xs font-semibold">
-              {`${author.first_name[0] ?? ''}${author.last_name[0] ?? ''}`.toUpperCase()}
-            </span>
+            <UserAvatar username={author.username} size={28} />
             <span className="truncate font-medium">
               {author.first_name} {author.last_name}
             </span>

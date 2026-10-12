@@ -11,6 +11,7 @@ import { BlogFeed } from '../components/BlogFeed'
 import { Header } from '../components/Header'
 import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
+import { UserAvatar } from '../components/UserAvatar'
 import { tabFromPath, tabPath } from '../tabs'
 import type { Tab } from '../tabs'
 
@@ -72,8 +73,6 @@ export function Home({ onLogout }: { onLogout: () => void }) {
     accountButtonRef.current?.focus()
   }, [])
 
-  const initials = me ? `${me.first_name[0] ?? ''}${me.last_name[0] ?? ''}`.toUpperCase() : ''
-
   function renderContent() {
     // placeholder until the courses workspace is built
     if (tab === 'my-courses') return null
@@ -115,9 +114,11 @@ export function Home({ onLogout }: { onLogout: () => void }) {
             aria-label={t('account.open')}
             aria-expanded={drawerOpen}
             title={t('account.open')}
-            className="grid size-9 place-items-center rounded-full bg-accent text-sm font-semibold text-accent-fg hover:opacity-90"
+            className={`grid size-9 place-items-center rounded-full hover:opacity-90 ${me ? '' : 'bg-accent text-accent-fg'}`}
           >
-            {initials || (
+            {me ? (
+              <UserAvatar username={me.username} size={36} />
+            ) : (
               <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
                 <circle cx="12" cy="8" r="4" />
                 <path d="M4 21a8 8 0 0 1 16 0" />
@@ -130,7 +131,7 @@ export function Home({ onLogout }: { onLogout: () => void }) {
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-8 sm:px-8">{renderContent()}</main>
 
-      <AccountDrawer open={drawerOpen} onClose={closeDrawer} onLogout={onLogout} />
+      <AccountDrawer open={drawerOpen} me={me} onClose={closeDrawer} onLogout={onLogout} />
     </div>
   )
 }
