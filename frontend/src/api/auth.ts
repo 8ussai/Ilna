@@ -10,6 +10,7 @@ export type Me = {
   university: string
   college: string
   major: string
+  created_at: string
 }
 
 export function fetchMe() {

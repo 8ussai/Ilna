@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { TABS, tabPath } from '../tabs'
 import type { Tab } from '../tabs'
 
-export function TabBar({ active, onSelect }: { active: Tab; onSelect: (tab: Tab) => void }) {
+// active is null when the page isn't one of the tabs (e.g. settings)
+export function TabBar({ active, onSelect }: { active: Tab | null; onSelect: (tab: Tab) => void }) {
   const { t } = useTranslation()
 
   return (

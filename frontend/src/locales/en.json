@@ -114,7 +114,18 @@
     "open": "Account settings",
     "title": "Account",
     "close": "Close",
+    "settings": "Settings",
     "logout": "Log out"
+  },
+  "settings": {
+    "title": "Settings",
+    "account": {
+      "title": "Account",
+      "summary": "Your profile and studies",
+      "readOnly": "Account details can't be changed.",
+      "email": "Email",
+      "created": "Member since"
+    }
   },
   "footer": "© {{year}} Ilna"
 }

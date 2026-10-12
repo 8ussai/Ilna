@@ -4,31 +4,22 @@ import { useTranslation } from 'react-i18next'
 import { fetchMe } from '../api/auth'
 import type { Me } from '../api/auth'
 import { fetchCatalog } from '../api/meta'
-import type { Catalog, Named } from '../api/meta'
+import type { Catalog } from '../api/meta'
 import type { PostScope } from '../api/posts'
+import { catalogNames } from '../catalog'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { BlogFeed } from '../components/BlogFeed'
 import { Header } from '../components/Header'
 import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
-import { tabFromPath, tabPath } from '../tabs'
-import type { Tab } from '../tabs'
-
-// The user's university/college/major names from the catalog, in the current language.
-function scopeNames(catalog: Catalog | null, me: Me, lang: string) {
-  const name = (item?: Named) => (item ? (lang === 'ar' ? item.name_ar : item.name_en) : undefined)
-  const university = catalog?.countries
-    .find((c) => c.id === me.country)
-    ?.universities.find((u) => u.id === me.university)
-  const college = university?.colleges.find((c) => c.id === me.college)
-  const major = college?.majors.find((m) => m.id === me.major)
-  return { university: name(university), college: name(college), major: name(major) }
-}
+import { routeFromPath, routePath } from '../tabs'
+import type { Route } from '../tabs'
+import { Settings } from './Settings'
 
 export function Home({ onLogout }: { onLogout: () => void }) {
   const { t, i18n } = useTranslation()
-  const [tab, setTab] = useState<Tab>(tabFromPath)
+  const [route, setRoute] = useState<Route>(routeFromPath)
   const [me, setMe] = useState<Me | null>(null)
   const [meFailed, setMeFailed] = useState(false)
   const [catalog, setCatalog] = useState<Catalog | null>(null)
@@ -55,16 +46,17 @@ export function Home({ onLogout }: { onLogout: () => void }) {
   }, [loadMe])
 
   useEffect(() => {
-    const path = tabPath(tabFromPath())
+    const path = routePath(routeFromPath())
     if (window.location.pathname !== path) window.history.replaceState(null, '', path)
-    const onPop = () => setTab(tabFromPath())
+    const onPop = () => setRoute(routeFromPath())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
-  function selectTab(next: Tab) {
-    if (next !== tab) window.history.pushState(null, '', tabPath(next))
-    setTab(next)
+  function navigate(next: Route) {
+    const path = routePath(next)
+    if (path !== window.location.pathname) window.history.pushState(null, '', path)
+    setRoute(next)
     window.scrollTo({ top: 0 })
   }
 
@@ -73,7 +65,14 @@ export function Home({ onLogout }: { onLogout: () => void }) {
     accountButtonRef.current?.focus()
   }, [])
 
+  function openSettings() {
+    // close without returning focus to the avatar, since the page underneath is changing
+    setDrawerOpen(false)
+    navigate({ kind: 'settings', page: 'home' })
+  }
+
   function renderContent() {
+    const tab = route.kind === 'tab' ? route.tab : null
     // placeholder until the courses workspace is built
     if (tab === 'my-courses') return null
 
@@ -92,8 +91,13 @@ export function Home({ onLogout }: { onLogout: () => void }) {
       )
     }
 
-    const scope: PostScope = tab
-    const names = scopeNames(catalog, me, i18n.language)
+    if (route.kind === 'settings') {
+      return <Settings page={route.page} me={me} catalog={catalog} onNavigate={(page) => navigate({ kind: 'settings', page })} />
+    }
+
+    // 'my-courses' returned above, so what's left is a blog scope
+    const scope = tab as PostScope
+    const names = catalogNames(catalog, me, i18n.language)
     const title = scope === 'general' ? t('tabs.general') : (names[scope] ?? t(`tabs.${scope}`))
     return <BlogFeed key={scope} scope={scope} title={title} userId={me.id} />
   }
@@ -104,7 +108,7 @@ export function Home({ onLogout }: { onLogout: () => void }) {
         <Header
           onLogoClick={(e) => {
             e.preventDefault()
-            selectTab('general')
+            navigate({ kind: 'tab', tab: 'general' })
           }}
         >
           <button
@@ -126,12 +130,12 @@ export function Home({ onLogout }: { onLogout: () => void }) {
             )}
           </button>
         </Header>
-        <TabBar active={tab} onSelect={selectTab} />
+        <TabBar active={route.kind === 'tab' ? route.tab : null} onSelect={(tab) => navigate({ kind: 'tab', tab })} />
       </div>
 
       <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-8 sm:px-8">{renderContent()}</main>
 
-      <AccountDrawer open={drawerOpen} me={me} onClose={closeDrawer} onLogout={onLogout} />
+      <AccountDrawer open={drawerOpen} me={me} onClose={closeDrawer} onOpenSettings={openSettings} onLogout={onLogout} />
     </div>
   )
 }

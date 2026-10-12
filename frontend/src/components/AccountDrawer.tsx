@@ -5,10 +5,16 @@ import type { Me } from '../api/auth'
 import { secondaryButton } from './styles'
 import { UserAvatar } from './UserAvatar'
 
-type AccountDrawerProps = { open: boolean; me: Me | null; onClose: () => void; onLogout: () => void }
+type AccountDrawerProps = {
+  open: boolean
+  me: Me | null
+  onClose: () => void
+  onOpenSettings: () => void
+  onLogout: () => void
+}
 
-// Slides in from the inline-end side (right in English, left in Arabic). Settings come later.
-export function AccountDrawer({ open, me, onClose, onLogout }: AccountDrawerProps) {
+// Slides in from the inline-end side (right in English, left in Arabic).
+export function AccountDrawer({ open, me, onClose, onOpenSettings, onLogout }: AccountDrawerProps) {
   const { t } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
 
@@ -70,7 +76,14 @@ export function AccountDrawer({ open, me, onClose, onLogout }: AccountDrawerProp
             </div>
           )}
         </div>
-        <div className="border-t border-line p-5">
+        <div className="flex flex-col gap-3 border-t border-line p-5">
+          <button type="button" onClick={onOpenSettings} className={`${secondaryButton} inline-flex items-center justify-center gap-2`}>
+            <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="3" />
+              <path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z" />
+            </svg>
+            {t('account.settings')}
+          </button>
           <button type="button" onClick={onLogout} className={`${secondaryButton} text-danger`}>
             {t('account.logout')}
           </button>

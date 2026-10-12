@@ -18,8 +18,7 @@ class User(Base):
     university = Column(String, nullable=False)
     college = Column(String, nullable=False)
     major = Column(String, nullable=False)
-    
-    last_username_change = Column(DateTime(timezone=True), default=func.now())
+
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
