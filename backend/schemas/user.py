@@ -1,36 +1,7 @@
-from enum import Enum
-from pydantic import BaseModel, EmailStr, ConfigDict, field_validator
+from pydantic import BaseModel, EmailStr, ConfigDict, model_validator
 from datetime import datetime
 
-from backend.backendConfig import UNIVERSITY_EMAIL_DOMAINS_ALLOWLIST
-
-
-class Country(str, Enum):
-    jordan = "Jordan"
-    saudi_arabia = "Saudi Arabia"
-
-
-def is_university_email(email: str) -> bool:
-    domain = email.rsplit("@", 1)[-1].lower()
-
-    # allowlisted domain or one of its subdomains (e.g. std.example.com)
-    for allowed in UNIVERSITY_EMAIL_DOMAINS_ALLOWLIST:
-        if domain == allowed or domain.endswith("." + allowed):
-            return True
-
-    labels = domain.split(".")
-    if len(labels) < 2:
-        return False
-
-    # *.edu (e.g. mit.edu)
-    if labels[-1] == "edu":
-        return True
-
-    # *.edu.xx / *.ac.xx (e.g. ju.edu.jo, ksu.edu.sa, ox.ac.uk)
-    if len(labels) >= 3 and labels[-2] in ("edu", "ac") and len(labels[-1]) == 2:
-        return True
-
-    return False
+from backend.services.catalog import validate_selection, email_matches_domain
 
 
 class UserBase(BaseModel):
@@ -38,7 +9,8 @@ class UserBase(BaseModel):
     first_name: str
     last_name: str
     email: EmailStr
-    country: Country
+    # ids from the catalog (backend/data/universities.json)
+    country: str
     university: str
     college: str
     major: str
@@ -47,12 +19,14 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
-    @field_validator("email")
-    @classmethod
-    def email_must_be_university(cls, email: str) -> str:
-        if not is_university_email(email):
-            raise ValueError("Please register with your university email (e.g. name@ju.edu.jo).")
-        return email
+    @model_validator(mode="after")
+    def check_catalog_and_email(self):
+        university = validate_selection(self.country, self.university, self.college, self.major)
+
+        if not email_matches_domain(self.email, university["domain"]):
+            raise ValueError(f"Please register with your university email (e.g. name@{university['domain']}).")
+
+        return self
 
 
 class UserOut(UserBase):

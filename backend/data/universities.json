@@ -1,0 +1,523 @@
+{
+  "countries": [
+    {
+      "id": "jordan",
+      "name_en": "Jordan",
+      "name_ar": "الأردن",
+      "universities": [
+        {
+          "id": "ju",
+          "name_en": "University of Jordan",
+          "name_ar": "الجامعة الأردنية",
+          "domain": "ju.edu.jo",
+          "colleges": [
+            {
+              "id": "ju-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "ju-eng-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "ju-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "ju-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "ju-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            },
+            {
+              "id": "ju-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "ju-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "ju-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "ju-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                }
+              ]
+            },
+            {
+              "id": "ju-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "ju-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "ju-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "ju-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "ju-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "ju-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                },
+                {
+                  "id": "ju-med-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "ju-med-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "just",
+          "name_en": "Jordan University of Science and Technology",
+          "name_ar": "جامعة العلوم والتكنولوجيا الأردنية",
+          "domain": "just.edu.jo",
+          "colleges": [
+            {
+              "id": "just-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "just-eng-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "just-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "just-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "just-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            },
+            {
+              "id": "just-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "just-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "just-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "just-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                }
+              ]
+            },
+            {
+              "id": "just-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "just-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "just-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "just-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "just-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "just-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                },
+                {
+                  "id": "just-med-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "just-med-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "yu",
+          "name_en": "Yarmouk University",
+          "name_ar": "جامعة اليرموك",
+          "domain": "yu.edu.jo",
+          "colleges": [
+            {
+              "id": "yu-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "yu-eng-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "yu-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "yu-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "yu-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            },
+            {
+              "id": "yu-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "yu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "yu-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "yu-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                }
+              ]
+            },
+            {
+              "id": "yu-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "yu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "yu-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "yu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "yu-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "yu-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                },
+                {
+                  "id": "yu-med-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "yu-med-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "saudi_arabia",
+      "name_en": "Saudi Arabia",
+      "name_ar": "المملكة العربية السعودية",
+      "universities": [
+        {
+          "id": "ksu",
+          "name_en": "King Saud University",
+          "name_ar": "جامعة الملك سعود",
+          "domain": "ksu.edu.sa",
+          "colleges": [
+            {
+              "id": "ksu-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "ksu-eng-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "ksu-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "ksu-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "ksu-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            },
+            {
+              "id": "ksu-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "ksu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "ksu-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "ksu-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                }
+              ]
+            },
+            {
+              "id": "ksu-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "ksu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "ksu-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "ksu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "ksu-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "ksu-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                },
+                {
+                  "id": "ksu-med-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "ksu-med-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "kau",
+          "name_en": "King Abdulaziz University",
+          "name_ar": "جامعة الملك عبدالعزيز",
+          "domain": "kau.edu.sa",
+          "colleges": [
+            {
+              "id": "kau-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "kau-eng-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "kau-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "kau-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "kau-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            },
+            {
+              "id": "kau-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "kau-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "kau-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "kau-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                }
+              ]
+            },
+            {
+              "id": "kau-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "kau-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "kau-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "kau-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "kau-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "kau-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                },
+                {
+                  "id": "kau-med-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "kau-med-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

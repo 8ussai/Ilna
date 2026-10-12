@@ -1,0 +1,69 @@
+{
+  "header": {
+    "language": "Language",
+    "toLight": "Switch to light mode",
+    "toDark": "Switch to dark mode"
+  },
+  "intro": {
+    "title": "Your university life, in one place.",
+    "body": "Ilna brings your courses, study materials and campus community together. Upload your slides, practice with quizzes generated from them, and connect with students in your university, college and major.",
+    "workspaceTitle": "Study workspace",
+    "workspaceBody": "Keep your courses, notes, links, PDFs and PowerPoints organised in one place.",
+    "quizTitle": "AI quizzes",
+    "quizBody": "Turn your lecture slides into multiple-choice questions with explanations.",
+    "feedTitle": "Campus feed",
+    "feedBody": "Share and vote on posts within your university, college or major."
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Sign up",
+    "loginTitle": "Welcome back",
+    "signupTitle": "Create your account",
+    "identifier": "Email or username",
+    "password": "Password",
+    "passwordHint": "At least 8 characters.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "username": "Username",
+    "usernameHint": "3–30 letters, numbers, dots or underscores.",
+    "email": "University email",
+    "emailHint": "Use your university email, e.g. name@{{domain}}",
+    "emailHintGeneric": "Choose your university first to see the email domain.",
+    "country": "Country",
+    "university": "University",
+    "college": "College",
+    "major": "Major",
+    "select": "Select…",
+    "search": "Search…",
+    "noResults": "No results",
+    "next": "Next",
+    "back": "Back",
+    "submitLogin": "Log in",
+    "submitSignup": "Create account",
+    "working": "Please wait…",
+    "stepOf": "Step {{current}} of {{total}}",
+    "stepStudies": "Your studies",
+    "stepAccount": "Your account",
+    "loadingList": "Loading universities…",
+    "retry": "Try again"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "emailInvalid": "Enter a valid email address.",
+    "emailDomain": "Use your {{university}} email (name@{{domain}}).",
+    "usernameInvalid": "3–30 letters, numbers, dots or underscores.",
+    "passwordShort": "Password must be at least 8 characters.",
+    "emailTaken": "This email is already registered.",
+    "usernameTaken": "This username is already taken.",
+    "badLogin": "Email/username or password is incorrect.",
+    "network": "Can't reach the server. Check your connection and try again.",
+    "generic": "Something went wrong. Please try again.",
+    "listFailed": "Couldn't load the university list."
+  },
+  "home": {
+    "welcome": "You're signed in.",
+    "soon": "The rest of Ilna is coming soon.",
+    "logout": "Log out"
+  },
+  "footer": "© {{year}} Ilna"
+}

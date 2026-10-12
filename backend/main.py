@@ -4,7 +4,7 @@ from fastapi.staticfiles import StaticFiles
 
 from backend.database import engine, Base
 from backend.models import user, post, course
-from backend.routes import auth, posts, courses
+from backend.routes import auth, posts, courses, meta
 
 from backend.backendConfig import UPLOAD_DIR 
 
@@ -30,6 +30,7 @@ app.mount("/files", StaticFiles(directory=UPLOAD_DIR), name="files")
 
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
+app.include_router(meta.router, prefix="/meta", tags=["Meta"])
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
 

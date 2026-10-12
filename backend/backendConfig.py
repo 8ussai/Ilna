@@ -17,6 +17,3 @@ CHROMA_DB_DIR = "chroma_db"
 os.makedirs(CHROMA_DB_DIR, exist_ok=True)
 
 ALLOWED_EXTENSIONS = {"pdf", "ppt", "pptx"}
-
-# university domains that don't follow the *.edu / *.edu.xx / *.ac.xx pattern
-UNIVERSITY_EMAIL_DOMAINS_ALLOWLIST = set()
