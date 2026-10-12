@@ -1,18 +1,31 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import case, func
+from sqlalchemy import case, func, select
 
 from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
 from backend.database import get_db
 from backend.models.user import User
-from backend.models.post import Post, PostVote
+from backend.models.post import Post, PostVote, Reply
 from backend.core.apiDependencies import get_current_user
+from backend.services.votes import check_vote_dir, toggle_vote
 
 
 router = APIRouter()
 
+# in the hot ranking a reply counts as half an upvote
+HOT_REPLY_WEIGHT = 0.5
 
-def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0) -> PostOut:
+
+def _replies_count_subquery():
+    return (
+        select(func.count(Reply.id))
+        .where(Reply.post_id == Post.id, Reply.is_deleted.is_(False))
+        .correlate(Post)
+        .scalar_subquery()
+    )
+
+
+def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0, replies_count: int = 0) -> PostOut:
     return PostOut(
         id=post.id,
         user_id=post.user_id,
@@ -25,11 +38,12 @@ def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0) -> PostOut:
         updated_at=post.updated_at,
         votes_count=votes_count,
         my_vote=my_vote,
+        replies_count=replies_count,
         author=post.author,
     )
 
 
-def _can_see(post: Post, user: User) -> bool:
+def can_see_post(post: Post, user: User) -> bool:
     if post.scope == PostScope.general.value:
         return True
     return getattr(post, post.scope) == getattr(user, post.scope)
@@ -82,11 +96,13 @@ def get_posts(
 ):
     votes_count = func.coalesce(func.sum(PostVote.vote_dir), 0)
     my_vote = func.coalesce(func.sum(case((PostVote.user_id == current_user.id, PostVote.vote_dir), else_=0)), 0)
+    replies_count = _replies_count_subquery()
 
     query = db.query(
         Post,
         votes_count.label('votes_count'),
         my_vote.label('my_vote'),
+        replies_count.label('replies_count'),
     ).outerjoin(PostVote, Post.id == PostVote.post_id).options(joinedload(Post.author))
 
     query = _scope_filter(query, scope, current_user).group_by(Post.id)
@@ -97,15 +113,16 @@ def get_posts(
     elif sort == PostSort.top:
         query = query.order_by(votes_count.desc(), *newest)
     else:
-        # Hacker News style: (score + 1) / (age in hours + 2) ^ 1.5
+        # Hacker News style: (score + 1) / (age in hours + 2) ^ 1.5, where replies add to the score
         # the +1 lets fresh 0-vote posts outrank old posts instead of sitting at 0 forever
         age_hours = (func.julianday('now') - func.julianday(Post.created_at)) * 24
-        hot_score = (votes_count + 1.0) / func.power(age_hours + 2, 1.5)
+        engagement = votes_count + replies_count * HOT_REPLY_WEIGHT
+        hot_score = (engagement + 1.0) / func.power(age_hours + 2, 1.5)
         query = query.order_by(hot_score.desc(), *newest)
 
     results = query.offset(offset).limit(limit).all()
 
-    return [_map_to_post_out(post, votes, mine) for post, votes, mine in results]
+    return [_map_to_post_out(post, votes, mine, replies) for post, votes, mine, replies in results]
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -140,11 +157,8 @@ def vote_post(
 ):
     vote_dir = vote_action.vote_dir
 
-    if vote_dir not in (1, -1):
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            detail="vote_dir must be 1 (upvote) or -1 (downvote).",
-        )
+    if error := check_vote_dir(vote_dir):
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=error)
 
     # make sure the post exists
     post = db.query(Post).filter(Post.id == post_id).first()
@@ -155,7 +169,7 @@ def vote_post(
         )
 
     # same rule as reading: you can only vote in blogs you can see
-    if not _can_see(post, current_user):
+    if not can_see_post(post, current_user):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You can't vote on posts outside your blogs.",
@@ -167,16 +181,10 @@ def vote_post(
         .first()
     )
 
-    if existing_vote is None:
-        db.add(PostVote(post_id=post_id, user_id=current_user.id, vote_dir=vote_dir))
-        message, my_vote = "Vote added.", vote_dir
-    elif existing_vote.vote_dir == vote_dir:
-        db.delete(existing_vote)
-        message, my_vote = "Vote removed.", 0
-    else:
-        existing_vote.vote_dir = vote_dir
-        message, my_vote = "Vote updated.", vote_dir
-
+    message, my_vote = toggle_vote(
+        db, existing_vote, vote_dir,
+        lambda: PostVote(post_id=post_id, user_id=current_user.id, vote_dir=vote_dir),
+    )
     db.commit()
 
     votes_count = (

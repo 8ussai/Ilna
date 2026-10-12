@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, ForeignKey, PrimaryKeyConstraint
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -25,6 +25,7 @@ class Post(Base):
 
     author = relationship("User", back_populates="posts")
     votes = relationship("PostVote", back_populates="post", cascade="all, delete-orphan")
+    replies = relationship("Reply", back_populates="post", cascade="all, delete-orphan")
 
 
 class PostVote(Base):
@@ -38,3 +39,38 @@ class PostVote(Base):
 
     post = relationship("Post", back_populates="votes")
     voter = relationship("User", back_populates="voted_posts")
+
+
+class Reply(Base):
+    __tablename__ = "replies"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False, index=True)
+    # null for a direct reply to the post, otherwise the reply being answered
+    parent_id = Column(Integer, ForeignKey("replies.id", ondelete="CASCADE"), nullable=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+
+    content = Column(Text, nullable=False)
+    # a deleted reply that still has answers stays as a "[deleted]" placeholder so the thread holds together
+    is_deleted = Column(Boolean, nullable=False, default=False)
+
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    post = relationship("Post", back_populates="replies")
+    parent = relationship("Reply", remote_side=[id], back_populates="children")
+    children = relationship("Reply", back_populates="parent")
+    author = relationship("User")
+    votes = relationship("ReplyVote", back_populates="reply", cascade="all, delete-orphan")
+
+
+class ReplyVote(Base):
+    __tablename__ = "reply_votes"
+
+    reply_id = Column(Integer, ForeignKey("replies.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    vote_dir = Column(Integer, nullable=False)
+
+    __table_args__ = (PrimaryKeyConstraint("reply_id", "user_id"),)
+
+    reply = relationship("Reply", back_populates="votes")

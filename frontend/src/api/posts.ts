@@ -12,6 +12,7 @@ export type Post = {
   created_at: string
   votes_count: number
   my_vote: VoteDir
+  replies_count: number
   author: { id: number; username: string; first_name: string; last_name: string }
 }
 

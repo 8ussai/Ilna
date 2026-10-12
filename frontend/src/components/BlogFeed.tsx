@@ -2,10 +2,11 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
-import { deletePost, fetchPosts, PAGE_SIZE, votePost } from '../api/posts'
-import type { Post, PostScope, PostSort, VoteDir } from '../api/posts'
+import { createPost, deletePost, fetchPosts, PAGE_SIZE, votePost } from '../api/posts'
+import type { Post, PostScope, PostSort } from '../api/posts'
+import { applyVote } from '../votes'
+import { Composer } from './Composer'
 import { PostCard } from './PostCard'
-import { PostComposer } from './PostComposer'
 import { secondaryButton } from './styles'
 
 type Status = 'loading' | 'ready' | 'error'
@@ -65,8 +66,7 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
 
   // update the score right away, then settle on what the server says (or roll back)
   async function vote(post: Post, dir: 1 | -1) {
-    const nextVote: VoteDir = post.my_vote === dir ? 0 : dir
-    patchPost(post.id, { my_vote: nextVote, votes_count: post.votes_count - post.my_vote + nextVote })
+    patchPost(post.id, applyVote(post, dir))
     try {
       const result = await votePost(post.id, dir)
       patchPost(post.id, { my_vote: result.vote_dir, votes_count: result.votes_count })
@@ -92,10 +92,14 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
         {title}
       </h1>
 
-      <PostComposer
-        scope={scope}
+      <Composer
+        label={t('feed.composerLabel')}
         placeholder={t('feed.placeholder', { name: title })}
-        onPosted={(post) => setPosts((current) => [post, ...current])}
+        submitLabel={t('feed.post')}
+        onSubmit={async (content) => {
+          const post = await createPost(scope, content)
+          setPosts((current) => [post, ...current])
+        }}
       />
 
       <div role="group" aria-label={t('feed.sortBy')} className="flex w-fit rounded-lg border border-line p-0.5">
@@ -136,9 +140,14 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
           <PostCard
             key={post.id}
             post={post}
-            isOwn={post.user_id === userId}
+            userId={userId}
             onDelete={() => remove(post.id)}
             onVote={(dir) => vote(post, dir)}
+            onRepliesChange={(delta) =>
+              setPosts((current) =>
+                current.map((p) => (p.id === post.id ? { ...p, replies_count: p.replies_count + delta } : p)),
+              )
+            }
           />
         ))}
 

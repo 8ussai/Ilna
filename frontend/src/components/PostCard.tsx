@@ -2,30 +2,27 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Post } from '../api/posts'
-
-function Arrow({ up }: { up: boolean }) {
-  return (
-    <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden="true">
-      <path d={up ? 'M12 5l7 9h-4.5v5h-5v-5H5z' : 'M12 19l-7-9h4.5V5h5v5H19z'} />
-    </svg>
-  )
-}
+import { formatDateTime, parseServerDate } from '../dates'
+import { DeleteButton } from './DeleteButton'
+import { RepliesSection } from './Replies'
+import { VoteButtons } from './VoteButtons'
 
 export function PostCard({
   post,
-  isOwn,
+  userId,
   onDelete,
   onVote,
+  onRepliesChange,
 }: {
   post: Post
-  isOwn: boolean
+  userId: number
   onDelete: () => Promise<void>
   onVote: (dir: 1 | -1) => Promise<void>
+  onRepliesChange: (delta: number) => void
 }) {
   const { t, i18n } = useTranslation()
-  const [confirming, setConfirming] = useState(false)
-  const [busy, setBusy] = useState(false)
   const [voting, setVoting] = useState(false)
+  const [showReplies, setShowReplies] = useState(false)
   const [error, setError] = useState('')
 
   async function vote(dir: 1 | -1) {
@@ -40,41 +37,18 @@ export function PostCard({
     }
   }
 
-  const voteButton = (dir: 1 | -1) => {
-    const active = post.my_vote === dir
-    return (
-      <button
-        type="button"
-        disabled={voting}
-        onClick={() => vote(dir)}
-        aria-pressed={active}
-        aria-label={dir === 1 ? t('feed.upvote') : t('feed.downvote')}
-        title={dir === 1 ? t('feed.upvote') : t('feed.downvote')}
-        className={`grid size-8 place-items-center rounded-md hover:bg-surface disabled:cursor-wait ${
-          active ? (dir === 1 ? 'text-accent' : 'text-danger') : 'text-muted hover:text-fg'
-        }`}
-      >
-        <Arrow up={dir === 1} />
-      </button>
-    )
-  }
-
-  const { author } = post
-  const initials = `${author.first_name[0] ?? ''}${author.last_name[0] ?? ''}`.toUpperCase()
-  // backend stores UTC without an offset marker
-  const created = new Date(/[zZ]|[+-]\d\d:\d\d$/.test(post.created_at) ? post.created_at : `${post.created_at}Z`)
-  const date = new Intl.DateTimeFormat(i18n.language, { dateStyle: 'medium', timeStyle: 'short' }).format(created)
-
   async function remove() {
-    setBusy(true)
     setError('')
     try {
       await onDelete()
     } catch {
       setError(t('errors.generic'))
-      setBusy(false)
     }
   }
+
+  const { author } = post
+  const initials = `${author.first_name[0] ?? ''}${author.last_name[0] ?? ''}`.toUpperCase()
+  const created = parseServerDate(post.created_at)
 
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">
@@ -88,57 +62,32 @@ export function PostCard({
             <span className="ms-2 text-sm font-normal text-muted">@{author.username}</span>
           </p>
           <time dateTime={created.toISOString()} className="text-sm text-muted">
-            {date}
+            {formatDateTime(created, i18n.language)}
           </time>
         </div>
 
-        {isOwn && !confirming && (
-          <button
-            type="button"
-            onClick={() => setConfirming(true)}
-            className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-danger"
-          >
-            {t('feed.delete')}
-          </button>
-        )}
-        {isOwn && confirming && (
-          <div className="flex items-center gap-1 text-sm">
-            <span className="text-muted">{t('feed.confirmDelete')}</span>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={remove}
-              className="rounded-md px-2 py-1 font-medium text-danger hover:bg-surface disabled:opacity-50"
-            >
-              {t('feed.yes')}
-            </button>
-            <button
-              type="button"
-              disabled={busy}
-              onClick={() => setConfirming(false)}
-              className="rounded-md px-2 py-1 text-muted hover:bg-surface disabled:opacity-50"
-            >
-              {t('feed.cancel')}
-            </button>
-          </div>
-        )}
+        {post.user_id === userId && <DeleteButton question={t('feed.confirmDelete')} onConfirm={remove} />}
       </header>
 
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
         {post.content}
       </p>
 
-      <div className="-ms-1.5 mt-3 flex items-center gap-1">
-        {voteButton(1)}
-        <span
-          aria-label={t('feed.score', { count: post.votes_count })}
-          className={`min-w-6 text-center text-sm font-semibold tabular-nums ${
-            post.my_vote === 1 ? 'text-accent' : post.my_vote === -1 ? 'text-danger' : ''
+      <div className="-ms-1.5 mt-3 flex items-center gap-2">
+        <VoteButtons count={post.votes_count} myVote={post.my_vote} disabled={voting} onVote={vote} />
+        <button
+          type="button"
+          onClick={() => setShowReplies((open) => !open)}
+          aria-expanded={showReplies}
+          className={`flex h-8 items-center gap-1.5 rounded-md px-2 text-sm hover:bg-surface ${
+            showReplies ? 'text-fg' : 'text-muted hover:text-fg'
           }`}
         >
-          {post.votes_count}
-        </span>
-        {voteButton(-1)}
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 5h16v11H9l-5 4z" />
+          </svg>
+          {t('replies.count', { count: post.replies_count })}
+        </button>
       </div>
 
       {error && (
@@ -146,6 +95,8 @@ export function PostCard({
           {error}
         </p>
       )}
+
+      {showReplies && <RepliesSection postId={post.id} userId={userId} onCountChange={onRepliesChange} />}
     </article>
   )
 }

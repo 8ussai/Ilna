@@ -3,20 +3,27 @@ import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
-import { createPost } from '../api/posts'
-import type { Post, PostScope } from '../api/posts'
 import { primaryButton } from './styles'
 
 const MAX_LENGTH = 5000
 
-export function PostComposer({
-  scope,
+// Text box used for both posts and replies.
+export function Composer({
+  label,
   placeholder,
-  onPosted,
+  submitLabel,
+  onSubmit,
+  onCancel,
+  autoFocus,
+  rows = 3,
 }: {
-  scope: PostScope
+  label: string
   placeholder: string
-  onPosted: (post: Post) => void
+  submitLabel: string
+  onSubmit: (content: string) => Promise<void>
+  onCancel?: () => void
+  autoFocus?: boolean
+  rows?: number
 }) {
   const { t } = useTranslation()
   const id = useId()
@@ -34,7 +41,7 @@ export function PostComposer({
     setBusy(true)
     setError('')
     try {
-      onPosted(await createPost(scope, trimmed))
+      await onSubmit(trimmed)
       setContent('')
     } catch (err) {
       setError(err instanceof ApiError && err.status === 0 ? t('errors.network') : t('errors.generic'))
@@ -46,7 +53,7 @@ export function PostComposer({
   return (
     <form onSubmit={submit} className="rounded-2xl border border-line bg-card p-4">
       <label htmlFor={id} className="sr-only">
-        {t('feed.composerLabel')}
+        {label}
       </label>
       <textarea
         id={id}
@@ -54,9 +61,11 @@ export function PostComposer({
         onChange={(e) => setContent(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit()
+          if (e.key === 'Escape' && onCancel) onCancel()
         }}
         placeholder={placeholder}
-        rows={3}
+        rows={rows}
+        autoFocus={autoFocus}
         className="block w-full resize-y bg-transparent text-fg placeholder:text-muted focus:outline-none"
       />
       <div className="mt-3 flex items-center justify-end gap-3">
@@ -70,8 +79,13 @@ export function PostComposer({
             {trimmed.length}/{MAX_LENGTH}
           </span>
         )}
+        {onCancel && (
+          <button type="button" onClick={onCancel} className="h-10 rounded-lg px-4 text-sm font-medium text-muted hover:bg-surface hover:text-fg">
+            {t('feed.cancel')}
+          </button>
+        )}
         <button type="submit" disabled={!trimmed || tooLong || busy} className={`${primaryButton} h-10 w-auto`}>
-          {busy ? t('feed.posting') : t('feed.post')}
+          {busy ? t('feed.posting') : submitLabel}
         </button>
       </div>
     </form>

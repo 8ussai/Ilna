@@ -98,6 +98,30 @@
       "top": "الأعلى تقييماً"
     }
   },
+  "replies": {
+    "count_zero": "لا ردود",
+    "count_one": "رد واحد",
+    "count_two": "ردّان",
+    "count_few": "{{count}} ردود",
+    "count_many": "{{count}} رداً",
+    "count_other": "{{count}} رد",
+    "reply": "رد",
+    "composerLabel": "اكتب رداً",
+    "placeholder": "اكتب رداً…",
+    "placeholderTo": "رد على {{name}}…",
+    "empty": "لا توجد ردود بعد. ابدأ النقاش.",
+    "loadFailed": "تعذّر تحميل الردود.",
+    "confirmDelete": "حذف الرد؟",
+    "deleted": "[محذوف]",
+    "deletedAuthor": "[محذوف]",
+    "hide": "إخفاء الردود",
+    "show_zero": "عرض الردود",
+    "show_one": "عرض رد واحد",
+    "show_two": "عرض ردّين",
+    "show_few": "عرض {{count}} ردود",
+    "show_many": "عرض {{count}} رداً",
+    "show_other": "عرض {{count}} رد"
+  },
   "account": {
     "open": "إعدادات الحساب",
     "title": "الحساب",

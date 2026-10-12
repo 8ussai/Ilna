@@ -94,6 +94,22 @@
       "top": "Top"
     }
   },
+  "replies": {
+    "count_one": "{{count}} reply",
+    "count_other": "{{count}} replies",
+    "reply": "Reply",
+    "composerLabel": "Write a reply",
+    "placeholder": "Write a reply…",
+    "placeholderTo": "Reply to {{name}}…",
+    "empty": "No replies yet. Start the conversation.",
+    "loadFailed": "Couldn't load replies.",
+    "confirmDelete": "Delete this reply?",
+    "deleted": "[deleted]",
+    "deletedAuthor": "[deleted]",
+    "hide": "Hide replies",
+    "show_one": "Show {{count}} reply",
+    "show_other": "Show {{count}} replies"
+  },
   "account": {
     "open": "Account settings",
     "title": "Account",

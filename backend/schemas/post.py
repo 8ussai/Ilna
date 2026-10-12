@@ -53,6 +53,8 @@ class PostOut(PostBase):
     votes_count: int
     # the current user's vote: 1, -1, or 0 for none
     my_vote: int = 0
+    # replies that aren't deleted, across the whole thread
+    replies_count: int = 0
 
     scope: PostScope
     university: str
