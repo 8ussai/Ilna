@@ -12,15 +12,541 @@
           "domain": "ju.edu.jo",
           "colleges": [
             {
-              "id": "ju-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
+              "id": "ju-lic",
+              "name_en": "Literatures",
+              "name_ar": "الآداب",
               "majors": [
                 {
-                  "id": "ju-eng-cs",
+                  "id": "ju-lic-hist",
+                  "name_en": "History",
+                  "name_ar": "التاريخ"
+                },
+                {
+                  "id": "ju-lic-geo",
+                  "name_en": "Geography",
+                  "name_ar": "الجغرافيا"
+                },
+                {
+                  "id": "ju-lic-sw",
+                  "name_en": "Social Work",
+                  "name_ar": "العمل الاجتماعي"
+                },
+                {
+                  "id": "ju-lic-phil",
+                  "name_en": "Philosophy",
+                  "name_ar": "الفلسفة"
+                },
+                {
+                  "id": "ju-lic-arab",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
+                },
+                {
+                  "id": "ju-lic-soci",
+                  "name_en": "Sociology",
+                  "name_ar": "علم الاجتماع"
+                },
+                {
+                  "id": "ju-lic-psych",
+                  "name_en": "Psychology",
+                  "name_ar": "علم النفس"
+                }
+              ]
+            },
+            {
+              "id": "ju-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "ju-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                },
+                {
+                  "id": "ju-bus-be",
+                  "name_en": "Business Economics",
+                  "name_ar": "اقتصاد الأعمال"
+                },
+                {
+                  "id": "ju-bus-ga",
+                  "name_en": "General Administration",
+                  "name_ar": "الإدارة العامة"
+                },
+                {
+                  "id": "ju-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "ju-bus-dm",
+                  "name_en": "Digital Marketing",
+                  "name_ar": "التسويق الرقمي"
+                },
+                {
+                  "id": "ju-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "ju-bus-fin",
+                  "name_en": "Financing",
+                  "name_ar": "التمويل"
+                },
+                {
+                  "id": "ju-bus-mis",
+                  "name_en": "Management Information Systems",
+                  "name_ar": "نظم المعلومات الإدارية"
+                }
+              ]
+            },
+            {
+              "id": "ju-sh",
+              "name_en": "Sharia",
+              "name_ar": "الشريعة",
+              "majors": [
+                {
+                  "id": "ju-sh-fr",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "أصول الدين"
+                },
+                {
+                  "id": "ju-sh-jp",
+                  "name_en": "Jurisprudence and Its Principles",
+                  "name_ar": "الفقه وأصوله"
+                },
+                {
+                  "id": "ju-sh-ib",
+                  "name_en": "Islamic Banks",
+                  "name_ar": "المصارف الاسلامية"
+                }
+              ]
+            },
+            {
+              "id": "ju-es",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "ju-es-child",
+                  "name_en": "Child-rearing",
+                  "name_ar": "تربية الطفل"
+                },
+                {
+                  "id": "ju-es-cteach",
+                  "name_en": "Classroom Teacher",
+                  "name_ar": "معلم صف"
+                },
+                {
+                  "id": "ju-es-early",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                },
+                {
+                  "id": "ju-es-cmh",
+                  "name_en": "Counseling and Mental Health",
+                  "name_ar": "الإرشاد والصحة النفسية"
+                },
+                {
+                  "id": "ju-es-special",
+                  "name_en": "Special Education",
+                  "name_ar": "التربية الخاصة"
+                },
+                {
+                  "id": "ju-es-lis",
+                  "name_en": "Library and Information Science",
+                  "name_ar":  "علم المكتبات والمعلومات"
+                }
+              ]
+            },
+            {
+              "id": "ju-low",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "ju-low-low",
+                  "name_en": "Low",
+                  "name_ar": "القانون"
+                }
+              ]
+            },
+            {
+              "id": "ju-ss",
+              "name_en": "Sports Sciences",
+              "name_ar": "علوم الرياضة",
+              "majors": [
+                {
+                  "id": "ju-ss-pe",
+                  "name_en": "physical education",
+                  "name_ar": "التربية البدنية"
+                },
+                {
+                  "id": "ju-ss-msst",
+                  "name_en": "Movement Sciences and Sports Training",
+                  "name_ar": "علوم الحركة والتدريب الرياضي"
+                }
+              ]
+            },
+            {
+              "id": "ju-art",
+              "name_en": "Arts and Design",
+              "name_ar": "الفنون والتصميم",
+              "majors": [
+                {
+                  "id": "ju-art-id",
+                  "name_en": "Interior Design",
+                  "name_ar": "التصميم داخلي"
+                },
+                {
+                  "id": "ju-art-gd",
+                  "name_en": "Graphic Design and Multimedia",
+                  "name_ar": "تصميم الجرافيك والوسائط المتعددة"
+                },
+                {
+                  "id": "ju-art-va",
+                  "name_en": "Visual Arts",
+                  "name_ar": "الفنون البصرية"
+                },
+                {
+                  "id": "ju-art-pa",
+                  "name_en": "Performing Arts",
+                  "name_ar": "الفنون المسرحية"
+                },
+                {
+                  "id": "ju-art-music",
+                  "name_en": "Music",
+                  "name_ar": "الموسيقى"
+                }
+              ]
+            },
+            {
+              "id": "ju-pol",
+              "name_en": "Prince Al-Hussein Bin Abdullah II College of Political Science and International Studies",
+              "name_ar": "كلية الأمير الحسين بن عبدالله الثاني للعلوم السياسية والدراسات الدولية",
+              "majors": [
+                {
+                  "id": "ju-pol-pol",
+                  "name_en": "Political Science",
+                  "name_ar": "العلوم السياسية"
+                }
+              ]
+            },
+            {
+              "id": "ju-fl",
+              "name_en": "Foreign Languages",
+              "name_ar": "اللغات الأجنبية",
+              "majors": [
+                {
+                  "id": "ju-fl-tur",
+                  "name_en": "The Turkish and English languages",
+                  "name_ar": "اللغتين التركية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-kor",
+                  "name_en": "The Korean and English languages",
+                  "name_ar": "اللغتين الكورية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-rus",
+                  "name_en": "The Russian and English languages",
+                  "name_ar": "اللغتين الروسية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-chi",
+                  "name_en": "The Chinese and English languages",
+                  "name_ar": "اللغتين الصينية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-span",
+                  "name_en": "The Spanish and English languages",
+                  "name_ar": "اللغتين الإسبانية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-ger",
+                  "name_en": "The German and English languages",
+                  "name_ar": "اللغتين الألمانية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-ita",
+                  "name_en": "The Italian and English languages",
+                  "name_ar": "اللغتين الإيطالية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-ae",
+                  "name_en": "Applied English",
+                  "name_ar": "اللغة الإنجليزية التطبيقية"
+                },
+                {
+                  "id": "ju-fl-enl",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                },
+                {
+                  "id": "ju-fl-frl",
+                  "name_en": "French Language and Literature",
+                  "name_ar": "اللغة الفرنسية وآدابها"
+                },
+                {
+                  "id": "ju-fl-fre",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                }
+              ]
+            },
+            {
+              "id": "ju-at",
+              "name_en": "Archaeology and Tourism",
+              "name_ar": "الآثار والسياحة",
+              "majors": [
+                {
+                  "id": "ju-at-mchr",
+                  "name_en": "Management and Conservation of Heritage Resources",
+                  "name_ar": "ادارة المصادر التراثية وصيانتها"
+                },
+                {
+                  "id": "ju-at-evm",
+                  "name_en": "Event Management",
+                  "name_ar": "إدارة الفعاليات"
+                },
+                {
+                  "id": "ju-at-hm",
+                  "name_en": "Hospitality Management",
+                  "name_ar": "إدارة الضيافة"
+                },
+                {
+                  "id": "ju-at-tm",
+                  "name_en": "Tourism Management",
+                  "name_ar": "الإدارة السياحية"
+                },
+                {
+                  "id": "ju-at-arch",
+                  "name_en": "Archaeology",
+                  "name_ar": "الآثار"
+                }
+              ]
+            },
+            {
+              "id": "ju-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "ju-sci-geo",
+                  "name_en": "geology",
+                  "name_ar": "جيولوجيا"
+                },
+                {
+                  "id": "ju-sci-stats",
+                  "name_en": "Statistics and Data Science",
+                  "name_ar": "الإحصاء وعلم البيانات"
+                },
+                {
+                  "id": "ju-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "ju-sci-bio",
+                  "name_en": "Biology",
+                  "name_ar": "علوم حياتية"
+                },
+                {
+                  "id": "ju-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                },
+                {
+                  "id": "ju-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "ju-sci-labms",
+                  "name_en": "Laboratory Medical Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                },
+                {
+                  "id": "ju-sci-ichem",
+                  "name_en": "Industrial Chemistry",
+                  "name_ar": "الكيمياء الصناعية"
+                }
+              ]
+            },
+            {
+              "id": "ju-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "ju-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                }
+              ]
+            },
+            {
+              "id": "ju-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "ju-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            },
+            {
+              "id": "ju-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "ju-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "ju-pharm-dpharm",
+                  "name_en": "Doctor of Pharmacy",
+                  "name_ar": "دكتور في الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "ju-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "ju-dent-dent",
+                  "name_en": "Dentistry",
+                  "name_ar": "طب الأسنان"
+                }
+              ]
+            },
+            {
+              "id": "ju-rh",
+              "name_en": "Rehabilitation Sciences",
+              "name_ar": "علوم التأهيل",
+              "majors": [
+                {
+                  "id": "ju-rh-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "ju-rh-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "ju-rh-sls",
+                  "name_en": "Speech and Language Science",
+                  "name_ar": "علوم السمع والنطق"
+                },
+                {
+                  "id": "ju-rh-ort",
+                  "name_en": "Prosthetics and Assistive Devices",
+                  "name_ar": "الأطراف الإصطناعية والأجهزة المساعدة"
+                }
+              ]
+            },
+            {
+              "id": "ju-agri",
+              "name_en": "Agriculture",
+              "name_ar": "الزراعة",
+              "majors": [
+                {
+                  "id": "ju-agri-hort",
+                  "name_en": "Horticulture and Crops",
+                  "name_ar": "البستنة والمحاصيل"
+                },
+                {
+                  "id": "ju-agri-ldl",
+                  "name_en": "Locations Design and Layout",
+                  "name_ar": "تصميم وتنسيق المواقع"
+                },
+                {
+                  "id": "ju-agri-lwe",
+                  "name_en": "Land, Water, and Environment",
+                  "name_ar": "الأراضي والمياه والبيئة"
+                },
+                {
+                  "id": "ju-agri-ap",
+                  "name_en": "Animal Production",
+                  "name_ar": "الإنتاج الحيواني"
+                },
+                {
+                  "id": "ju-agri-apr",
+                  "name_en": "Agricultural Production",
+                  "name_ar": "الإنتاج الزراعي"
+                },
+                {
+                  "id": "ju-agri-ae",
+                  "name_en": "Agricultural Economics and Agribusiness Management",
+                  "name_ar": "الإقتصاد الزراعي وادارة الاعمال الزراعية"
+                },
+                {
+                  "id": "ju-agri-hn",
+                  "name_en": "Human Nutrition and Diets",
+                  "name_ar": "تغذية الإنسان والحميات"
+                },
+                {
+                  "id": "ju-agri-fs",
+                  "name_en": "Food Science and Technology",
+                  "name_ar": "علوم وتكنولوجيا الغذاء"
+                },
+                {
+                  "id": "ju-agri-pp",
+                  "name_en": "Plant Protection",
+                  "name_ar": "وقاية النبات"
+                }
+              ]
+            },
+            {
+              "id": "ju-it",
+              "name_en": "King Abdullah II School for Information Technology",
+              "name_ar":  "كلية الملك عبدالله الثاني لتكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "ju-it-cs",
                   "name_en": "Computer Science",
                   "name_ar": "علم الحاسوب"
                 },
+                {
+                  "id": "ju-it-cis",
+                  "name_en": "Information Systems",
+                  "name_ar": "أنظمة المعلومات الحاسوبية"
+                },
+                {
+                  "id": "ju-it-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "ju-it-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },  
+                {
+                  "id": "ju-it-ai",
+                  "name_en": "Artificial Intelligence",
+                  "name_ar": "الذكاء الاصطناعي"
+                },
+                {
+                  "id": "ju-it-ds",
+                  "name_en": "Data Science",
+                  "name_ar": "علم البيانات"
+                }
+              ]
+            },
+            {
+              "id": "ju-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [    
                 {
                   "id": "ju-eng-ce",
                   "name_en": "Computer Engineering",
@@ -35,72 +561,41 @@
                   "id": "ju-eng-civil",
                   "name_en": "Civil Engineering",
                   "name_ar": "الهندسة المدنية"
-                }
-              ]
-            },
-            {
-              "id": "ju-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "ju-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
                 },
                 {
-                  "id": "ju-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
+                  "id": "ju-eng-ie",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
                 },
                 {
-                  "id": "ju-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                }
-              ]
-            },
-            {
-              "id": "ju-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "ju-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
+                  "id": "ju-eng-se",
+                  "name_en": "Semiconductor Engineering",
+                  "name_ar": "هندسة أشباه الموصلات"
                 },
                 {
-                  "id": "ju-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
+                  "id": "ju-eng-me",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
                 },
                 {
-                  "id": "ju-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                }
-              ]
-            },
-            {
-              "id": "ju-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
-              "majors": [
-                {
-                  "id": "ju-med-med",
-                  "name_en": "Medicine",
-                  "name_ar": "الطب البشري"
+                  "id": "ju-eng-ae",
+                  "name_en": "Aerospace Engineering",
+                  "name_ar": "هندسة الطيران"
                 },
                 {
-                  "id": "ju-med-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
+                  "id": "ju-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {                  
+                  "id": "ju-eng-mech",
+                  "name_en": "Mechatronics Engineering",
+                  "name_ar": "هندسة الميكاترونيكس" 
                 },
                 {
-                  "id": "ju-med-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "التمريض"
+                  "id": "ju-eng-chem",
+                  "name_en": "Chemical Engineering",
+                  "name_ar": "الهندسة الكيميائية"
                 }
               ]
             }
