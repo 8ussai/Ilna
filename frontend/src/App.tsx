@@ -4,17 +4,31 @@ import { getToken, setToken } from './api/auth'
 import { setAuth } from './api/client'
 import { Home } from './pages/Home'
 import { Landing } from './pages/Landing'
+import type { LandingNotice } from './pages/Landing'
 
 export default function App() {
   const [token, setTokenState] = useState<string | null>(getToken)
+  const [notice, setNotice] = useState<LandingNotice | null>(null)
 
   function updateToken(next: string | null) {
     setToken(next)
     setTokenState(next)
+    setNotice(null)
+  }
+
+  function onPasswordChanged() {
+    // the next sign-in should start on the feed, not back on the settings page
+    window.history.replaceState(null, '', '/')
+    updateToken(null)
+    setNotice('passwordChanged')
   }
 
   // set during render so child effects already send the token on their first request
   setAuth(token, token ? () => updateToken(null) : null)
 
-  return token ? <Home onLogout={() => updateToken(null)} /> : <Landing onAuthenticated={updateToken} />
+  return token ? (
+    <Home onLogout={() => updateToken(null)} onPasswordChanged={onPasswordChanged} />
+  ) : (
+    <Landing notice={notice} onAuthenticated={updateToken} />
+  )
 }

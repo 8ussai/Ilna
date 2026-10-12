@@ -8,7 +8,7 @@ from backend.core.apiDependencies import get_current_user
 from backend.core.security import create_access_token, get_password_hash, verify_password
 from backend.database import get_db
 from backend.models.user import User
-from backend.schemas.user import UserCreate, UserOut
+from backend.schemas.user import PasswordChange, UserCreate, UserOut
 
 router = APIRouter()
 
@@ -71,3 +71,21 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 @router.get("/me", response_model=UserOut)
 def get_me(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+# the password is the only account detail a user can change
+@router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
+def change_password(
+    password_data: PasswordChange,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    # 400 rather than 401: the client treats any 401 as an expired session and logs out
+    if not verify_password(password_data.current_password, current_user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Current password is incorrect",
+        )
+
+    current_user.hashed_password = get_password_hash(password_data.new_password)
+    db.commit()

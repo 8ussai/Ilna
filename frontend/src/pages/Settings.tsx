@@ -4,12 +4,19 @@ import { useTranslation } from 'react-i18next'
 import type { Me } from '../api/auth'
 import type { Catalog } from '../api/meta'
 import { catalogNames } from '../catalog'
+import { ChangePasswordForm } from '../components/ChangePasswordForm'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { settingsPath } from '../tabs'
 import type { SettingsPage } from '../tabs'
 
-type SettingsProps = { page: SettingsPage; me: Me; catalog: Catalog | null; onNavigate: (page: SettingsPage) => void }
+type SettingsProps = {
+  page: SettingsPage
+  me: Me
+  catalog: Catalog | null
+  onNavigate: (page: SettingsPage) => void
+  onPasswordChanged: () => void
+}
 
 const chevron = (
   <svg viewBox="0 0 24 24" className="size-5 shrink-0 text-muted rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -31,7 +38,7 @@ function PageLink({ page, onNavigate, className, children }: { page: SettingsPag
   )
 }
 
-export function Settings({ page, me, catalog, onNavigate }: SettingsProps) {
+export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
@@ -62,12 +69,12 @@ export function Settings({ page, me, catalog, onNavigate }: SettingsProps) {
         </svg>
         {t('settings.title')}
       </PageLink>
-      <AccountPage me={me} catalog={catalog} />
+      <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />
     </>
   )
 }
 
-function AccountPage({ me, catalog }: { me: Me; catalog: Catalog | null }) {
+function AccountPage({ me, catalog, onPasswordChanged }: { me: Me; catalog: Catalog | null; onPasswordChanged: () => void }) {
   const { t, i18n } = useTranslation()
   const names = catalogNames(catalog, me, i18n.language)
 
@@ -106,6 +113,13 @@ function AccountPage({ me, catalog }: { me: Me; catalog: Catalog | null }) {
             </div>
           ))}
         </dl>
+      </section>
+
+      <section aria-labelledby="password-title" className="mt-8 rounded-xl border border-line bg-card p-5">
+        <h2 id="password-title" className="mb-4 font-serif text-xl font-semibold">
+          {t('settings.password.title')}
+        </h2>
+        <ChangePasswordForm onChanged={onPasswordChanged} />
       </section>
     </>
   )

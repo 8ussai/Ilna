@@ -17,7 +17,7 @@ import { routeFromPath, routePath } from '../tabs'
 import type { Route } from '../tabs'
 import { Settings } from './Settings'
 
-export function Home({ onLogout }: { onLogout: () => void }) {
+export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; onPasswordChanged: () => void }) {
   const { t, i18n } = useTranslation()
   const [route, setRoute] = useState<Route>(routeFromPath)
   const [me, setMe] = useState<Me | null>(null)
@@ -92,7 +92,15 @@ export function Home({ onLogout }: { onLogout: () => void }) {
     }
 
     if (route.kind === 'settings') {
-      return <Settings page={route.page} me={me} catalog={catalog} onNavigate={(page) => navigate({ kind: 'settings', page })} />
+      return (
+        <Settings
+          page={route.page}
+          me={me}
+          catalog={catalog}
+          onNavigate={(page) => navigate({ kind: 'settings', page })}
+          onPasswordChanged={onPasswordChanged}
+        />
+      )
     }
 
     // 'my-courses' returned above, so what's left is a blog scope

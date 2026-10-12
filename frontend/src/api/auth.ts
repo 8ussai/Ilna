@@ -17,6 +17,14 @@ export function fetchMe() {
   return authRequest<Me>('/auth/me')
 }
 
+export function changePassword(current_password: string, new_password: string) {
+  return authRequest<null>('/auth/change-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ current_password, new_password }),
+  })
+}
+
 export type RegisterPayload = {
   username: string
   first_name: string

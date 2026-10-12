@@ -29,6 +29,19 @@ class UserCreate(UserBase):
         return self
 
 
+class PasswordChange(BaseModel):
+    current_password: str
+    new_password: str
+
+    @model_validator(mode="after")
+    def check_new_password(self):
+        if len(self.new_password) < 8:
+            raise ValueError("Password must be at least 8 characters.")
+        if self.new_password == self.current_password:
+            raise ValueError("New password must be different from the current one.")
+        return self
+
+
 class UserOut(UserBase):
     id: int
     created_at: datetime

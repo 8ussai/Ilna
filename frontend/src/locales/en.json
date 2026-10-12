@@ -58,7 +58,10 @@
     "badLogin": "Email/username or password is incorrect.",
     "network": "Can't reach the server. Check your connection and try again.",
     "generic": "Something went wrong. Please try again.",
-    "listFailed": "Couldn't load the university list."
+    "listFailed": "Couldn't load the university list.",
+    "currentPasswordWrong": "Current password is incorrect.",
+    "passwordSame": "Choose a password different from your current one.",
+    "passwordMismatch": "Passwords don't match."
   },
   "app": {
     "sections": "Sections"
@@ -122,10 +125,21 @@
     "account": {
       "title": "Account",
       "summary": "Your profile and studies",
-      "readOnly": "Account details can't be changed.",
+      "readOnly": "Account details can't be changed. Only your password can.",
       "email": "Email",
       "created": "Member since"
+    },
+    "password": {
+      "title": "Change password",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Change password",
+      "logoutNote": "You'll be logged out and asked to sign in with your new password."
     }
+  },
+  "notices": {
+    "passwordChanged": "Your password was changed. Log in with your new password."
   },
   "footer": "© {{year}} Ilna"
 }
