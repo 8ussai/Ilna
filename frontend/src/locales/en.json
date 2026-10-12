@@ -136,10 +136,78 @@
       "confirm": "Confirm new password",
       "submit": "Change password",
       "logoutNote": "You'll be logged out and asked to sign in with your new password."
+    },
+    "policy": {
+      "title": "Policy",
+      "summary": "Community rules, privacy and your files"
     }
   },
   "notices": {
     "passwordChanged": "Your password was changed. Log in with your new password."
+  },
+  "policy": {
+    "title": "Policy",
+    "updated": "Last updated: October 13, 2026",
+    "intro": "This policy explains the rules for using Ilna and how we handle your information. By using Ilna you agree to it.",
+    "sections": [
+      {
+        "title": "Who Ilna is for",
+        "body": [
+          "Ilna is a study platform for university students. You need a university email address to create an account, and each person may have only one account."
+        ]
+      },
+      {
+        "title": "Your account",
+        "body": [
+          "Your name, username, email, university, college and major are set when you sign up and can't be changed later. Make sure they are correct.",
+          "You can change your password at any time from Settings. Keep it private; you are responsible for activity on your account."
+        ]
+      },
+      {
+        "title": "Community rules",
+        "body": [
+          "Be respectful. Harassment, hate speech, threats, sharing other people's personal information, spam and illegal content are not allowed.",
+          "Respect academic integrity. Don't use Ilna to share exam answers or help others cheat.",
+          "Posts in the university, college and major blogs are visible to other students in that group. Posts in General are visible to all Ilna users."
+        ]
+      },
+      {
+        "title": "Your posts and replies",
+        "body": [
+          "You own what you write. By posting, you allow Ilna to display your content to the users who can see that blog.",
+          "You can delete your own posts and replies. A deleted reply that others have answered stays as a \"[deleted]\" placeholder so the conversation still makes sense."
+        ]
+      },
+      {
+        "title": "Uploaded files",
+        "body": [
+          "Only upload files you have the right to share, such as your own notes or materials your course allows you to use.",
+          "Each account has a storage limit of 5 GB.",
+          "To generate quizzes, parts of your uploaded files are processed by an AI service provided by Google (Gemini). AI-generated quizzes can contain mistakes, so always check them against your course materials."
+        ]
+      },
+      {
+        "title": "Your information",
+        "body": [
+          "We store the details you give at sign-up, the content you post and the files you upload.",
+          "Other users can see your name, username, avatar, posts and replies. Your email address is not shown to other users.",
+          "We don't sell your personal information."
+        ]
+      },
+      {
+        "title": "Enforcement",
+        "body": [
+          "We may remove content or suspend accounts that break this policy."
+        ]
+      },
+      {
+        "title": "Changes and contact",
+        "body": [
+          "We may update this policy. When we do, we'll change the date at the top of this page.",
+          "Questions? Use Contact us in Settings."
+        ]
+      }
+    ]
   },
   "footer": "© {{year}} Ilna"
 }

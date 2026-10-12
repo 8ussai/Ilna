@@ -42,20 +42,31 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
   const { t } = useTranslation()
 
   if (page === 'home') {
+    const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode) => (
+      <li>
+        <PageLink page={target} onNavigate={onNavigate} className="flex items-center gap-4 px-5 py-4 hover:bg-surface">
+          {icon}
+          <span className="min-w-0 flex-1">
+            <span className="block font-medium">{t(`settings.${target}.title`)}</span>
+            <span className="block text-sm text-muted">{t(`settings.${target}.summary`)}</span>
+          </span>
+          {chevron}
+        </PageLink>
+      </li>
+    )
+
     return (
       <>
         <h1 className="font-serif text-3xl font-semibold">{t('settings.title')}</h1>
         <ul className="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
-          <li>
-            <PageLink page="account" onNavigate={onNavigate} className="flex items-center gap-4 px-5 py-4 hover:bg-surface">
-              <UserAvatar username={me.username} size={40} />
-              <span className="min-w-0 flex-1">
-                <span className="block font-medium">{t('settings.account.title')}</span>
-                <span className="block text-sm text-muted">{t('settings.account.summary')}</span>
-              </span>
-              {chevron}
-            </PageLink>
-          </li>
+          {row('account', <UserAvatar username={me.username} size={40} />)}
+          {row(
+            'policy',
+            <RowIcon>
+              <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" />
+              <path d="M14 3v5h5M9 13h6M9 17h6" />
+            </RowIcon>,
+          )}
         </ul>
       </>
     )
@@ -69,8 +80,48 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged }: S
         </svg>
         {t('settings.title')}
       </PageLink>
-      <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />
+      {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
+      {page === 'policy' && <PolicyPage />}
     </>
+  )
+}
+
+// a line icon in a 40px circle, the same footprint as the avatar on the Account row
+function RowIcon({ children }: { children: ReactNode }) {
+  return (
+    <span className="grid size-10 shrink-0 place-items-center rounded-full bg-surface text-muted">
+      <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+        {children}
+      </svg>
+    </span>
+  )
+}
+
+type PolicySection = { title: string; body: string[] }
+
+// The policy text is hard-coded in the locale files (policy.*) so it's translated with the rest of the app.
+function PolicyPage() {
+  const { t } = useTranslation()
+  const sections = t('policy.sections', { returnObjects: true }) as PolicySection[]
+
+  return (
+    <article>
+      <h1 className="mt-3 font-serif text-3xl font-semibold">{t('policy.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('policy.updated')}</p>
+      <p className="mt-6 leading-relaxed">{t('policy.intro')}</p>
+      {sections.map((section, i) => (
+        <section key={section.title} className="mt-8">
+          <h2 className="font-serif text-xl font-semibold">
+            {i + 1}. {section.title}
+          </h2>
+          {section.body.map((paragraph) => (
+            <p key={paragraph} className="mt-3 leading-relaxed text-fg/90">
+              {paragraph}
+            </p>
+          ))}
+        </section>
+      ))}
+    </article>
   )
 }
 
