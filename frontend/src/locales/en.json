@@ -82,7 +82,17 @@
     "delete": "Delete",
     "confirmDelete": "Delete this post?",
     "yes": "Yes",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "upvote": "Upvote",
+    "downvote": "Downvote",
+    "score_one": "Score: {{count}} vote",
+    "score_other": "Score: {{count}} votes",
+    "sortBy": "Sort posts",
+    "sort": {
+      "hot": "Hot",
+      "new": "New",
+      "top": "Top"
+    }
   },
   "account": {
     "open": "Account settings",

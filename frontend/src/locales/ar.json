@@ -82,7 +82,21 @@
     "delete": "حذف",
     "confirmDelete": "حذف المنشور؟",
     "yes": "نعم",
-    "cancel": "إلغاء"
+    "cancel": "إلغاء",
+    "upvote": "تصويت إيجابي",
+    "downvote": "تصويت سلبي",
+    "score_zero": "النقاط: {{count}}",
+    "score_one": "النقاط: {{count}}",
+    "score_two": "النقاط: {{count}}",
+    "score_few": "النقاط: {{count}}",
+    "score_many": "النقاط: {{count}}",
+    "score_other": "النقاط: {{count}}",
+    "sortBy": "ترتيب المنشورات",
+    "sort": {
+      "hot": "الأكثر تفاعلاً",
+      "new": "الأحدث",
+      "top": "الأعلى تقييماً"
+    }
   },
   "account": {
     "open": "إعدادات الحساب",

@@ -2,17 +2,20 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
-import { deletePost, fetchPosts, PAGE_SIZE } from '../api/posts'
-import type { Post, PostScope } from '../api/posts'
+import { deletePost, fetchPosts, PAGE_SIZE, votePost } from '../api/posts'
+import type { Post, PostScope, PostSort, VoteDir } from '../api/posts'
 import { PostCard } from './PostCard'
 import { PostComposer } from './PostComposer'
 import { secondaryButton } from './styles'
 
 type Status = 'loading' | 'ready' | 'error'
 
+const SORTS: PostSort[] = ['hot', 'new', 'top']
+
 // One blog: General is shared by everyone, the others only hold posts from the user's own university/college/major.
 export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: string; userId: number }) {
   const { t } = useTranslation()
+  const [sort, setSort] = useState<PostSort>('hot')
   const [posts, setPosts] = useState<Post[]>([])
   const [status, setStatus] = useState<Status>('loading')
   const [hasMore, setHasMore] = useState(false)
@@ -21,7 +24,7 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
 
   useEffect(() => {
     let ignore = false
-    fetchPosts(scope)
+    fetchPosts(scope, sort)
       .then((page) => {
         if (ignore) return
         setPosts(page)
@@ -34,19 +37,42 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
     return () => {
       ignore = true
     }
-  }, [scope, reloadKey])
+  }, [scope, sort, reloadKey])
+
+  function reload(nextSort = sort) {
+    setStatus('loading')
+    setSort(nextSort)
+    setReloadKey((k) => k + 1)
+  }
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const page = await fetchPosts(scope, posts.length)
-      // skip anything already shown (e.g. a post we just created shifted the offsets)
+      const page = await fetchPosts(scope, sort, posts.length)
+      // skip anything already shown (new posts and votes shift the offsets)
       setPosts((current) => [...current, ...page.filter((p) => !current.some((c) => c.id === p.id))])
       setHasMore(page.length === PAGE_SIZE)
     } catch {
       // keep the button so the user can try again
     } finally {
       setLoadingMore(false)
+    }
+  }
+
+  function patchPost(id: number, changes: Partial<Post>) {
+    setPosts((current) => current.map((p) => (p.id === id ? { ...p, ...changes } : p)))
+  }
+
+  // update the score right away, then settle on what the server says (or roll back)
+  async function vote(post: Post, dir: 1 | -1) {
+    const nextVote: VoteDir = post.my_vote === dir ? 0 : dir
+    patchPost(post.id, { my_vote: nextVote, votes_count: post.votes_count - post.my_vote + nextVote })
+    try {
+      const result = await votePost(post.id, dir)
+      patchPost(post.id, { my_vote: result.vote_dir, votes_count: result.votes_count })
+    } catch (err) {
+      patchPost(post.id, { my_vote: post.my_vote, votes_count: post.votes_count })
+      throw err
     }
   }
 
@@ -72,6 +98,20 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
         onPosted={(post) => setPosts((current) => [post, ...current])}
       />
 
+      <div role="group" aria-label={t('feed.sortBy')} className="flex w-fit rounded-lg border border-line p-0.5">
+        {SORTS.map((option) => (
+          <button
+            key={option}
+            type="button"
+            aria-pressed={sort === option}
+            onClick={() => option !== sort && reload(option)}
+            className={`h-8 rounded-md px-3 text-sm font-medium ${sort === option ? 'bg-surface' : 'text-muted hover:text-fg'}`}
+          >
+            {t(`feed.sort.${option}`)}
+          </button>
+        ))}
+      </div>
+
       {status === 'loading' && (
         <p className="py-10 text-center text-muted" role="status">
           {t('feed.loading')}
@@ -81,10 +121,7 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
       {status === 'error' && (
         <div className="py-10 text-center">
           <p className="text-muted">{t('feed.loadFailed')}</p>
-          <button type="button" onClick={() => {
-              setStatus('loading')
-              setReloadKey((k) => k + 1)
-            }} className={`${secondaryButton} mt-4 w-auto`}>
+          <button type="button" onClick={() => reload()} className={`${secondaryButton} mt-4 w-auto`}>
             {t('auth.retry')}
           </button>
         </div>
@@ -96,7 +133,13 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
 
       {status === 'ready' &&
         posts.map((post) => (
-          <PostCard key={post.id} post={post} isOwn={post.user_id === userId} onDelete={() => remove(post.id)} />
+          <PostCard
+            key={post.id}
+            post={post}
+            isOwn={post.user_id === userId}
+            onDelete={() => remove(post.id)}
+            onVote={(dir) => vote(post, dir)}
+          />
         ))}
 
       {status === 'ready' && hasMore && (

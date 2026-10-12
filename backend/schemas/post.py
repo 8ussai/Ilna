@@ -11,6 +11,12 @@ class PostScope(str, Enum):
     major = "major"
 
 
+class PostSort(str, Enum):
+    hot = "hot"
+    new = "new"
+    top = "top"
+
+
 class PostBase(BaseModel):
     content: str
 
@@ -45,6 +51,8 @@ class PostOut(PostBase):
     created_at: datetime
     updated_at: datetime
     votes_count: int
+    # the current user's vote: 1, -1, or 0 for none
+    my_vote: int = 0
 
     scope: PostScope
     university: str
@@ -58,3 +66,9 @@ class PostOut(PostBase):
 
 class PostVoteAction(BaseModel):
     vote_dir: int = Field(..., description="1 for upvote, -1 for downvote")
+
+
+class PostVoteResult(BaseModel):
+    message: str
+    vote_dir: int
+    votes_count: int

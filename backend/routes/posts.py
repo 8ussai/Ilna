@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
-from sqlalchemy import func
+from sqlalchemy import case, func
 
-from backend.schemas.post import PostCreate, PostOut, PostScope, PostVoteAction
+from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
 from backend.database import get_db
 from backend.models.user import User
 from backend.models.post import Post, PostVote
@@ -12,7 +12,7 @@ from backend.core.apiDependencies import get_current_user
 router = APIRouter()
 
 
-def _map_to_post_out(post: Post, votes_count: int) -> PostOut:
+def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0) -> PostOut:
     return PostOut(
         id=post.id,
         user_id=post.user_id,
@@ -24,8 +24,15 @@ def _map_to_post_out(post: Post, votes_count: int) -> PostOut:
         created_at=post.created_at,
         updated_at=post.updated_at,
         votes_count=votes_count,
+        my_vote=my_vote,
         author=post.author,
     )
+
+
+def _can_see(post: Post, user: User) -> bool:
+    if post.scope == PostScope.general.value:
+        return True
+    return getattr(post, post.scope) == getattr(user, post.scope)
 
 
 def _scope_filter(query, scope: PostScope, user: User):
@@ -67,27 +74,38 @@ def create_post(
 @router.get("/", response_model=list[PostOut])
 def get_posts(
     scope: PostScope = Query(..., description="Which blog to read: general, university, college or major."),
+    sort: PostSort = Query(default=PostSort.hot, description="hot (score weighed by age), new, or top (highest score)."),
     limit: int = Query(default=20, ge=1, le=100),
     offset: int = Query(default=0, ge=0),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    votes_count = func.coalesce(func.sum(PostVote.vote_dir), 0)
+    my_vote = func.coalesce(func.sum(case((PostVote.user_id == current_user.id, PostVote.vote_dir), else_=0)), 0)
+
     query = db.query(
         Post,
-        func.coalesce(func.sum(PostVote.vote_dir), 0).label('votes_count')
+        votes_count.label('votes_count'),
+        my_vote.label('my_vote'),
     ).outerjoin(PostVote, Post.id == PostVote.post_id).options(joinedload(Post.author))
 
-    query = _scope_filter(query, scope, current_user)
+    query = _scope_filter(query, scope, current_user).group_by(Post.id)
 
-    results = (
-        query.group_by(Post.id)
-        .order_by(Post.created_at.desc(), Post.id.desc())
-        .offset(offset)
-        .limit(limit)
-        .all()
-    )
+    newest = (Post.created_at.desc(), Post.id.desc())
+    if sort == PostSort.new:
+        query = query.order_by(*newest)
+    elif sort == PostSort.top:
+        query = query.order_by(votes_count.desc(), *newest)
+    else:
+        # Hacker News style: (score + 1) / (age in hours + 2) ^ 1.5
+        # the +1 lets fresh 0-vote posts outrank old posts instead of sitting at 0 forever
+        age_hours = (func.julianday('now') - func.julianday(Post.created_at)) * 24
+        hot_score = (votes_count + 1.0) / func.power(age_hours + 2, 1.5)
+        query = query.order_by(hot_score.desc(), *newest)
 
-    return [_map_to_post_out(post, votes) for post, votes in results]
+    results = query.offset(offset).limit(limit).all()
+
+    return [_map_to_post_out(post, votes, mine) for post, votes, mine in results]
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -113,7 +131,7 @@ def delete_post(
     db.commit()
 
 
-@router.post("/{post_id}/vote", status_code=status.HTTP_200_OK)
+@router.post("/{post_id}/vote", response_model=PostVoteResult, status_code=status.HTTP_200_OK)
 def vote_post(
     post_id: int,
     vote_action: PostVoteAction,
@@ -136,6 +154,13 @@ def vote_post(
             detail=f"Post {post_id} not found.",
         )
 
+    # same rule as reading: you can only vote in blogs you can see
+    if not _can_see(post, current_user):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You can't vote on posts outside your blogs.",
+        )
+
     existing_vote = (
         db.query(PostVote)
         .filter(PostVote.post_id == post_id, PostVote.user_id == current_user.id)
@@ -143,20 +168,21 @@ def vote_post(
     )
 
     if existing_vote is None:
-        new_vote = PostVote(
-            post_id=post_id,
-            user_id=current_user.id,
-            vote_dir=vote_dir,
-        )
-        db.add(new_vote)
-        db.commit()
-        return {"message": "Vote added.", "vote_dir": vote_dir}
-
-    if existing_vote.vote_dir == vote_dir:
+        db.add(PostVote(post_id=post_id, user_id=current_user.id, vote_dir=vote_dir))
+        message, my_vote = "Vote added.", vote_dir
+    elif existing_vote.vote_dir == vote_dir:
         db.delete(existing_vote)
-        db.commit()
-        return {"message": "Vote removed.", "vote_dir": 0}
+        message, my_vote = "Vote removed.", 0
+    else:
+        existing_vote.vote_dir = vote_dir
+        message, my_vote = "Vote updated.", vote_dir
 
-    existing_vote.vote_dir = vote_dir
     db.commit()
-    return {"message": "Vote updated.", "vote_dir": vote_dir}
+
+    votes_count = (
+        db.query(func.coalesce(func.sum(PostVote.vote_dir), 0))
+        .filter(PostVote.post_id == post_id)
+        .scalar()
+    )
+
+    return PostVoteResult(message=message, vote_dir=my_vote, votes_count=votes_count)

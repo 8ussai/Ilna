@@ -3,19 +3,61 @@ import { useTranslation } from 'react-i18next'
 
 import type { Post } from '../api/posts'
 
+function Arrow({ up }: { up: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden="true">
+      <path d={up ? 'M12 5l7 9h-4.5v5h-5v-5H5z' : 'M12 19l-7-9h4.5V5h5v5H19z'} />
+    </svg>
+  )
+}
+
 export function PostCard({
   post,
   isOwn,
   onDelete,
+  onVote,
 }: {
   post: Post
   isOwn: boolean
   onDelete: () => Promise<void>
+  onVote: (dir: 1 | -1) => Promise<void>
 }) {
   const { t, i18n } = useTranslation()
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [voting, setVoting] = useState(false)
   const [error, setError] = useState('')
+
+  async function vote(dir: 1 | -1) {
+    setVoting(true)
+    setError('')
+    try {
+      await onVote(dir)
+    } catch {
+      setError(t('errors.generic'))
+    } finally {
+      setVoting(false)
+    }
+  }
+
+  const voteButton = (dir: 1 | -1) => {
+    const active = post.my_vote === dir
+    return (
+      <button
+        type="button"
+        disabled={voting}
+        onClick={() => vote(dir)}
+        aria-pressed={active}
+        aria-label={dir === 1 ? t('feed.upvote') : t('feed.downvote')}
+        title={dir === 1 ? t('feed.upvote') : t('feed.downvote')}
+        className={`grid size-8 place-items-center rounded-md hover:bg-surface disabled:cursor-wait ${
+          active ? (dir === 1 ? 'text-accent' : 'text-danger') : 'text-muted hover:text-fg'
+        }`}
+      >
+        <Arrow up={dir === 1} />
+      </button>
+    )
+  }
 
   const { author } = post
   const initials = `${author.first_name[0] ?? ''}${author.last_name[0] ?? ''}`.toUpperCase()
@@ -85,6 +127,20 @@ export function PostCard({
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
         {post.content}
       </p>
+
+      <div className="-ms-1.5 mt-3 flex items-center gap-1">
+        {voteButton(1)}
+        <span
+          aria-label={t('feed.score', { count: post.votes_count })}
+          className={`min-w-6 text-center text-sm font-semibold tabular-nums ${
+            post.my_vote === 1 ? 'text-accent' : post.my_vote === -1 ? 'text-danger' : ''
+          }`}
+        >
+          {post.votes_count}
+        </span>
+        {voteButton(-1)}
+      </div>
+
       {error && (
         <p role="alert" className="mt-2 text-sm text-danger">
           {error}
