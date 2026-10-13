@@ -7,7 +7,7 @@ __pycache__/
 chroma_db/
 
 # downloaded AI models
-models/
+/models/
 
 uploads/
 

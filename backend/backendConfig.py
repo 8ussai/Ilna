@@ -48,6 +48,13 @@ MAX_TEXT_NOTE_CHARS = 100_000
 # total size of all files one user can upload
 STORAGE_LIMIT_BYTES = 5 * 1024 ** 3
 
+# summaries and quizzes are written by Gemini; GOOGLE_API_KEY goes in .env
+GEMINI_MODEL = "gemini-2.5-flash"
+# summaries and quizzes one user can start per day (retries of failed ones don't count)
+STUDY_GENERATIONS_PER_DAY = 20
+# sources one summary or quiz can be made from
+STUDY_MAX_SOURCES = 50
+
 # "Contact us" messages go to this inbox
 CONTACT_EMAIL = "mr.qussai2004@gmail.com"
 # at most this many contact messages per user per hour

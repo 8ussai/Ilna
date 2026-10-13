@@ -41,7 +41,6 @@ from backend.services.note_index import cancel_note_index, schedule_note_index
 from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import transcribe_material
-from backend.services.quiz_generator import generate_quiz_from_material
 from backend.services.storage import storage_used
 
 router = APIRouter()
@@ -566,25 +565,3 @@ def retry_material_transcript(
     jobs.submit(transcribe_material, material_id)
 
     return transcript
-
-
-@router.get("/{course_id}/materials/{material_id}/quiz")
-def generate_ai_quiz(
-    course_id: int,
-    material_id: int,
-    num_questions: int = 5,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
-    course = get_owned_course(db, course_id, current_user)
-    _get_course_item(db, CourseMaterial, material_id, course, "Material")
-
-    quiz_result = generate_quiz_from_material(material_id, num_questions)
-
-    if isinstance(quiz_result, dict) and "error" in quiz_result:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=quiz_result["error"]
-        )
-
-    return quiz_result

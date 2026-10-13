@@ -7,11 +7,11 @@ from sqlalchemy import inspect, text
 
 from backend.database import engine, Base, SessionLocal
 # imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
-from backend.models import user, post, course, notification, contact as contact_model
-from backend.routes import auth, contact, me, posts, replies, courses, meta
+from backend.models import user, post, course, notification, study as study_model, contact as contact_model
+from backend.routes import auth, contact, me, posts, replies, courses, meta, study
 
 from backend.models.course import CourseMaterial, MaterialTranscript
-from backend.services import jobs
+from backend.services import jobs, study_generator
 from backend.services.note_index import index_note, stale_note_ids
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import index_transcript, transcribe_material
@@ -36,6 +36,7 @@ def _requeue_unfinished_work():
             .all()
         )
         notes = stale_note_ids(db)
+        study_items = study_generator.requeue_unfinished(db)
         documents = (
             db.query(CourseMaterial.id, CourseMaterial.file_path, CourseMaterial.course_id)
             .filter(CourseMaterial.kind == "document", CourseMaterial.is_rag_indexed.is_(False))
@@ -56,6 +57,8 @@ def _requeue_unfinished_work():
     if transcripts or unindexed_transcripts or documents or notes:
         print(f"[Jobs] Re-queued {len(transcripts) + len(unindexed_transcripts)} recordings, "
               f"{len(documents)} documents and {len(notes)} notes")
+    if study_items:
+        print(f"[Study] Re-queued {study_items} summaries and quizzes")
 
 
 @asynccontextmanager
@@ -134,6 +137,7 @@ app.include_router(meta.router, prefix="/meta", tags=["Meta"])
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
 app.include_router(replies.router, tags=["Replies"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
+app.include_router(study.router, prefix="/courses", tags=["Summaries & Quizzes"])
 app.include_router(contact.router, prefix="/contact", tags=["Contact"])
 
 

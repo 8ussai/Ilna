@@ -23,6 +23,7 @@ class Course(Base):
     materials = relationship("CourseMaterial", back_populates="course", cascade="all, delete-orphan")
     notes = relationship("CourseNote", back_populates="course", cascade="all, delete-orphan")
     links = relationship("CourseLink", back_populates="course", cascade="all, delete-orphan")
+    study_items = relationship("StudyItem", back_populates="course", cascade="all, delete-orphan")
 
 
 class CourseMaterial(Base):
@@ -106,3 +107,7 @@ class MaterialTranscript(Base):
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     material = relationship("CourseMaterial", back_populates="transcript")
+
+
+# registers StudyItem, which Course.study_items names, for code that only imports this module
+from backend.models import study  # noqa: E402,F401

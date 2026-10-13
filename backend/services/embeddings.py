@@ -65,6 +65,15 @@ def get_vectorstore() -> Chroma:
         return _vectorstore
 
 
+def material_chunks(material_id: int) -> list[tuple[str, dict]]:
+    """A material's stored text as (chunk, metadata), in the order it was indexed. Reads Chroma directly,
+    so it never loads the embedding model."""
+    result = _get_collection().get(where={"material_id": material_id}, include=["documents", "metadatas"])
+    rows = zip(result["ids"], result["documents"], result["metadatas"])
+    # ids are "<material id>-<chunk number>"
+    return [(text, metadata) for _, text, metadata in sorted(rows, key=lambda row: int(row[0].rsplit("-", 1)[1]))]
+
+
 # deleting goes straight to Chroma, so it never loads the model
 def delete_material_vectors(material_id: int):
     _get_collection().delete(where={"material_id": material_id})
