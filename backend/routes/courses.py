@@ -1,21 +1,27 @@
+import math
 import mimetypes
 import os
 import uuid
+from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, Form
 from fastapi.responses import FileResponse
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from fastapi import BackgroundTasks
 
 from backend.database import get_db
-from backend.backendConfig import ALLOWED_EXTENSIONS, STORAGE_LIMIT_BYTES
+from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, STORAGE_LIMIT_BYTES
 from backend.models.user import User
-from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial
+from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
 from backend.schemas.course import (
     CourseCreate,
     CourseUpdate,
     CourseOut,
+    CourseSummaryOut,
+    MaterialKind,
+    check_note_content,
     CourseNoteCreate,
     CourseNoteUpdate,
     CourseNoteOut,
@@ -34,6 +40,9 @@ from backend.services.storage import storage_used
 router = APIRouter()
 
 UPLOAD_CHUNK_BYTES = 1024 * 1024
+
+# languages a recording can be transcribed as; anything else is detected
+TRANSCRIPT_LANGUAGES = {"ar", "en"}
 
 
 def get_owned_course(db: Session, course_id: int, user: User) -> Course:
@@ -79,7 +88,7 @@ def _remove_files(paths: List[str]):
 
 def _apply_update(item, changes):
     # only the fields the client sent are changed
-    for field, value in changes.model_dump(exclude_unset=True).items():
+    for field, value in changes.model_dump(mode="json", exclude_unset=True).items():
         setattr(item, field, value)
 
 
@@ -89,11 +98,7 @@ def create_course(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    new_course = Course(
-        user_id=current_user.id,
-        title=course_data.title,
-        description=course_data.description
-    )
+    new_course = Course(user_id=current_user.id, **course_data.model_dump(mode="json"))
 
     db.add(new_course)
     db.commit()
@@ -102,19 +107,44 @@ def create_course(
     return new_course
 
 
-@router.get("/", response_model=List[CourseOut])
+def _count_in_course(model, *conditions):
+    return (
+        select(func.count(model.id))
+        .where(model.course_id == Course.id, *conditions)
+        .correlate(Course)
+        .scalar_subquery()
+    )
+
+
+@router.get("/", response_model=List[CourseSummaryOut])
 def get_courses(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    courses = (
-        db.query(Course)
+    rows = (
+        db.query(
+            Course,
+            _count_in_course(CourseMaterial, CourseMaterial.kind == MaterialKind.document.value),
+            _count_in_course(CourseMaterial, CourseMaterial.kind == MaterialKind.audio.value),
+            _count_in_course(CourseLink),
+            _count_in_course(CourseNote),
+        )
         .filter(Course.user_id == current_user.id)
-        .order_by(Course.updated_at.desc())
+        # recently opened first; never-opened courses after them, newest change first
+        .order_by(Course.last_opened_at.is_(None), Course.last_opened_at.desc(), Course.updated_at.desc())
         .all()
     )
 
-    return courses
+    return [
+        CourseSummaryOut(
+            **CourseOut.model_validate(course).model_dump(),
+            documents_count=documents,
+            audio_count=audio,
+            links_count=links,
+            notes_count=notes,
+        )
+        for course, documents, audio, links, notes in rows
+    ]
 
 
 @router.get("/{course_id}", response_model=CourseDetailOut)
@@ -123,7 +153,17 @@ def get_course_detail(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return get_owned_course(db, course_id, current_user)
+    course = get_owned_course(db, course_id, current_user)
+
+    # setting updated_at to itself stops its onupdate, so opening a course doesn't count as changing it
+    db.query(Course).filter(Course.id == course.id).update(
+        {Course.last_opened_at: datetime.now(timezone.utc), Course.updated_at: Course.updated_at},
+        synchronize_session=False,
+    )
+    db.commit()
+    db.refresh(course)
+
+    return course
 
 
 @router.patch("/{course_id}", response_model=CourseOut)
@@ -170,6 +210,7 @@ def add_course_note(
     new_note = CourseNote(
         course_id=course_id,
         title=note_data.title,
+        kind=note_data.kind.value,
         content=note_data.content
     )
 
@@ -190,6 +231,13 @@ def update_course_note(
 ):
     course = get_owned_course(db, course_id, current_user)
     note = _get_course_item(db, CourseNote, note_id, course, "Note")
+
+    if changes.content is not None:
+        try:
+            check_note_content(note.kind, changes.content)
+        except ValueError as e:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e))
+
     _apply_update(note, changes)
 
     db.commit()
@@ -271,6 +319,9 @@ def upload_course_material(
     course_id: int,
     background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
+    # audio only: length measured by the browser, and the lecture's language (empty = detect)
+    duration_sec: Optional[float] = Form(None),
+    language: Optional[str] = Form(None),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
@@ -282,6 +333,21 @@ def upload_course_material(
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=f"File extension '.{file_extension}' is not allowed."
+        )
+
+    is_audio = file_extension in AUDIO_EXTENSIONS
+
+    if duration_sec is not None and (not is_audio or not math.isfinite(duration_sec) or duration_sec < 0):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="duration_sec must be a non-negative number, and only for audio."
+        )
+
+    language = language or None
+    if language is not None and (not is_audio or language not in TRANSCRIPT_LANGUAGES):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"language must be one of {sorted(TRANSCRIPT_LANGUAGES)}, and only for audio."
         )
 
     remaining = STORAGE_LIMIT_BYTES - storage_used(db, current_user.id)
@@ -321,20 +387,27 @@ def upload_course_material(
         course_id=course_id,
         file_name=file.filename,
         file_path=file_path,
+        kind=(MaterialKind.audio if is_audio else MaterialKind.document).value,
+        mime_type=AUDIO_EXTENSIONS.get(file_extension) or DOCUMENT_EXTENSIONS[file_extension],
+        duration_sec=duration_sec,
         size_bytes=size_bytes,
     )
+
+    # recordings are transcribed before indexing; the transcript row is the work queue for that
+    if is_audio:
+        new_material.transcript = MaterialTranscript(status="pending", language=language)
 
     db.add(new_material)
     db.commit()
     db.refresh(new_material)
 
-
-    background_tasks.add_task(
-        index_course_material,
-        file_path=file_path,
-        material_id=new_material.id,
-        course_id=course_id
-    )
+    if not is_audio:
+        background_tasks.add_task(
+            index_course_material,
+            file_path=file_path,
+            material_id=new_material.id,
+            course_id=course_id
+        )
 
     return new_material
 
@@ -357,7 +430,8 @@ def download_course_material(
 
     # the stored file keeps the real extension even after the material is renamed
     extension = os.path.splitext(material.file_path)[1]
-    media_type = mimetypes.guess_type(material.file_path)[0] or "application/octet-stream"
+    # files uploaded before mime_type existed fall back to a guess
+    media_type = material.mime_type or mimetypes.guess_type(material.file_path)[0] or "application/octet-stream"
     file_name = material.file_name
     if not file_name.lower().endswith(extension.lower()):
         file_name += extension

@@ -19,7 +19,25 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 CHROMA_DB_DIR = "chroma_db"
 os.makedirs(CHROMA_DB_DIR, exist_ok=True)
 
-ALLOWED_EXTENSIONS = {"pdf", "ppt", "pptx"}
+# extension -> content type it is served with; set here rather than guessed, since Python guesses .webm as video
+DOCUMENT_EXTENSIONS = {
+    "pdf": "application/pdf",
+    "ppt": "application/vnd.ms-powerpoint",
+    "pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+}
+# webm/ogg are what Chrome and Firefox record; m4a is what Safari records
+AUDIO_EXTENSIONS = {
+    "mp3": "audio/mpeg",
+    "m4a": "audio/mp4",
+    "wav": "audio/wav",
+    "webm": "audio/webm",
+    "ogg": "audio/ogg",
+}
+ALLOWED_EXTENSIONS = DOCUMENT_EXTENSIONS.keys() | AUDIO_EXTENSIONS.keys()
+
+# a drawn note's stroke JSON; text notes are much smaller
+MAX_DRAWING_BYTES = 1_000_000
+MAX_TEXT_NOTE_CHARS = 100_000
 
 # total size of all files one user can upload
 STORAGE_LIMIT_BYTES = 5 * 1024 ** 3

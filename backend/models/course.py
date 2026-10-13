@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Float
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -11,6 +11,11 @@ class Course(Base):
     
     title = Column(String, nullable=False)
     description = Column(String, nullable=True)
+    # one of the preset names in schemas.course.CourseColor; the frontend maps it to a theme color
+    color = Column(String, nullable=True)
+    emoji = Column(String, nullable=True)
+    # set when the course page opens; the courses grid sorts by it
+    last_opened_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
@@ -28,6 +33,11 @@ class CourseMaterial(Base):
     
     file_name = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
+    # "document" (pdf/ppt, indexed for AI directly) or "audio" (transcribed first)
+    kind = Column(String, nullable=False, default="document", server_default="document")
+    mime_type = Column(String, nullable=True)
+    # audio length as reported by the browser; null for documents
+    duration_sec = Column(Float, nullable=True)
     # recorded at upload so storage usage is a single SUM instead of reading every file from disk
     size_bytes = Column(Integer, nullable=False, default=0, server_default="0")
 
@@ -36,6 +46,9 @@ class CourseMaterial(Base):
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     course = relationship("Course", back_populates="materials")
+    transcript = relationship(
+        "MaterialTranscript", back_populates="material", uselist=False, cascade="all, delete-orphan"
+    )
 
 
 class CourseNote(Base):
@@ -45,6 +58,8 @@ class CourseNote(Base):
     course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
     
     title = Column(String, nullable=True)
+    # "text" (content is the text) or "drawing" (content is the stroke JSON)
+    kind = Column(String, nullable=False, default="text", server_default="text")
     content = Column(Text, nullable=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
@@ -65,3 +80,27 @@ class CourseLink(Base):
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     course = relationship("Course", back_populates="links")
+
+
+class MaterialTranscript(Base):
+    __tablename__ = "material_transcripts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    material_id = Column(
+        Integer, ForeignKey("course_materials.id", ondelete="CASCADE"), nullable=False, unique=True, index=True
+    )
+
+    # "pending", "done" or "failed"
+    status = Column(String, nullable=False, default="pending")
+    # 0..1 while transcribing
+    progress = Column(Float, nullable=False, default=0)
+    # chosen on upload ("ar"/"en", null = detect); replaced by the detected language when done
+    language = Column(String, nullable=True)
+    # JSON list of {"start": seconds, "end": seconds, "text": "..."}
+    segments = Column(Text, nullable=True)
+    error = Column(String, nullable=True)
+
+    created_at = Column(DateTime(timezone=True), default=func.now())
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
+
+    material = relationship("CourseMaterial", back_populates="transcript")

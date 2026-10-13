@@ -1,7 +1,34 @@
-from pydantic import BaseModel, ConfigDict, field_validator
+import json
+from enum import Enum
+
+from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from datetime import datetime
 from typing import Optional, List
 from urllib.parse import urlparse
+
+from backend.backendConfig import MAX_DRAWING_BYTES, MAX_TEXT_NOTE_CHARS
+
+
+# preset names, not hex values, so the frontend can pick a shade that works in light and dark themes
+class CourseColor(str, Enum):
+    blue = "blue"
+    green = "green"
+    purple = "purple"
+    orange = "orange"
+    pink = "pink"
+    teal = "teal"
+    red = "red"
+    gray = "gray"
+
+
+class MaterialKind(str, Enum):
+    document = "document"
+    audio = "audio"
+
+
+class NoteKind(str, Enum):
+    text = "text"
+    drawing = "drawing"
 
 
 def _clean_title(value: str, max_length: int) -> str:
@@ -23,6 +50,43 @@ def _clean_description(value: Optional[str]) -> Optional[str]:
     return value or None
 
 
+def _clean_emoji(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    value = value.strip()
+    # one emoji can be several code points (skin tones, flags, families), so this only bounds the size
+    if len(value) > 16 or any(char.isspace() for char in value):
+        raise ValueError("Emoji must be a single emoji.")
+    return value or None
+
+
+def _clean_note_title(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return None
+    value = value.strip()
+    if len(value) > 200:
+        raise ValueError("Title is too long (max 200 characters).")
+    return value or None
+
+
+def check_note_content(kind: NoteKind, content: str) -> str:
+    """Raises ValueError when the content doesn't fit the note's kind."""
+    if kind == NoteKind.text:
+        if len(content) > MAX_TEXT_NOTE_CHARS:
+            raise ValueError(f"Note is too long (max {MAX_TEXT_NOTE_CHARS} characters).")
+        return content
+
+    if len(content.encode("utf-8")) > MAX_DRAWING_BYTES:
+        raise ValueError("Drawing is too large to save.")
+    try:
+        drawing = json.loads(content)
+    except ValueError:
+        raise ValueError("Drawing must be JSON.")
+    if not isinstance(drawing, dict) or not isinstance(drawing.get("strokes"), list):
+        raise ValueError("Drawing must be an object with a list of strokes.")
+    return content
+
+
 def _clean_url(value: str) -> str:
     value = value.strip()
     parsed = urlparse(value)
@@ -37,6 +101,8 @@ def _clean_url(value: str) -> str:
 class CourseBase(BaseModel):
     title: str
     description: Optional[str] = None
+    color: Optional[CourseColor] = None
+    emoji: Optional[str] = None
 
 class CourseCreate(CourseBase):
     @field_validator("title")
@@ -49,10 +115,18 @@ class CourseCreate(CourseBase):
     def check_description(cls, value: Optional[str]) -> Optional[str]:
         return _clean_description(value)
 
+    @field_validator("emoji")
+    @classmethod
+    def check_emoji(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_emoji(value)
+
 # every field is optional; only the ones sent are changed
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
+    # null clears these
+    color: Optional[CourseColor] = None
+    emoji: Optional[str] = None
 
     @field_validator("title")
     @classmethod
@@ -66,19 +140,35 @@ class CourseUpdate(BaseModel):
     def check_description(cls, value: Optional[str]) -> Optional[str]:
         return _clean_description(value)
 
+    @field_validator("emoji")
+    @classmethod
+    def check_emoji(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_emoji(value)
+
 class CourseOut(CourseBase):
     id: int
     user_id: int
+    last_opened_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+# a card in the courses grid
+class CourseSummaryOut(CourseOut):
+    documents_count: int
+    audio_count: int
+    links_count: int
+    notes_count: int
 
 class CourseMaterialOut(BaseModel):
     id: int
     course_id: int
     file_name: str
     file_path: str
+    kind: MaterialKind
+    mime_type: Optional[str] = None
+    duration_sec: Optional[float] = None
     size_bytes: int
     is_rag_indexed: bool
     created_at: datetime
@@ -104,11 +194,27 @@ class CourseNoteBase(BaseModel):
     content: str
 
 class CourseNoteCreate(CourseNoteBase):
-    pass
+    kind: NoteKind = NoteKind.text
 
+    @field_validator("title")
+    @classmethod
+    def check_title(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_note_title(value)
+
+    @model_validator(mode="after")
+    def check_content(self):
+        check_note_content(self.kind, self.content)
+        return self
+
+# the kind can't change; the route checks content against the note's kind
 class CourseNoteUpdate(BaseModel):
     title: Optional[str] = None
     content: Optional[str] = None
+
+    @field_validator("title")
+    @classmethod
+    def check_title(cls, value: Optional[str]) -> Optional[str]:
+        return _clean_note_title(value)
 
     @field_validator("content")
     @classmethod
@@ -120,6 +226,7 @@ class CourseNoteUpdate(BaseModel):
 class CourseNoteOut(CourseNoteBase):
     id: int
     course_id: int
+    kind: NoteKind
     created_at: datetime
     updated_at: datetime
 

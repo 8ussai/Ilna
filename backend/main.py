@@ -47,6 +47,32 @@ if "size_bytes" not in {column["name"] for column in inspect(engine).get_columns
             )
 
 
+def _add_missing_columns(table: str, columns: dict):
+    """Adds each column (name -> SQL type and default) that the table doesn't have yet."""
+    existing = {column["name"] for column in inspect(engine).get_columns(table)}
+    with engine.begin() as connection:
+        for name, definition in columns.items():
+            if name not in existing:
+                connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {definition}"))
+
+
+# courses workspace: colors, kinds and recordings
+_add_missing_columns("courses", {
+    "color": "VARCHAR",
+    "emoji": "VARCHAR",
+    "last_opened_at": "DATETIME",
+})
+# every material uploaded before this was a pdf or ppt
+_add_missing_columns("course_materials", {
+    "kind": "VARCHAR NOT NULL DEFAULT 'document'",
+    "mime_type": "VARCHAR",
+    "duration_sec": "FLOAT",
+})
+_add_missing_columns("course_notes", {
+    "kind": "VARCHAR NOT NULL DEFAULT 'text'",
+})
+
+
 app.mount("/files", StaticFiles(directory=UPLOAD_DIR), name="files")
 
 
