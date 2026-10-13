@@ -179,6 +179,18 @@ def get_course_detail(
     return course
 
 
+# what the course page polls while files are indexing or recordings are transcribing;
+# unlike the detail route it doesn't count as opening the course
+@router.get("/{course_id}/materials", response_model=List[CourseMaterialOut])
+def get_course_materials(
+    course_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    course = get_owned_course(db, course_id, current_user)
+    return course.materials
+
+
 @router.patch("/{course_id}", response_model=CourseOut)
 def update_course(
     course_id: int,

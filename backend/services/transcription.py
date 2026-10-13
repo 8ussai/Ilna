@@ -186,12 +186,15 @@ def transcribe_material(material_id: int):
 
     except Exception as e:
         db.rollback()
-        print(f"[Transcribe] Error on material {material_id}: {e}")
         transcript = db.query(MaterialTranscript).filter(MaterialTranscript.material_id == material_id).first()
-        if transcript is not None:
-            transcript.status = "failed"
-            transcript.error = str(e)[:500]
-            db.commit()
+        # a recording deleted mid-commit surfaces as a stale-row error, not as _MaterialDeleted
+        if transcript is None:
+            print(f"[Transcribe] Material {material_id} was deleted during transcription")
+            return
+        print(f"[Transcribe] Error on material {material_id}: {e}")
+        transcript.status = "failed"
+        transcript.error = str(e)[:500]
+        db.commit()
         return
 
     finally:

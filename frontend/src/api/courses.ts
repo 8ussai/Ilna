@@ -126,6 +126,74 @@ export function fetchMaterialFile(courseId: number, materialId: number) {
   return authBlob(`/courses/${courseId}/materials/${materialId}/file`)
 }
 
+// for polling indexing and transcription; doesn't count as opening the course
+export function fetchMaterials(courseId: number) {
+  return authRequest<CourseMaterial[]>(`/courses/${courseId}/materials`)
+}
+
+export function renameMaterial(courseId: number, materialId: number, fileName: string) {
+  return authRequest<CourseMaterial>(`/courses/${courseId}/materials/${materialId}`, {
+    method: 'PATCH',
+    headers: json,
+    body: JSON.stringify({ file_name: fileName }),
+  })
+}
+
+export function deleteMaterial(courseId: number, materialId: number) {
+  return authRequest<null>(`/courses/${courseId}/materials/${materialId}`, { method: 'DELETE' })
+}
+
+export type TranscriptLanguage = 'ar' | 'en'
+export type TranscriptSegment = { start: number; end: number; text: string }
+export type Transcript = NonNullable<CourseMaterial['transcript']> & { segments: TranscriptSegment[] | null }
+
+export function fetchTranscript(courseId: number, materialId: number) {
+  return authRequest<Transcript>(`/courses/${courseId}/materials/${materialId}/transcript`)
+}
+
+// null language = detect it
+export function retryTranscript(courseId: number, materialId: number, language: TranscriptLanguage | null) {
+  return authRequest<Transcript>(`/courses/${courseId}/materials/${materialId}/transcript/retry`, {
+    method: 'POST',
+    headers: json,
+    body: JSON.stringify({ language }),
+  })
+}
+
+export function updateCourseLink(courseId: number, linkId: number, changes: { title?: string; url?: string }) {
+  return authRequest<CourseLink>(`/courses/${courseId}/links/${linkId}`, {
+    method: 'PATCH',
+    headers: json,
+    body: JSON.stringify(changes),
+  })
+}
+
+export function deleteCourseLink(courseId: number, linkId: number) {
+  return authRequest<null>(`/courses/${courseId}/links/${linkId}`, { method: 'DELETE' })
+}
+
+// the extension a download gets when a renamed material's name no longer ends in one
+const MIME_EXTENSIONS: Record<string, string> = {
+  'application/pdf': 'pdf',
+  'application/vnd.ms-powerpoint': 'ppt',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': 'pptx',
+  'audio/mpeg': 'mp3',
+  'audio/mp4': 'm4a',
+  'audio/wav': 'wav',
+  'audio/webm': 'webm',
+  'audio/ogg': 'ogg',
+}
+
+export function downloadName(material: CourseMaterial) {
+  const extension = material.mime_type ? MIME_EXTENSIONS[material.mime_type] : undefined
+  if (!extension || fileExtension(material.file_name) === extension) return material.file_name
+  return `${material.file_name}.${extension}`
+}
+
+export function isAudio(name: string) {
+  return AUDIO_EXTENSIONS.includes(fileExtension(name))
+}
+
 export function fileExtension(name: string) {
   const dot = name.lastIndexOf('.')
   return dot === -1 ? '' : name.slice(dot + 1).toLowerCase()

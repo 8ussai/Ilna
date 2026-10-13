@@ -16,7 +16,7 @@ import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
 import { useUnreadCount } from '../hooks/useUnreadCount'
 import { currentPath, routeFromPath, routePath } from '../tabs'
-import type { Route } from '../tabs'
+import type { CourseSection, Route } from '../tabs'
 import { ContactPage } from './ContactPage'
 import { CoursePage } from './CoursePage'
 import { CoursesPage } from './CoursesPage'
@@ -74,6 +74,14 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     window.scrollTo({ top: 0 })
   }
 
+  // a tab inside the course page: its own history entry (so Back returns to the previous tab), without scrolling
+  function selectCourseSection(courseId: number, section: CourseSection) {
+    const next: Route = { kind: 'course', courseId, section }
+    const path = routePath(next)
+    if (path !== currentPath()) window.history.pushState(null, '', path)
+    setRoute(next)
+  }
+
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false)
     accountButtonRef.current?.focus()
@@ -91,11 +99,19 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   function renderContent() {
     const tab = route.kind === 'tab' ? route.tab : null
-    const openCourse = (courseId: number) => navigate({ kind: 'course', courseId })
+    const openCourse = (courseId: number) => navigate({ kind: 'course', courseId, section: null })
     // courses don't need the profile, so they don't wait for it
     if (tab === 'my-courses') return <CoursesPage onOpenCourse={openCourse} />
     if (route.kind === 'course') {
-      return <CoursePage key={route.courseId} courseId={route.courseId} onBack={() => navigate({ kind: 'tab', tab: 'my-courses' })} />
+      return (
+        <CoursePage
+          key={route.courseId}
+          courseId={route.courseId}
+          section={route.section ?? 'materials'}
+          onSectionChange={(section) => selectCourseSection(route.courseId, section)}
+          onBack={() => navigate({ kind: 'tab', tab: 'my-courses' })}
+        />
+      )
     }
 
     if (!me) {

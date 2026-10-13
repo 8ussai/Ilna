@@ -199,7 +199,7 @@ class CourseMaterialOut(BaseModel):
     id: int
     course_id: int
     file_name: str
-    file_path: str
+    # file_path stays server-side; the file is fetched from the authenticated /file route
     kind: MaterialKind
     mime_type: Optional[str] = None
     duration_sec: Optional[float] = None

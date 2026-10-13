@@ -11,6 +11,7 @@
   --accent: #b85536;
   --accent-fg: #ffffff;
   --danger: #b3261e;
+  --success: #2e7d32;
 }
 
 :root[data-theme="dark"] {
@@ -24,6 +25,7 @@
   --accent: #d97757;
   --accent-fg: #141413;
   --danger: #f2998f;
+  --success: #81c995;
 }
 
 @theme inline {
@@ -36,6 +38,7 @@
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
+  --color-success: var(--success);
 
   /* Latin glyphs come from the first family, Arabic glyphs fall through to the Arabic one. */
   --font-sans: "Inter", "IBM Plex Sans Arabic", system-ui, sans-serif;

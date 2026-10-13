@@ -3,7 +3,6 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
 from backend.database import engine, Base, SessionLocal
@@ -11,7 +10,6 @@ from backend.database import engine, Base, SessionLocal
 from backend.models import user, post, course, notification, contact as contact_model
 from backend.routes import auth, contact, me, posts, replies, courses, meta
 
-from backend.backendConfig import UPLOAD_DIR 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
@@ -122,8 +120,7 @@ _add_missing_columns("course_notes", {
 })
 
 
-app.mount("/files", StaticFiles(directory=UPLOAD_DIR), name="files")
-
+# no public file mount: course files are only served to their owner, by /courses/{id}/materials/{mid}/file
 
 app.include_router(auth.router, prefix="/auth", tags=["Authentication"])
 app.include_router(me.router, prefix="/me", tags=["Me"])

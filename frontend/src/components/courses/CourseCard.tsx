@@ -9,7 +9,7 @@ import { inAppClick } from '../../links'
 import { coursePath } from '../../tabs'
 import { Dialog } from '../Dialog'
 import { Field } from '../Field'
-import { primaryButton, secondaryButton } from '../styles'
+import { dangerButtonInline, primaryButtonInline, secondaryButtonInline } from '../styles'
 import { CourseLookPicker } from './CourseLookPicker'
 import { courseColorClass, isSingleEmoji } from './courseColors'
 
@@ -206,10 +206,10 @@ function DialogButtons({ busy, submitLabel, onCancel, danger }: { busy: boolean;
   const { t } = useTranslation()
   return (
     <div className="mt-6 flex justify-end gap-3">
-      <button type="button" onClick={onCancel} className={`${secondaryButton} w-auto`}>
+      <button type="button" onClick={onCancel} className={secondaryButtonInline}>
         {t('feed.cancel')}
       </button>
-      <button type="submit" disabled={busy} className={`${primaryButton} w-auto ${danger ? 'bg-danger' : ''}`}>
+      <button type="submit" disabled={busy} className={danger ? dangerButtonInline : primaryButtonInline}>
         {busy ? t('auth.working') : submitLabel}
       </button>
     </div>

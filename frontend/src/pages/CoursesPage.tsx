@@ -6,7 +6,7 @@ import { deleteCourse, fetchCourses, updateCourse } from '../api/courses'
 import type { Course, CourseSummary } from '../api/courses'
 import { CourseCard } from '../components/courses/CourseCard'
 import { NewCourseDialog } from '../components/courses/NewCourseDialog'
-import { secondaryButton } from '../components/styles'
+import { secondaryButtonInline } from '../components/styles'
 
 type Status = 'loading' | 'ready' | 'error'
 
@@ -101,7 +101,7 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
       {status === 'error' && (
         <div className="py-10 text-center">
           <p className="text-muted">{t('courses.loadFailed')}</p>
-          <button type="button" onClick={reload} className={`${secondaryButton} mt-4 w-auto`}>
+          <button type="button" onClick={reload} className={`${secondaryButtonInline} mt-4`}>
             {t('auth.retry')}
           </button>
         </div>
