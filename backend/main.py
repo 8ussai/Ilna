@@ -12,6 +12,7 @@ from backend.routes import auth, contact, me, posts, replies, courses, meta
 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs
+from backend.services.note_index import index_note, stale_note_ids
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import index_transcript, transcribe_material
 
@@ -34,6 +35,7 @@ def _requeue_unfinished_work():
             .order_by(MaterialTranscript.id)
             .all()
         )
+        notes = stale_note_ids(db)
         documents = (
             db.query(CourseMaterial.id, CourseMaterial.file_path, CourseMaterial.course_id)
             .filter(CourseMaterial.kind == "document", CourseMaterial.is_rag_indexed.is_(False))
@@ -49,8 +51,11 @@ def _requeue_unfinished_work():
         jobs.submit(index_transcript, material_id)
     for material_id, file_path, course_id in documents:
         jobs.submit(index_course_material, file_path, material_id, course_id)
-    if transcripts or unindexed_transcripts or documents:
-        print(f"[Jobs] Re-queued {len(transcripts) + len(unindexed_transcripts)} recordings and {len(documents)} documents")
+    for note_id in notes:
+        jobs.submit(index_note, note_id)
+    if transcripts or unindexed_transcripts or documents or notes:
+        print(f"[Jobs] Re-queued {len(transcripts) + len(unindexed_transcripts)} recordings, "
+              f"{len(documents)} documents and {len(notes)} notes")
 
 
 @asynccontextmanager
@@ -117,6 +122,7 @@ _add_missing_columns("course_materials", {
 })
 _add_missing_columns("course_notes", {
     "kind": "VARCHAR NOT NULL DEFAULT 'text'",
+    "indexed_at": "DATETIME",
 })
 
 

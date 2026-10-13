@@ -172,6 +172,27 @@ export function deleteCourseLink(courseId: number, linkId: number) {
   return authRequest<null>(`/courses/${courseId}/links/${linkId}`, { method: 'DELETE' })
 }
 
+// the backend's limits (MAX_TEXT_NOTE_CHARS, the note title length)
+export const NOTE_CONTENT_MAX = 100_000
+export const NOTE_TITLE_MAX = 200
+
+export function createNote(courseId: number, note: { title: string | null; content: string; kind?: CourseNote['kind'] }) {
+  return authRequest<CourseNote>(`/courses/${courseId}/notes`, { method: 'POST', headers: json, body: JSON.stringify(note) })
+}
+
+// null title clears it
+export function updateNote(courseId: number, noteId: number, changes: { title?: string | null; content?: string }) {
+  return authRequest<CourseNote>(`/courses/${courseId}/notes/${noteId}`, {
+    method: 'PATCH',
+    headers: json,
+    body: JSON.stringify(changes),
+  })
+}
+
+export function deleteNote(courseId: number, noteId: number) {
+  return authRequest<null>(`/courses/${courseId}/notes/${noteId}`, { method: 'DELETE' })
+}
+
 // the extension a download gets when a renamed material's name no longer ends in one
 const MIME_EXTENSIONS: Record<string, string> = {
   'application/pdf': 'pdf',

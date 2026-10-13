@@ -61,6 +61,8 @@ class CourseNote(Base):
     # "text" (content is the text) or "drawing" (content is the stroke JSON)
     kind = Column(String, nullable=False, default="text", server_default="text")
     content = Column(Text, nullable=False)
+    # when the text was last embedded for AI search; behind updated_at means it needs doing again
+    indexed_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 

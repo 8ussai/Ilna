@@ -70,5 +70,9 @@ def delete_material_vectors(material_id: int):
     _get_collection().delete(where={"material_id": material_id})
 
 
+def delete_note_vectors(note_id: int):
+    _get_collection().delete(where={"note_id": note_id})
+
+
 def delete_course_vectors(course_id: int):
     _get_collection().delete(where={"course_id": course_id})

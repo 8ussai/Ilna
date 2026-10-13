@@ -304,7 +304,21 @@
       "untitledDrawing": "رسم بلا عنوان",
       "drawing": "رسم",
       "text": "ملاحظة نصية",
-      "updated": "عُدّلت {{when}}"
+      "updated": "عُدّلت {{when}}",
+      "new": "ملاحظة جديدة",
+      "allNotes": "كل الملاحظات",
+      "confirmDelete": "حذف هذه الملاحظة؟",
+      "titleLabel": "عنوان الملاحظة",
+      "titlePlaceholder": "العنوان",
+      "contentLabel": "الملاحظة",
+      "contentPlaceholder": "ابدأ الكتابة…",
+      "saving": "جارٍ الحفظ…",
+      "saved": "تم الحفظ",
+      "saveFailed": "تعذّر الحفظ. جارٍ إعادة المحاولة…",
+      "retryNow": "أعد المحاولة الآن",
+      "leaveUnsaved": "آخر تعديلاتك لم تُحفظ بعد. ستفقدها إن غادرت الآن.",
+      "keepEditing": "متابعة التعديل",
+      "leaveAnyway": "المغادرة على أي حال"
     }
   },
   "replies": {

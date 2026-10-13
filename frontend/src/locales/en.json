@@ -280,7 +280,21 @@
       "untitledDrawing": "Untitled drawing",
       "drawing": "Drawing",
       "text": "Text note",
-      "updated": "Updated {{when}}"
+      "updated": "Updated {{when}}",
+      "new": "New note",
+      "allNotes": "All notes",
+      "confirmDelete": "Delete this note?",
+      "titleLabel": "Note title",
+      "titlePlaceholder": "Title",
+      "contentLabel": "Note",
+      "contentPlaceholder": "Start writing…",
+      "saving": "Saving…",
+      "saved": "Saved",
+      "saveFailed": "Couldn't save. Retrying…",
+      "retryNow": "Retry now",
+      "leaveUnsaved": "Your latest changes aren't saved yet. Leaving now loses them.",
+      "keepEditing": "Keep editing",
+      "leaveAnyway": "Leave anyway"
     }
   },
   "replies": {

@@ -194,7 +194,16 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
             {section === 'voice' && (
               <VoiceTab courseId={course.id} recordings={recordings} onAdded={addMaterial} onChanged={changeMaterial} onDeleted={removeMaterial} />
             )}
-            {section === 'notes' && <NotesTab notes={notes} />}
+            {section === 'notes' && (
+              <NotesTab
+                courseId={course.id}
+                notes={notes}
+                onSaved={(note) =>
+                  update({ notes: course.notes.some((n) => n.id === note.id) ? course.notes.map((n) => (n.id === note.id ? note : n)) : [note, ...course.notes] })
+                }
+                onDeleted={(id) => update({ notes: course.notes.filter((n) => n.id !== id) })}
+              />
+            )}
           </div>
         </div>
       </div>

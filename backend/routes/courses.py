@@ -20,6 +20,7 @@ from backend.schemas.course import (
     CourseOut,
     CourseSummaryOut,
     MaterialKind,
+    NoteKind,
     TranscriptOut,
     TranscriptRetry,
     TranscriptStatus,
@@ -35,7 +36,8 @@ from backend.schemas.course import (
     CourseDetailOut
 )
 from backend.core.apiDependencies import get_current_user
-from backend.services.embeddings import delete_course_vectors, delete_material_vectors
+from backend.services.embeddings import delete_course_vectors, delete_material_vectors, delete_note_vectors
+from backend.services.note_index import cancel_note_index, schedule_note_index
 from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import transcribe_material
@@ -244,6 +246,9 @@ def add_course_note(
     db.commit()
     db.refresh(new_note)
 
+    if new_note.kind == NoteKind.text.value:
+        schedule_note_index(new_note.id)
+
     return new_note
 
 
@@ -269,6 +274,9 @@ def update_course_note(
     db.commit()
     db.refresh(note)
 
+    if note.kind == NoteKind.text.value:
+        schedule_note_index(note.id)
+
     return note
 
 
@@ -284,6 +292,9 @@ def delete_course_note(
 
     db.delete(note)
     db.commit()
+
+    cancel_note_index(note_id)
+    _remove_vectors(delete_note_vectors, note_id)
 
 
 @router.post("/{course_id}/links", response_model=CourseLinkOut, status_code=status.HTTP_201_CREATED)
