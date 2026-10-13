@@ -15,7 +15,9 @@ COLLECTION_NAME = "course_chunks_qwen3"
 # Qwen3 is instruction-aware: queries get a task line, stored chunks don't
 QUERY_PROMPT = "Instruct: Given a request about a university course, retrieve passages from the course material that answer it\nQuery:"
 
-# leave half the cores for the API while a file is being indexed
+# production runs on a GPU; development laptops fall back to the CPU
+DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
+# on CPU, leave half the cores for the API while a file is being indexed
 TORCH_THREADS = max(1, (os.cpu_count() or 2) // 2)
 
 _lock = threading.Lock()
@@ -41,9 +43,15 @@ def get_vectorstore() -> Chroma:
     client = get_chroma_client()
     with _lock:
         if _vectorstore is None:
-            torch.set_num_threads(TORCH_THREADS)
+            model_kwargs = {"device": DEVICE}
+            if DEVICE == "cuda":
+                # half precision: half the GPU memory and faster, with no meaningful loss for retrieval
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
+            else:
+                torch.set_num_threads(TORCH_THREADS)
             embeddings = HuggingFaceEmbeddings(
                 model_name=EMBEDDING_MODEL,
+                model_kwargs=model_kwargs,
                 encode_kwargs={"normalize_embeddings": True, "batch_size": 8},
                 query_encode_kwargs={"normalize_embeddings": True, "prompt": QUERY_PROMPT},
             )
