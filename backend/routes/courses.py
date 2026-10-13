@@ -9,7 +9,6 @@ from fastapi.responses import FileResponse
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 from typing import List, Optional
-from fastapi import BackgroundTasks
 
 from backend.database import get_db
 from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, STORAGE_LIMIT_BYTES
@@ -21,6 +20,9 @@ from backend.schemas.course import (
     CourseOut,
     CourseSummaryOut,
     MaterialKind,
+    TranscriptOut,
+    TranscriptRetry,
+    TranscriptStatus,
     check_note_content,
     CourseNoteCreate,
     CourseNoteUpdate,
@@ -34,7 +36,9 @@ from backend.schemas.course import (
 )
 from backend.core.apiDependencies import get_current_user
 from backend.services.embeddings import delete_course_vectors, delete_material_vectors
+from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
+from backend.services.transcription import transcribe_material
 from backend.services.quiz_generator import generate_quiz_from_material
 from backend.services.storage import storage_used
 
@@ -327,7 +331,6 @@ def delete_course_link(
 @router.post("/{course_id}/upload", response_model=CourseMaterialOut, status_code=status.HTTP_201_CREATED)
 def upload_course_material(
     course_id: int,
-    background_tasks: BackgroundTasks,
     file: UploadFile = File(...),
     # audio only: length measured by the browser, and the lecture's language (empty = detect)
     duration_sec: Optional[float] = Form(None),
@@ -403,7 +406,7 @@ def upload_course_material(
         size_bytes=size_bytes,
     )
 
-    # recordings are transcribed before indexing; the transcript row is the work queue for that
+    # recordings are transcribed before indexing; the transcript row tracks that work
     if is_audio:
         new_material.transcript = MaterialTranscript(status="pending", language=language)
 
@@ -411,13 +414,10 @@ def upload_course_material(
     db.commit()
     db.refresh(new_material)
 
-    if not is_audio:
-        background_tasks.add_task(
-            index_course_material,
-            file_path=file_path,
-            material_id=new_material.id,
-            course_id=course_id
-        )
+    if is_audio:
+        jobs.submit(transcribe_material, new_material.id)
+    else:
+        jobs.submit(index_course_material, file_path, new_material.id, course_id)
 
     return new_material
 
@@ -489,6 +489,60 @@ def delete_course_material(
 
     _remove_files([file_path])
     _remove_vectors(delete_material_vectors, material_id)
+
+
+def _get_transcript(db: Session, course_id: int, material_id: int, user: User):
+    course = get_owned_course(db, course_id, user)
+    material = _get_course_item(db, CourseMaterial, material_id, course, "Material")
+
+    if material.transcript is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Only recordings have a transcript."
+        )
+
+    return material.transcript
+
+
+@router.get("/{course_id}/materials/{material_id}/transcript", response_model=TranscriptOut)
+def get_material_transcript(
+    course_id: int,
+    material_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return _get_transcript(db, course_id, material_id, current_user)
+
+
+@router.post("/{course_id}/materials/{material_id}/transcript/retry", response_model=TranscriptOut)
+def retry_material_transcript(
+    course_id: int,
+    material_id: int,
+    retry: TranscriptRetry,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    transcript = _get_transcript(db, course_id, material_id, current_user)
+
+    if transcript.status in (TranscriptStatus.pending.value, TranscriptStatus.processing.value):
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This recording is already being transcribed."
+        )
+
+    # a finished transcript can be redone too, e.g. in another language
+    transcript.status = TranscriptStatus.pending.value
+    transcript.progress = 0
+    transcript.error = None
+    transcript.segments = None
+    transcript.language = retry.language
+    transcript.material.is_rag_indexed = False
+    db.commit()
+    db.refresh(transcript)
+
+    jobs.submit(transcribe_material, material_id)
+
+    return transcript
 
 
 @router.get("/{course_id}/materials/{material_id}/quiz")

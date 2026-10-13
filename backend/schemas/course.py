@@ -3,7 +3,7 @@ from enum import Enum
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 from datetime import datetime
-from typing import Optional, List
+from typing import Literal, Optional, List
 from urllib.parse import urlparse
 
 from backend.backendConfig import MAX_DRAWING_BYTES, MAX_TEXT_NOTE_CHARS
@@ -29,6 +29,13 @@ class MaterialKind(str, Enum):
 class NoteKind(str, Enum):
     text = "text"
     drawing = "drawing"
+
+
+class TranscriptStatus(str, Enum):
+    pending = "pending"
+    processing = "processing"
+    done = "done"
+    failed = "failed"
 
 
 def _clean_title(value: str, max_length: int) -> str:
@@ -161,6 +168,33 @@ class CourseSummaryOut(CourseOut):
     links_count: int
     notes_count: int
 
+# shown with each recording; the segments come from the transcript route
+class TranscriptSummaryOut(BaseModel):
+    status: TranscriptStatus
+    progress: float
+    language: Optional[str] = None
+    error: Optional[str] = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+class TranscriptSegment(BaseModel):
+    start: float
+    end: float
+    text: str
+
+class TranscriptOut(TranscriptSummaryOut):
+    segments: Optional[List[TranscriptSegment]] = None
+
+    @field_validator("segments", mode="before")
+    @classmethod
+    def parse_segments(cls, value):
+        # stored as JSON text
+        return json.loads(value) if isinstance(value, str) else value
+
+class TranscriptRetry(BaseModel):
+    # null = detect the language
+    language: Optional[Literal["ar", "en"]] = None
+
 class CourseMaterialOut(BaseModel):
     id: int
     course_id: int
@@ -171,6 +205,8 @@ class CourseMaterialOut(BaseModel):
     duration_sec: Optional[float] = None
     size_bytes: int
     is_rag_indexed: bool
+    # recordings only
+    transcript: Optional[TranscriptSummaryOut] = None
     created_at: datetime
     updated_at: datetime
 

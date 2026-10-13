@@ -22,3 +22,4 @@ unstructured
 python-pptx
 
 langchain-google-genai
+faster-whisper

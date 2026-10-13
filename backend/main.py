@@ -1,22 +1,71 @@
 import os
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from sqlalchemy import inspect, text
 
-from backend.database import engine, Base
+from backend.database import engine, Base, SessionLocal
 # imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, contact as contact_model
 from backend.routes import auth, contact, me, posts, replies, courses, meta
 
 from backend.backendConfig import UPLOAD_DIR 
+from backend.models.course import CourseMaterial, MaterialTranscript
+from backend.services import jobs
+from backend.services.rag_pipeline import index_course_material
+from backend.services.transcription import index_transcript, transcribe_material
+
+
+def _requeue_unfinished_work():
+    """Jobs live in memory, so work cut off by a restart is found again here and queued."""
+    db = SessionLocal()
+    try:
+        transcripts = (
+            db.query(MaterialTranscript.material_id)
+            .filter(MaterialTranscript.status.in_(["pending", "processing"]))
+            .order_by(MaterialTranscript.id)
+            .all()
+        )
+        # transcribed, but cut off (or failed) before it was indexed for AI
+        unindexed_transcripts = (
+            db.query(MaterialTranscript.material_id)
+            .join(CourseMaterial, CourseMaterial.id == MaterialTranscript.material_id)
+            .filter(MaterialTranscript.status == "done", CourseMaterial.is_rag_indexed.is_(False))
+            .order_by(MaterialTranscript.id)
+            .all()
+        )
+        documents = (
+            db.query(CourseMaterial.id, CourseMaterial.file_path, CourseMaterial.course_id)
+            .filter(CourseMaterial.kind == "document", CourseMaterial.is_rag_indexed.is_(False))
+            .order_by(CourseMaterial.id)
+            .all()
+        )
+    finally:
+        db.close()
+
+    for (material_id,) in transcripts:
+        jobs.submit(transcribe_material, material_id)
+    for (material_id,) in unindexed_transcripts:
+        jobs.submit(index_transcript, material_id)
+    for material_id, file_path, course_id in documents:
+        jobs.submit(index_course_material, file_path, material_id, course_id)
+    if transcripts or unindexed_transcripts or documents:
+        print(f"[Jobs] Re-queued {len(transcripts) + len(unindexed_transcripts)} recordings and {len(documents)} documents")
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    _requeue_unfinished_work()
+    yield
 
 
 app = FastAPI(
     title="ilna API",
     description="Academic Platform API for managing courses, users, and authentication.",
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 app.add_middleware(
