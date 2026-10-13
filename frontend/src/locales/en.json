@@ -97,6 +97,97 @@
       "top": "Top"
     }
   },
+  "courses": {
+    "loadFailed": "Couldn't load your courses.",
+    "loadOneFailed": "Couldn't load this course.",
+    "unavailable": "This course isn't available. It may have been deleted.",
+    "emptyTitle": "Create your first course",
+    "emptyBody": "A course keeps a subject's slides, recordings, links and notes together, ready for AI summaries and quizzes.",
+    "back": "My Courses",
+    "opened": "Opened {{when}}",
+    "created": "Created {{when}}",
+    "counts": {
+      "files_one": "{{count}} file",
+      "files_other": "{{count}} files",
+      "recordings_one": "{{count}} recording",
+      "recordings_other": "{{count}} recordings",
+      "links_one": "{{count}} link",
+      "links_other": "{{count}} links",
+      "notes_one": "{{count}} note",
+      "notes_other": "{{count}} notes",
+      "empty": "Nothing added yet"
+    },
+    "menu": {
+      "label": "Options for {{title}}",
+      "rename": "Rename",
+      "look": "Change color",
+      "delete": "Delete"
+    },
+    "delete": {
+      "title": "Delete course",
+      "question": "Delete",
+      "withFiles_one": "This also deletes its {{count}} file, along with its links and notes. This can't be undone.",
+      "withFiles_other": "This also deletes its {{count}} files, along with its links and notes. This can't be undone.",
+      "noFiles": "Its links and notes are deleted too. This can't be undone.",
+      "confirm": "Delete course"
+    },
+    "colors": {
+      "none": "Default",
+      "blue": "Blue",
+      "green": "Green",
+      "purple": "Purple",
+      "orange": "Orange",
+      "pink": "Pink",
+      "teal": "Teal",
+      "red": "Red",
+      "gray": "Gray"
+    },
+    "form": {
+      "name": "Course name",
+      "namePlaceholder": "e.g. Linear Algebra",
+      "description": "Description",
+      "optional": "(optional)",
+      "color": "Color",
+      "emoji": "Emoji",
+      "emojiChoices": "Suggested emoji",
+      "emojiHint": "Type or pick one emoji.",
+      "emojiInvalid": "Use a single emoji.",
+      "save": "Save"
+    },
+    "new": {
+      "tile": "New course",
+      "title": "New course",
+      "create": "Create course",
+      "addTitle": "Add content",
+      "created": "“{{title}}” is ready.",
+      "optionalHint": "Everything here is optional, and you can add more later.",
+      "materials": "Materials",
+      "dropFiles": "Drop files here or choose files",
+      "fileTypes": "Slides and documents: {{types}}",
+      "links": "Links",
+      "voice": "Recordings",
+      "dropAudio": "Drop recordings here or choose files",
+      "audioHint": "Lecture audio ({{types}}). It's transcribed after upload.",
+      "done": "Done"
+    },
+    "upload": {
+      "queued": "Waiting…",
+      "uploading": "Uploading… {{percent}}%",
+      "done": "Uploaded",
+      "cancelled": "Cancelled",
+      "failed": "Upload failed.",
+      "badType": "This file type isn't supported.",
+      "noSpace": "Not enough storage left for this file.",
+      "progress": "Uploading {{name}}",
+      "waiting": "Waiting for uploads to finish…"
+    },
+    "links": {
+      "title": "Title",
+      "url": "Link",
+      "urlInvalid": "Enter a full address starting with http:// or https://.",
+      "add": "Add link"
+    }
+  },
   "replies": {
     "count_one": "{{count}} reply",
     "count_other": "{{count}} replies",

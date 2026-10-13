@@ -18,6 +18,8 @@ import { useUnreadCount } from '../hooks/useUnreadCount'
 import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { Route } from '../tabs'
 import { ContactPage } from './ContactPage'
+import { CoursePage } from './CoursePage'
+import { CoursesPage } from './CoursesPage'
 import { NotificationsPage } from './NotificationsPage'
 import { PostPage } from './PostPage'
 import { Settings } from './Settings'
@@ -85,10 +87,16 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   const openPost = (postId: number, replyId: number | null) => navigate({ kind: 'post', postId, replyId })
 
+  const isCoursesArea = (route.kind === 'tab' && route.tab === 'my-courses') || route.kind === 'course'
+
   function renderContent() {
     const tab = route.kind === 'tab' ? route.tab : null
-    // placeholder until the courses workspace is built
-    if (tab === 'my-courses') return null
+    const openCourse = (courseId: number) => navigate({ kind: 'course', courseId })
+    // courses don't need the profile, so they don't wait for it
+    if (tab === 'my-courses') return <CoursesPage onOpenCourse={openCourse} />
+    if (route.kind === 'course') {
+      return <CoursePage key={route.courseId} courseId={route.courseId} onBack={() => navigate({ kind: 'tab', tab: 'my-courses' })} />
+    }
 
     if (!me) {
       return meFailed ? (
@@ -130,7 +138,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
       return <PostPage key={route.postId} postId={route.postId} replyId={route.replyId} userId={me.id} />
     }
 
-    // 'my-courses' returned above, so what's left is a blog scope
+    // 'my-courses' and courses returned above, so what's left is a blog scope
     const scope = tab as PostScope
     const names = catalogNames(catalog, me, i18n.language)
     const title = scope === 'general' ? t('tabs.general') : (names[scope] ?? t(`tabs.${scope}`))
@@ -170,10 +178,14 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
             )}
           </button>
         </Header>
-        <TabBar active={route.kind === 'tab' ? route.tab : null} onSelect={(tab) => navigate({ kind: 'tab', tab })} />
+        <TabBar
+          active={route.kind === 'tab' ? route.tab : route.kind === 'course' ? 'my-courses' : null}
+          onSelect={(tab) => navigate({ kind: 'tab', tab })}
+        />
       </div>
 
-      <main className="mx-auto w-full max-w-3xl flex-1 px-5 py-8 sm:px-8">{renderContent()}</main>
+      {/* the courses grid needs room for three columns; everything else reads better narrow */}
+      <main className={`mx-auto w-full flex-1 px-5 py-8 sm:px-8 ${isCoursesArea ? 'max-w-6xl' : 'max-w-3xl'}`}>{renderContent()}</main>
 
       <AccountDrawer
         open={drawerOpen}

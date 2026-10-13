@@ -15,6 +15,8 @@ export type Route =
   | { kind: 'drawer'; page: DrawerPage }
   // a single post (/post/<id>); replyId (#reply-<id>) is the reply to scroll to and highlight
   | { kind: 'post'; postId: number; replyId: number | null }
+  // one course's workspace (/course/<id>)
+  | { kind: 'course'; courseId: number }
 
 export function tabPath(tab: Tab) {
   return `/${tab}`
@@ -28,10 +30,15 @@ export function postPath(postId: number, replyId: number | null = null) {
   return replyId === null ? `/post/${postId}` : `/post/${postId}#reply-${replyId}`
 }
 
+export function coursePath(courseId: number) {
+  return `/course/${courseId}`
+}
+
 export function routePath(route: Route) {
   if (route.kind === 'tab') return tabPath(route.tab)
   if (route.kind === 'settings') return settingsPath(route.page)
   if (route.kind === 'drawer') return `/${route.page}`
+  if (route.kind === 'course') return coursePath(route.courseId)
   return postPath(route.postId, route.replyId)
 }
 
@@ -47,6 +54,7 @@ export function routeFromPath(): Route {
     const reply = /^#reply-(\d+)$/.exec(window.location.hash)
     return { kind: 'post', postId: Number(second), replyId: reply ? Number(reply[1]) : null }
   }
+  if (first === 'course' && /^\d+$/.test(second ?? '')) return { kind: 'course', courseId: Number(second) }
   if ((DRAWER_PAGES as readonly string[]).includes(first)) return { kind: 'drawer', page: first as DrawerPage }
   if (first === 'settings') {
     // these used to live under /settings; keep old links working
