@@ -9,15 +9,12 @@ import type { Catalog } from '../api/meta'
 import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
-import { CountBadge } from '../components/CountBadge'
 import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
 import { settingsPath } from '../tabs'
 import { ActivityPage } from './ActivityPage'
-import { ContactPage } from './ContactPage'
-import { NotificationsPage } from './NotificationsPage'
 import type { SettingsPage } from '../tabs'
 
 type SettingsProps = {
@@ -27,9 +24,6 @@ type SettingsProps = {
   onNavigate: (page: SettingsPage) => void
   onPasswordChanged: () => void
   onOpenPost: (postId: number, replyId: number | null) => void
-  unreadCount: number
-  // must be stable (useCallback): the notifications page reloads when it changes
-  onMarkedRead: (count: number) => void
 }
 
 const chevron = (
@@ -46,22 +40,18 @@ function PageLink({ page, onNavigate, className, children }: { page: SettingsPag
   )
 }
 
-export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost, unreadCount, onMarkedRead }: SettingsProps) {
+export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
-    const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode, badge = 0) => (
+    const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode) => (
       <li>
         <PageLink page={target} onNavigate={onNavigate} className="flex items-center gap-4 px-5 py-4 hover:bg-surface">
           {icon}
           <span className="min-w-0 flex-1">
-            <span className="block font-medium">
-              {t(`settings.${target}.title`)}
-              {badge > 0 && <span className="sr-only">, {t('settings.notifications.unreadCount', { count: badge })}</span>}
-            </span>
+            <span className="block font-medium">{t(`settings.${target}.title`)}</span>
             <span className="block text-sm text-muted">{t(`settings.${target}.summary`)}</span>
           </span>
-          <CountBadge count={badge} />
           {chevron}
         </PageLink>
       </li>
@@ -72,13 +62,6 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
         <h1 className="font-serif text-3xl font-semibold">{t('settings.title')}</h1>
         <ul className="mt-6 divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
           {row('account', <UserAvatar username={me.username} size={40} />)}
-          {row(
-            'notifications',
-            <RowIcon>
-              <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />
-            </RowIcon>,
-            unreadCount,
-          )}
           {row(
             'activity',
             <RowIcon>
@@ -99,13 +82,6 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
               <path d="M14 3v5h5M9 13h6M9 17h6" />
             </RowIcon>,
           )}
-          {row(
-            'contact',
-            <RowIcon>
-              <rect x="3" y="5" width="18" height="14" rx="2" />
-              <path d="m3 7 9 6 9-6" />
-            </RowIcon>,
-          )}
         </ul>
       </>
     )
@@ -120,11 +96,9 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
         {t('settings.title')}
       </PageLink>
       {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
-      {page === 'notifications' && <NotificationsPage onOpenPost={onOpenPost} onMarkedRead={onMarkedRead} />}
       {page === 'activity' && <ActivityPage me={me} catalog={catalog} onOpenPost={onOpenPost} />}
       {page === 'storage' && <StoragePage />}
       {page === 'policy' && <PolicyPage />}
-      {page === 'contact' && <ContactPage email={me.email} />}
     </>
   )
 }

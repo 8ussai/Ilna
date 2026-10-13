@@ -55,7 +55,7 @@ export function ContactPage({ email }: { email: string }) {
 
   return (
     <>
-      <h1 className="mt-3 font-serif text-3xl font-semibold">{t('settings.contact.title')}</h1>
+      <h1 className="font-serif text-3xl font-semibold">{t('settings.contact.title')}</h1>
       <p className="mt-1 text-sm text-muted">{t('settings.contact.description', { email })}</p>
 
       <section className="mt-6 rounded-xl border border-line bg-card p-5">

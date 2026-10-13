@@ -149,7 +149,7 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
 
   return (
     <>
-      <h1 className="mt-3 font-serif text-3xl font-semibold">{t('settings.notifications.title')}</h1>
+      <h1 className="font-serif text-3xl font-semibold">{t('settings.notifications.title')}</h1>
       <p className="mt-1 text-sm text-muted">{t('settings.notifications.description')}</p>
       <div className="mt-6">{content}</div>
     </>

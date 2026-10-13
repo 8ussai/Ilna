@@ -17,6 +17,8 @@ import { UserAvatar } from '../components/UserAvatar'
 import { useUnreadCount } from '../hooks/useUnreadCount'
 import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { Route } from '../tabs'
+import { ContactPage } from './ContactPage'
+import { NotificationsPage } from './NotificationsPage'
 import { PostPage } from './PostPage'
 import { Settings } from './Settings'
 
@@ -75,11 +77,13 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     accountButtonRef.current?.focus()
   }, [])
 
-  function openSettings() {
-    // close without returning focus to the avatar, since the page underneath is changing
+  // close without returning focus to the avatar, since the page underneath is changing
+  function openFromDrawer(next: Route) {
     setDrawerOpen(false)
-    navigate({ kind: 'settings', page: 'home' })
+    navigate(next)
   }
+
+  const openPost = (postId: number, replyId: number | null) => navigate({ kind: 'post', postId, replyId })
 
   function renderContent() {
     const tab = route.kind === 'tab' ? route.tab : null
@@ -109,10 +113,16 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           catalog={catalog}
           onNavigate={(page) => navigate({ kind: 'settings', page })}
           onPasswordChanged={onPasswordChanged}
-          onOpenPost={(postId, replyId) => navigate({ kind: 'post', postId, replyId })}
-          unreadCount={unreadCount}
-          onMarkedRead={onMarkedRead}
+          onOpenPost={openPost}
         />
+      )
+    }
+
+    if (route.kind === 'drawer') {
+      return route.page === 'notifications' ? (
+        <NotificationsPage onOpenPost={openPost} onMarkedRead={onMarkedRead} />
+      ) : (
+        <ContactPage email={me.email} />
       )
     }
 
@@ -170,7 +180,8 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
         me={me}
         unreadCount={unreadCount}
         onClose={closeDrawer}
-        onOpenSettings={openSettings}
+        onOpenPage={(page) => openFromDrawer({ kind: 'drawer', page })}
+        onOpenSettings={() => openFromDrawer({ kind: 'settings', page: 'home' })}
         onLogout={onLogout}
       />
     </div>

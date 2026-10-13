@@ -117,6 +117,7 @@
     "open": "Account settings",
     "title": "Account",
     "close": "Close",
+    "menu": "Account menu",
     "settings": "Settings",
     "logout": "Log out"
   },
@@ -131,7 +132,6 @@
     },
     "notifications": {
       "title": "Notifications",
-      "summary": "Votes and replies on your posts",
       "description": "Votes and replies on your posts and replies, newest first.",
       "postUpvote": "{{name}} upvoted your post",
       "postDownvote": "{{name}} downvoted your post",
@@ -177,7 +177,6 @@
     },
     "contact": {
       "title": "Contact us",
-      "summary": "Send a message to the Ilna team",
       "description": "Questions, problems or ideas? We'll reply to {{email}}.",
       "subject": "Subject",
       "message": "Message",
