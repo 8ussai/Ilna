@@ -14,7 +14,9 @@ langchain-community
 langchain-huggingface
 langchain_chroma
 chromadb
-sentence-transformers
+# Qwen3-Embedding needs these versions or newer
+sentence-transformers>=2.7
+transformers>=4.51
 pymupdf
 unstructured
 python-pptx

@@ -1,31 +1,44 @@
 from langchain_community.document_loaders import (PyMuPDFLoader, UnstructuredPowerPointLoader)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
-from backend.backendConfig import CHROMA_DB_DIR
 
-embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+from backend.database import SessionLocal
+from backend.models.course import CourseMaterial
+from backend.services.embeddings import delete_material_vectors, get_vectorstore
 
+# Qwen3 reads long inputs well, so chunks can carry more context than MiniLM's did
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1000,   
-    chunk_overlap=150, 
+    chunk_size=1500,
+    chunk_overlap=200,
     length_function=len,
 )
 
 def get_document_loader(file_path: str):
     file_extension = file_path.split('.')[-1].lower()
-    
+
     if file_extension == 'pdf':
         return PyMuPDFLoader(file_path)
     elif file_extension in ['pptx', 'ppt']:
         return UnstructuredPowerPointLoader(file_path)
     else:
-        return None 
+        return None
+
+def _set_indexed(material_id: int) -> bool:
+    """Marks the material as indexed; False when it was deleted while indexing ran."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None:
+            return False
+        material.is_rag_indexed = True
+        db.commit()
+        return True
+    finally:
+        db.close()
 
 def index_course_material(file_path: str, material_id: int, course_id: int):
     try:
         loader = get_document_loader(file_path)
-        
+
         if loader is None:
             print(f"[RAG] Skipping AI indexing for {file_path}. Format not supported by AI.")
             return False
@@ -37,16 +50,22 @@ def index_course_material(file_path: str, material_id: int, course_id: int):
         for doc in documents:
             doc.metadata["material_id"] = material_id
             doc.metadata["course_id"] = course_id
+            doc.metadata["kind"] = "document"
 
         chunks = text_splitter.split_documents(documents)
         print(f"[RAG] File split into {len(chunks)} chunks.")
 
-        Chroma.from_documents(
-            documents=chunks,
-            embedding=embeddings_model,
-            persist_directory=CHROMA_DB_DIR
-        )
-        
+        # replace, not add, so re-indexing the same material never leaves duplicates
+        delete_material_vectors(material_id)
+        if chunks:
+            get_vectorstore().add_documents(chunks, ids=[f"{material_id}-{i}" for i in range(len(chunks))])
+
+        if not _set_indexed(material_id):
+            # deleted while we were indexing; its delete already ran, so clean up what we just added
+            delete_material_vectors(material_id)
+            print(f"[RAG] Material {material_id} was deleted during indexing; vectors removed")
+            return False
+
         print(f"[RAG] Successfully indexed material {material_id} into Vector DB")
         return True
 

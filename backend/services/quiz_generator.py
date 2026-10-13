@@ -3,11 +3,9 @@ import json
 from dotenv import load_dotenv
 
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_chroma import Chroma
 from langchain_core.prompts import PromptTemplate
 
-from backend.backendConfig import CHROMA_DB_DIR
+from backend.services.embeddings import get_vectorstore
 
 load_dotenv()
 
@@ -16,18 +14,12 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.3,
 )
 
-embeddings_model = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-
 def generate_quiz_from_material(material_id: int, num_questions: int = 5):
     try:
-        vectorstore = Chroma(
-            persist_directory=CHROMA_DB_DIR,
-            embedding_function=embeddings_model
-        )
-        
-        results = vectorstore.similarity_search(
+        # chunks are 1,500 characters now, so 10 carry about as much text as the old 15
+        results = get_vectorstore().similarity_search(
             query="Key concepts, definitions, and main points from the course slides.", 
-            k=15, 
+            k=10, 
             filter={"material_id": material_id}
         )
         

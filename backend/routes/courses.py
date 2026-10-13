@@ -33,6 +33,7 @@ from backend.schemas.course import (
     CourseDetailOut
 )
 from backend.core.apiDependencies import get_current_user
+from backend.services.embeddings import delete_course_vectors, delete_material_vectors
 from backend.services.rag_pipeline import index_course_material
 from backend.services.quiz_generator import generate_quiz_from_material
 from backend.services.storage import storage_used
@@ -84,6 +85,14 @@ def _remove_files(paths: List[str]):
             os.remove(path)
         except FileNotFoundError:
             pass
+
+
+def _remove_vectors(delete, item_id: int):
+    # the rows are already gone, so a vector store hiccup is logged rather than failing the request
+    try:
+        delete(item_id)
+    except Exception as e:
+        print(f"[RAG] Could not delete vectors for {delete.__name__}({item_id}): {e}")
 
 
 def _apply_update(item, changes):
@@ -196,6 +205,7 @@ def delete_course(
     db.commit()
 
     _remove_files(file_paths)
+    _remove_vectors(delete_course_vectors, course_id)
 
 
 @router.post("/{course_id}/notes", response_model=CourseNoteOut, status_code=status.HTTP_201_CREATED)
@@ -478,6 +488,7 @@ def delete_course_material(
     db.commit()
 
     _remove_files([file_path])
+    _remove_vectors(delete_material_vectors, material_id)
 
 
 @router.get("/{course_id}/materials/{material_id}/quiz")
