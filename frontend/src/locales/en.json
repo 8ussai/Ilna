@@ -294,7 +294,54 @@
       "retryNow": "Retry now",
       "leaveUnsaved": "Your latest changes aren't saved yet. Leaving now loses them.",
       "keepEditing": "Keep editing",
-      "leaveAnyway": "Leave anyway"
+      "leaveAnyway": "Leave anyway",
+      "chooseKind": "Kind of note",
+      "type": "Type",
+      "draw": "Draw"
+    },
+    "drawing": {
+      "tools": "Drawing tools",
+      "tool": "Tool",
+      "pen": "Pen",
+      "highlighter": "Highlighter",
+      "eraser": "Eraser",
+      "color": "Color",
+      "colors": {
+        "0": "Black",
+        "1": "Blue",
+        "2": "Red",
+        "3": "Green",
+        "4": "Purple",
+        "5": "Yellow"
+      },
+      "size": "Size",
+      "sizes": {
+        "0": "Thin",
+        "1": "Medium",
+        "2": "Thick"
+      },
+      "history": "History",
+      "undo": "Undo (Ctrl+Z)",
+      "redo": "Redo (Ctrl+Shift+Z)",
+      "background": "Page",
+      "backgrounds": {
+        "blank": "Blank",
+        "lined": "Lined",
+        "grid": "Grid"
+      },
+      "clear": "Clear page",
+      "clearQuestion": "Clear the whole page?",
+      "a11yNote": "Drawings can't be read by screen readers.",
+      "typeInstead": "Type a note instead",
+      "canvasLabel": "Drawing page",
+      "canvasLabelNamed": "Drawing page: {{title}}",
+      "unsaved": "Unsaved changes",
+      "saveFailed": "Couldn't save the drawing. Please try again.",
+      "tooLarge": "This drawing is too large to save. Try removing some strokes or splitting it into two notes.",
+      "leavePrompt": "Save your changes to this drawing before leaving?",
+      "saveAndLeave": "Save and leave",
+      "discard": "Discard changes",
+      "saveDrawing": "Save drawing"
     }
   },
   "replies": {

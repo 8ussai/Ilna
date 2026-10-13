@@ -163,7 +163,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   return (
     <div className="flex min-h-screen flex-col">
-      <div className="sticky top-0 z-30 border-b border-line bg-bg">
+      <div data-app-header className="sticky top-0 z-30 border-b border-line bg-bg">
         <Header
           onLogoClick={(e) => {
             e.preventDefault()

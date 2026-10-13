@@ -1,0 +1,152 @@
+import { getStroke } from 'perfect-freehand'
+
+// A drawn note is JSON in page units (the page is always this size), so it scales to any screen.
+export const PAGE_WIDTH = 1600
+export const PAGE_HEIGHT = 2200
+
+export type Point = [x: number, y: number, pressure: number]
+export type StrokeTool = 'pen' | 'highlighter'
+export type Stroke = { tool: StrokeTool; color: string; size: number; points: Point[] }
+export type Background = 'blank' | 'lined' | 'grid'
+export type Drawing = { version: 1; width: number; height: number; background: Background; strokes: Stroke[] }
+
+export const BACKGROUNDS: Background[] = ['blank', 'lined', 'grid']
+// dark enough to read on the white page in both themes; yellow is mainly for the highlighter
+export const INK_COLORS = ['#1f2937', '#2563eb', '#dc2626', '#16a34a', '#9333ea', '#eab308'] as const
+// pen widths in page units; the highlighter is wider
+export const SIZES = [3, 6, 12] as const
+const HIGHLIGHTER_SCALE = 4
+// the backend's cap (MAX_DRAWING_BYTES)
+export const MAX_DRAWING_BYTES = 1_000_000
+
+const LINE_GAP = 64
+const MARGIN_TOP = 160
+
+export function emptyDrawing(background: Background = 'lined'): Drawing {
+  return { version: 1, width: PAGE_WIDTH, height: PAGE_HEIGHT, background, strokes: [] }
+}
+
+// a stored note's JSON; anything unreadable opens as an empty page instead of crashing the editor
+export function parseDrawing(content: string): Drawing {
+  try {
+    const data = JSON.parse(content)
+    if (data && Array.isArray(data.strokes)) {
+      return {
+        version: 1,
+        width: PAGE_WIDTH,
+        height: PAGE_HEIGHT,
+        background: BACKGROUNDS.includes(data.background) ? data.background : 'blank',
+        strokes: data.strokes.filter((s: Stroke) => Array.isArray(s?.points) && s.points.length > 0),
+      }
+    }
+  } catch {
+    // fall through
+  }
+  return emptyDrawing('blank')
+}
+
+// one decimal is far finer than a pixel and keeps a page of handwriting well under the size cap
+export function serializeDrawing(drawing: Drawing) {
+  const round = (n: number) => Math.round(n * 10) / 10
+  return JSON.stringify({
+    ...drawing,
+    strokes: drawing.strokes.map((s) => ({ ...s, points: s.points.map(([x, y, p]) => [round(x), round(y), Math.round(p * 100) / 100]) })),
+  })
+}
+
+export function strokeWidth(stroke: Pick<Stroke, 'tool' | 'size'>) {
+  return stroke.tool === 'highlighter' ? stroke.size * HIGHLIGHTER_SCALE : stroke.size
+}
+
+// perfect-freehand turns the points into a filled outline; outlines are cached per stroke
+const outlines = new WeakMap<Stroke, Path2D>()
+
+function outlinePath(stroke: Stroke, last = true) {
+  const cached = last ? outlines.get(stroke) : undefined
+  if (cached) return cached
+  // a real pen reports varying pressure; mouse and finger report a constant, so pressure is simulated from speed
+  const hasPressure = stroke.points.some(([, , p]) => p !== 0.5)
+  const highlighter = stroke.tool === 'highlighter'
+  const outline = getStroke(stroke.points, {
+    size: strokeWidth(stroke),
+    thinning: highlighter ? 0 : 0.6,
+    smoothing: 0.5,
+    streamline: 0.5,
+    simulatePressure: !highlighter && !hasPressure,
+    last,
+  })
+  const path = new Path2D()
+  if (outline.length > 0) {
+    path.moveTo(outline[0][0], outline[0][1])
+    for (let i = 1; i < outline.length; i++) {
+      // quadratic curves through the midpoints give a smooth edge
+      const [x0, y0] = outline[i]
+      const [x1, y1] = outline[(i + 1) % outline.length]
+      path.quadraticCurveTo(x0, y0, (x0 + x1) / 2, (y0 + y1) / 2)
+    }
+    path.closePath()
+  }
+  if (last) outlines.set(stroke, path)
+  return path
+}
+
+// draws in page units; the caller sets the scale on the context
+export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke, last = true) {
+  ctx.save()
+  ctx.fillStyle = stroke.color
+  if (stroke.tool === 'highlighter') {
+    // multiply keeps text under the highlighter readable instead of painting over it
+    ctx.globalAlpha = 0.35
+    ctx.globalCompositeOperation = 'multiply'
+  }
+  ctx.fill(outlinePath(stroke, last))
+  ctx.restore()
+}
+
+export function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
+  ctx.save()
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, PAGE_WIDTH, PAGE_HEIGHT)
+  if (background !== 'blank') {
+    ctx.strokeStyle = background === 'lined' ? '#c7d7ee' : '#e2e8f0'
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    const startY = background === 'lined' ? MARGIN_TOP : LINE_GAP
+    for (let y = startY; y < PAGE_HEIGHT; y += LINE_GAP) {
+      ctx.moveTo(0, y)
+      ctx.lineTo(PAGE_WIDTH, y)
+    }
+    if (background === 'grid') {
+      for (let x = LINE_GAP; x < PAGE_WIDTH; x += LINE_GAP) {
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, PAGE_HEIGHT)
+      }
+    }
+    ctx.stroke()
+  }
+  ctx.restore()
+}
+
+export function drawPage(ctx: CanvasRenderingContext2D, drawing: Pick<Drawing, 'background' | 'strokes'>) {
+  drawBackground(ctx, drawing.background)
+  for (const stroke of drawing.strokes) drawStroke(ctx, stroke)
+}
+
+function distanceToSegment(px: number, py: number, [ax, ay]: Point, [bx, by]: Point) {
+  const dx = bx - ax
+  const dy = by - ay
+  const lengthSq = dx * dx + dy * dy
+  const t = lengthSq === 0 ? 0 : Math.max(0, Math.min(1, ((px - ax) * dx + (py - ay) * dy) / lengthSq))
+  return Math.hypot(px - (ax + t * dx), py - (ay + t * dy))
+}
+
+// the eraser removes whole strokes it touches
+export function strokeHit(stroke: Stroke, x: number, y: number, radius: number) {
+  const reach = radius + strokeWidth(stroke) / 2
+  const { points } = stroke
+  if (points.length === 1) return Math.hypot(x - points[0][0], y - points[0][1]) <= reach
+  for (let i = 1; i < points.length; i++) {
+    if (distanceToSegment(x, y, points[i - 1], points[i]) <= reach) return true
+  }
+  return false
+}
