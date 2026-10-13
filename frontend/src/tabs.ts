@@ -10,7 +10,8 @@ export const DRAWER_PAGES = ['notifications', 'contact'] as const
 export type DrawerPage = (typeof DRAWER_PAGES)[number]
 
 // the tabs inside a course page, kept in the URL hash (/course/<id>#voice)
-export const COURSE_SECTIONS = ['materials', 'links', 'voice', 'notes'] as const
+// 'study' (summaries and quizzes) only shows once the course has one
+export const COURSE_SECTIONS = ['materials', 'links', 'voice', 'notes', 'study'] as const
 export type CourseSection = (typeof COURSE_SECTIONS)[number]
 
 export type Route =

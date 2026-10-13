@@ -200,7 +200,8 @@
       "materials": "Materials",
       "links": "Links",
       "voice": "Voice",
-      "notes": "Notes"
+      "notes": "Notes",
+      "study": "Summaries & quizzes"
     },
     "ai": {
       "label": "AI tools",
@@ -208,8 +209,8 @@
       "summarize": "Summarize",
       "quiz": "Quiz",
       "voice": "Voice chat",
-      "summarizeTip": "Summaries of your files, recordings and notes, with links back to the source.",
-      "quizTip": "Multiple-choice questions from this course, with explanations.",
+      "summarizeTip": "Summaries of your files, recordings and notes, to read in Arabic or English.",
+      "quizTip": "Multiple-choice quizzes from this course, marked when you finish.",
       "voiceTip": "Talk through the course by voice.",
       "soonTip": "Coming soon. {{tool}}"
     },
@@ -342,6 +343,100 @@
       "saveAndLeave": "Save and leave",
       "discard": "Discard changes",
       "saveDrawing": "Save drawing"
+    },
+    "study": {
+      "empty": "Nothing here yet. Use Summarize or Quiz in the AI tools to make one.",
+      "filter": "Show",
+      "filters": {
+        "all": "All",
+        "summary": "Summaries",
+        "quiz": "Quizzes"
+      },
+      "kind": {
+        "summary": "Summary",
+        "quiz": "Quiz"
+      },
+      "newTitle": {
+        "summary": "New summary",
+        "quiz": "New quiz"
+      },
+      "from": "From",
+      "more": "+{{count}} more",
+      "writing": "Writing…",
+      "writingHint": "This usually takes under a minute. You can keep working meanwhile.",
+      "failed": {
+        "summary": "Couldn't write this summary.",
+        "quiz": "Couldn't write this quiz."
+      },
+      "retry": "Try again",
+      "retrying": "Trying…",
+      "confirmDelete": {
+        "summary": "Delete this summary?",
+        "quiz": "Delete this quiz?"
+      },
+      "length": {
+        "brief": "Brief",
+        "detailed": "Detailed"
+      },
+      "questions_one": "{{count}} question",
+      "questions_other": "{{count}} questions",
+      "notTaken": "Not taken yet",
+      "scores": "Best {{best}}/{{total}} · Last {{last}}/{{total}}",
+      "languages": "Languages",
+      "translating": "{{language}} on its way…",
+      "translationFailed": "The {{language}} version couldn't be made.",
+      "generate": {
+        "title": {
+          "summary": "Summarize",
+          "quiz": "Make a quiz"
+        },
+        "intro": {
+          "summary": "Choose what to summarize.",
+          "quiz": "Choose what the questions should cover."
+        },
+        "groups": {
+          "files": "Files",
+          "recordings": "Recordings",
+          "notes": "Notes"
+        },
+        "selectAll": "Select all",
+        "preparing": "Still being prepared",
+        "transcriptFailed": "Not transcribed",
+        "drawing": "Drawings can't be read yet",
+        "emptyNote": "Empty",
+        "nothing": "There's nothing to use yet. Add files, recordings or notes to this course first.",
+        "selected_one": "{{count}} selected",
+        "selected_other": "{{count}} selected",
+        "tooMany": "Choose at most {{max}}.",
+        "length": "Length",
+        "lengths": {
+          "brief": "Brief",
+          "briefHint": "The main ideas and key terms.",
+          "detailed": "Detailed",
+          "detailedHint": "Every topic, with definitions, formulas and examples."
+        },
+        "questions": "Number of questions",
+        "language": "Written first in",
+        "languageAuto": "The material's language",
+        "languageHint": "Every summary and quiz can be read in both Arabic and English.",
+        "submit": {
+          "summary": "Summarize",
+          "quiz": "Make quiz"
+        },
+        "submitting": "Starting…",
+        "notSetUp": "Summaries and quizzes aren't set up on this server yet.",
+        "limit": "You've reached today's limit for summaries and quizzes. Try again tomorrow.",
+        "sourceProblem": "Something you chose can't be used right now. Close this and try again."
+      },
+      "errors": {
+        "quota": "Gemini's daily limit was reached. Try again later.",
+        "no_text": "What you chose had no text to read, or was deleted.",
+        "empty_answer": "Gemini sent back an empty answer.",
+        "no_summary": "Gemini couldn't summarize this material.",
+        "no_questions": "Gemini couldn't write questions from this material.",
+        "bad_translation": "The translation came out incomplete.",
+        "other": "Something went wrong while talking to Gemini."
+      }
     }
   },
   "replies": {

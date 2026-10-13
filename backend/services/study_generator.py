@@ -42,8 +42,29 @@ _llm_lock = threading.Lock()
 _llm = None
 
 
+# the failures a user can be told about, by code; the page shows its own words for each, in its language
+ERRORS = {
+    "quota": "Gemini's usage limit was reached. Try again later.",
+    "no_text": "The chosen files, recordings and notes have no text to read, or were deleted.",
+    "empty_answer": "Gemini sent back an empty answer.",
+    "no_summary": "Gemini couldn't write a summary of this material.",
+    "no_questions": "Gemini couldn't write questions from this material.",
+    "bad_translation": "The translation didn't keep the original's structure.",
+}
+
+
+def error_code(message: str | None) -> str | None:
+    """The code of a stored error message; "other" for anything unexpected."""
+    if message is None:
+        return None
+    return next((code for code, text in ERRORS.items() if text == message), "other")
+
+
 class StudyError(Exception):
-    """A failure whose message can be shown to the user as it is."""
+    """A known failure, stored as its ERRORS message."""
+
+    def __init__(self, code: str):
+        super().__init__(ERRORS[code])
 
 
 class _ItemDeleted(Exception):
@@ -252,7 +273,7 @@ def _translate_prompt(content, kind: str, source: str, target: str) -> str:
 def _ask(schema, prompt: str):
     result = _get_llm().with_structured_output(schema).invoke(prompt)
     if result is None:
-        raise StudyError("Gemini sent back an empty answer.")
+        raise StudyError("empty_answer")
     return result
 
 
@@ -279,7 +300,7 @@ def _write_summary(parts: list[str], length: str, language: str) -> SummaryConte
         text = "\n\n".join(notes)
     summary = _clean_summary(_ask(SummaryContent, _summary_prompt(text, length, language)))
     if not summary.sections:
-        raise StudyError("Gemini couldn't write a summary of this material.")
+        raise StudyError("no_summary")
     return summary
 
 
@@ -326,7 +347,7 @@ def _write_quiz(parts: list[str], count: int, language: str) -> QuizContent:
                 break
         questions += best[:wanted]
     if not questions:
-        raise StudyError("Gemini couldn't write questions from this material.")
+        raise StudyError("no_questions")
     return QuizContent(title=title, questions=[_shuffled(q) for q in questions[:count]])
 
 
@@ -353,7 +374,7 @@ def _translate(original, kind: str, source: str, target: str):
                 for question, source_question in zip(translated.questions, original.questions):
                     question.correct_index = source_question.correct_index
             return translated
-    raise StudyError("The translation didn't keep the original's structure.")
+    raise StudyError("bad_translation")
 
 
 def _message(error: Exception) -> str:
@@ -361,7 +382,7 @@ def _message(error: Exception) -> str:
         return str(error)
     text = str(error)
     if "RESOURCE_EXHAUSTED" in text or "429" in text:
-        return "Gemini's usage limit was reached. Try again later."
+        return ERRORS["quota"]
     return f"Gemini couldn't finish this: {text}"[:500]
 
 
@@ -387,7 +408,7 @@ def generate_item(item_id: int):
 
             blocks = _gather(db, json.loads(item.sources))
             if not blocks:
-                raise StudyError("The chosen files, recordings and notes have no text to read, or were deleted.")
+                raise StudyError("no_text")
             language = item.requested_language or _detect_language("\n".join(blocks))
             parts = _parts(blocks)
             options = json.loads(item.options)

@@ -5,25 +5,25 @@ import { useTranslation } from 'react-i18next'
 import { ApiError } from '../api/client'
 import { fetchCourse, fetchMaterials, updateCourse } from '../api/courses'
 import type { CourseDetail, CourseMaterial } from '../api/courses'
+import { fetchStudyItems, isStudyItemWorking } from '../api/study'
+import type { StudyItemSummary, StudyKind } from '../api/study'
 import { AiRail } from '../components/courses/AiRail'
 import { CourseDetailsForm } from '../components/courses/CourseDetailsForm'
 import { courseColorClass } from '../components/courses/courseColors'
+import { GenerateDialog } from '../components/courses/GenerateDialog'
 import { LinksTab } from '../components/courses/LinksTab'
 import { MaterialsTab } from '../components/courses/MaterialsTab'
 import { NotesTab } from '../components/courses/NotesTab'
+import { StudyTab } from '../components/courses/StudyTab'
 import { VoiceTab } from '../components/courses/VoiceTab'
 import { Dialog } from '../components/Dialog'
 import { secondaryButtonInline, smallSecondaryButton } from '../components/styles'
+import { usePolling } from '../hooks/usePolling'
 import { inAppClick } from '../links'
 import { COURSE_SECTIONS, tabPath } from '../tabs'
 import type { CourseSection } from '../tabs'
 
 type Status = 'loading' | 'ready' | 'error' | 'unavailable'
-
-// polling starts quick and slows down; work that never finishes (e.g. indexing that keeps failing) stops being polled
-const POLL_FIRST_MS = 3000
-const POLL_MAX_MS = 30_000
-const POLL_GIVE_UP_MS = 15 * 60_000
 
 type CoursePageProps = {
   courseId: number
@@ -38,6 +38,22 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
   const [editing, setEditing] = useState(false)
+  const [studyItems, setStudyItems] = useState<StudyItemSummary[]>([])
+  // the summary or quiz being set up in the generate dialog
+  const [generating, setGenerating] = useState<StudyKind | null>(null)
+
+  // its own request, so the course still opens if this one fails; the tab then just stays hidden
+  useEffect(() => {
+    let ignore = false
+    fetchStudyItems(courseId)
+      .then((items) => {
+        if (!ignore) setStudyItems(items)
+      })
+      .catch(() => {})
+    return () => {
+      ignore = true
+    }
+  }, [courseId, reloadKey])
 
   useEffect(() => {
     let ignore = false
@@ -60,35 +76,29 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
   const materials = course?.materials ?? []
   const needsPolling = materials.some(isStillWorking)
 
-  // refresh indexing and transcription status while something is still in progress
-  useEffect(() => {
-    if (!needsPolling) return
-    let delay = POLL_FIRST_MS
-    let timer: ReturnType<typeof setTimeout>
-    const startedAt = Date.now()
-    let stopped = false
+  // refresh indexing and transcription status while something is still in progress; a new upload restarts it
+  usePolling(
+    needsPolling,
+    async () => {
+      const fresh = await fetchMaterials(courseId)
+      const byId = new Map(fresh.map((m) => [m.id, m]))
+      // only update what's already shown; a just-finished upload may not be in this response yet
+      setCourse((current) => current && { ...current, materials: current.materials.map((m) => byId.get(m.id) ?? m) })
+    },
+    materials.length,
+  )
 
-    const tick = async () => {
-      try {
-        const fresh = await fetchMaterials(courseId)
-        if (stopped) return
-        const byId = new Map(fresh.map((m) => [m.id, m]))
-        // only update what's already shown; a just-finished upload may not be in this response yet
-        setCourse((current) => current && { ...current, materials: current.materials.map((m) => byId.get(m.id) ?? m) })
-      } catch {
-        // try again on the next tick
-      }
-      if (stopped || Date.now() - startedAt > POLL_GIVE_UP_MS) return
-      delay = Math.min(delay * 1.5, POLL_MAX_MS)
-      timer = setTimeout(tick, delay)
-    }
-    timer = setTimeout(tick, delay)
-    return () => {
-      stopped = true
-      clearTimeout(timer)
-    }
-    // a new upload restarts at the quick interval
-  }, [needsPolling, courseId, materials.length])
+  // and summaries or quizzes still being written or translated
+  usePolling(
+    studyItems.some(isStudyItemWorking),
+    async () => {
+      const fresh = await fetchStudyItems(courseId)
+      const byId = new Map(fresh.map((i) => [i.id, i]))
+      // like materials: one deleted meanwhile stays deleted
+      setStudyItems((current) => current.map((i) => byId.get(i.id) ?? i))
+    },
+    studyItems.length,
+  )
 
   const back = (
     <a href={tabPath('my-courses')} onClick={inAppClick(onBack)} className="inline-flex items-center gap-1 text-sm text-muted hover:text-fg">
@@ -142,6 +152,15 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
     links: course.links.length,
     voice: recordings.length,
     notes: notes.length,
+    study: studyItems.length,
+  }
+  // the summaries and quizzes tab appears with the first one (or when its link is opened directly)
+  const sections = COURSE_SECTIONS.filter((name) => name !== 'study' || studyItems.length > 0 || section === 'study')
+
+  function openStudyItem(item: StudyItemSummary) {
+    setStudyItems((current) => [item, ...current])
+    setGenerating(null)
+    onSectionChange('study')
   }
 
   return (
@@ -174,10 +193,10 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
       </header>
 
       <div className="flex gap-6">
-        <AiRail />
+        <AiRail onUse={(feature) => feature !== 'voice' && setGenerating(feature === 'summarize' ? 'summary' : 'quiz')} />
 
         <div className="min-w-0 flex-1">
-          <SectionTabs section={section} counts={counts} onSelect={onSectionChange} />
+          <SectionTabs sections={sections} section={section} counts={counts} onSelect={onSectionChange} />
           <div id={`course-panel-${section}`} role="tabpanel" aria-labelledby={`course-tab-${section}`} className="pt-5">
             {section === 'materials' && (
               <MaterialsTab courseId={course.id} materials={documents} onAdded={addMaterial} onChanged={changeMaterial} onDeleted={removeMaterial} />
@@ -204,9 +223,28 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
                 onDeleted={(id) => update({ notes: course.notes.filter((n) => n.id !== id) })}
               />
             )}
+            {section === 'study' && (
+              <StudyTab
+                courseId={course.id}
+                items={studyItems}
+                onChanged={(item) => setStudyItems((current) => current.map((i) => (i.id === item.id ? item : i)))}
+                onDeleted={(id) => setStudyItems((current) => current.filter((i) => i.id !== id))}
+              />
+            )}
           </div>
         </div>
       </div>
+
+      {generating && (
+        <GenerateDialog
+          kind={generating}
+          courseId={course.id}
+          materials={materials}
+          notes={course.notes}
+          onClose={() => setGenerating(null)}
+          onCreated={openStudyItem}
+        />
+      )}
 
       {editing && (
         <Dialog title={t('courses.editTitle')} onClose={() => setEditing(false)}>
@@ -237,10 +275,12 @@ function isStillWorking(material: CourseMaterial) {
 
 // The ARIA tabs pattern: arrow keys move between tabs (mirrored in Arabic), Home/End jump to the ends.
 function SectionTabs({
+  sections,
   section,
   counts,
   onSelect,
 }: {
+  sections: CourseSection[]
   section: CourseSection
   counts: Record<CourseSection, number>
   onSelect: (section: CourseSection) => void
@@ -248,17 +288,22 @@ function SectionTabs({
   const { t } = useTranslation()
   const listRef = useRef<HTMLDivElement>(null)
 
+  // on a phone the tabs scroll sideways, and a tab opened by the page (e.g. a new summary) may be out of sight
+  useEffect(() => {
+    listRef.current?.querySelector(`#course-tab-${section}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [section])
+
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
-    const index = COURSE_SECTIONS.indexOf(section)
+    const index = sections.indexOf(section)
     const rtl = getComputedStyle(e.currentTarget).direction === 'rtl'
     let next: number | null = null
     if (e.key === 'ArrowRight') next = index + (rtl ? -1 : 1)
     else if (e.key === 'ArrowLeft') next = index + (rtl ? 1 : -1)
     else if (e.key === 'Home') next = 0
-    else if (e.key === 'End') next = COURSE_SECTIONS.length - 1
+    else if (e.key === 'End') next = sections.length - 1
     if (next === null) return
     e.preventDefault()
-    const target = COURSE_SECTIONS[(next + COURSE_SECTIONS.length) % COURSE_SECTIONS.length]
+    const target = sections[(next + sections.length) % sections.length]
     onSelect(target)
     listRef.current?.querySelector<HTMLElement>(`#course-tab-${target}`)?.focus()
   }
@@ -271,7 +316,7 @@ function SectionTabs({
       onKeyDown={onKeyDown}
       className="-mb-px flex gap-1 overflow-x-auto border-b border-line"
     >
-      {COURSE_SECTIONS.map((name) => {
+      {sections.map((name) => {
         const selected = name === section
         return (
           <button

@@ -1,7 +1,7 @@
 // which AI tools in a course's rail are live; the rest show as "Soon" and do nothing
 export const AI_FEATURES = {
-  summarize: false,
-  quiz: false,
+  summarize: true,
+  quiz: true,
   voice: false,
 }
 

@@ -122,11 +122,14 @@ class StudyItemSummaryOut(BaseModel):
     title: Optional[str]
     titles: dict[str, str]
     status: StudyStatus
+    # the English detail, and a code the page words in its own language (study_generator.ERRORS, or "other")
     error: Optional[str]
+    error_code: Optional[str]
     requested_language: Optional[Language]
     main_language: Optional[Language]
     translation_status: Optional[StudyStatus]
     translation_error: Optional[str]
+    translation_error_code: Optional[str]
     # the language to open it in
     view_language: Optional[Language]
     options: dict
