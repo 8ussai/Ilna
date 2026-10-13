@@ -1,12 +1,13 @@
 import os
 import threading
 
+# first, so the models folder is set before the Hugging Face libraries load
+from backend.backendConfig import CHROMA_DB_DIR
+
 import chromadb
 import torch
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-
-from backend.backendConfig import CHROMA_DB_DIR
 
 EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
 # named after the model: vectors from another model can't share a collection (different sizes and meaning)

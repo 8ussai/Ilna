@@ -4,6 +4,12 @@ import os
 
 load_dotenv()
 
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# the AI models (~3 GB) live in the project's models/ folder instead of the user's home cache;
+# Hugging Face reads this when its libraries are first imported, so anything that loads a model imports this file first
+os.environ.setdefault("HF_HOME", os.path.join(PROJECT_ROOT, "models"))
+
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./ilna.db"
 
