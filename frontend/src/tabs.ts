@@ -9,9 +9,9 @@ export type SettingsPage = (typeof SETTINGS_PAGES)[number]
 export const DRAWER_PAGES = ['notifications', 'contact'] as const
 export type DrawerPage = (typeof DRAWER_PAGES)[number]
 
-// the tabs inside a course page, kept in the URL hash (/course/<id>#voice)
+// the tabs inside a course page, kept in the URL hash (/course/<id>#recordings)
 // 'summaries' and 'quizzes' each show once the course has one
-export const COURSE_SECTIONS = ['materials', 'voice', 'links', 'notes', 'summaries', 'quizzes'] as const
+export const COURSE_SECTIONS = ['materials', 'recordings', 'links', 'notes', 'summaries', 'quizzes'] as const
 export type CourseSection = (typeof COURSE_SECTIONS)[number]
 
 // the tab each kind of AI study item lives in
@@ -66,7 +66,8 @@ export function routeFromPath(): Route {
     return { kind: 'post', postId: Number(second), replyId: reply ? Number(reply[1]) : null }
   }
   if (first === 'course' && /^\d+$/.test(second ?? '')) {
-    const hash = window.location.hash.slice(1)
+    // the recordings tab used to be #voice; keep old links working
+    const hash = window.location.hash === '#voice' ? 'recordings' : window.location.hash.slice(1)
     const item = /^(summaries|quizzes)-(\d+)$/.exec(hash)
     if (item) return { kind: 'course', courseId: Number(second), section: item[1] as StudySection, itemId: Number(item[2]) }
     const section = (COURSE_SECTIONS as readonly string[]).includes(hash) ? (hash as CourseSection) : null

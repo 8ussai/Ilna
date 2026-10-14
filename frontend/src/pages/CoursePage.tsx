@@ -160,7 +160,7 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
   const counts: Record<CourseSection, number> = {
     materials: documents.length,
     links: course.links.length,
-    voice: recordings.length,
+    recordings: recordings.length,
     notes: notes.length,
     summaries: summaries.length,
     quizzes: quizzes.length,
@@ -223,7 +223,7 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
                 onDeleted={(id) => update({ links: course.links.filter((l) => l.id !== id) })}
               />
             )}
-            {section === 'voice' && (
+            {section === 'recordings' && (
               <VoiceTab courseId={course.id} recordings={recordings} onAdded={addMaterial} onChanged={changeMaterial} onDeleted={removeMaterial} />
             )}
             {section === 'notes' && (
