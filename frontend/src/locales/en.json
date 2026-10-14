@@ -423,15 +423,14 @@
         },
         "submitting": "Starting…",
         "notSetUp": "Summaries and quizzes aren't set up on this server yet.",
-        "limit": "You've reached today's limit. Try again later.",
         "sourceProblem": "Something you chose can't be used right now. Close this and try again.",
-        "left": {
-          "summary": "Summaries left today: {{left}} of {{limit}}",
-          "quiz": "Quizzes left today: {{left}} of {{limit}}"
+        "submitLeft": {
+          "summary": "Summarize · {{left}} left today",
+          "quiz": "Make quiz · {{left}} left today"
         },
-        "usedUp": {
-          "summary": "You've used your {{limit}} summaries for today. You can make another {{when}}.",
-          "quiz": "You've used your {{limit}} quizzes for today. You can make another {{when}}."
+        "submitUsedUp": {
+          "summary": "No summaries left · next {{when}}",
+          "quiz": "No quizzes left · next {{when}}"
         }
       },
       "errors": {
@@ -560,13 +559,7 @@
       "usedOf": "{{used}} of {{limit}} used",
       "left": "{{left}} left",
       "full": "Your storage is full. You can't upload more files.",
-      "loadFailed": "Couldn't load your storage.",
-      "aiTitle": "Today's AI use",
-      "aiHint": "In any 24 hours you can make {{summaries}} summaries and {{quizzes}} quizzes.",
-      "summaries": "Summaries",
-      "quizzes": "Quizzes",
-      "dailyUsed": "{{used}} of {{limit}} used",
-      "nextAt": "Next one {{when}}"
+      "loadFailed": "Couldn't load your storage."
     },
     "activity": {
       "title": "Activity",

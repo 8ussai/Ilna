@@ -129,11 +129,11 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
         if (err.status === 0) message = t('errors.network')
         else if (err.status === 503) message = t('courses.study.generate.notSetUp')
         else if (err.status === 429) {
-          // someone used the last one in another tab meanwhile: show when the next is free instead
+          // the last one was used in another tab meanwhile: the button then says when the next is free
           fetchUsage()
             .then((u) => setUsage(u[kind]))
             .catch(() => {})
-          message = t('courses.study.generate.limit')
+          message = ''
         }
         else if (err.status === 400) message = t('courses.study.generate.sourceProblem')
       }
@@ -157,19 +157,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
         <form onSubmit={submit} className="space-y-6">
           <p className="text-muted">{t(`courses.study.generate.intro.${kind}`)}</p>
 
-          {usage && (
-            <p
-              role={usedUp ? 'alert' : undefined}
-              className={`rounded-xl px-4 py-3 text-sm ${usedUp ? 'bg-danger/10 text-danger' : 'bg-surface text-muted'}`}
-            >
-              {usedUp
-                ? t(`courses.study.generate.usedUp.${kind}`, {
-                    limit: usage.limit,
-                    when: usage.frees_at ? formatRelative(parseServerDate(usage.frees_at), i18n.language) : '',
-                  })
-                : t(`courses.study.generate.left.${kind}`, { left: usage.limit - usage.used, limit: usage.limit })}
-            </p>
-          )}
+
 
           <div className="space-y-4">
             {groups.map(
@@ -235,7 +223,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
             </p>
           </div>
 
-          {error && !usedUp && (
+          {error && (
             <p role="alert" className="text-sm text-danger">
               {error}
             </p>
@@ -251,7 +239,15 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
               {t('feed.cancel')}
             </button>
             <button type="submit" disabled={busy || selected.size === 0 || tooMany || usedUp} className={primaryButtonInline}>
-              {busy ? t('courses.study.generate.submitting') : t(`courses.study.generate.submit.${kind}`)}
+              {busy
+                ? t('courses.study.generate.submitting')
+                : usedUp
+                  ? t(`courses.study.generate.submitUsedUp.${kind}`, {
+                      when: usage?.frees_at ? formatRelative(parseServerDate(usage.frees_at), i18n.language) : '',
+                    })
+                  : usage
+                    ? t(`courses.study.generate.submitLeft.${kind}`, { left: usage.limit - usage.used })
+                    : t(`courses.study.generate.submit.${kind}`)}
             </button>
           </div>
         </form>
