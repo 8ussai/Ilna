@@ -174,13 +174,14 @@ function MaterialRow({
   )
 }
 
-// words as well as color, so the state doesn't depend on seeing the dot
+// shown only while it's still being prepared (a ready file shows nothing), in words as well as the pulsing dot
 export function IndexBadge({ ready }: { ready: boolean }) {
   const { t } = useTranslation()
+  if (ready) return null
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-xs font-medium ${ready ? 'bg-success/10 text-success' : 'bg-surface text-muted'}`}>
-      <span aria-hidden="true" className={`size-1.5 rounded-full ${ready ? 'bg-success' : 'animate-pulse bg-muted'}`} />
-      {ready ? t('courses.materials.ready') : t('courses.materials.indexing')}
+    <span className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">
+      <span aria-hidden="true" className="size-1.5 animate-pulse rounded-full bg-muted" />
+      {t('courses.materials.indexing')}
     </span>
   )
 }
