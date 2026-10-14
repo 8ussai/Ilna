@@ -453,6 +453,38 @@
         },
         "contents": "Contents",
         "keyTerms": "Key terms"
+      },
+      "take": "Take quiz",
+      "open": "Open",
+      "quiz": {
+        "intro": "Choose one answer for each question, then submit to get your mark.",
+        "questionOf": "Question {{n}} of {{total}}",
+        "answered": "{{count}} of {{total}} answered",
+        "unanswered_one": "{{count}} question isn't answered yet. It counts as wrong if you submit now.",
+        "unanswered_other": "{{count}} questions aren't answered yet. They count as wrong if you submit now.",
+        "submit": "Submit answers",
+        "submitAnyway": "Submit anyway",
+        "keepGoing": "Keep answering",
+        "submitting": "Marking…",
+        "submitFailed": "Couldn't submit. Your answers are still here, so try again.",
+        "loadFailed": "Couldn't load this quiz's results.",
+        "mark": "Your mark",
+        "pastMark": "Your mark on {{date}}",
+        "verdict": {
+          "high": "Excellent work!",
+          "mid": "Good effort. Go over the ones you missed below.",
+          "low": "Keep practicing. The explanations below show where it went wrong."
+        },
+        "retake": "Retake quiz",
+        "onlyMistakes": "Show only mistakes",
+        "correct": "Correct",
+        "wrong": "Wrong",
+        "notAnswered": "Not answered",
+        "yourAnswer": "Your answer",
+        "correctAnswer": "Correct answer",
+        "why": "Why:",
+        "attempts": "Your attempts",
+        "latest": "Latest"
       }
     }
   },

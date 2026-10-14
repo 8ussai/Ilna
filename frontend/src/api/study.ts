@@ -132,3 +132,34 @@ export function updateStudyItem(courseId: number, itemId: number, changes: { tit
 export function otherLanguage(language: StudyLanguage): StudyLanguage {
   return language === 'ar' ? 'en' : 'ar'
 }
+
+export type QuestionResult = {
+  chosen: number | null
+  correct_index: number
+  is_correct: boolean
+  // by language, like the quiz itself
+  explanation: Partial<Record<StudyLanguage, string>>
+}
+
+// one graded go at a quiz
+export type QuizAttempt = {
+  id: number
+  score: number
+  total: number
+  results: QuestionResult[]
+  created_at: string
+}
+
+// one answer per question, in order; null = left unanswered (counts as wrong)
+export function submitQuizAttempt(courseId: number, itemId: number, answers: (number | null)[]) {
+  return authRequest<QuizAttempt>(`/courses/${courseId}/study/${itemId}/attempts`, {
+    method: 'POST',
+    headers: json,
+    body: JSON.stringify({ answers }),
+  })
+}
+
+// newest first
+export function fetchQuizAttempts(courseId: number, itemId: number) {
+  return authRequest<QuizAttempt[]>(`/courses/${courseId}/study/${itemId}/attempts`)
+}

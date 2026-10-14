@@ -19,6 +19,8 @@ import { coursePath } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
 import { secondaryButtonInline } from '../styles'
 import { InlineRename } from './InlineRename'
+import { MixedText } from './MixedText'
+import { QuizBody } from './QuizBody'
 
 type StudyItemPageProps = {
   courseId: number
@@ -31,7 +33,7 @@ type StudyItemPageProps = {
 
 type Status = 'loading' | 'ready' | 'error' | 'gone'
 
-// One summary (or, later, quiz) on its own page. It reads in its own language, chosen here and
+// One summary or quiz on its own page. It reads in its own language, chosen here and
 // remembered for it, whatever language the rest of the site is in.
 export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: StudyItemPageProps) {
   const { t, i18n } = useTranslation()
@@ -211,6 +213,23 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
 
       <div className="border-t border-line pt-6">
         {full.summary?.[language] && <SummaryBody itemId={item.id} content={full.summary[language]} language={language} />}
+        {full.quiz?.[language] && (
+          <QuizBody
+            courseId={courseId}
+            item={item}
+            content={full.quiz[language]}
+            language={language}
+            onAttempted={(attempt) =>
+              // the card's scores, without fetching the list again
+              onChanged({
+                ...item,
+                attempts_count: item.attempts_count + 1,
+                last_score: attempt.score,
+                best_score: Math.max(item.best_score ?? 0, attempt.score),
+              })
+            }
+          />
+        )}
       </div>
     </div>
   )
@@ -305,7 +324,9 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
 
   return (
     <article lang={language} dir={language === 'ar' ? 'rtl' : 'ltr'} className="space-y-8 leading-relaxed">
-      <p className="text-lg">{content.overview}</p>
+      <p className="text-lg">
+        <MixedText text={content.overview} />
+      </p>
 
       {content.sections.length >= CONTENTS_FROM_SECTIONS && (
         <nav aria-label={t('courses.study.reader.contents')} className="rounded-xl bg-surface p-4">
@@ -319,7 +340,7 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
                   onClick={() => document.getElementById(sectionId(i))?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
                   className="text-start hover:underline"
                 >
-                  {section.heading}
+                  <MixedText text={section.heading} />
                 </button>
               </li>
             ))}
@@ -328,10 +349,12 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
       )}
 
       {content.sections.map((section, i) => (
-        <Section key={i} id={sectionId(i)} heading={section.heading}>
+        <Section key={i} id={sectionId(i)} heading={<MixedText text={section.heading} />}>
           <ul className="list-disc space-y-2 ps-5 marker:text-accent">
             {section.points.map((point, j) => (
-              <li key={j}>{point}</li>
+              <li key={j}>
+                <MixedText text={point} />
+              </li>
             ))}
           </ul>
         </Section>
@@ -342,8 +365,12 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
           <dl className="grid gap-3 sm:grid-cols-2">
             {content.key_terms.map((term, i) => (
               <div key={i} className="rounded-xl border border-line bg-card p-4">
-                <dt className="font-semibold">{term.term}</dt>
-                <dd className="mt-1 text-sm text-muted">{term.definition}</dd>
+                <dt className="font-semibold">
+                  <MixedText text={term.term} />
+                </dt>
+                <dd className="mt-1 text-sm text-muted">
+                  <MixedText text={term.definition} />
+                </dd>
               </div>
             ))}
           </dl>
@@ -353,7 +380,7 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
   )
 }
 
-function Section({ id, heading, children }: { id: string; heading: string; children: ReactNode }) {
+function Section({ id, heading, children }: { id: string; heading: ReactNode; children: ReactNode }) {
   return (
     <section aria-labelledby={`${id}-heading`} id={id} className="scroll-mt-32 space-y-3">
       <h2 id={`${id}-heading`} className="font-serif text-xl font-semibold">

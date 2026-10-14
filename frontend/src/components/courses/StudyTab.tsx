@@ -29,9 +29,8 @@ type StudyTabProps = {
   onDeleted: (itemId: number) => void
 }
 
-// for now only summaries open; quizzes get their page next
 function canOpen(item: StudyItemSummary) {
-  return item.kind === 'summary' && item.status === 'done'
+  return item.status === 'done'
 }
 
 export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, onDeleted }: StudyTabProps) {
@@ -285,7 +284,7 @@ function StudyCard({
         {onOpen && (
           // the title is the link; this is the same action as a button, for a bigger target
           <button type="button" onClick={onOpen} tabIndex={-1} aria-hidden="true" className={`${smallPrimaryButton} ms-1`}>
-            {t('courses.study.read')}
+            {item.kind === 'summary' ? t('courses.study.read') : item.attempts_count === 0 ? t('courses.study.take') : t('courses.study.open')}
           </button>
         )}
       </div>
