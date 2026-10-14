@@ -3,15 +3,15 @@ import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Me } from '../api/auth'
-import { fetchStorage } from '../api/me'
-import type { Storage } from '../api/me'
+import { fetchUsage } from '../api/me'
+import type { DailyUsage, Usage } from '../api/me'
 import type { Catalog } from '../api/meta'
 import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
 import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
-import { formatDate, parseServerDate } from '../dates'
+import { formatDate, formatRelative, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
 import { settingsPath } from '../tabs'
 import { ActivityPage } from './ActivityPage'
@@ -105,12 +105,13 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
 
 function StoragePage() {
   const { t, i18n } = useTranslation()
-  const [storage, setStorage] = useState<Storage | null>(null)
+  const [usage, setUsage] = useState<Usage | null>(null)
   const [failed, setFailed] = useState(false)
+  const storage = usage?.storage
 
   const load = useCallback(() => {
-    fetchStorage()
-      .then(setStorage)
+    fetchUsage()
+      .then(setUsage)
       .catch(() => setFailed(true))
   }, [])
 
@@ -176,7 +177,41 @@ function StoragePage() {
       <h1 className="mt-3 font-serif text-3xl font-semibold">{t('settings.storage.title')}</h1>
       <p className="mt-1 text-sm text-muted">{t('settings.storage.description')}</p>
       <section className="mt-6 rounded-xl border border-line bg-card p-5">{content}</section>
+      {usage && (
+        <section aria-labelledby="ai-usage-title" className="mt-6 rounded-xl border border-line bg-card p-5">
+          <h2 id="ai-usage-title" className="font-semibold">
+            {t('settings.storage.aiTitle')}
+          </h2>
+          <p className="mt-1 text-sm text-muted">
+            {t('settings.storage.aiHint', { summaries: usage.summary.limit, quizzes: usage.quiz.limit })}
+          </p>
+          <dl className="mt-4 divide-y divide-line">
+            <DailyUsageRow label={t('settings.storage.summaries')} usage={usage.summary} />
+            <DailyUsageRow label={t('settings.storage.quizzes')} usage={usage.quiz} />
+          </dl>
+        </section>
+      )}
     </>
+  )
+}
+
+function DailyUsageRow({ label, usage }: { label: string; usage: DailyUsage }) {
+  const { t, i18n } = useTranslation()
+  const full = usage.used >= usage.limit
+  return (
+    <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 py-2.5">
+      <dt>{label}</dt>
+      <dd className="text-end">
+        <span className={`font-medium tabular-nums ${full ? 'text-danger' : ''}`}>
+          {t('settings.storage.dailyUsed', { used: usage.used, limit: usage.limit })}
+        </span>
+        {full && usage.frees_at && (
+          <span className="block text-sm text-muted">
+            {t('settings.storage.nextAt', { when: formatRelative(parseServerDate(usage.frees_at), i18n.language) })}
+          </span>
+        )}
+      </dd>
+    </div>
   )
 }
 

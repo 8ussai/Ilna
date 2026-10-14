@@ -4,8 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
 import type { CourseMaterial, CourseNote } from '../../api/courses'
+import { fetchUsage } from '../../api/me'
+import type { DailyUsage } from '../../api/me'
 import { createStudyItem, QUESTION_COUNTS, STUDY_MAX_SOURCES } from '../../api/study'
 import type { QuestionCount, StudyItemSummary, StudyKind, StudyLanguage, SummaryLength } from '../../api/study'
+import { formatRelative, parseServerDate } from '../../dates'
 import { Dialog } from '../Dialog'
 import { controlClass } from '../Field'
 import { primaryButtonInline, secondaryButtonInline } from '../styles'
@@ -30,14 +33,29 @@ type Choice = {
 
 // Picks the files, recordings and notes a summary or quiz is made from, and how it's made.
 export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCreated }: GenerateDialogProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [selected, setSelected] = useState<Set<string>>(new Set())
+  // this kind's daily limit; null until known (the server checks it either way)
+  const [usage, setUsage] = useState<DailyUsage | null>(null)
   const [length, setLength] = useState<SummaryLength>('brief')
   const [count, setCount] = useState<QuestionCount>(10)
   const [language, setLanguage] = useState<StudyLanguage | ''>('')
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const languageId = useId()
+
+  useEffect(() => {
+    let ignore = false
+    fetchUsage()
+      .then((u) => {
+        if (!ignore) setUsage(u[kind])
+      })
+      .catch(() => {})
+    return () => {
+      ignore = true
+    }
+  }, [kind])
+  const usedUp = usage !== null && usage.used >= usage.limit
 
   const newestFirst = [...materials].sort((a, b) => b.id - a.id)
   const materialChoice = (m: CourseMaterial): Choice => ({
@@ -94,7 +112,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
 
   async function submit(e: FormEvent) {
     e.preventDefault()
-    if (selected.size === 0 || tooMany) return
+    if (selected.size === 0 || tooMany || usedUp) return
     setBusy(true)
     setError('')
     try {
@@ -110,7 +128,13 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
       if (err instanceof ApiError) {
         if (err.status === 0) message = t('errors.network')
         else if (err.status === 503) message = t('courses.study.generate.notSetUp')
-        else if (err.status === 429) message = t('courses.study.generate.limit')
+        else if (err.status === 429) {
+          // someone used the last one in another tab meanwhile: show when the next is free instead
+          fetchUsage()
+            .then((u) => setUsage(u[kind]))
+            .catch(() => {})
+          message = t('courses.study.generate.limit')
+        }
         else if (err.status === 400) message = t('courses.study.generate.sourceProblem')
       }
       setError(message)
@@ -132,6 +156,20 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
       ) : (
         <form onSubmit={submit} className="space-y-6">
           <p className="text-muted">{t(`courses.study.generate.intro.${kind}`)}</p>
+
+          {usage && (
+            <p
+              role={usedUp ? 'alert' : undefined}
+              className={`rounded-xl px-4 py-3 text-sm ${usedUp ? 'bg-danger/10 text-danger' : 'bg-surface text-muted'}`}
+            >
+              {usedUp
+                ? t(`courses.study.generate.usedUp.${kind}`, {
+                    limit: usage.limit,
+                    when: usage.frees_at ? formatRelative(parseServerDate(usage.frees_at), i18n.language) : '',
+                  })
+                : t(`courses.study.generate.left.${kind}`, { left: usage.limit - usage.used, limit: usage.limit })}
+            </p>
+          )}
 
           <div className="space-y-4">
             {groups.map(
@@ -197,7 +235,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
             </p>
           </div>
 
-          {error && (
+          {error && !usedUp && (
             <p role="alert" className="text-sm text-danger">
               {error}
             </p>
@@ -212,7 +250,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
             <button type="button" onClick={onClose} className={secondaryButtonInline}>
               {t('feed.cancel')}
             </button>
-            <button type="submit" disabled={busy || selected.size === 0 || tooMany} className={primaryButtonInline}>
+            <button type="submit" disabled={busy || selected.size === 0 || tooMany || usedUp} className={primaryButtonInline}>
               {busy ? t('courses.study.generate.submitting') : t(`courses.study.generate.submit.${kind}`)}
             </button>
           </div>

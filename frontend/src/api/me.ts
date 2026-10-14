@@ -25,6 +25,15 @@ export function fetchStorage() {
   return authRequest<Storage>('/me/storage')
 }
 
+// summaries or quizzes started in the last 24 hours, out of the limit;
+// frees_at is when the oldest of them leaves the 24 hours (null when none were started)
+export type DailyUsage = { used: number; limit: number; frees_at: string | null }
+export type Usage = { storage: Storage; summary: DailyUsage; quiz: DailyUsage }
+
+export function fetchUsage() {
+  return authRequest<Usage>('/me/usage')
+}
+
 export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply'
 
 export type AppNotification = {

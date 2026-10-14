@@ -1,12 +1,9 @@
 import json
-from datetime import datetime, timedelta, timezone
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func
 from sqlalchemy.orm import Session, selectinload
 
-from backend.backendConfig import STUDY_GENERATIONS_PER_DAY
 from backend.core.apiDependencies import get_current_user
 from backend.database import get_db
 from backend.models.course import Course, CourseMaterial, CourseNote
@@ -25,6 +22,7 @@ from backend.schemas.study import (
     StudyStatus,
 )
 from backend.services import study_generator
+from backend.services.usage import study_limit, study_usage
 from backend.services.study_generator import generate_item, translate_item
 
 router = APIRouter()
@@ -168,17 +166,12 @@ def create_study_item(
 
     sources = _snapshot_sources(db, course, data)
 
-    # created_at is stored in UTC without an offset, so compare against a naive UTC time
-    a_day_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(days=1)
-    started_today = (
-        db.query(func.count(StudyGeneration.id))
-        .filter(StudyGeneration.user_id == current_user.id, StudyGeneration.created_at > a_day_ago)
-        .scalar()
-    )
-    if started_today >= STUDY_GENERATIONS_PER_DAY:
+    used, frees_at = study_usage(db, current_user.id, data.kind.value)
+    if used >= study_limit(data.kind.value):
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"You've made {STUDY_GENERATIONS_PER_DAY} summaries and quizzes today. Try again tomorrow.",
+            detail=f"You can make {study_limit(data.kind.value)} {'summaries' if data.kind == StudyKind.summary else 'quizzes'} a day. "
+                   f"The next one is available at {frees_at.isoformat()}.",
         )
 
     options = {"length": data.length} if data.kind == StudyKind.summary else {"num_questions": data.num_questions}
@@ -191,7 +184,7 @@ def create_study_item(
         sources=json.dumps(sources, ensure_ascii=False),
     )
     db.add(item)
-    db.add(StudyGeneration(user_id=current_user.id))
+    db.add(StudyGeneration(user_id=current_user.id, kind=data.kind.value))
     db.commit()
     db.refresh(item)
 

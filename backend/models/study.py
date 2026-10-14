@@ -68,9 +68,11 @@ class QuizAttempt(Base):
 
 
 class StudyGeneration(Base):
-    """A summary or quiz the user started; what the daily limit counts, so deleting one doesn't refund it."""
+    """A summary or quiz the user started; what the daily limits count, so deleting one doesn't refund it."""
     __tablename__ = "study_generations"
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    # "summary" or "quiz", each with its own limit
+    kind = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now())

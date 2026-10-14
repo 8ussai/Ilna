@@ -423,8 +423,16 @@
         },
         "submitting": "Starting…",
         "notSetUp": "Summaries and quizzes aren't set up on this server yet.",
-        "limit": "You've reached today's limit for summaries and quizzes. Try again tomorrow.",
-        "sourceProblem": "Something you chose can't be used right now. Close this and try again."
+        "limit": "You've reached today's limit. Try again later.",
+        "sourceProblem": "Something you chose can't be used right now. Close this and try again.",
+        "left": {
+          "summary": "Summaries left today: {{left}} of {{limit}}",
+          "quiz": "Quizzes left today: {{left}} of {{limit}}"
+        },
+        "usedUp": {
+          "summary": "You've used your {{limit}} summaries for today. You can make another {{when}}.",
+          "quiz": "You've used your {{limit}} quizzes for today. You can make another {{when}}."
+        }
       },
       "errors": {
         "quota": "Gemini's daily limit was reached. Try again later.",
@@ -552,7 +560,13 @@
       "usedOf": "{{used}} of {{limit}} used",
       "left": "{{left}} left",
       "full": "Your storage is full. You can't upload more files.",
-      "loadFailed": "Couldn't load your storage."
+      "loadFailed": "Couldn't load your storage.",
+      "aiTitle": "Today's AI use",
+      "aiHint": "In any 24 hours you can make {{summaries}} summaries and {{quizzes}} quizzes.",
+      "summaries": "Summaries",
+      "quizzes": "Quizzes",
+      "dailyUsed": "{{used}} of {{limit}} used",
+      "nextAt": "Next one {{when}}"
     },
     "activity": {
       "title": "Activity",
@@ -628,8 +642,8 @@
         "title": "Uploaded files",
         "body": [
           "Only upload files you have the right to share, such as your own notes or materials your course allows you to use.",
-          "Each account has a storage limit of 5 GB.",
-          "To generate quizzes, parts of your uploaded files are processed by an AI service provided by Google (Gemini). AI-generated quizzes can contain mistakes, so always check them against your course materials."
+          "Each account has a storage limit of 1 GB.",
+          "Summaries and quizzes are written from your files, recordings and notes by an AI service provided by Google (Gemini). You can make up to 2 summaries and 2 quizzes in any 24 hours. AI-generated content can contain mistakes, so always check it against your course materials."
         ]
       },
       {

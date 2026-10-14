@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, EmailStr, ConfigDict, model_validator
 from datetime import datetime
 
@@ -45,6 +47,20 @@ class PasswordChange(BaseModel):
 class StorageOut(BaseModel):
     used_bytes: int
     limit_bytes: int
+
+
+class DailyUsageOut(BaseModel):
+    # started in the last 24 hours, out of the limit
+    used: int
+    limit: int
+    # when the oldest of those leaves the 24 hours, freeing one up; null when none were started
+    frees_at: Optional[datetime]
+
+
+class UsageOut(BaseModel):
+    storage: StorageOut
+    summary: DailyUsageOut
+    quiz: DailyUsageOut
 
 
 class UserOut(UserBase):

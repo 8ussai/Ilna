@@ -9,8 +9,9 @@ from backend.models.notification import Notification
 from backend.models.post import Post, Reply
 from backend.models.user import User
 from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, UnreadCount
-from backend.schemas.user import StorageOut
+from backend.schemas.user import DailyUsageOut, StorageOut, UsageOut
 from backend.services.storage import storage_used
+from backend.services.usage import study_limit, study_usage
 
 router = APIRouter()
 
@@ -24,6 +25,23 @@ def get_storage(
     current_user: User = Depends(get_current_user),
 ):
     return StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=STORAGE_LIMIT_BYTES)
+
+
+@router.get("/usage", response_model=UsageOut)
+def get_usage(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """Storage, and how many summaries and quizzes are left today."""
+    def daily(kind: str) -> DailyUsageOut:
+        used, frees_at = study_usage(db, current_user.id, kind)
+        return DailyUsageOut(used=used, limit=study_limit(kind), frees_at=frees_at)
+
+    return UsageOut(
+        storage=StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=STORAGE_LIMIT_BYTES),
+        summary=daily("summary"),
+        quiz=daily("quiz"),
+    )
 
 
 @router.get("/activity", response_model=list[ActivityItem])

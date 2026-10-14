@@ -1,0 +1,31 @@
+from datetime import datetime, timedelta, timezone
+
+from sqlalchemy import func
+from sqlalchemy.orm import Session
+
+from backend.backendConfig import STUDY_DAILY_LIMITS
+from backend.models.study import StudyGeneration
+
+# the daily limits count what was started in the last this-long, rather than resetting at midnight
+STUDY_LIMIT_WINDOW = timedelta(days=1)
+
+
+def study_usage(db: Session, user_id: int, kind: str) -> tuple[int, datetime | None]:
+    """How many of this kind the user started in the window, and when the oldest of them leaves it (in UTC)."""
+    # created_at is stored in UTC without an offset, so compare against a naive UTC time
+    window_start = datetime.now(timezone.utc).replace(tzinfo=None) - STUDY_LIMIT_WINDOW
+    used, oldest = (
+        db.query(func.count(StudyGeneration.id), func.min(StudyGeneration.created_at))
+        .filter(
+            StudyGeneration.user_id == user_id,
+            StudyGeneration.kind == kind,
+            StudyGeneration.created_at > window_start,
+        )
+        .one()
+    )
+    frees_at = oldest.replace(tzinfo=timezone.utc) + STUDY_LIMIT_WINDOW if oldest else None
+    return used, frees_at
+
+
+def study_limit(kind: str) -> int:
+    return STUDY_DAILY_LIMITS[kind]

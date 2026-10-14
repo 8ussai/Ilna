@@ -123,6 +123,10 @@ _add_missing_columns("course_materials", {
     "mime_type": "VARCHAR",
     "duration_sec": "FLOAT",
 })
+# each kind of AI study item has its own daily limit now
+_add_missing_columns("study_generations", {
+    "kind": "VARCHAR",
+})
 _add_missing_columns("course_notes", {
     "kind": "VARCHAR NOT NULL DEFAULT 'text'",
     "indexed_at": "DATETIME",
