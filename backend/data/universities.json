@@ -1314,11 +1314,6 @@
                   "name_ar": "الأمن السيبراني"
                 },
                 {
-                  "id": "aabu-eas-aeas",
-                  "name_en": "Applied Earth and Environmental Sciences" ,
-                  "name_ar": "علوم الارض والبيئة التطبيقية"
-                },
-                {
                   "id": "aabu-it-dsai",
                   "name_en": "Data Science and Artificial Intelligence" ,
                   "name_ar": "علم البيانات والذكاء الاصطناعي"
@@ -1337,6 +1332,11 @@
                   "id": "aabu-it-bit",
                   "name_en": "Business Information Technology" ,
                   "name_ar": "تكنولوجيا معلومات الاعمال"
+                },
+                {
+                  "id": "aabu-it-mis",
+                  "name_en": "Management Information Systems",
+                  "name_ar": "نظم المعلومات الإدارية"
                 }
               ]
             },
@@ -1440,8 +1440,8 @@
             },
             {
               "id": "aabu-ss",
-              "name_en": "Sports Sciences",
-              "name_ar": "Physical Education and Sports Sciences",
+              "name_en": "Physical Education and Sports Sciences",
+              "name_ar": "التربية البدنية وعلوم الرياضة",
               "majors": [
                 {
                   "id": "aabu-ss-pe",
