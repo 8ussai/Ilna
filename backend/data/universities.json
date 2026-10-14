@@ -1070,6 +1070,392 @@
               ]
             }
           ]
+        },
+        {
+          "id": "aabu",
+          "name_en": "Al Al Bayt University",
+          "name_ar": "جامعة آل البيت",
+          "domain": "aabu.edu.jo",
+          "colleges": [
+            {
+              "id": "aabu-sh",
+              "name_en": "Sharia",
+              "name_ar": "الشريعة",
+              "majors": [
+                {
+                  "id": "aabu-sh-fiqh",
+                  "name_en": "Jurisprudence and its Principles",
+                  "name_ar": "الفقه واصوله"
+                },
+                {
+                  "id": "aabu-sh-fr",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "أصول الدين"
+                },
+                {
+                  "id": "aabu-sh-sr",
+                  "name_en": "Studies in Religions",
+                  "name_ar": "دراسات في الاديان"
+                }
+              ]
+            },
+            {
+              "id": "aabu-law",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "aabu-law-law",
+                  "name_en": "Law",
+                  "name_ar": "الحقوق"
+                }
+              ]
+            },
+            {
+              "id": "aabu-lic",
+              "name_en": "Literature and Humanities",
+              "name_ar": "الاداب والعلوم الانسانية",
+              "majors": [
+                {
+                  "id": "aabu-lic-ar",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
+                },
+                {
+                  "id": "aabu-lic-his",
+                  "name_en": "History and Archaeology",
+                  "name_ar": "التاريخ والحضارة"
+                },
+                {
+                  "id": "aabu-lic-geo",
+                  "name_en": "Applied Geography" ,
+                  "name_ar": "جغرافيا تطبيقية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-sci",
+              "name_en": "Sciences",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "aabu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "aabu-sci-ph",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "aabu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                },
+                {
+                  "id": "aabu-sci-Bio",
+                  "name_en": "Biotechnologies",
+                  "name_ar": "التقنيات الحيوية"
+                }              
+              ]
+            },
+            {
+              "id": "aabu-bus",
+              "name_en": "Busines",
+              "name_ar": "الاعمال",
+              "majors": [
+                {
+                  "id": "aabu-bus-bm",
+                  "name_en": "Business Management",
+                  "name_ar": "ادارة الاعمال"
+                },
+                {
+                  "id": "aabu-bus-fb",
+                  "name_en": "Finance and Banking",
+                  "name_ar": "التمويل والمصارف"
+                },
+                {
+                  "id": "aabu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "aabu-bus-asba",
+                  "name_en": "Accounting Systems and Business Analysis",
+                  "name_ar": "النظم المحاسبية وتحليل الاعمال"
+                },
+                {
+                  "id": "aabu-bus-log",
+                  "name_en": "Logistics Management",
+                  "name_ar": "الادارة اللوجستية"
+                },
+                {
+                  "id": "aabu-bus-iaa",
+                  "name_en": "International Auditing and Accounting",
+                  "name_ar": "التدقيق والمحاسبة الدولية"
+                },
+                {
+                  "id": "aabu-bus-de",
+                  "name_en": "Digital Economy",
+                  "name_ar": "الاقتصاد الرقمي"
+                },
+                {
+                  "id": "aabu-bus-abl",
+                  "name_en": "Accounting and Business Law",
+                  "name_ar": "محاسبة وقانون الاعمال"
+                },
+                {
+                  "id": "aabu-bus-fin",
+                  "name_en": "Fintech",
+                  "name_ar": "تكنولوجيا مالية"
+                },
+                {
+                  "id": "aabu-bus-dmrk",
+                  "name_en": "Digital Marketing",
+                  "name_ar": "التسويق الرقمي"
+                },
+                {
+                  "id": "aabu-bus-maba",
+                  "name_en": "Management Accounting and Business Analysis",
+                  "name_ar": "المحاسبة الادارية وتحليل الاعمال"
+                },
+                {
+                  "id": "aabu-bus-irm",
+                  "name_en": "Insurance and Risk Management",
+                  "name_ar": "التأمين وإدارة المخاطر"
+                },
+                {
+                  "id": "aabu-bus-bi",
+                  "name_en": "Business Intelligence" ,
+                  "name_ar": "ذكاء الاعمال"
+                }
+              ]            
+            },
+            {
+              "id": "aabu-pol",
+              "name_en": "Beit Al-Hikma for Political Science and International Studies",
+              "name_ar": "بيت الحكمة للعلوم السياسية والدراسات الدولية",
+              "majors": [
+                {
+                  "id": "aabu-pol-ps",
+                  "name_en": "Political Science" ,
+                  "name_ar": "العلوم السياسة"
+                }              
+              ]
+            },
+            {
+              "id": "aabu-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "aabu-eng-arch",
+                  "name_en": "Architecture Engineering" ,
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "aabu-eng-civ",
+                  "name_en": "Civil Engineering" ,
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "aabu-eng-ren",
+                  "name_en": "Renewable and Sustainable Energy Engineering" ,
+                  "name_ar": "هندسة الطاقة المتجددة والمستدامة"
+                },
+                {
+                  "id": "aabu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "ألهندسة الصناعية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-eas",
+              "name_en": "Earth and Environmental Sciences",
+              "name_ar": "علوم الارض والبيئة",
+              "majors": [
+                {
+                  "id": "aabu-eas-aeas",
+                  "name_en": "Applied Earth and Environmental Sciences" ,
+                  "name_ar": "علوم الارض والبيئة التطبيقية"
+                },
+                {
+                  "id": "aabu-eas-gsen",
+                  "name_en": "Geological Surveying and Exploration for Natural Resources" ,
+                  "name_ar": "المسح الجيولوجي والتنقيب عن الثروات الطبيعية"
+                },
+                {
+                  "id": "aabu-eas-gis",
+                  "name_en": "Geographic Information Systems and Remote Sensing" ,
+                  "name_ar": "نظم المعلومات الجغرافية والاستشعار عن بعد"
+                }
+              ]
+            },
+            {
+              "id": "aabu-it",
+              "name_en": "Prince Al-Hussein Bin Abdullah II for Information Technology",
+              "name_ar": "الامير حسين بن عبدالله لتكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "aabu-it-cs",
+                  "name_en": "Computer Science" ,
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "aabu-it-cis",
+                  "name_en": "Computer Information Systems" ,
+                  "name_ar": "نظم المعلومات الحاسوبية"
+                },
+                {
+                  "id": "aabu-it-cy",
+                  "name_en": "Cyber Security" ,
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "aabu-eas-aeas",
+                  "name_en": "Applied Earth and Environmental Sciences" ,
+                  "name_ar": "علوم الارض والبيئة التطبيقية"
+                },
+                {
+                  "id": "aabu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence" ,
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "aabu-it-ad",
+                  "name_en": "Smart Device Application Development" ,
+                  "name_ar": "تطوير تطبيقات الاجهزة الذكية"
+                },
+                {
+                  "id": "aabu-it-his",
+                  "name_en": "Health Information Systems" ,
+                  "name_ar": "نظم المعلومات الصحية"
+                },
+                {
+                  "id": "aabu-it-bit",
+                  "name_en": "Business Information Technology" ,
+                  "name_ar": "تكنولوجيا معلومات الاعمال"
+                }
+              ]
+            },
+            {
+              "id": "aabu-nur",
+              "name_en": "Princess Salma bint Abdullah for Nursing",
+              "name_ar": "الاميرة سلمى بنت عبد الله للتمريض",
+              "majors": [
+                {
+                  "id": "aabu-nur-nur",
+                  "name_en": "Nursing" ,
+                  "name_ar": "التمريض"
+                }              
+              ]
+            },
+            {
+              "id": "aabu-es",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "aabu-es-cteach",
+                  "name_en": "Classroom Teacher" ,
+                  "name_ar": "معلم صف"
+                },
+                {
+                  "id": "aabu-es-se",
+                  "name_en": "Special Education" ,
+                  "name_ar": "التربية الخاصة"
+                }
+              ]
+            },
+            {
+              "id": "aabu-fl",
+              "name_en": "Foreign Languages",
+              "name_ar": "اللغات الأجنبية",
+              "majors": [
+                {
+                  "id": "aabu-fl-span",
+                  "name_en": "The Spanish and English languages",
+                  "name_ar": "اللغتين الإسبانية والإنجليزية"
+                },
+                {
+                  "id": "aabu-fl-ita",
+                  "name_en": "The Italian and English languages",
+                  "name_ar": "اللغتين الإيطالية والإنجليزية"
+                },
+                {
+                  "id": "aabu-fl-enl",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                },
+                {
+                  "id": "aabu-fl-fre",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-ams",
+              "name_en": "Applied Medical Sciences",
+              "name_ar": "العلوم الطبية التطبيقية ",
+              "majors": [
+                {
+                  "id": "aabu-ams-lms",
+                  "name_en": "Laboratory Medical Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                },
+                {
+                  "id": "aabu-ams-mit",
+                  "name_en": "Medical Imaging Technology",
+                  "name_ar": "تقنيات الاشعة الطبية"
+                },
+                {
+                  "id": "aabu-ams-cnd",
+                  "name_en": "Clinical Nutrition and Dietetics",
+                  "name_ar": "التغذية السريرية والحميات"
+                },
+                {
+                  "id": "aabu-ams-hss",
+                  "name_en": "Hearing and Speech Sciences",
+                  "name_ar": "علوم السمع والنطق"
+                },
+                {
+                  "id": "aabu-ams-rt",
+                  "name_en": "Respiratory Therapy",
+                  "name_ar": "العلاج التنفسي"
+                },
+                {
+                  "id": "aabu-ams-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "aabu-ams-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                }
+              ]
+            },
+            {
+              "id": "aabu-ss",
+              "name_en": "Sports Sciences",
+              "name_ar": "Physical Education and Sports Sciences",
+              "majors": [
+                {
+                  "id": "aabu-ss-pe",
+                  "name_en": "physical education",
+                  "name_ar": "التربية البدنية"
+                },
+                {
+                  "id": "ju-ss-amss",
+                  "name_en": "Applied Movement and Sports Sciences",
+                  "name_ar": "علوم الحركة والرياضة التطبيقية"
+                }
+              ]
+            }
+          ]
         }
       ]
     }
