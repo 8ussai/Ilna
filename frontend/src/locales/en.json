@@ -436,6 +436,23 @@
         "no_questions": "Gemini couldn't write questions from this material.",
         "bad_translation": "The translation came out incomplete.",
         "other": "Something went wrong while talking to Gemini."
+      },
+      "read": "Read",
+      "reader": {
+        "back": "All summaries & quizzes",
+        "gone": "This summary or quiz isn't available. It may have been deleted.",
+        "loadFailed": "Couldn't load this.",
+        "renameLabel": "New title",
+        "language": "Language",
+        "preparing": "Preparing…",
+        "madeFrom": "Made from",
+        "sourceKind": {
+          "document": "File",
+          "audio": "Recording",
+          "text": "Note"
+        },
+        "contents": "Contents",
+        "keyTerms": "Key terms"
       }
     }
   },

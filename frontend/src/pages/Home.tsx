@@ -74,9 +74,10 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     window.scrollTo({ top: 0 })
   }
 
-  // a tab inside the course page: its own history entry (so Back returns to the previous tab), without scrolling
-  function selectCourseSection(courseId: number, section: CourseSection) {
-    const next: Route = { kind: 'course', courseId, section }
+  // a tab inside the course page, or a summary or quiz in it: its own history entry (so Back returns to
+  // where you were), without scrolling
+  function selectCourseSection(courseId: number, section: CourseSection, itemId: number | null = null) {
+    const next: Route = { kind: 'course', courseId, section, itemId }
     const path = routePath(next)
     if (path !== currentPath()) window.history.pushState(null, '', path)
     setRoute(next)
@@ -99,7 +100,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
   function renderContent() {
     const tab = route.kind === 'tab' ? route.tab : null
-    const openCourse = (courseId: number) => navigate({ kind: 'course', courseId, section: null })
+    const openCourse = (courseId: number) => navigate({ kind: 'course', courseId, section: null, itemId: null })
     // courses don't need the profile, so they don't wait for it
     if (tab === 'my-courses') return <CoursesPage onOpenCourse={openCourse} />
     if (route.kind === 'course') {
@@ -108,7 +109,9 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           key={route.courseId}
           courseId={route.courseId}
           section={route.section ?? 'materials'}
+          studyItemId={route.itemId}
           onSectionChange={(section) => selectCourseSection(route.courseId, section)}
+          onOpenStudyItem={(itemId) => selectCourseSection(route.courseId, 'study', itemId)}
           onBack={() => navigate({ kind: 'tab', tab: 'my-courses' })}
         />
       )

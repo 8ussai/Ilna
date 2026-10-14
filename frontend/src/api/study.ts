@@ -99,3 +99,36 @@ export function isStudyItemWorking(item: StudyItemSummary) {
 export function studyLanguage(item: StudyItemSummary): StudyLanguage | null {
   return item.view_language ?? item.main_language
 }
+
+export type SummaryContent = {
+  title: string
+  overview: string
+  sections: { heading: string; points: string[] }[]
+  key_terms: { term: string; definition: string }[]
+}
+
+// a question as it's shown while taking the quiz: no answer, no explanation
+export type QuizPublic = {
+  title: string
+  questions: { question: string; options: string[] }[]
+}
+
+// one summary or quiz with its content, by language (only the versions that are ready)
+export type StudyItem = StudyItemSummary & {
+  summary: Partial<Record<StudyLanguage, SummaryContent>> | null
+  quiz: Partial<Record<StudyLanguage, QuizPublic>> | null
+}
+
+export function fetchStudyItem(courseId: number, itemId: number) {
+  return authRequest<StudyItem>(`/courses/${courseId}/study/${itemId}`)
+}
+
+// rename it (null = back to the generated title), or remember the language it's read in
+export function updateStudyItem(courseId: number, itemId: number, changes: { title?: string | null; view_language?: StudyLanguage }) {
+  return authRequest<StudyItemSummary>(`/courses/${courseId}/study/${itemId}`, { method: 'PATCH', headers: json, body: JSON.stringify(changes) })
+}
+
+// the other of the two languages
+export function otherLanguage(language: StudyLanguage): StudyLanguage {
+  return language === 'ar' ? 'en' : 'ar'
+}

@@ -28,17 +28,21 @@ type Status = 'loading' | 'ready' | 'error' | 'unavailable'
 type CoursePageProps = {
   courseId: number
   section: CourseSection
+  // a summary or quiz open on its own page in the study tab
+  studyItemId: number | null
   onSectionChange: (section: CourseSection) => void
+  onOpenStudyItem: (itemId: number | null) => void
   onBack: () => void
 }
 
-export function CoursePage({ courseId, section, onSectionChange, onBack }: CoursePageProps) {
+export function CoursePage({ courseId, section, studyItemId, onSectionChange, onOpenStudyItem, onBack }: CoursePageProps) {
   const { t } = useTranslation()
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
   const [editing, setEditing] = useState(false)
   const [studyItems, setStudyItems] = useState<StudyItemSummary[]>([])
+  const [studyLoaded, setStudyLoaded] = useState(false)
   // the summary or quiz being set up in the generate dialog
   const [generating, setGenerating] = useState<StudyKind | null>(null)
 
@@ -47,9 +51,13 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
     let ignore = false
     fetchStudyItems(courseId)
       .then((items) => {
-        if (!ignore) setStudyItems(items)
+        if (ignore) return
+        setStudyItems(items)
+        setStudyLoaded(true)
       })
-      .catch(() => {})
+      .catch(() => {
+        if (!ignore) setStudyLoaded(true)
+      })
     return () => {
       ignore = true
     }
@@ -227,6 +235,9 @@ export function CoursePage({ courseId, section, onSectionChange, onBack }: Cours
               <StudyTab
                 courseId={course.id}
                 items={studyItems}
+                loaded={studyLoaded}
+                openId={studyItemId}
+                onOpen={onOpenStudyItem}
                 onChanged={(item) => setStudyItems((current) => current.map((i) => (i.id === item.id ? item : i)))}
                 onDeleted={(id) => setStudyItems((current) => current.filter((i) => i.id !== id))}
               />

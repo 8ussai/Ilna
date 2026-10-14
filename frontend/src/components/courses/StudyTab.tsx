@@ -1,11 +1,15 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
 import { deleteStudyItem, isStudyItemWorking, LANGUAGE_NAMES, retryStudyItem, studyLanguage } from '../../api/study'
 import type { StudyItemSummary, StudyKind, StudyLanguage } from '../../api/study'
 import { formatRelative, parseServerDate } from '../../dates'
+import { inAppClick } from '../../links'
+import { coursePath } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
+import { smallPrimaryButton } from '../styles'
+import { KindIcon, StudyItemPage } from './StudyItemPage'
 
 // sources named on a card before the rest are counted
 const SOURCES_SHOWN = 2
@@ -16,24 +20,79 @@ type StudyTabProps = {
   courseId: number
   // newest first
   items: StudyItemSummary[]
+  // false until the list has arrived, so an opened link doesn't look like a deleted item meanwhile
+  loaded: boolean
+  // the one open on its own page (from the URL), if any
+  openId: number | null
+  onOpen: (itemId: number | null) => void
   onChanged: (item: StudyItemSummary) => void
   onDeleted: (itemId: number) => void
 }
 
-export function StudyTab({ courseId, items, onChanged, onDeleted }: StudyTabProps) {
+// for now only summaries open; quizzes get their page next
+function canOpen(item: StudyItemSummary) {
+  return item.kind === 'summary' && item.status === 'done'
+}
+
+export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, onDeleted }: StudyTabProps) {
   const { t } = useTranslation()
   const [filter, setFilter] = useState<Filter>('all')
+  const listRef = useRef<HTMLDivElement>(null)
+  // the card to put focus back on when its page closes
+  const returnFocusRef = useRef<number | null>(null)
+  const open = openId === null ? null : (items.find((i) => i.id === openId) ?? null)
+
+  useEffect(() => {
+    if (openId !== null) {
+      returnFocusRef.current = openId
+      return
+    }
+    const target = returnFocusRef.current
+    returnFocusRef.current = null
+    if (target !== null) listRef.current?.querySelector<HTMLElement>(`[data-study-id="${target}"]`)?.focus()
+  }, [openId])
   const counts = { all: items.length, summary: items.filter((i) => i.kind === 'summary').length, quiz: items.filter((i) => i.kind === 'quiz').length }
   // the filter only means something once there are both
   const showFilter = counts.summary > 0 && counts.quiz > 0
   const shown = showFilter && filter !== 'all' ? items.filter((i) => i.kind === filter) : items
+
+  if (open && canOpen(open)) {
+    return (
+      <StudyItemPage
+        key={open.id}
+        courseId={courseId}
+        item={open}
+        onChanged={onChanged}
+        onBack={() => onOpen(null)}
+        onDeleted={() => {
+          // nothing to return to
+          returnFocusRef.current = null
+          onDeleted(open.id)
+          onOpen(null)
+        }}
+      />
+    )
+  }
+
+  if (openId !== null && !loaded) {
+    return (
+      <p className="py-10 text-center text-muted" role="status">
+        {t('feed.loading')}
+      </p>
+    )
+  }
 
   if (items.length === 0) {
     return <p className="py-8 text-center text-muted">{t('courses.study.empty')}</p>
   }
 
   return (
-    <div className="space-y-4">
+    <div ref={listRef} className="space-y-4">
+      {openId !== null && !open && (
+        <p role="status" className="rounded-xl bg-surface px-4 py-3 text-sm text-muted">
+          {t('courses.study.reader.gone')}
+        </p>
+      )}
       {showFilter && (
         <div role="radiogroup" aria-label={t('courses.study.filter')} className="flex flex-wrap gap-2">
           {(['all', 'summary', 'quiz'] as const).map((value) => (
@@ -53,7 +112,14 @@ export function StudyTab({ courseId, items, onChanged, onDeleted }: StudyTabProp
 
       <ul className="grid gap-3 sm:grid-cols-2">
         {shown.map((item) => (
-          <StudyCard key={item.id} courseId={courseId} item={item} onChanged={onChanged} onDeleted={() => onDeleted(item.id)} />
+          <StudyCard
+            key={item.id}
+            courseId={courseId}
+            item={item}
+            onOpen={canOpen(item) ? () => onOpen(item.id) : null}
+            onChanged={onChanged}
+            onDeleted={() => onDeleted(item.id)}
+          />
         ))}
       </ul>
     </div>
@@ -63,11 +129,14 @@ export function StudyTab({ courseId, items, onChanged, onDeleted }: StudyTabProp
 function StudyCard({
   courseId,
   item,
+  onOpen,
   onChanged,
   onDeleted,
 }: {
   courseId: number
   item: StudyItemSummary
+  // null while it can't be opened yet
+  onOpen: (() => void) | null
   onChanged: (item: StudyItemSummary) => void
   onDeleted: () => void
 }) {
@@ -129,7 +198,13 @@ function StudyCard({
         </p>
 
         <h3 dir="auto" lang={generatedTitle && !item.title ? (language ?? undefined) : undefined} className="font-serif text-lg leading-snug font-semibold break-words">
-          {title}
+          {onOpen ? (
+            <a href={coursePath(courseId, 'study', item.id)} onClick={inAppClick(onOpen)} data-study-id={item.id} className="hover:underline">
+              {title}
+            </a>
+          ) : (
+            title
+          )}
         </h3>
 
         <p className="text-sm text-muted">
@@ -207,6 +282,12 @@ function StudyCard({
           </button>
         )}
         <DeleteButton question={t(`courses.study.confirmDelete.${item.kind}`)} onConfirm={remove} />
+        {onOpen && (
+          // the title is the link; this is the same action as a button, for a bigger target
+          <button type="button" onClick={onOpen} tabIndex={-1} aria-hidden="true" className={`${smallPrimaryButton} ms-1`}>
+            {t('courses.study.read')}
+          </button>
+        )}
       </div>
     </li>
   )
@@ -218,20 +299,5 @@ function StatusPill({ working = false, lang, children }: { working?: boolean; la
       {working && <span aria-hidden="true" className="size-1.5 animate-pulse rounded-full bg-muted" />}
       {children}
     </span>
-  )
-}
-
-export function KindIcon({ kind }: { kind: StudyKind }) {
-  return (
-    <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {kind === 'summary' ? (
-        <path d="M4 6h16M4 10h16M4 14h10M4 18h7" />
-      ) : (
-        <>
-          <circle cx="12" cy="12" r="9" />
-          <path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .9-1 1.6v.3M12 17h.01" />
-        </>
-      )}
-    </svg>
   )
 }

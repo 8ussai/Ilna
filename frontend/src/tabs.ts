@@ -20,8 +20,9 @@ export type Route =
   | { kind: 'drawer'; page: DrawerPage }
   // a single post (/post/<id>); replyId (#reply-<id>) is the reply to scroll to and highlight
   | { kind: 'post'; postId: number; replyId: number | null }
-  // one course's workspace (/course/<id>); null section = the first tab
-  | { kind: 'course'; courseId: number; section: CourseSection | null }
+  // one course's workspace (/course/<id>); null section = the first tab;
+  // itemId is a summary or quiz open in the study tab (/course/<id>#study-<item id>)
+  | { kind: 'course'; courseId: number; section: CourseSection | null; itemId: number | null }
 
 export function tabPath(tab: Tab) {
   return `/${tab}`
@@ -35,7 +36,8 @@ export function postPath(postId: number, replyId: number | null = null) {
   return replyId === null ? `/post/${postId}` : `/post/${postId}#reply-${replyId}`
 }
 
-export function coursePath(courseId: number, section: CourseSection | null = null) {
+export function coursePath(courseId: number, section: CourseSection | null = null, itemId: number | null = null) {
+  if (section === 'study' && itemId !== null) return `/course/${courseId}#study-${itemId}`
   return section ? `/course/${courseId}#${section}` : `/course/${courseId}`
 }
 
@@ -43,7 +45,7 @@ export function routePath(route: Route) {
   if (route.kind === 'tab') return tabPath(route.tab)
   if (route.kind === 'settings') return settingsPath(route.page)
   if (route.kind === 'drawer') return `/${route.page}`
-  if (route.kind === 'course') return coursePath(route.courseId, route.section)
+  if (route.kind === 'course') return coursePath(route.courseId, route.section, route.itemId)
   return postPath(route.postId, route.replyId)
 }
 
@@ -61,8 +63,10 @@ export function routeFromPath(): Route {
   }
   if (first === 'course' && /^\d+$/.test(second ?? '')) {
     const hash = window.location.hash.slice(1)
+    const item = /^study-(\d+)$/.exec(hash)
+    if (item) return { kind: 'course', courseId: Number(second), section: 'study', itemId: Number(item[1]) }
     const section = (COURSE_SECTIONS as readonly string[]).includes(hash) ? (hash as CourseSection) : null
-    return { kind: 'course', courseId: Number(second), section }
+    return { kind: 'course', courseId: Number(second), section, itemId: null }
   }
   if ((DRAWER_PAGES as readonly string[]).includes(first)) return { kind: 'drawer', page: first as DrawerPage }
   if (first === 'settings') {
