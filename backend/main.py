@@ -76,7 +76,13 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # later we can restrict this to specific domains
+    # the public site and the local dev/preview servers
+    allow_origins=[
+        "https://ilna-academic.com",
+        "https://www.ilna-academic.com",
+        "http://localhost:5173",
+        "http://localhost:4173",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
