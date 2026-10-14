@@ -110,8 +110,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           courseId={route.courseId}
           section={route.section ?? 'materials'}
           studyItemId={route.itemId}
-          onSectionChange={(section) => selectCourseSection(route.courseId, section)}
-          onOpenStudyItem={(itemId) => selectCourseSection(route.courseId, 'study', itemId)}
+          onSectionChange={(section, itemId) => selectCourseSection(route.courseId, section, itemId)}
           onBack={() => navigate({ kind: 'tab', tab: 'my-courses' })}
         />
       )

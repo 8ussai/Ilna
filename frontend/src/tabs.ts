@@ -10,9 +10,13 @@ export const DRAWER_PAGES = ['notifications', 'contact'] as const
 export type DrawerPage = (typeof DRAWER_PAGES)[number]
 
 // the tabs inside a course page, kept in the URL hash (/course/<id>#voice)
-// 'study' (summaries and quizzes) only shows once the course has one
-export const COURSE_SECTIONS = ['materials', 'links', 'voice', 'notes', 'study'] as const
+// 'summaries' and 'quizzes' each show once the course has one
+export const COURSE_SECTIONS = ['materials', 'links', 'voice', 'notes', 'summaries', 'quizzes'] as const
 export type CourseSection = (typeof COURSE_SECTIONS)[number]
+
+// the tab each kind of AI study item lives in
+export const STUDY_SECTIONS = { summary: 'summaries', quiz: 'quizzes' } as const satisfies Record<string, CourseSection>
+export type StudySection = (typeof STUDY_SECTIONS)[keyof typeof STUDY_SECTIONS]
 
 export type Route =
   | { kind: 'tab'; tab: Tab }
@@ -21,7 +25,7 @@ export type Route =
   // a single post (/post/<id>); replyId (#reply-<id>) is the reply to scroll to and highlight
   | { kind: 'post'; postId: number; replyId: number | null }
   // one course's workspace (/course/<id>); null section = the first tab;
-  // itemId is a summary or quiz open in the study tab (/course/<id>#study-<item id>)
+  // itemId is a summary or quiz open in its tab (/course/<id>#summaries-<item id>, #quizzes-<item id>)
   | { kind: 'course'; courseId: number; section: CourseSection | null; itemId: number | null }
 
 export function tabPath(tab: Tab) {
@@ -37,7 +41,7 @@ export function postPath(postId: number, replyId: number | null = null) {
 }
 
 export function coursePath(courseId: number, section: CourseSection | null = null, itemId: number | null = null) {
-  if (section === 'study' && itemId !== null) return `/course/${courseId}#study-${itemId}`
+  if ((section === 'summaries' || section === 'quizzes') && itemId !== null) return `/course/${courseId}#${section}-${itemId}`
   return section ? `/course/${courseId}#${section}` : `/course/${courseId}`
 }
 
@@ -63,8 +67,8 @@ export function routeFromPath(): Route {
   }
   if (first === 'course' && /^\d+$/.test(second ?? '')) {
     const hash = window.location.hash.slice(1)
-    const item = /^study-(\d+)$/.exec(hash)
-    if (item) return { kind: 'course', courseId: Number(second), section: 'study', itemId: Number(item[1]) }
+    const item = /^(summaries|quizzes)-(\d+)$/.exec(hash)
+    if (item) return { kind: 'course', courseId: Number(second), section: item[1] as StudySection, itemId: Number(item[2]) }
     const section = (COURSE_SECTIONS as readonly string[]).includes(hash) ? (hash as CourseSection) : null
     return { kind: 'course', courseId: Number(second), section, itemId: null }
   }

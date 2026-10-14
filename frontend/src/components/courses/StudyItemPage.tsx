@@ -15,7 +15,7 @@ import {
 import type { StudyItem, StudyItemSummary, StudyKind, StudyLanguage, StudySource, SummaryContent } from '../../api/study'
 import { formatDate, parseServerDate } from '../../dates'
 import { inAppClick } from '../../links'
-import { coursePath } from '../../tabs'
+import { coursePath, STUDY_SECTIONS } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
 import { secondaryButtonInline } from '../styles'
 import { InlineRename } from './InlineRename'
@@ -111,14 +111,14 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
 
   const back = (
     <a
-      href={coursePath(courseId, 'study')}
+      href={coursePath(courseId, STUDY_SECTIONS[item.kind])}
       onClick={inAppClick(onBack)}
       className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
     >
       <svg viewBox="0 0 24 24" className="size-4 rtl:-scale-x-100" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
         <path d="m15 18-6-6 6-6" />
       </svg>
-      {t('courses.study.reader.back')}
+      {t(`courses.study.reader.back.${item.kind}`)}
     </a>
   )
 

@@ -201,7 +201,8 @@
       "links": "Links",
       "voice": "Voice",
       "notes": "Notes",
-      "study": "Summaries & quizzes"
+      "summaries": "Summaries",
+      "quizzes": "Quizzes"
     },
     "ai": {
       "label": "AI tools",
@@ -345,12 +346,9 @@
       "saveDrawing": "Save drawing"
     },
     "study": {
-      "empty": "Nothing here yet. Use Summarize or Quiz in the AI tools to make one.",
-      "filter": "Show",
-      "filters": {
-        "all": "All",
-        "summary": "Summaries",
-        "quiz": "Quizzes"
+      "empty": {
+        "summary": "No summaries yet. Use Summarize in the AI tools to make one.",
+        "quiz": "No quizzes yet. Use Quiz in the AI tools to make one."
       },
       "kind": {
         "summary": "Summary",
@@ -439,7 +437,10 @@
       },
       "read": "Read",
       "reader": {
-        "back": "All summaries & quizzes",
+        "back": {
+          "summary": "All summaries",
+          "quiz": "All quizzes"
+        },
         "gone": "This summary or quiz isn't available. It may have been deleted.",
         "loadFailed": "Couldn't load this.",
         "renameLabel": "New title",

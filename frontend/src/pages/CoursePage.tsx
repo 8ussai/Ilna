@@ -20,7 +20,7 @@ import { Dialog } from '../components/Dialog'
 import { secondaryButtonInline, smallSecondaryButton } from '../components/styles'
 import { usePolling } from '../hooks/usePolling'
 import { inAppClick } from '../links'
-import { COURSE_SECTIONS, tabPath } from '../tabs'
+import { COURSE_SECTIONS, STUDY_SECTIONS, tabPath } from '../tabs'
 import type { CourseSection } from '../tabs'
 
 type Status = 'loading' | 'ready' | 'error' | 'unavailable'
@@ -28,14 +28,14 @@ type Status = 'loading' | 'ready' | 'error' | 'unavailable'
 type CoursePageProps = {
   courseId: number
   section: CourseSection
-  // a summary or quiz open on its own page in the study tab
+  // a summary or quiz open on its own page in its tab
   studyItemId: number | null
-  onSectionChange: (section: CourseSection) => void
-  onOpenStudyItem: (itemId: number | null) => void
+  // itemId opens a summary or quiz in the summaries or quizzes tab
+  onSectionChange: (section: CourseSection, itemId?: number | null) => void
   onBack: () => void
 }
 
-export function CoursePage({ courseId, section, studyItemId, onSectionChange, onOpenStudyItem, onBack }: CoursePageProps) {
+export function CoursePage({ courseId, section, studyItemId, onSectionChange, onBack }: CoursePageProps) {
   const { t } = useTranslation()
   const [course, setCourse] = useState<CourseDetail | null>(null)
   const [status, setStatus] = useState<Status>('loading')
@@ -155,21 +155,26 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
   const documents = byNewest.filter((m) => m.kind === 'document')
   const recordings = byNewest.filter((m) => m.kind === 'audio')
   const notes = [...course.notes].sort((a, b) => b.updated_at.localeCompare(a.updated_at))
+  const summaries = studyItems.filter((i) => i.kind === 'summary')
+  const quizzes = studyItems.filter((i) => i.kind === 'quiz')
   const counts: Record<CourseSection, number> = {
     materials: documents.length,
     links: course.links.length,
     voice: recordings.length,
     notes: notes.length,
-    study: studyItems.length,
+    summaries: summaries.length,
+    quizzes: quizzes.length,
   }
-  // the summaries and quizzes tab appears with the first one (or when its link is opened directly)
-  const sections = COURSE_SECTIONS.filter((name) => name !== 'study' || studyItems.length > 0 || section === 'study')
+  // the summaries and quizzes tabs each appear with their first item (or when their link is opened directly)
+  const sections = COURSE_SECTIONS.filter((name) => counts[name] > 0 || name === section || !(name === 'summaries' || name === 'quizzes'))
 
   function openStudyItem(item: StudyItemSummary) {
     setStudyItems((current) => [item, ...current])
     setGenerating(null)
-    onSectionChange('study')
+    onSectionChange(STUDY_SECTIONS[item.kind])
   }
+  const changeStudyItem = (item: StudyItemSummary) => setStudyItems((current) => current.map((i) => (i.id === item.id ? item : i)))
+  const removeStudyItem = (id: number) => setStudyItems((current) => current.filter((i) => i.id !== id))
 
   return (
     // room under the content for the AI bar along the bottom on phones
@@ -231,15 +236,17 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
                 onDeleted={(id) => update({ notes: course.notes.filter((n) => n.id !== id) })}
               />
             )}
-            {section === 'study' && (
+            {(section === 'summaries' || section === 'quizzes') && (
               <StudyTab
+                key={section}
                 courseId={course.id}
-                items={studyItems}
+                kind={section === 'summaries' ? 'summary' : 'quiz'}
+                items={section === 'summaries' ? summaries : quizzes}
                 loaded={studyLoaded}
                 openId={studyItemId}
-                onOpen={onOpenStudyItem}
-                onChanged={(item) => setStudyItems((current) => current.map((i) => (i.id === item.id ? item : i)))}
-                onDeleted={(id) => setStudyItems((current) => current.filter((i) => i.id !== id))}
+                onOpen={(itemId) => onSectionChange(section, itemId)}
+                onChanged={changeStudyItem}
+                onDeleted={removeStudyItem}
               />
             )}
           </div>

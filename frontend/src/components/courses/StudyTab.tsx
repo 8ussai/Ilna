@@ -6,7 +6,7 @@ import { deleteStudyItem, isStudyItemWorking, LANGUAGE_NAMES, retryStudyItem, st
 import type { StudyItemSummary, StudyKind, StudyLanguage } from '../../api/study'
 import { formatRelative, parseServerDate } from '../../dates'
 import { inAppClick } from '../../links'
-import { coursePath } from '../../tabs'
+import { coursePath, STUDY_SECTIONS } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
 import { smallPrimaryButton } from '../styles'
 import { KindIcon, StudyItemPage } from './StudyItemPage'
@@ -14,11 +14,10 @@ import { KindIcon, StudyItemPage } from './StudyItemPage'
 // sources named on a card before the rest are counted
 const SOURCES_SHOWN = 2
 
-type Filter = 'all' | StudyKind
-
 type StudyTabProps = {
   courseId: number
-  // newest first
+  // the tab's kind; items are all of it, newest first
+  kind: StudyKind
   items: StudyItemSummary[]
   // false until the list has arrived, so an opened link doesn't look like a deleted item meanwhile
   loaded: boolean
@@ -33,9 +32,8 @@ function canOpen(item: StudyItemSummary) {
   return item.status === 'done'
 }
 
-export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, onDeleted }: StudyTabProps) {
+export function StudyTab({ courseId, kind, items, loaded, openId, onOpen, onChanged, onDeleted }: StudyTabProps) {
   const { t } = useTranslation()
-  const [filter, setFilter] = useState<Filter>('all')
   const listRef = useRef<HTMLDivElement>(null)
   // the card to put focus back on when its page closes
   const returnFocusRef = useRef<number | null>(null)
@@ -50,11 +48,6 @@ export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, o
     returnFocusRef.current = null
     if (target !== null) listRef.current?.querySelector<HTMLElement>(`[data-study-id="${target}"]`)?.focus()
   }, [openId])
-  const counts = { all: items.length, summary: items.filter((i) => i.kind === 'summary').length, quiz: items.filter((i) => i.kind === 'quiz').length }
-  // the filter only means something once there are both
-  const showFilter = counts.summary > 0 && counts.quiz > 0
-  const shown = showFilter && filter !== 'all' ? items.filter((i) => i.kind === filter) : items
-
   if (open && canOpen(open)) {
     return (
       <StudyItemPage
@@ -82,7 +75,7 @@ export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, o
   }
 
   if (items.length === 0) {
-    return <p className="py-8 text-center text-muted">{t('courses.study.empty')}</p>
+    return <p className="py-8 text-center text-muted">{t(`courses.study.empty.${kind}`)}</p>
   }
 
   return (
@@ -92,25 +85,8 @@ export function StudyTab({ courseId, items, loaded, openId, onOpen, onChanged, o
           {t('courses.study.reader.gone')}
         </p>
       )}
-      {showFilter && (
-        <div role="radiogroup" aria-label={t('courses.study.filter')} className="flex flex-wrap gap-2">
-          {(['all', 'summary', 'quiz'] as const).map((value) => (
-            <label
-              key={value}
-              className={`inline-flex h-9 cursor-pointer items-center gap-2 rounded-full border px-3 text-sm font-medium has-focus-visible:outline-2 has-focus-visible:outline-accent ${
-                filter === value ? 'border-accent bg-accent text-accent-fg' : 'border-line hover:bg-surface'
-              }`}
-            >
-              <input type="radio" name="study-filter" checked={filter === value} onChange={() => setFilter(value)} className="sr-only" />
-              {t(`courses.study.filters.${value}`)}
-              <span className="tabular-nums opacity-80">{counts[value]}</span>
-            </label>
-          ))}
-        </div>
-      )}
-
       <ul className="grid gap-3 sm:grid-cols-2">
-        {shown.map((item) => (
+        {items.map((item) => (
           <StudyCard
             key={item.id}
             courseId={courseId}
@@ -198,7 +174,7 @@ function StudyCard({
 
         <h3 dir="auto" lang={generatedTitle && !item.title ? (language ?? undefined) : undefined} className="font-serif text-lg leading-snug font-semibold break-words">
           {onOpen ? (
-            <a href={coursePath(courseId, 'study', item.id)} onClick={inAppClick(onOpen)} data-study-id={item.id} className="hover:underline">
+            <a href={coursePath(courseId, STUDY_SECTIONS[item.kind], item.id)} onClick={inAppClick(onOpen)} data-study-id={item.id} className="hover:underline">
               {title}
             </a>
           ) : (
