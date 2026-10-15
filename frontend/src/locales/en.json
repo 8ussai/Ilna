@@ -27,7 +27,7 @@
       "lower": "A lowercase letter (a–z)",
       "upper": "An uppercase letter (A–Z)",
       "number": "A number (0–9)",
-      "symbol": "A symbol (e.g. ! @ # $)",
+      "symbol": "A symbol: ! @ # $ % or &",
       "met": "(done)",
       "notMet": "(missing)"
     },

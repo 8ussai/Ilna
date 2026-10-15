@@ -23,7 +23,7 @@ PASSWORD_RULES = [
     (lambda p: re.search(r"[a-z]", p), "a lowercase letter"),
     (lambda p: re.search(r"[A-Z]", p), "an uppercase letter"),
     (lambda p: re.search(r"[0-9]", p), "a number"),
-    (lambda p: re.search(r"[^A-Za-z0-9\s]", p), "a symbol"),
+    (lambda p: re.search(r"[!@#$%&]", p), "a symbol (! @ # $ % &)"),
 ]
 
 

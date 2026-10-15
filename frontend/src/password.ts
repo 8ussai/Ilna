@@ -4,7 +4,7 @@ export const PASSWORD_RULES = [
   { key: 'lower', test: (p: string) => /[a-z]/.test(p) },
   { key: 'upper', test: (p: string) => /[A-Z]/.test(p) },
   { key: 'number', test: (p: string) => /[0-9]/.test(p) },
-  { key: 'symbol', test: (p: string) => /[^A-Za-z0-9\s]/.test(p) },
+  { key: 'symbol', test: (p: string) => /[!@#$%&]/.test(p) },
 ] as const
 
 export function isStrongPassword(password: string) {
