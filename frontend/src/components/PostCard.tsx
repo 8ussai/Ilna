@@ -58,9 +58,11 @@ export function PostCard({
 
   const { author } = post
   const created = parseServerDate(post.created_at)
-  // scoped blogs already share the author's university/major, so only general posts show it
-  const origin = post.scope === 'general' ? postOriginNames(catalog, post, i18n.language) : null
-  const originText = origin && [origin.major, origin.university].filter(Boolean).join(' · ')
+  // a blog's readers already share its university/college/major, so show only what can differ
+  const origin = postOriginNames(catalog, post, i18n.language)
+  const originParts =
+    post.scope === 'general' ? [origin.major, origin.university] : post.scope === 'major' ? [] : [origin.major]
+  const originText = originParts.filter(Boolean).join(' · ')
 
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">

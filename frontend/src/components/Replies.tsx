@@ -103,6 +103,9 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
           <time dateTime={created.toISOString()} className="shrink-0 text-muted">
             {formatDateTime(created, i18n.language)}
           </time>
+          <span dir="ltr" className="shrink-0 text-muted">
+            #{reply.id}
+          </span>
         </div>
 
         {reply.is_deleted ? (
