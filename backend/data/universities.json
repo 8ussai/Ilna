@@ -12,42 +12,42 @@
           "domain": "ju.edu.jo",
           "colleges": [
             {
-              "id": "ju-lic",
+              "id": "ju-lit",
               "name_en": "Literatures",
               "name_ar": "الآداب",
               "majors": [
                 {
-                  "id": "ju-lic-hist",
+                  "id": "ju-lit-hist",
                   "name_en": "History",
                   "name_ar": "التاريخ"
                 },
                 {
-                  "id": "ju-lic-geo",
+                  "id": "ju-lit-geo",
                   "name_en": "Geography",
                   "name_ar": "الجغرافيا"
                 },
                 {
-                  "id": "ju-lic-sw",
+                  "id": "ju-lit-sw",
                   "name_en": "Social Work",
                   "name_ar": "العمل الاجتماعي"
                 },
                 {
-                  "id": "ju-lic-phil",
+                  "id": "ju-lit-phil",
                   "name_en": "Philosophy",
                   "name_ar": "الفلسفة"
                 },
                 {
-                  "id": "ju-lic-arab",
+                  "id": "ju-lit-arab",
                   "name_en": "Arabic Language and Literature",
                   "name_ar": "اللغة العربية وآدابها"
                 },
                 {
-                  "id": "ju-lic-soci",
+                  "id": "ju-lit-soci",
                   "name_en": "Sociology",
                   "name_ar": "علم الاجتماع"
                 },
                 {
-                  "id": "ju-lic-psych",
+                  "id": "ju-lit-psych",
                   "name_en": "Psychology",
                   "name_ar": "علم النفس"
                 }
@@ -1112,22 +1112,22 @@
               ]
             },
             {
-              "id": "aabu-lic",
+              "id": "aabu-lit",
               "name_en": "Literature and Humanities",
               "name_ar": "الاداب والعلوم الانسانية",
               "majors": [
                 {
-                  "id": "aabu-lic-ar",
+                  "id": "aabu-lit-ar",
                   "name_en": "Arabic Language and Literature",
                   "name_ar": "اللغة العربية وآدابها"
                 },
                 {
-                  "id": "aabu-lic-his",
+                  "id": "aabu-lit-his",
                   "name_en": "History and Archaeology",
                   "name_ar": "التاريخ والحضارة"
                 },
                 {
-                  "id": "aabu-lic-geo",
+                  "id": "aabu-lit-geo",
                   "name_en": "Applied Geography" ,
                   "name_ar": "جغرافيا تطبيقية"
                 }
@@ -1449,9 +1449,524 @@
                   "name_ar": "التربية البدنية"
                 },
                 {
-                  "id": "ju-ss-amss",
+                  "id": "aabu-ss-amss",
                   "name_en": "Applied Movement and Sports Sciences",
                   "name_ar": "علوم الحركة والرياضة التطبيقية"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "yu",
+          "name_en": "yarmouk University",
+          "name_ar": "جامعة اليرموك ",
+          "domain": "yu.edu.jo",
+          "colleges": [
+            {
+              "id": "yu-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "yu-med-med",
+                  "name_en": "Doctor of Medicine",
+                  "name_ar": "دكتور في الطب"
+                }
+              ]
+            },
+            {
+              "id": "yu-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "yu-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "yu-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "yu-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                },
+                {
+                  "id": "yu-nurs-cp",
+                  "name_en": "Clinical Psychology",
+                  "name_ar": "علم النفس االكلينيكي"
+                }
+              ]
+            },
+            {
+              "id": "yu-eng",
+              "name_en": "Al-Hijjawi for Technological Engineering",
+              "name_ar": "الحجاوي للهندسة التكنولوجية",
+              "majors": [
+                {
+                  "id": "yu-eng-ce",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "yu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "yu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
+                },
+                {
+                  "id": "yu-eng-ere",
+                  "name_en": "Electronics and Robotics Engineering",
+                  "name_ar": "هندسة الإللكترونيات والروبوتات"
+                },
+                {
+                  "id": "yu-eng-tel",
+                  "name_en": "Telecommunications Engineering",
+                  "name_ar": "هندسة الاتصالات"
+                },
+                {
+                  "id": "yu-eng-com",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "yu-eng-epe",
+                  "name_en": "Electric Power Engineering",
+                  "name_ar": "هندسة القوى الكهربائية"
+                },
+                {
+                  "id": "yu-eng-biose",
+                  "name_en": "Biomedical Systems Engineering",
+                  "name_ar": "هندسة النظم الطبية الحيوية"
+                },
+                {
+                  "id": "yu-eng-bioie",
+                  "name_en": "Biomedical Informatics Engineering",
+                  "name_ar": "هندسة المعلوماتية الطبية الحيوية"
+                },
+                {
+                  "id": "yu-eng-ssce",
+                  "name_en": "Smart and Sustainable City Engineering",
+                  "name_ar": "هندسة المدن الذكية والمستدامه"
+                },
+                {
+                  "id": "yu-eng-mec",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
+                },
+                {
+                  "id": "yu-eng-comiot",
+                  "name_en": "Computer Engineering - IoT",
+                  "name_ar": "هندسة الحاسوب - إنترنت الاشياء"
+                }
+              ]
+            },
+            {
+              "id": "yu-sci",
+              "name_en": "Sciences",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "yu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "yu-sci-ph",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "yu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                },
+                {
+                  "id": "yu-sci-Bio",
+                  "name_en": "Biology",
+                  "name_ar": "العلوم الحياتية"
+                },
+                {
+                  "id": "yu-sci-agio",
+                  "name_en": "Applied Geology",
+                  "name_ar": "الجيولوجيا التطبيقية"
+                },
+                {
+                  "id": "yu-sci-stat",
+                  "name_en": "Statistics",
+                  "name_ar": "الإحصاء"
+                },
+                {
+                  "id": "yu-sci-Biop",
+                  "name_en": "Biomedical Physics",
+                  "name_ar": "الفيزياء الطبية الحيوية"
+                }
+              ]
+            },
+            {
+              "id": "yu-it",
+              "name_en": "Information Technology",
+              "name_ar": "تكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "yu-it-cs",
+                  "name_en": "Computer Science" ,
+                  "name_ar": "علوم الحاسوب"
+                },
+                {
+                  "id": "yu-it-cis",
+                  "name_en": "Computer Information Systems" ,
+                  "name_ar": "نظم المعلومات الحاسوبية"
+                },
+                {
+                  "id": "yu-it-cy",
+                  "name_en": "Cyber Security" ,
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "yu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence" ,
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "yu-it-bit",
+                  "name_en": "Business Information Technology" ,
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },
+                {
+                  "id": "yu-it-drgd",
+                  "name_en": "Digital Reality and Game Development" ,
+                  "name_ar": "الواقع الرقمي وتطوير الألعاب"
+                }
+              ]
+            },
+            {
+              "id": "yu-media",
+              "name_en": "Media",
+              "name_ar": "الإعلام",
+              "majors": [
+                {
+                  "id": "yu-media-prm",
+                  "name_en": "Public Relations and Media",
+                  "name_ar": "علاقات عامة وإعلام"
+                },
+                {
+                  "id": "yu-media-rat",
+                  "name_en": "Radio and Television",
+                  "name_ar": "إذاعة وتلفزيون"
+                },
+                {
+                  "id": "yu-media-jou",
+                  "name_en": "Journalism and Digital Media",
+                  "name_ar": "الصحافة والإعلام الرقمي"
+                }
+              ]
+            },
+            {
+              "id": "yu-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "yu-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                },
+                {
+                  "id": "yu-bus-mbe",
+                  "name_en": "Money and Business Economics",
+                  "name_ar": "اقتصاد المال والأعمال"
+                },
+                {
+                  "id": "yu-bus-ga",
+                  "name_en": "General Administration",
+                  "name_ar": "الإدارة العامة"
+                },
+                {
+                  "id": "yu-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "yu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "yu-bus-econ",
+                  "name_en": "Economy",
+                  "name_ar": "الإقتصاد"
+                },
+                {
+                  "id": "yu-bus-fab",
+                  "name_en": "Finance and Banking",
+                  "name_ar": "العلوم المالية والمصرفية"
+                },
+                {
+                  "id": "yu-bus-scml",
+                  "name_en": "Supply Chain Management and Logistics",
+                  "name_ar": "إدارة سلاسل التوريد والعلوم اللوجستية"
+                },
+                {
+                  "id": "yu-bus-ft",
+                  "name_en": "Financial Technology",
+                  "name_ar": "التكنولوجيا المالية"
+                }
+              ]
+            },
+            {
+              "id": "yu-lit",
+              "name_en": "Literatures",
+              "name_ar": "الآداب",
+              "majors": [
+                {
+                  "id": "yu-lit-arab",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
+                },
+                {
+                  "id": "yu-lit-pol",
+                  "name_en": "Political Science",
+                  "name_ar": "العلوم السياسة"
+                },
+                {
+                  "id": "yu-lit-el",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                },
+                {
+                  "id": "yu-lit-ael",
+                  "name_en": "Applied English Language",
+                  "name_ar": "اللغة الإنجليزية التطبيقية"
+                },
+                {
+                  "id": "yu-lit-aar",
+                  "name_en": "Applied Arabic Language",
+                  "name_ar": "اللغة العربية التطبيقية"
+                },
+                {
+                  "id": "yu-lit-gio",
+                  "name_en": "Geography",
+                  "name_ar": "الجغرافيا"
+                },
+                {
+                  "id": "yu-lit-his",
+                  "name_en": "History and Civilization",
+                  "name_ar": "التاريخ والحضارة"
+                },
+                {
+                  "id": "yu-lit-wot",
+                  "name_en": "Written and Oral Translation",
+                  "name_ar": "الترجمة التحريرية والشفوية"
+                },
+                {
+                  "id": "yu-lit-socw",
+                  "name_en": "Sociology and Social Work",
+                  "name_ar": "علم الاجتماع والعمل الاجتماعي"
+                },
+                {
+                  "id": "yu-lit-afren",
+                  "name_en": "Applied French Language",
+                  "name_ar": "اللغة الفرنسية التطبيقية"
+                },
+                {
+                  "id": "yu-lit-geren",
+                  "name_en": "The German and English languages",
+                  "name_ar": "اللغتين الألمانية والإنجليزية"
+                },
+                {
+                  "id": "yu-lit-fren",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                },
+                {
+                  "id": "yu-lit-heb",
+                  "name_en": "Hebrew",
+                  "name_ar": "عبري"
+                },
+                {
+                  "id": "yu-lit-teren",
+                  "name_en": "The Turkish and English languages",
+                  "name_ar": "اللغتين التركية والإنجليزية"
+                }
+              ]
+            },
+            {
+              "id": "yu-low",
+              "name_en": "Law",
+              "name_ar": "القانون",
+              "majors": [
+                {
+                  "id": "yu-low-low",
+                  "name_en": "Low",
+                  "name_ar": "القانون"
+                }
+              ]
+            },
+            {
+              "id": "yu-ss",
+              "name_en": "Physical Education and Sports Sciences",
+              "name_ar": "التربية البدنية وعلوم الرياضة",
+              "majors": [
+                {
+                  "id": "yu-ss-pe",
+                  "name_en": "physical education",
+                  "name_ar": "التربية البدنية"
+                },
+                {
+                  "id": "yu-ss-ss",
+                  "name_en": "Sports Sciences",
+                  "name_ar": "علوم الرياضة "
+                }
+              ]
+            },
+            {
+              "id": "yu-es",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "yu-es-psych",
+                  "name_en": "Psychology",
+                  "name_ar": "علم النفس"
+                },
+                {
+                  "id": "yu-es-cteach",
+                  "name_en": "Classroom Teacher",
+                  "name_ar": "معلم صف"
+                },
+                {
+                  "id": "yu-es-early",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                }
+              ]
+            },
+            {
+              "id": "yu-sis",
+              "name_en": "Sharia and Islamic Studies",
+              "name_ar": "الشريعة والدراسات الإسلامية",
+              "majors": [
+                {
+                  "id": "yu-sis-jp",
+                  "name_en": "Jurisprudence and Its Principles",
+                  "name_ar": "الفقه وأصوله"
+                },
+                {
+                  "id": "yu-sis-fs",
+                  "name_en": "Family Studies",
+                  "name_ar": "دراسات اسرية"
+                },
+                {
+                  "id": "yu-sis-fr",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "أصول الدين"
+                },
+                {
+                  "id": "yu-sis-is",
+                  "name_en": "Islamic Education",
+                  "name_ar": "تربية اسلامية"
+                },
+                {
+                  "id": "yu-sis-iom",
+                  "name_en": "Islamic Outreach and Media",
+                  "name_ar": "دعوة وإعلام إسلامي"
+                },
+                {
+                  "id": "yu-sis-ieb",
+                  "name_en": "Islamic Economics and Banking",
+                  "name_ar": "الاقتصاد والمصارف الإسلامية"
+                }
+              ]
+            },
+            {
+              "id": "yu-aa",
+              "name_en": "Archaeology and Anthropology",
+              "name_ar": "الآثار والأنثروبولوجيا",
+              "majors": [
+                {
+                  "id": "yu-aa-a1",
+                  "name_en": "Archaeology",
+                  "name_ar": "الآثار"
+                },
+                {
+                  "id": "yu-aa-a2",
+                  "name_en": "Anthropology",
+                  "name_ar": "الأنثروبولوجيا"
+                },
+                {
+                  "id": "yu-aa-pmhr",
+                  "name_en": "Preservation and Management of Heritage Resources",
+                  "name_ar": "صيانة المصادر التراثية وإدارتها"
+                }
+              ]
+            },
+            {
+              "id": "yu-th",
+              "name_en": "Tourism and Hotels",
+              "name_ar": "السياحة والفنادق",
+              "majors": [
+                {
+                  "id": "yu-th-tm",
+                  "name_en": "Tourism Management",
+                  "name_ar": "الادارة السياحية"
+                },
+                {
+                  "id": "yu-th-hm",
+                  "name_en": "Hotel Management",
+                  "name_ar": "الإدارة الفندقية"
+                },
+                {
+                  "id": "yu-th-tg",
+                  "name_en": "Tour Guiding",
+                  "name_ar": "الإرشاد السياحي"
+                }
+              ]
+            },
+            {
+              "id": "yu-art",
+              "name_en": "Fine Arts",
+              "name_ar": "الفنون الجميلة",
+              "majors": [
+                {
+                  "id": "yu-art-music",
+                  "name_en": "Music",
+                  "name_ar": "الموسيقى"
+                },
+                {
+                  "id": "yu-art-daa",
+                  "name_en": "Design and Applied Arts",
+                  "name_ar": "التصميم والفنون التطبيقية"
+                },
+                {
+                  "id": "yu-art-va",
+                  "name_en": "Visual Arts",
+                  "name_ar": "الفنون التشكيلية"
+                },
+                {
+                  "id": "yu-art-drama",
+                  "name_en": "Drama",
+                  "name_ar": "الدراما"
+                },
+                {
+                  "id": "yu-art-da",
+                  "name_en": "Digital Arts",
+                  "name_ar": "الفنون الرقمية"
+                },
+                {
+                  "id": "yu-art-ae",
+                  "name_en": "التربية الفنية",
+                  "name_ar": "التربية الفنية"
                 }
               ]
             }
