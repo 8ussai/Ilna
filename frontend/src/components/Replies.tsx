@@ -104,7 +104,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
             {formatDateTime(created, i18n.language)}
           </time>
           <span dir="ltr" className="shrink-0 text-muted">
-            #{reply.id}
+            #R{reply.id}
           </span>
         </div>
 

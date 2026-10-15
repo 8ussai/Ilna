@@ -77,7 +77,7 @@ export function PostCard({
           <p className="text-sm text-muted">
             <time dateTime={created.toISOString()}>{formatDateTime(created, i18n.language)}</time>
             <span dir="ltr" className="ms-2">
-              #{post.id}
+              #P{post.id}
             </span>
           </p>
         </div>
