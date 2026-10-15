@@ -6,7 +6,9 @@ import { register } from '../api/auth'
 import { ApiError } from '../api/client'
 import { fetchCatalog } from '../api/meta'
 import type { Catalog, Named } from '../api/meta'
+import { isStrongPassword } from '../password'
 import { Field } from './Field'
+import { PasswordChecklist } from './PasswordChecklist'
 import { Select } from './Select'
 import { primaryButton, secondaryButton } from './styles'
 import { VerifyEmailForm } from './VerifyEmailForm'
@@ -105,7 +107,7 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
     }
 
     if (!values.password) e.password = required
-    else if (values.password.length < 8) e.password = t('errors.passwordShort')
+    else if (!isStrongPassword(values.password)) e.password = t('errors.passwordWeak')
 
     return e
   })()
@@ -270,9 +272,9 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
         value={values.password}
         onChange={(e) => setText('password', e.target.value)}
         autoComplete="new-password"
-        hint={t('auth.passwordHint')}
         error={show('password')}
       />
+      <PasswordChecklist password={values.password} />
 
       {formError && (
         <p role="alert" className="text-sm text-danger">

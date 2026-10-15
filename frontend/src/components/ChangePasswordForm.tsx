@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next'
 
 import { changePassword } from '../api/auth'
 import { ApiError } from '../api/client'
+import { isStrongPassword } from '../password'
 import { Field } from './Field'
+import { PasswordChecklist } from './PasswordChecklist'
 import { primaryButton } from './styles'
 
 // On success the session ends; onChanged logs the user out so they sign in with the new password.
@@ -24,8 +26,8 @@ export function ChangePasswordForm({ onChanged }: { onChanged: () => void }) {
       current: !current ? required : currentWrong ? t('errors.currentPasswordWrong') : undefined,
       next: !next
         ? required
-        : next.length < 8
-          ? t('errors.passwordShort')
+        : !isStrongPassword(next)
+          ? t('errors.passwordWeak')
           : next === current
             ? t('errors.passwordSame')
             : undefined,
@@ -73,9 +75,9 @@ export function ChangePasswordForm({ onChanged }: { onChanged: () => void }) {
         value={next}
         onChange={(ev) => setNext(ev.target.value)}
         autoComplete="new-password"
-        hint={t('auth.passwordHint')}
         error={show('next')}
       />
+      <PasswordChecklist password={next} />
       <Field
         label={t('settings.password.confirm')}
         type="password"

@@ -1,8 +1,9 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, ConfigDict, model_validator
+from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 from datetime import datetime
 
+from backend.core.security import check_password_strength
 from backend.services.catalog import validate_selection, email_matches_domain
 
 
@@ -21,6 +22,12 @@ class UserBase(BaseModel):
 class UserCreate(UserBase):
     password: str
 
+    @field_validator("password")
+    @classmethod
+    def check_password(cls, value: str) -> str:
+        check_password_strength(value)
+        return value
+
     @model_validator(mode="after")
     def check_catalog_and_email(self):
         university = validate_selection(self.country, self.university, self.college, self.major)
@@ -37,8 +44,7 @@ class PasswordChange(BaseModel):
 
     @model_validator(mode="after")
     def check_new_password(self):
-        if len(self.new_password) < 8:
-            raise ValueError("Password must be at least 8 characters.")
+        check_password_strength(self.new_password)
         if self.new_password == self.current_password:
             raise ValueError("New password must be different from the current one.")
         return self

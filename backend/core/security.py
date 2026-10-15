@@ -1,3 +1,4 @@
+import re
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt
@@ -15,6 +16,22 @@ def get_password_hash(password: str) -> str:
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
+# same rules as frontend/src/password.ts
+PASSWORD_RULES = [
+    (lambda p: len(p) >= 8, "at least 8 characters"),
+    (lambda p: re.search(r"[a-z]", p), "a lowercase letter"),
+    (lambda p: re.search(r"[A-Z]", p), "an uppercase letter"),
+    (lambda p: re.search(r"[0-9]", p), "a number"),
+    (lambda p: re.search(r"[^A-Za-z0-9\s]", p), "a symbol"),
+]
+
+
+def check_password_strength(password: str) -> None:
+    missing = [label for test, label in PASSWORD_RULES if not test(password)]
+    if missing:
+        raise ValueError("Password needs " + ", ".join(missing) + ".")
+
 
 def create_access_token(data: dict) -> str:
     payload = data.copy()
