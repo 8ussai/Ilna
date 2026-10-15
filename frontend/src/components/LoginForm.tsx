@@ -2,10 +2,11 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { login } from '../api/auth'
+import { login, unverifiedEmail } from '../api/auth'
 import { ApiError } from '../api/client'
 import { Field } from './Field'
 import { primaryButton } from './styles'
+import { VerifyEmailForm } from './VerifyEmailForm'
 
 export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t } = useTranslation()
@@ -14,6 +15,8 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
   const [submitted, setSubmitted] = useState(false)
   const [busy, setBusy] = useState(false)
   const [formError, setFormError] = useState('')
+  // set when the account still needs its emailed code
+  const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -25,12 +28,17 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
     try {
       onAuthenticated(await login(identifier.trim(), password))
     } catch (err) {
-      if (err instanceof ApiError && err.status === 401) setFormError(t('errors.badLogin'))
+      if (err instanceof ApiError && err.status === 403 && unverifiedEmail(err.detail)) setVerifyEmail(unverifiedEmail(err.detail))
+      else if (err instanceof ApiError && err.status === 401) setFormError(t('errors.badLogin'))
       else if (err instanceof ApiError && err.status === 0) setFormError(t('errors.network'))
       else setFormError(t('errors.generic'))
     } finally {
       setBusy(false)
     }
+  }
+
+  if (verifyEmail) {
+    return <VerifyEmailForm email={verifyEmail} onAuthenticated={onAuthenticated} onBack={() => setVerifyEmail(null)} />
   }
 
   return (

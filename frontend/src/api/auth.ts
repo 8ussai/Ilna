@@ -45,6 +45,32 @@ export function register(payload: RegisterPayload) {
   })
 }
 
+// register emails a 6-digit code; entering it here verifies the account and logs in
+export async function verifyOtp(email: string, code: string): Promise<string> {
+  const { access_token } = await request<{ access_token: string }>('/auth/verify-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, code }),
+  })
+  return access_token
+}
+
+export function resendOtp(email: string) {
+  return request<null>('/auth/resend-otp', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email }),
+  })
+}
+
+// login answers 403 with this detail when the password is right but the email was never verified
+export function unverifiedEmail(detail: unknown): string | null {
+  if (detail && typeof detail === 'object' && 'code' in detail && detail.code === 'email_not_verified' && 'email' in detail) {
+    return String(detail.email)
+  }
+  return null
+}
+
 // The backend uses OAuth2PasswordRequestForm, so login is form-encoded, not JSON.
 export async function login(identifier: string, password: string): Promise<string> {
   const { access_token } = await request<{ access_token: string }>('/auth/login', {

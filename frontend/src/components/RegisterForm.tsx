@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { login, register } from '../api/auth'
+import { register } from '../api/auth'
 import { ApiError } from '../api/client'
 import { fetchCatalog } from '../api/meta'
 import type { Catalog, Named } from '../api/meta'
 import { Field } from './Field'
 import { Select } from './Select'
 import { primaryButton, secondaryButton } from './styles'
+import { VerifyEmailForm } from './VerifyEmailForm'
 
 type Values = {
   country: string
@@ -47,7 +48,8 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
   const [loadFailed, setLoadFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
 
-  const [step, setStep] = useState<0 | 1>(0)
+  // 2 is entering the emailed code
+  const [step, setStep] = useState<0 | 1 | 2>(0)
   const [values, setValues] = useState<Values>(empty)
   const [submitted, setSubmitted] = useState(false)
   const [serverErrors, setServerErrors] = useState<Partial<Record<keyof Values, string>>>({})
@@ -137,13 +139,14 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
         college: values.college,
         major: values.major,
       })
-      // register does not return a token, so sign in right away
-      onAuthenticated(await login(values.email.trim(), values.password))
+      setStep(2)
     } catch (err) {
       if (err instanceof ApiError && err.status === 400 && err.detail === 'Email already used') {
         setServerErrors({ email: t('errors.emailTaken') })
       } else if (err instanceof ApiError && err.status === 400 && err.detail === 'Username already taken') {
         setServerErrors({ username: t('errors.usernameTaken') })
+      } else if (err instanceof ApiError && err.status === 502) {
+        setFormError(t('errors.otpSendFailed'))
       } else if (err instanceof ApiError && err.status === 0) {
         setFormError(t('errors.network'))
       } else {
@@ -169,6 +172,10 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
 
   if (!catalog) {
     return <p className="text-muted">{t('auth.loadingList')}</p>
+  }
+
+  if (step === 2) {
+    return <VerifyEmailForm email={values.email.trim()} onAuthenticated={onAuthenticated} onBack={() => setStep(1)} />
   }
 
   const header = (

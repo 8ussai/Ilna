@@ -69,3 +69,12 @@ class UserOut(UserBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class OtpVerify(BaseModel):
+    email: EmailStr
+    code: str
+
+
+class OtpResend(BaseModel):
+    email: EmailStr

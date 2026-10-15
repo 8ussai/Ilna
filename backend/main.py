@@ -137,6 +137,14 @@ _add_missing_columns("course_notes", {
     "kind": "VARCHAR NOT NULL DEFAULT 'text'",
     "indexed_at": "DATETIME",
 })
+# accounts made before sign-up codes existed count as verified
+_add_missing_columns("users", {
+    "is_verified": "BOOLEAN NOT NULL DEFAULT 1",
+    "otp_hash": "VARCHAR",
+    "otp_sent_at": "DATETIME",
+    "otp_expires_at": "DATETIME",
+    "otp_attempts": "INTEGER NOT NULL DEFAULT 0",
+})
 
 
 # no public file mount: course files are only served to their owner, by /courses/{id}/materials/{mid}/file

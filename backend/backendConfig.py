@@ -55,12 +55,19 @@ STUDY_DAILY_LIMITS = {"summary": 2, "quiz": 2}
 # sources one summary or quiz can be made from
 STUDY_MAX_SOURCES = 50
 
-# "Contact us" messages go to this inbox
-CONTACT_EMAIL = "mr.qussai2004@gmail.com"
+# "Contact us" messages go to this inbox (Cloudflare Email Routing forwards it)
+CONTACT_EMAIL = "support@ilna-academic.com"
 # at most this many contact messages per user per hour
 CONTACT_MESSAGES_PER_HOUR = 5
 
-# the mailbox that sends them; set these in .env, never in code. Port 465 uses SSL, anything else STARTTLS.
+# new accounts confirm their email with a 6-digit code before they can log in
+OTP_EXPIRE_MINUTES = 10
+# wrong guesses allowed per code; after that a new one has to be sent
+OTP_MAX_ATTEMPTS = 5
+# seconds before another code can be sent to the same account
+OTP_RESEND_COOLDOWN_SECONDS = 60
+
+# the mailbox that sends contact messages and codes; set these in .env, never in code. Port 465 uses SSL, anything else STARTTLS.
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT") or "587")
 SMTP_USER = os.getenv("SMTP_USER")

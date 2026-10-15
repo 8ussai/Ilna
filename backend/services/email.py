@@ -27,7 +27,30 @@ def send_contact_email(user: User, subject: str, message: str) -> None:
         f"Email: {user.email}\n"
         f"University: {user.university} / {user.college} / {user.major}\n"
     )
+    _send(email)
 
+
+def send_otp_email(user: User, code: str) -> None:
+    """Email the 6-digit sign-up code, in English and Arabic.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    minutes = backendConfig.OTP_EXPIRE_MINUTES
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = user.email
+    email["Subject"] = f"Your Ilna code: {code}"
+    email.set_content(
+        f"Hi {user.first_name},\n\n"
+        f"Your Ilna verification code is: {code}\n"
+        f"It expires in {minutes} minutes.\n\n"
+        f"رمز التحقق الخاص بك في Ilna هو: {code}\n"
+        f"ينتهي خلال {minutes} دقائق.\n\n"
+        "If you didn't create an Ilna account, you can ignore this email.\n"
+        "إذا لم تنشئ حسابًا في Ilna، يمكنك تجاهل هذه الرسالة.\n"
+    )
+    _send(email)
+
+
+def _send(email: EmailMessage) -> None:
     context = ssl.create_default_context()
     if backendConfig.SMTP_PORT == 465:
         server = smtplib.SMTP_SSL(backendConfig.SMTP_HOST, backendConfig.SMTP_PORT, timeout=SMTP_TIMEOUT_SECONDS, context=context)
