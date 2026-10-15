@@ -9,6 +9,10 @@ export type Post = {
   user_id: number
   content: string
   scope: PostScope
+  // the author's catalog ids when they posted
+  university: string
+  college: string
+  major: string
   created_at: string
   votes_count: number
   my_vote: VoteDir

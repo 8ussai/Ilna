@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
+import type { Catalog } from '../api/meta'
 import { createPost, deletePost, fetchPosts, PAGE_SIZE, votePost } from '../api/posts'
 import type { Post, PostScope, PostSort } from '../api/posts'
 import { applyVote } from '../votes'
@@ -14,7 +15,17 @@ type Status = 'loading' | 'ready' | 'error'
 const SORTS: PostSort[] = ['hot', 'new', 'top']
 
 // One blog: General is shared by everyone, the others only hold posts from the user's own university/college/major.
-export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: string; userId: number }) {
+export function BlogFeed({
+  scope,
+  title,
+  userId,
+  catalog,
+}: {
+  scope: PostScope
+  title: string
+  userId: number
+  catalog: Catalog | null
+}) {
   const { t } = useTranslation()
   const [sort, setSort] = useState<PostSort>('hot')
   const [posts, setPosts] = useState<Post[]>([])
@@ -141,6 +152,7 @@ export function BlogFeed({ scope, title, userId }: { scope: PostScope; title: st
             key={post.id}
             post={post}
             userId={userId}
+            catalog={catalog}
             onDelete={() => remove(post.id)}
             onVote={(dir) => vote(post, dir)}
             onRepliesChange={(delta) =>

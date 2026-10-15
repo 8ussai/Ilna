@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import type { Catalog } from '../api/meta'
 import type { Post } from '../api/posts'
+import { postOriginNames } from '../catalog'
 import { formatDateTime, parseServerDate } from '../dates'
 import { DeleteButton } from './DeleteButton'
 import { RepliesSection } from './Replies'
@@ -11,6 +13,7 @@ import { VoteButtons } from './VoteButtons'
 export function PostCard({
   post,
   userId,
+  catalog,
   onDelete,
   onVote,
   onRepliesChange,
@@ -19,6 +22,7 @@ export function PostCard({
 }: {
   post: Post
   userId: number
+  catalog: Catalog | null
   // the single-post page opens the thread right away, optionally highlighting one reply
   initialShowReplies?: boolean
   highlightReplyId?: number | null
@@ -54,6 +58,9 @@ export function PostCard({
 
   const { author } = post
   const created = parseServerDate(post.created_at)
+  // scoped blogs already share the author's university/major, so only general posts show it
+  const origin = post.scope === 'general' ? postOriginNames(catalog, post, i18n.language) : null
+  const originText = origin && [origin.major, origin.university].filter(Boolean).join(' · ')
 
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">
@@ -64,9 +71,13 @@ export function PostCard({
             {author.first_name} {author.last_name}
             <span className="ms-2 text-sm font-normal text-muted">@{author.username}</span>
           </p>
-          <time dateTime={created.toISOString()} className="text-sm text-muted">
-            {formatDateTime(created, i18n.language)}
-          </time>
+          {originText && <p className="truncate text-sm text-muted">{originText}</p>}
+          <p className="text-sm text-muted">
+            <time dateTime={created.toISOString()}>{formatDateTime(created, i18n.language)}</time>
+            <span dir="ltr" className="ms-2">
+              #{post.id}
+            </span>
+          </p>
         </div>
 
         {post.user_id === userId && <DeleteButton question={t('feed.confirmDelete')} onConfirm={remove} />}

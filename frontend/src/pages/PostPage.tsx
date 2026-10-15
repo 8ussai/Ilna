@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
+import type { Catalog } from '../api/meta'
 import { deletePost, fetchPost, votePost } from '../api/posts'
 import type { Post } from '../api/posts'
 import { PostCard } from '../components/PostCard'
@@ -12,7 +13,17 @@ import { applyVote } from '../votes'
 type Status = 'loading' | 'ready' | 'unavailable' | 'deleted' | 'error'
 
 // One post with its thread open, reached from Activity (and later Notifications).
-export function PostPage({ postId, replyId, userId }: { postId: number; replyId: number | null; userId: number }) {
+export function PostPage({
+  postId,
+  replyId,
+  userId,
+  catalog,
+}: {
+  postId: number
+  replyId: number | null
+  userId: number
+  catalog: Catalog | null
+}) {
   const { t } = useTranslation()
   const [post, setPost] = useState<Post | null>(null)
   const [status, setStatus] = useState<Status>('loading')
@@ -95,6 +106,7 @@ export function PostPage({ postId, replyId, userId }: { postId: number; replyId:
     <PostCard
       post={post}
       userId={userId}
+      catalog={catalog}
       initialShowReplies
       highlightReplyId={replyId}
       onDelete={remove}
