@@ -34,7 +34,7 @@ export function fetchUsage() {
   return authRequest<Usage>('/me/usage')
 }
 
-export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply' | 'post_removed' | 'reply_removed'
+export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply' | 'post_removed' | 'reply_removed' | 'admin_message'
 
 export type AppNotification = {
   id: number

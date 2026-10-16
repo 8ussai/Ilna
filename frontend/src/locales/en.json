@@ -569,7 +569,10 @@
       "postRemoved": "The admin removed your post #{{ref}}",
       "replyRemoved": "The admin removed your reply #{{ref}}",
       "reason": "Reason: {{reason}}",
-      "adminBadge": "Admin"
+      "adminBadge": "Admin",
+      "adminMessage": "Message from {{name}}",
+      "showAll": "Show all",
+      "showLess": "Show less"
     },
     "password": {
       "title": "Change password",
@@ -785,6 +788,34 @@
       "dismiss": "Dismiss",
       "showThread": "Show thread",
       "dismissed": "Reports on #{{ref}} were dismissed."
+    },
+    "messages": {
+      "title": "Messages",
+      "intro": "Your message appears in each student's notifications, from Ilna Admin. It can't be taken back once sent.",
+      "to": "Send to",
+      "targets": {
+        "everyone": "Everyone",
+        "university": "A university",
+        "college": "A college",
+        "major": "A major",
+        "user": "One student"
+      },
+      "university": "University",
+      "college": "College",
+      "major": "Major",
+      "findUser": "Find the student",
+      "change": "Change",
+      "message": "Message",
+      "pickAudience": "Choose who gets it to see how many students that is.",
+      "nobody": "No students match, so there's nobody to send to.",
+      "willReach_one": "This will go to {{count}} student.",
+      "willReach_other": "This will go to {{count}} students.",
+      "send_one": "Send to {{count}} student",
+      "send_other": "Send to {{count}} students",
+      "sendPlain": "Send",
+      "sent_one": "Sent to {{count}} student.",
+      "sent_other": "Sent to {{count}} students.",
+      "countChanged": "The number of students changed to {{count}} since you looked. Check it, then send again."
     }
   },
   "report": {

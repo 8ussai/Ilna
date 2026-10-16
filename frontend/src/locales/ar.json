@@ -617,7 +617,10 @@
       "postRemoved": "حذفت الإدارة منشورك #{{ref}}",
       "replyRemoved": "حذفت الإدارة ردك #{{ref}}",
       "reason": "السبب: {{reason}}",
-      "adminBadge": "الإدارة"
+      "adminBadge": "الإدارة",
+      "adminMessage": "رسالة من {{name}}",
+      "showAll": "عرض الكل",
+      "showLess": "عرض أقل"
     },
     "password": {
       "title": "تغيير كلمة المرور",
@@ -865,6 +868,46 @@
       "dismiss": "تجاهل",
       "showThread": "عرض النقاش",
       "dismissed": "تم تجاهل البلاغات على #{{ref}}."
+    },
+    "messages": {
+      "title": "الرسائل",
+      "intro": "تظهر رسالتك في إشعارات كل طالب باسم Ilna Admin. لا يمكن التراجع عنها بعد الإرسال.",
+      "to": "إرسال إلى",
+      "targets": {
+        "everyone": "الجميع",
+        "university": "جامعة",
+        "college": "كلية",
+        "major": "تخصص",
+        "user": "طالب واحد"
+      },
+      "university": "الجامعة",
+      "college": "الكلية",
+      "major": "التخصص",
+      "findUser": "ابحث عن الطالب",
+      "change": "تغيير",
+      "message": "الرسالة",
+      "pickAudience": "اختر المستلمين لترى عدد الطلاب.",
+      "nobody": "لا يوجد طلاب مطابقون، فلا أحد لترسل إليه.",
+      "willReach_zero": "لن تصل إلى أي طالب.",
+      "willReach_one": "ستصل إلى طالب واحد.",
+      "willReach_two": "ستصل إلى طالبين.",
+      "willReach_few": "ستصل إلى {{count}} طلاب.",
+      "willReach_many": "ستصل إلى {{count}} طالباً.",
+      "willReach_other": "ستصل إلى {{count}} طالب.",
+      "send_zero": "إرسال",
+      "send_one": "إرسال إلى طالب واحد",
+      "send_two": "إرسال إلى طالبين",
+      "send_few": "إرسال إلى {{count}} طلاب",
+      "send_many": "إرسال إلى {{count}} طالباً",
+      "send_other": "إرسال إلى {{count}} طالب",
+      "sendPlain": "إرسال",
+      "sent_zero": "لم تُرسل لأحد.",
+      "sent_one": "أُرسلت إلى طالب واحد.",
+      "sent_two": "أُرسلت إلى طالبين.",
+      "sent_few": "أُرسلت إلى {{count}} طلاب.",
+      "sent_many": "أُرسلت إلى {{count}} طالباً.",
+      "sent_other": "أُرسلت إلى {{count}} طالب.",
+      "countChanged": "تغيّر عدد الطلاب إلى {{count}} منذ أن نظرت. تحقق منه ثم أرسل مجدداً."
     }
   },
   "report": {

@@ -158,3 +158,30 @@ class ReportTarget(BaseModel):
 
 class OpenCount(BaseModel):
     count: int
+
+
+class MessageAudience(BaseModel):
+    """Who an admin message goes to: one user, everyone, or a university, college or major (catalog id in value)."""
+    target: Literal["user", "everyone", "university", "college", "major"]
+    user_id: Optional[int] = None
+    value: Optional[str] = None
+
+
+class AdminMessageCreate(MessageAudience):
+    message: str
+    # the count the admin was shown; if the audience changed since, nothing is sent
+    confirm_count: int
+
+    @field_validator("message")
+    @classmethod
+    def check_message(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Write a message.")
+        if len(value) > 2000:
+            raise ValueError("Message is too long (max 2000 characters).")
+        return value
+
+
+class RecipientCount(BaseModel):
+    count: int

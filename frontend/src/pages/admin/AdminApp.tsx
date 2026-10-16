@@ -13,12 +13,13 @@ import type { Catalog } from '../../api/meta'
 import { Header } from '../../components/Header'
 import { secondaryButtonInline } from '../../components/styles'
 import { AdminLogin } from './AdminLogin'
+import { AdminMessages } from './AdminMessages'
 import { AdminPosts } from './AdminPosts'
 import { AdminReports } from './AdminReports'
 import { AdminUsers } from './AdminUsers'
 
-// the panel's sections; messages and the log join in the next steps
-const SECTIONS = ['reports', 'users', 'posts'] as const
+// the panel's sections; the log joins in a later step
+const SECTIONS = ['reports', 'users', 'posts', 'messages'] as const
 type Section = (typeof SECTIONS)[number]
 
 // kept in the hash (/admin#posts) so a reload stays on the same section
@@ -124,6 +125,7 @@ export function AdminApp() {
               {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshReportCount} />}
               {section === 'users' && <AdminUsers catalog={catalog} />}
               {section === 'posts' && <AdminPosts catalog={catalog} />}
+              {section === 'messages' && <AdminMessages catalog={catalog} />}
             </div>
           </div>
         ) : (

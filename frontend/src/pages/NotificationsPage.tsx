@@ -31,8 +31,14 @@ function messageKey(n: AppNotification) {
       return 'postRemoved'
     case 'reply_removed':
       return 'replyRemoved'
+    case 'admin_message':
+      return 'adminMessage'
   }
 }
+
+// an admin message longer than this (or with line breaks) folds, with a button to show it all
+const FOLD_CHARS = 160
+const folds = (n: AppNotification) => n.type === 'admin_message' && (n.preview.length > FOLD_CHARS || n.preview.includes('\n'))
 
 // Every vote and reply on the user's posts and replies, newest first. Opening the page marks what it
 // shows as read, but those items keep their unread look until the user leaves so they can spot what's new.
@@ -42,6 +48,8 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
   const [status, setStatus] = useState<Status>('loading')
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
+  // admin messages opened in full
+  const [expanded, setExpanded] = useState<Set<number>>(() => new Set())
 
   // only the ones actually shown, so a notification arriving meanwhile stays unread
   const markRead = useCallback(
@@ -132,9 +140,35 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
                       {t('settings.notifications.reason', { reason: n.reason })}
                     </span>
                   )}
-                  <span dir="auto" className="mt-1 line-clamp-2 block break-words text-sm text-muted">
-                    {n.preview}
-                  </span>
+                  {n.type === 'admin_message' ? (
+                    <span
+                      dir="auto"
+                      className={`mt-1 block whitespace-pre-wrap break-words ${expanded.has(n.id) ? '' : 'line-clamp-3'}`}
+                    >
+                      {n.preview}
+                    </span>
+                  ) : (
+                    <span dir="auto" className="mt-1 line-clamp-2 block break-words text-sm text-muted">
+                      {n.preview}
+                    </span>
+                  )}
+                  {folds(n) && (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setExpanded((current) => {
+                          const next = new Set(current)
+                          if (next.has(n.id)) next.delete(n.id)
+                          else next.add(n.id)
+                          return next
+                        })
+                      }
+                      aria-expanded={expanded.has(n.id)}
+                      className="mt-1 text-sm font-medium text-accent hover:underline"
+                    >
+                      {expanded.has(n.id) ? t('settings.notifications.showLess') : t('settings.notifications.showAll')}
+                    </button>
+                  )}
                   <time dateTime={created.toISOString()} className="mt-1 block text-xs text-muted">
                     {formatDateTime(created, i18n.language)}
                   </time>

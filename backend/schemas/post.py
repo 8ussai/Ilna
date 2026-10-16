@@ -88,7 +88,7 @@ class ActivityItem(BaseModel):
 
 class NotificationOut(BaseModel):
     id: int
-    # post_vote, reply_vote, post_reply, reply_reply, post_removed or reply_removed
+    # post_vote, reply_vote, post_reply, reply_reply, post_removed, reply_removed or admin_message
     type: str
     # 1 or -1 for votes, null for replies
     vote_dir: Optional[int]

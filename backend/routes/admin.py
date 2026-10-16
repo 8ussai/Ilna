@@ -14,6 +14,7 @@ from backend.core.security import create_admin_token, get_password_hash, verify_
 from backend.database import SessionLocal, get_db
 from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.course import Course, CourseMaterial
+from backend.models.notification import Notification
 from backend.models.post import Post, PostVote, Reply, ReplyVote
 from backend.models.user import User
 from backend.routes.auth import _send_code as send_code
@@ -21,6 +22,7 @@ from backend.schemas.post import PostScope
 from backend.schemas.admin import (
     AdminCodeRequest,
     AdminCodeVerify,
+    AdminMessageCreate,
     AdminPostDetail,
     AdminPostOut,
     AdminPostPage,
@@ -33,7 +35,9 @@ from backend.schemas.admin import (
     AdminUserPage,
     BanRequest,
     DeleteUserRequest,
+    MessageAudience,
     OpenCount,
+    RecipientCount,
     ReasonRequest,
     ReplyLookup,
     ReportTarget,
@@ -525,3 +529,48 @@ def dismiss_reports(data: ReportTarget, db: Session = Depends(get_db)):
     db.add(AdminLog(action="dismiss_reports", target_type=data.target_type, target_id=data.target_id,
                     details=json.dumps({"reports": len(reports), "reasons": sorted({r.reason for r in reports})})))
     db.commit()
+
+
+
+def _recipients(db: Session, audience: MessageAudience):
+    """The students a message would reach; never the hidden admin account."""
+    query = db.query(User.id).filter(User.is_system.is_(False))
+    if audience.target == "user":
+        if audience.user_id is None:
+            raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="Pick a user")
+        return query.filter(User.id == audience.user_id)
+    if audience.target == "everyone":
+        return query
+    if not audience.value:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=f"Pick a {audience.target}")
+    column = {"university": User.university, "college": User.college, "major": User.major}[audience.target]
+    return query.filter(column == audience.value)
+
+
+@router.post("/messages/preview", response_model=RecipientCount, dependencies=[Depends(get_admin)])
+def preview_message(audience: MessageAudience, db: Session = Depends(get_db)):
+    """How many students a message would go to, shown before sending."""
+    return RecipientCount(count=_recipients(db, audience).count())
+
+
+@router.post("/messages", response_model=RecipientCount, dependencies=[Depends(get_admin)])
+def send_message(data: AdminMessageCreate, db: Session = Depends(get_db)):
+    """Puts the message in each student's notifications, from Ilna Admin."""
+    recipient_ids = [user_id for (user_id,) in _recipients(db, data).all()]
+    if not recipient_ids:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Nobody to send to")
+    # someone signed up (or was deleted) since the count was shown; show the new count first
+    if len(recipient_ids) != data.confirm_count:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail={"code": "count_changed", "count": len(recipient_ids)})
+
+    admin_account_id = get_admin_account(db).id
+    db.add_all([
+        Notification(user_id=user_id, actor_id=admin_account_id, type=NotificationType.admin_message.value, message=data.message)
+        for user_id in recipient_ids
+    ])
+    db.add(AdminLog(action="message", target_type="user" if data.target == "user" else None,
+                    target_id=data.user_id if data.target == "user" else None,
+                    details=json.dumps({"to": data.target, "value": data.value, "user_id": data.user_id,
+                                        "recipients": len(recipient_ids), "message": data.message}, ensure_ascii=False)))
+    db.commit()
+    return RecipientCount(count=len(recipient_ids))

@@ -190,3 +190,16 @@ export function fetchOpenReportCount() {
 export function dismissReports(targetType: 'post' | 'reply', targetId: number) {
   return adminRequest<null>('/reports/dismiss', json({ target_type: targetType, target_id: targetId }))
 }
+
+export type MessageTarget = 'user' | 'everyone' | 'university' | 'college' | 'major'
+// value is the university, college or major id from the catalog
+export type MessageAudience = { target: MessageTarget; user_id?: number; value?: string }
+
+export function previewMessage(audience: MessageAudience) {
+  return adminRequest<{ count: number }>('/messages/preview', json(audience))
+}
+
+// confirmCount is the number the admin was shown; a 409 { code: 'count_changed', count } means it changed
+export function sendMessage(audience: MessageAudience, message: string, confirmCount: number) {
+  return adminRequest<{ count: number }>('/messages', json({ ...audience, message, confirm_count: confirmCount }))
+}

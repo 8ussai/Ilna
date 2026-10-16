@@ -139,6 +139,9 @@ def _map_notification(n: Notification) -> NotificationOut:
         out.preview = data.get("preview", "")
         out.reason = data.get("reason")
         out.ref = data.get("ref")
+    elif n.type == NotificationType.admin_message.value:
+        # shown in full; the notifications page folds long ones
+        out.preview = n.message or ""
     else:
         out.preview = (n.reply.content if n.reply else n.post.content)[:NOTIFICATION_PREVIEW_CHARS]
     return out
