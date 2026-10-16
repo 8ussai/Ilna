@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { resendOtp, verifyOtp } from '../api/auth'
-import { ApiError } from '../api/client'
+import { ACCOUNT_SUSPENDED, ApiError } from '../api/client'
 import { Field } from './Field'
 import { primaryButton, secondaryButtonInline } from './styles'
 
@@ -47,7 +47,8 @@ export function VerifyEmailForm({
     try {
       onAuthenticated(await verifyOtp(email, code))
     } catch (err) {
-      if (err instanceof ApiError && err.detail === 'Code expired') setFormError(t('errors.otpExpired'))
+      if (err instanceof ApiError && err.detail === ACCOUNT_SUSPENDED) setFormError(t('errors.suspended'))
+      else if (err instanceof ApiError && err.detail === 'Code expired') setFormError(t('errors.otpExpired'))
       else if (err instanceof ApiError && err.detail === 'Too many attempts') setFormError(t('errors.otpTooMany'))
       else if (err instanceof ApiError && err.status === 400) setFormError(t('errors.otpWrong'))
       else if (err instanceof ApiError && err.status === 0) setFormError(t('errors.network'))

@@ -1,3 +1,4 @@
+import json
 import logging
 import secrets
 import smtplib
@@ -11,8 +12,9 @@ from backend.core.apiDependencies import get_admin
 from backend.core.security import create_admin_token, get_password_hash, verify_password
 from backend.database import SessionLocal, get_db
 from backend.models.admin import AdminCode, AdminLog
-from backend.schemas.admin import AdminCodeRequest, AdminCodeVerify, AdminSession, AdminToken
-from backend.services.email import send_admin_code_email, smtp_configured
+from backend.models.user import User
+from backend.schemas.admin import AdminCodeRequest, AdminCodeVerify, AdminSession, AdminToken, AdminUserOut, BanRequest
+from backend.services.email import send_admin_code_email, send_restored_email, send_suspended_email, smtp_configured
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -104,3 +106,55 @@ def verify_code(data: AdminCodeVerify, db: Session = Depends(get_db)):
 def get_session():
     """Lets the panel check its saved login is still good."""
     return AdminSession(email=backendConfig.ADMIN_EMAIL)
+
+
+def _get_student(db: Session, user_id: int) -> User:
+    user = db.query(User).filter(User.id == user_id, User.is_system.is_(False)).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    return user
+
+
+def _email_quietly(send, *args) -> None:
+    """Runs after the response; a failed email is logged, and the ban or unban still stands."""
+    try:
+        send(*args)
+    except (smtplib.SMTPException, OSError):
+        logger.exception("Couldn't send %s", send.__name__)
+
+
+@router.post("/users/{user_id}/ban", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Bans at once: every request from the account is refused from here on, which logs the student out.
+    The suspended email goes out after that."""
+    user = _get_student(db, user_id)
+    user.is_banned = True
+    user.banned_reason = data.reason
+    user.banned_at = _now()
+    db.add(AdminLog(action="ban", target_type="user", target_id=user.id,
+                    details=json.dumps({"username": user.username, "reason": data.reason}, ensure_ascii=False)))
+    db.commit()
+    db.refresh(user)
+
+    if smtp_configured():
+        background_tasks.add_task(_email_quietly, send_suspended_email, user, data.reason)
+    return user
+
+
+@router.post("/users/{user_id}/unban", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    user = _get_student(db, user_id)
+    if not user.is_banned:
+        return user
+
+    db.add(AdminLog(action="unban", target_type="user", target_id=user.id,
+                    details=json.dumps({"username": user.username, "was_banned_for": user.banned_reason}, ensure_ascii=False)))
+    user.is_banned = False
+    user.banned_reason = None
+    user.banned_at = None
+    db.commit()
+    db.refresh(user)
+
+    if smtp_configured():
+        background_tasks.add_task(_email_quietly, send_restored_email, user)
+    return user

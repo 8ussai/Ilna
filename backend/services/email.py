@@ -66,6 +66,45 @@ def send_admin_code_email(code: str) -> None:
     _send(email)
 
 
+def send_suspended_email(user: User, reason: str) -> None:
+    """Tell a student their account was banned, in English and Arabic.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    support = backendConfig.CONTACT_EMAIL
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = user.email
+    email["Reply-To"] = support
+    email["Subject"] = "Your Ilna account has been suspended"
+    email.set_content(
+        f"Hi {user.first_name},\n\n"
+        "Your Ilna account has been suspended, and you've been logged out.\n"
+        f"Reason: {reason}\n\n"
+        f"If you think this is a mistake, reply to this email or write to {support}.\n\n"
+        f"مرحباً {user.first_name}،\n\n"
+        "تم إيقاف حسابك في Ilna وتسجيل خروجك.\n"
+        f"السبب: {reason}\n\n"
+        f"إذا كنت تعتقد أن هذا خطأ، يمكنك الرد على هذه الرسالة أو مراسلتنا على {support}.\n"
+    )
+    _send(email)
+
+
+def send_restored_email(user: User) -> None:
+    """Tell a student their ban was lifted, in English and Arabic.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = user.email
+    email["Reply-To"] = backendConfig.CONTACT_EMAIL
+    email["Subject"] = "Your Ilna account has been restored"
+    email.set_content(
+        f"Hi {user.first_name},\n\n"
+        "Your Ilna account has been restored. You can log in again.\n\n"
+        f"مرحباً {user.first_name}،\n\n"
+        "تمت إعادة تفعيل حسابك في Ilna. يمكنك تسجيل الدخول من جديد.\n"
+    )
+    _send(email)
+
+
 def _send(email: EmailMessage) -> None:
     context = ssl.create_default_context()
     if backendConfig.SMTP_PORT == 465:

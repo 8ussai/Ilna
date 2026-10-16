@@ -7,7 +7,7 @@ import { Intro } from '../components/Intro'
 const YEAR = new Date().getFullYear()
 
 // a message shown above the sign-in card, e.g. after a password change logs the user out
-export type LandingNotice = 'passwordChanged'
+export type LandingNotice = 'passwordChanged' | 'suspended'
 
 type LandingProps = { notice: LandingNotice | null; onAuthenticated: (token: string) => void }
 

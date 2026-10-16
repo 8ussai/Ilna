@@ -2,6 +2,7 @@ import { useState } from 'react'
 
 import { getToken, setToken } from './api/auth'
 import { setAuth } from './api/client'
+import type { LogoutReason } from './api/client'
 import { AdminApp } from './pages/admin/AdminApp'
 import { Home } from './pages/Home'
 import { Landing } from './pages/Landing'
@@ -30,11 +31,17 @@ export default function App() {
     setNotice('passwordChanged')
   }
 
+  function onSessionEnded(reason: LogoutReason) {
+    updateToken(null)
+    // a banned student is told why they were logged out; the suspended email follows
+    if (reason === 'suspended') setNotice('suspended')
+  }
+
   // /admin has its own login, whether or not a student is logged in here
   if (isAdminPath()) return <AdminApp />
 
   // set during render so child effects already send the token on their first request
-  setAuth(token, token ? () => updateToken(null) : null)
+  setAuth(token, token ? onSessionEnded : null)
 
   return token ? (
     <Home onLogout={onLogout} onPasswordChanged={onPasswordChanged} />

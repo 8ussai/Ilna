@@ -83,7 +83,8 @@
     "otpWrong": "That code isn't right.",
     "otpExpired": "This code has expired. Send a new one.",
     "otpTooMany": "Too many wrong tries. Send a new code.",
-    "otpSendFailed": "Couldn't send the verification email. Please try again in a minute."
+    "otpSendFailed": "Couldn't send the verification email. Please try again in a minute.",
+    "suspended": "Your account has been suspended. If you think this is a mistake, write to support@ilna-academic.com."
   },
   "app": {
     "sections": "Sections"
@@ -617,7 +618,8 @@
     "deleted": "The post was deleted."
   },
   "notices": {
-    "passwordChanged": "Your password was changed. Log in with your new password."
+    "passwordChanged": "Your password was changed. Log in with your new password.",
+    "suspended": "Your account has been suspended. If you think this is a mistake, write to support@ilna-academic.com."
   },
   "policy": {
     "title": "Policy",

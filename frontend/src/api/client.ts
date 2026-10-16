@@ -23,17 +23,28 @@ export async function request<T>(path: string, init?: RequestInit, notifyUnautho
 
   const body = await response.json().catch(() => null)
   if (!response.ok) {
-    if (response.status === 401 && notifyUnauthorized) onUnauthorized?.()
+    if (notifyUnauthorized) checkSession(response.status, body?.detail)
     throw new ApiError(response.status, body?.detail)
   }
   return body as T
 }
 
 let authToken: string | null = null
-let onUnauthorized: (() => void) | null = null
+// matches ACCOUNT_SUSPENDED in backend/core/apiDependencies.py
+export const ACCOUNT_SUSPENDED = 'Account suspended'
+
+// why the session ended: the login ran out, or the admin banned the account
+export type LogoutReason = 'expired' | 'suspended'
+
+let onUnauthorized: ((reason: LogoutReason) => void) | null = null
+
+function checkSession(status: number, detail: unknown) {
+  if (status === 401) onUnauthorized?.('expired')
+  else if (status === 403 && detail === ACCOUNT_SUSPENDED) onUnauthorized?.('suspended')
+}
 
 // App keeps these in sync with the logged-in session.
-export function setAuth(token: string | null, handleUnauthorized: (() => void) | null) {
+export function setAuth(token: string | null, handleUnauthorized: ((reason: LogoutReason) => void) | null) {
   authToken = token
   onUnauthorized = handleUnauthorized
 }
@@ -55,8 +66,8 @@ export async function authBlob(path: string): Promise<Blob> {
     throw new ApiError(0, 'network')
   }
   if (!response.ok) {
-    if (response.status === 401) onUnauthorized?.()
     const body = await response.json().catch(() => null)
+    checkSession(response.status, body?.detail)
     throw new ApiError(response.status, body?.detail)
   }
   return response.blob()
@@ -83,7 +94,7 @@ export function authUpload<T>(
         resolve(xhr.response as T)
         return
       }
-      if (xhr.status === 401) onUnauthorized?.()
+      checkSession(xhr.status, xhr.response?.detail)
       reject(new ApiError(xhr.status, xhr.response?.detail))
     }
     xhr.onerror = () => reject(new ApiError(0, 'network'))

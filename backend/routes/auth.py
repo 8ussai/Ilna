@@ -10,7 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from backend import backendConfig
-from backend.core.apiDependencies import get_current_user
+from backend.core.apiDependencies import ACCOUNT_SUSPENDED, get_current_user
 from backend.core.security import create_access_token, get_password_hash, verify_password
 from backend.database import get_db
 from backend.models.user import User
@@ -109,6 +109,9 @@ def verify_otp(otp_data: OtpVerify, db: Session = Depends(get_db)):
         user.otp_attempts += 1
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
+    # the code was right, so it's safe to say the account is suspended
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
 
     user.is_verified = True
     user.otp_hash = None
@@ -145,6 +148,10 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             detail="Email or password is incorrect",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
+    # the password was right, so it's safe to say the account is suspended
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
 
     # the password was right, so it's safe to say which email the code goes to
     if not user.is_verified:

@@ -6,6 +6,9 @@ from backend.models.user import User
 from backend.backendConfig import oauth2_scheme, admin_oauth2_scheme, SECRET_KEY, ALGORITHM
 from backend.core.security import ADMIN_SCOPE
 
+# the detail the frontend looks for to show "your account has been suspended"
+ACCOUNT_SUSPENDED = "Account suspended"
+
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
 
@@ -32,6 +35,10 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     # the hidden admin account is never used as a student login
     if user is None or user.is_system:
         raise credentials_exception
+
+    # checked on every request, so a ban logs the student out right away; the app shows the suspended notice
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
 
     return user
 
