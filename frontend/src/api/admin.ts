@@ -260,7 +260,7 @@ export function sendMessage(audience: MessageAudience, message: string, confirmC
   return adminRequest<{ count: number }>('/messages', json({ ...audience, message, confirm_count: confirmCount }))
 }
 
-// matches MAX_PIN_HOURS in backend/schemas/admin.py
+// matches MAX_PIN_HOURS in backend/backendConfig.py
 export const MAX_PIN_HOURS = 168
 
 // value is the university, college or major id for a scoped blog; pinHours null means not pinned

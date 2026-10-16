@@ -4,6 +4,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session, selectinload
 
+from backend.backendConfig import NOTE_NAME_CHARS
 from backend.core.apiDependencies import get_current_user
 from backend.database import get_db
 from backend.models.course import Course, CourseMaterial, CourseNote
@@ -26,9 +27,6 @@ from backend.services.usage import study_limit, study_usage
 from backend.services.study_generator import generate_item, translate_item
 
 router = APIRouter()
-
-# how a note is named in a source list when it has no title
-NOTE_NAME_CHARS = 80
 
 
 def _get_item(db: Session, course: Course, item_id: int) -> StudyItem:

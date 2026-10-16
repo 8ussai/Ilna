@@ -11,7 +11,15 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from backend.database import get_db
-from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, MAX_UPLOAD_BYTES
+from backend.backendConfig import (
+    ALLOWED_EXTENSIONS,
+    AUDIO_EXTENSIONS,
+    DOCUMENT_EXTENSIONS,
+    MAX_UPLOAD_BYTES,
+    TRANSCRIPT_LANGUAGES,
+    UPLOAD_CHUNK_BYTES,
+    UPLOAD_DIR,
+)
 from backend.models.user import User
 from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
 from backend.schemas.course import (
@@ -45,11 +53,6 @@ from backend.services.storage import storage_used
 from backend.services.usage import course_limit, storage_limit
 
 router = APIRouter()
-
-UPLOAD_CHUNK_BYTES = 1024 * 1024
-
-# languages a recording can be transcribed as; anything else is detected
-TRANSCRIPT_LANGUAGES = {"ar", "en"}
 
 
 def get_owned_course(db: Session, course_id: int, user: User) -> Course:
@@ -410,7 +413,7 @@ def upload_course_material(
         raise too_big
 
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
-    file_path = f"uploads/courses/{unique_filename}"
+    file_path = f"{UPLOAD_DIR}/{unique_filename}"
 
     size_bytes = 0
     try:

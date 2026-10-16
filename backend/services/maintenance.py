@@ -7,12 +7,11 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from typing import Literal, Optional
 
+from backend.backendConfig import MAINTENANCE_CACHE_SECONDS
 from backend.core.security import is_maintenance_bypass
 from backend.database import SessionLocal
 from backend.models.admin import Maintenance
 from backend.schemas.maintenance import MaintenanceStatus
-
-CACHE_SECONDS = 5
 
 State = Literal["off", "scheduled", "on"]
 
@@ -34,7 +33,7 @@ def now() -> datetime:
 
 def current_window() -> Optional[Window]:
     """The saved window, or None; one that already ended counts as none."""
-    if time.monotonic() - _cache["read_at"] > CACHE_SECONDS:
+    if time.monotonic() - _cache["read_at"] > MAINTENANCE_CACHE_SECONDS:
         db = SessionLocal()
         try:
             row = db.get(Maintenance, 1)

@@ -1,8 +1,7 @@
 import json
-from pathlib import Path
 from typing import Optional
 
-CATALOG_PATH = Path(__file__).resolve().parent.parent / "data" / "universities.json"
+from backend.backendConfig import CATALOG_PATH
 
 with open(CATALOG_PATH, encoding="utf-8") as f:
     CATALOG = json.load(f)

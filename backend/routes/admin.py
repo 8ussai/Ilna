@@ -296,10 +296,6 @@ def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, 
     return _with_counts(db, [user])[0]
 
 
-# test accounts get a stand-in address under this domain; it's never shown and never emailed
-TEST_EMAIL_DOMAIN = "test-accounts.ilna-academic.com"
-
-
 def _get_test_user(db: Session, user_id: int) -> User:
     user = _get_student(db, user_id)
     if not user.is_test:
@@ -328,7 +324,7 @@ def create_test_user(data: TestUserCreate, db: Session = Depends(get_db)):
     placeholder = secrets.token_hex(8)
     user = User(
         username=f"pending{placeholder}",
-        email=f"pending{placeholder}@{TEST_EMAIL_DOMAIN}",
+        email=f"pending{placeholder}@{backendConfig.TEST_EMAIL_DOMAIN}",
         first_name=data.first_name,
         last_name=data.last_name,
         hashed_password="",
@@ -348,7 +344,7 @@ def create_test_user(data: TestUserCreate, db: Session = Depends(get_db)):
         db.rollback()
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"{username} is already taken")
     user.username = username
-    user.email = f"{username}@{TEST_EMAIL_DOMAIN}"
+    user.email = f"{username}@{backendConfig.TEST_EMAIL_DOMAIN}"
     password = _set_test_password(user)
     _log_test(db, "create_test_user", user)
     db.commit()

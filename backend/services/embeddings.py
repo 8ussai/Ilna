@@ -2,16 +2,12 @@ import os
 import threading
 
 # first, so the models folder is set before the Hugging Face libraries load
-from backend.backendConfig import CHROMA_DB_DIR
+from backend.backendConfig import CHROMA_COLLECTION_NAME, CHROMA_DB_DIR, EMBEDDING_MODEL
 
 import chromadb
 import torch
 from langchain_chroma import Chroma
 from langchain_huggingface import HuggingFaceEmbeddings
-
-EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"
-# named after the model: vectors from another model can't share a collection (different sizes and meaning)
-COLLECTION_NAME = "course_chunks_qwen3"
 
 # Qwen3 is instruction-aware: queries get a task line, stored chunks don't
 QUERY_PROMPT = "Instruct: Given a request about a university course, retrieve passages from the course material that answer it\nQuery:"
@@ -35,7 +31,7 @@ def get_chroma_client():
 
 
 def _get_collection():
-    return get_chroma_client().get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
+    return get_chroma_client().get_or_create_collection(CHROMA_COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
 
 
 def get_vectorstore() -> Chroma:
@@ -58,7 +54,7 @@ def get_vectorstore() -> Chroma:
             )
             _vectorstore = Chroma(
                 client=client,
-                collection_name=COLLECTION_NAME,
+                collection_name=CHROMA_COLLECTION_NAME,
                 embedding_function=embeddings,
                 collection_metadata={"hnsw:space": "cosine"},
             )

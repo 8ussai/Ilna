@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from sqlalchemy import func
 from sqlalchemy.orm import Session
@@ -9,12 +9,10 @@ from backend.backendConfig import (
     PREMIUM_STUDY_DAILY_LIMITS,
     STORAGE_LIMIT_BYTES,
     STUDY_DAILY_LIMITS,
+    STUDY_LIMIT_WINDOW,
 )
 from backend.models.study import StudyGeneration
 from backend.models.user import User
-
-# the daily limits count what was started in the last this-long, rather than resetting at midnight
-STUDY_LIMIT_WINDOW = timedelta(days=1)
 
 
 def study_usage(db: Session, user_id: int, kind: str) -> tuple[int, datetime | None]:

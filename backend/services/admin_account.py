@@ -2,11 +2,9 @@ import secrets
 
 from sqlalchemy.orm import Session
 
+from backend.backendConfig import ADMIN_USERNAME
 from backend.core.security import get_password_hash
 from backend.models.user import User
-
-# a hyphen, which the sign-up form doesn't allow, so no student can take this username
-ADMIN_USERNAME = "ilna-admin"
 
 
 def get_admin_account(db: Session) -> User:

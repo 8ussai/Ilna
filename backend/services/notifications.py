@@ -4,6 +4,7 @@ from typing import Optional
 
 from sqlalchemy.orm import Session
 
+from backend.backendConfig import REMOVED_PREVIEW_CHARS
 from backend.models.notification import Notification
 from backend.models.post import Post, Reply
 from backend.models.user import User
@@ -20,10 +21,6 @@ class NotificationType(str, Enum):
     admin_message = "admin_message"
     # from the admin when premium is turned on; the app writes the text in the reader's language
     premium_granted = "premium_granted"
-
-
-# the start of removed text kept in a removal notice, so the author knows which one it was
-REMOVED_PREVIEW_CHARS = 200
 
 
 def notify_removal(

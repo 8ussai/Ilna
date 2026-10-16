@@ -12,7 +12,7 @@ import { dangerButtonInline, primaryButtonInline, secondaryButtonInline, smallSe
 import { formatDateTime, formatRelative, parseServerDate } from '../../dates'
 import { openSiteAs } from './openSiteAs'
 
-// matches MAINTENANCE_MESSAGE_MAX in backend/schemas/maintenance.py
+// matches MAINTENANCE_MESSAGE_MAX in backend/backendConfig.py
 const MESSAGE_MAX = 1000
 const POLL_MS = 30_000
 const MINUTE = 60_000

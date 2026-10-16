@@ -1,14 +1,14 @@
 from langchain_community.document_loaders import (PyMuPDFLoader, UnstructuredPowerPointLoader)
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
+from backend.backendConfig import CHUNK_CHARS, CHUNK_OVERLAP_CHARS
 from backend.database import SessionLocal
 from backend.models.course import CourseMaterial
 from backend.services.embeddings import delete_material_vectors, get_vectorstore
 
-# Qwen3 reads long inputs well, so chunks can carry more context than MiniLM's did
 text_splitter = RecursiveCharacterTextSplitter(
-    chunk_size=1500,
-    chunk_overlap=200,
+    chunk_size=CHUNK_CHARS,
+    chunk_overlap=CHUNK_OVERLAP_CHARS,
     length_function=len,
 )
 

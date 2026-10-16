@@ -3,7 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator
 
-MAINTENANCE_MESSAGE_MAX = 1000
+from backend.backendConfig import MAINTENANCE_MESSAGE_MAX
 
 
 class MaintenanceStatus(BaseModel):

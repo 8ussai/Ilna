@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.orm import Session, joinedload
 
+from backend.backendConfig import ACTIVITY_PREVIEW_CHARS, NOTIFICATION_PREVIEW_CHARS
 from backend.core.apiDependencies import get_current_user
 from backend.database import get_db
 from backend.models.notification import Notification
@@ -16,9 +17,6 @@ from backend.services.storage import storage_used
 from backend.services.usage import course_limit, storage_limit, study_limit, study_usage
 
 router = APIRouter()
-
-ACTIVITY_PREVIEW_CHARS = 300
-NOTIFICATION_PREVIEW_CHARS = 200
 
 
 @router.get("/storage", response_model=StorageOut)

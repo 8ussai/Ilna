@@ -10,23 +10,16 @@ import ctranslate2
 from faster_whisper import WhisperModel
 from langchain_core.documents import Document
 
+from backend.backendConfig import CHUNK_CHARS, TRANSCRIBE_PROGRESS_EVERY_SEC, WHISPER_MODEL
 from backend.database import SessionLocal
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services.embeddings import TORCH_THREADS, delete_material_vectors, get_vectorstore
-
-WHISPER_MODEL = "large-v3-turbo"
 
 # production runs on a GPU; development laptops fall back to the CPU with 8-bit weights
 if ctranslate2.get_cuda_device_count() > 0:
     DEVICE, COMPUTE_TYPE = "cuda", "float16"
 else:
     DEVICE, COMPUTE_TYPE = "cpu", "int8"
-
-# transcript segments are merged into chunks about this long before embedding, like document chunks
-CHUNK_CHARS = 1500
-
-# write progress at most this often, so a long lecture isn't thousands of tiny commits
-PROGRESS_EVERY_SEC = 2
 
 _model_lock = threading.Lock()
 _model = None
@@ -157,7 +150,7 @@ def transcribe_material(material_id: int):
             text = segment.text.strip()
             if text:
                 segments.append({"start": round(segment.start, 2), "end": round(segment.end, 2), "text": text})
-            if info.duration and time.time() - last_write >= PROGRESS_EVERY_SEC:
+            if info.duration and time.time() - last_write >= TRANSCRIBE_PROGRESS_EVERY_SEC:
                 transcript = _transcript_row(db, material_id)
                 transcript.progress = min(segment.end / info.duration, 0.99)
                 db.commit()

@@ -16,7 +16,13 @@ import threading
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
-from backend.backendConfig import GEMINI_MODEL
+from backend.backendConfig import (
+    GEMINI_MODEL,
+    QUIZ_OPTIONS_PER_QUESTION,
+    STUDY_ATTEMPTS,
+    STUDY_MAX_OVERLAP_CHARS,
+    STUDY_MAX_PROMPT_CHARS,
+)
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
@@ -25,15 +31,6 @@ from backend.models.course import CourseMaterial, CourseNote
 from backend.models.study import StudyItem
 from backend.schemas.study import QuizContent, QuizQuestion, SummaryContent
 from backend.services.embeddings import material_chunks
-
-# above this much source text the material is read in parts; Gemini 2.5 takes about 1M tokens,
-# and Arabic needs more tokens per character than English
-MAX_PROMPT_CHARS = 600_000
-# a document's chunks overlap by up to 200 characters (rag_pipeline.text_splitter); a recording's don't
-MAX_OVERLAP_CHARS = 250
-OPTIONS_PER_QUESTION = 4
-# a reply that's short of questions, or a translation that lost its shape, is asked for once more
-ATTEMPTS = 2
 
 LANGUAGE_NAMES = {"ar": "Arabic", "en": "English"}
 
@@ -105,7 +102,7 @@ def _timestamp(seconds: float) -> str:
 
 def _strip_overlap(previous: str, text: str) -> str:
     """Drops the start of a chunk that repeats the end of the one before it."""
-    for size in range(min(len(previous), len(text), MAX_OVERLAP_CHARS), 19, -1):
+    for size in range(min(len(previous), len(text), STUDY_MAX_OVERLAP_CHARS), 19, -1):
         if previous.endswith(text[:size]):
             return text[size:].lstrip()
     return text
@@ -176,8 +173,8 @@ def _parts(blocks: list[str]) -> list[str]:
     """The source blocks packed into as few parts as fit in one request each (usually just one)."""
     parts, current = [], ""
     for block in blocks:
-        for piece in _split(block, MAX_PROMPT_CHARS):
-            if current and len(current) + len(piece) + 2 > MAX_PROMPT_CHARS:
+        for piece in _split(block, STUDY_MAX_PROMPT_CHARS):
+            if current and len(current) + len(piece) + 2 > STUDY_MAX_PROMPT_CHARS:
                 parts.append(current)
                 current = ""
             current = f"{current}\n\n{piece}" if current else piece
@@ -241,7 +238,7 @@ Material (part {part} of {parts}):
 def _quiz_prompt(text: str, count: int, language: str) -> str:
     return f"""You are a university teaching assistant. Write a multiple-choice quiz of exactly {count} questions on the course material below, to check that a student understands it before an exam.
 
-- Each question has exactly {OPTIONS_PER_QUESTION} options and exactly one correct answer.
+- Each question has exactly {QUIZ_OPTIONS_PER_QUESTION} options and exactly one correct answer.
 - Test understanding of the important ideas, not trivia like page numbers or what the lecturer joked about.
 - Make the wrong options plausible and about as long as the right one. Don't use "all of the above" or "none of the above".
 - Spread the questions across the whole material, not just its start.
@@ -258,7 +255,7 @@ def _translate_prompt(content, kind: str, source: str, target: str) -> str:
     if kind == "summary":
         shape = "the same number of sections, the same number of points in each section, and the same number of key terms"
     else:
-        shape = f"the same number of questions, each with the same {OPTIONS_PER_QUESTION} options"
+        shape = f"the same number of questions, each with the same {QUIZ_OPTIONS_PER_QUESTION} options"
     return f"""Translate this study {kind} from {LANGUAGE_NAMES[source]} to {LANGUAGE_NAMES[target]}, for a university student.
 
 - Return exactly the same structure: {shape}, all in the same order.
@@ -310,10 +307,10 @@ def _valid_questions(questions: list[QuizQuestion]) -> list[QuizQuestion]:
         options = [o.strip() for o in q.options]
         if (
             q.question.strip()
-            and len(options) == OPTIONS_PER_QUESTION
+            and len(options) == QUIZ_OPTIONS_PER_QUESTION
             and all(options)
-            and len({o.casefold() for o in options}) == OPTIONS_PER_QUESTION
-            and 0 <= q.correct_index < OPTIONS_PER_QUESTION
+            and len({o.casefold() for o in options}) == QUIZ_OPTIONS_PER_QUESTION
+            and 0 <= q.correct_index < QUIZ_OPTIONS_PER_QUESTION
         ):
             valid.append(QuizQuestion(
                 question=q.question.strip(), options=options, correct_index=q.correct_index, explanation=q.explanation.strip(),
@@ -323,7 +320,7 @@ def _valid_questions(questions: list[QuizQuestion]) -> list[QuizQuestion]:
 
 def _shuffled(q: QuizQuestion) -> QuizQuestion:
     # models tend to put the right answer first
-    order = list(range(OPTIONS_PER_QUESTION))
+    order = list(range(QUIZ_OPTIONS_PER_QUESTION))
     random.shuffle(order)
     return QuizQuestion(
         question=q.question, options=[q.options[i] for i in order], correct_index=order.index(q.correct_index), explanation=q.explanation,
@@ -337,7 +334,7 @@ def _write_quiz(parts: list[str], count: int, language: str) -> QuizContent:
         # a long material's questions are shared out by how much of it each part holds
         wanted = count if len(parts) == 1 else max(1, round(count * len(part) / total))
         best = []
-        for _ in range(ATTEMPTS):
+        for _ in range(STUDY_ATTEMPTS):
             result = _ask(QuizContent, _quiz_prompt(part, wanted, language))
             title = title or result.title.strip()
             valid = _valid_questions(result.questions)
@@ -359,14 +356,14 @@ def _same_shape(original, translated, kind: str) -> bool:
             and len(translated.key_terms) == len(original.key_terms)
         )
     return len(translated.questions) == len(original.questions) and all(
-        len(q.options) == OPTIONS_PER_QUESTION for q in translated.questions
+        len(q.options) == QUIZ_OPTIONS_PER_QUESTION for q in translated.questions
     )
 
 
 def _translate(original, kind: str, source: str, target: str):
     schema = SummaryContent if kind == "summary" else QuizContent
     prompt = _translate_prompt(original, kind, source, target)
-    for _ in range(ATTEMPTS):
+    for _ in range(STUDY_ATTEMPTS):
         translated = _ask(schema, prompt)
         if _same_shape(original, translated, kind):
             if kind == "quiz":

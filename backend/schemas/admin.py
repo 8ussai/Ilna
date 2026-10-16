@@ -3,6 +3,7 @@ from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from backend.backendConfig import MAX_PIN_HOURS
 from backend.schemas.post import PostAuthor, PostScope
 from backend.services.catalog import validate_selection
 
@@ -193,10 +194,6 @@ class AdminMessageCreate(MessageAudience):
 
 class RecipientCount(BaseModel):
     count: int
-
-
-# matches the pin-hours field in the panel
-MAX_PIN_HOURS = 168
 
 
 def _check_pin_hours(value: Optional[int]) -> Optional[int]:

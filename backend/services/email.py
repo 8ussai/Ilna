@@ -5,8 +5,6 @@ from email.message import EmailMessage
 from backend import backendConfig
 from backend.models.user import User
 
-SMTP_TIMEOUT_SECONDS = 15
-
 
 def smtp_configured() -> bool:
     return bool(backendConfig.SMTP_HOST and backendConfig.SMTP_USER and backendConfig.SMTP_PASSWORD)
@@ -148,9 +146,9 @@ def send_restored_email(user: User) -> None:
 def _send(email: EmailMessage) -> None:
     context = ssl.create_default_context()
     if backendConfig.SMTP_PORT == 465:
-        server = smtplib.SMTP_SSL(backendConfig.SMTP_HOST, backendConfig.SMTP_PORT, timeout=SMTP_TIMEOUT_SECONDS, context=context)
+        server = smtplib.SMTP_SSL(backendConfig.SMTP_HOST, backendConfig.SMTP_PORT, timeout=backendConfig.SMTP_TIMEOUT_SECONDS, context=context)
     else:
-        server = smtplib.SMTP(backendConfig.SMTP_HOST, backendConfig.SMTP_PORT, timeout=SMTP_TIMEOUT_SECONDS)
+        server = smtplib.SMTP(backendConfig.SMTP_HOST, backendConfig.SMTP_PORT, timeout=backendConfig.SMTP_TIMEOUT_SECONDS)
 
     with server:
         if backendConfig.SMTP_PORT != 465:

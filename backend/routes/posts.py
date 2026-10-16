@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import case, func, select
 
+from backend.backendConfig import HOT_REPLY_WEIGHT
 from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
 from backend.database import get_db
 from backend.models.user import User
@@ -14,9 +15,6 @@ from backend.services.votes import check_vote_dir, toggle_vote
 
 
 router = APIRouter()
-
-# in the hot ranking a reply counts as half an upvote
-HOT_REPLY_WEIGHT = 0.5
 
 
 def _replies_count_subquery():

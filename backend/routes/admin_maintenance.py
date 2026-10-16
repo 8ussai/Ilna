@@ -4,6 +4,7 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
+from backend.backendConfig import MAINTENANCE_MAX_WINDOW
 from backend.core.apiDependencies import get_admin
 from backend.core.security import create_maintenance_bypass_token
 from backend.database import get_db
@@ -13,9 +14,6 @@ from backend.schemas.maintenance import MaintenanceBypass, MaintenanceSchedule, 
 from backend.services import maintenance
 
 router = APIRouter(dependencies=[Depends(get_admin)])
-
-# the longest the site can be closed in one go
-MAX_WINDOW = timedelta(days=30)
 
 
 def _window_details(row: Maintenance) -> dict:
@@ -35,7 +33,7 @@ def schedule_maintenance(data: MaintenanceSchedule, db: Session = Depends(get_db
     starts_at = max(data.starts_at or now, now)
     if data.ends_at <= starts_at + timedelta(minutes=1):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The end has to be after the start.")
-    if data.ends_at - starts_at > MAX_WINDOW:
+    if data.ends_at - starts_at > MAINTENANCE_MAX_WINDOW:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The site can be closed for at most 30 days.")
 
     row = db.get(Maintenance, 1)

@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 from datetime import datetime
 
+from backend.backendConfig import TEST_USERNAME_PREFIX
 from backend.core.security import check_password_strength
 from backend.services.catalog import validate_selection, email_matches_domain
 
@@ -22,8 +23,6 @@ class UserBase(BaseModel):
 
 # same rule as USERNAME_RE in frontend/src/components/RegisterForm.tsx
 USERNAME_RE = re.compile(r"^[a-z0-9]{3,30}$")
-# kept for the admin's test accounts (testuser12, ...)
-TEST_USERNAME_PREFIX = "testuser"
 
 
 class UserCreate(UserBase):

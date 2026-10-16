@@ -10,13 +10,12 @@ import threading
 from langchain_core.documents import Document
 from sqlalchemy import func
 
+from backend.backendConfig import NOTE_INDEX_DELAY_SEC
 from backend.database import SessionLocal
 from backend.models.course import CourseNote
 from backend.services import jobs
 from backend.services.embeddings import delete_note_vectors, get_vectorstore
 from backend.services.rag_pipeline import text_splitter
-
-NOTE_INDEX_DELAY_SEC = 30
 
 _timers_lock = threading.Lock()
 _timers: dict[int, threading.Timer] = {}
