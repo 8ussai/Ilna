@@ -10,6 +10,8 @@ export const COURSE_DESCRIPTION_MAX = 500
 // what the backend accepts, by extension (backendConfig.DOCUMENT_EXTENSIONS / AUDIO_EXTENSIONS)
 export const DOCUMENT_EXTENSIONS = ['pdf', 'ppt', 'pptx']
 export const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'wav', 'webm', 'ogg']
+// largest single file or recording (backendConfig.MAX_UPLOAD_BYTES)
+export const MAX_UPLOAD_BYTES = 95 * 1024 ** 2
 
 export type Course = {
   id: number

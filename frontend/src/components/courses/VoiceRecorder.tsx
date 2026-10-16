@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MAX_UPLOAD_BYTES } from '../../api/courses'
 import { formatDateTime, formatDuration } from '../../dates'
 import { primaryButtonInline, secondaryButtonInline } from '../styles'
 
@@ -13,6 +14,9 @@ const RECORDING_TYPES: [mime: string, extension: string][] = [
 ]
 
 // milliseconds on a monotonic clock, for the recording timer (only read from event handlers and timers)
+// a recording this big stops and saves itself, leaving room under the upload limit (hours of audio in practice)
+const RECORDING_STOP_BYTES = MAX_UPLOAD_BYTES - 2 * 1024 ** 2
+
 function clock() {
   return performance.now()
 }
@@ -108,8 +112,14 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     const recorder = new MediaRecorder(stream, { mimeType: mime })
     chunksRef.current = []
     discardRef.current = false
+    let recordedBytes = 0
     recorder.ondataavailable = (e) => {
       if (e.data.size > 0) chunksRef.current.push(e.data)
+      recordedBytes += e.data.size
+      if (recordedBytes >= RECORDING_STOP_BYTES && recorder.state !== 'inactive') {
+        stop(true)
+        setAnnouncement(t('courses.voice.sizeLimit'))
+      }
     }
     recorder.onstop = () => {
       release()
@@ -167,8 +177,9 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     setAnnouncement(t('courses.voice.resumed'))
   }
 
+  // also called from the recorder's data handler, which holds the start-time render, so the phase is read off the recorder
   function stop(keep: boolean) {
-    if (phase === 'recording') {
+    if (recorderRef.current?.state === 'recording') {
       const { before, since } = clockRef.current
       clockRef.current = { before: before + (clock() - since), since: 0 }
     }

@@ -4,6 +4,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.backendConfig import (
+    COURSE_LIMIT,
     PREMIUM_STORAGE_LIMIT_BYTES,
     PREMIUM_STUDY_DAILY_LIMITS,
     STORAGE_LIMIT_BYTES,
@@ -39,3 +40,8 @@ def study_limit(user: User, kind: str) -> int:
 
 def storage_limit(user: User) -> int:
     return PREMIUM_STORAGE_LIMIT_BYTES if user.is_premium else STORAGE_LIMIT_BYTES
+
+
+def course_limit(user: User) -> int | None:
+    """How many courses the user can have; None when there's no limit."""
+    return None if user.is_premium else COURSE_LIMIT

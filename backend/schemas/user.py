@@ -86,6 +86,8 @@ class UsageOut(BaseModel):
     storage: StorageOut
     summary: DailyUsageOut
     quiz: DailyUsageOut
+    # null for premium, which has no limit
+    course_limit: Optional[int]
 
 
 class UserOut(UserBase):

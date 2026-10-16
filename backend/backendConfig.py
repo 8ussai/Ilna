@@ -54,6 +54,12 @@ MAX_TEXT_NOTE_CHARS = 100_000
 STORAGE_LIMIT_BYTES = 1024 ** 3
 # premium (turned on from the admin panel) gets more room
 PREMIUM_STORAGE_LIMIT_BYTES = 5 * 1024 ** 3
+# largest single file or recording, premium too; Cloudflare's free plan drops request bodies over 100 MB,
+# so this stays under it with room for the rest of the form
+MAX_UPLOAD_BYTES = 95 * 1024 ** 2
+
+# courses one user can have; premium has no limit
+COURSE_LIMIT = 5
 
 # summaries and quizzes are written by Gemini; GOOGLE_API_KEY goes in .env
 GEMINI_MODEL = "gemini-2.5-flash"

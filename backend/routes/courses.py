@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from backend.database import get_db
-from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS
+from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, MAX_UPLOAD_BYTES
 from backend.models.user import User
 from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
 from backend.schemas.course import (
@@ -42,7 +42,7 @@ from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import transcribe_material
 from backend.services.storage import storage_used
-from backend.services.usage import storage_limit
+from backend.services.usage import course_limit, storage_limit
 
 router = APIRouter()
 
@@ -113,6 +113,13 @@ def create_course(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    limit = course_limit(current_user)
+    if limit is not None and db.query(Course).filter(Course.user_id == current_user.id).count() >= limit:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=f"You can have up to {limit} courses. Delete one or get Premium for unlimited courses.",
+        )
+
     new_course = Course(user_id=current_user.id, **course_data.model_dump(mode="json"))
 
     db.add(new_course)
@@ -387,14 +394,20 @@ def upload_course_material(
         )
 
     remaining = storage_limit(current_user) - storage_used(db, current_user.id)
-    storage_full = HTTPException(
+    # the smaller of the two limits decides how much may be saved, and which message a bigger file gets
+    allowed = min(remaining, MAX_UPLOAD_BYTES)
+    too_big = HTTPException(
         status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-        detail="This file would go over your storage limit.",
+        detail=(
+            f"Files can be up to {MAX_UPLOAD_BYTES // 1024 ** 2} MB."
+            if allowed == MAX_UPLOAD_BYTES
+            else "This file would go over your storage limit."
+        ),
     )
 
     # the client-reported size can be missing or wrong, so this only rejects early; the copy below is the real check
-    if file.size is not None and file.size > remaining:
-        raise storage_full
+    if file.size is not None and file.size > allowed:
+        raise too_big
 
     unique_filename = f"{uuid.uuid4()}.{file_extension}"
     file_path = f"uploads/courses/{unique_filename}"
@@ -404,7 +417,7 @@ def upload_course_material(
         with open(file_path, "wb") as buffer:
             while chunk := file.file.read(UPLOAD_CHUNK_BYTES):
                 size_bytes += len(chunk)
-                if size_bytes > remaining:
+                if size_bytes > allowed:
                     break
                 buffer.write(chunk)
     except Exception as e:
@@ -415,9 +428,9 @@ def upload_course_material(
             detail=f"Could not save file: {str(e)}"
         )
 
-    if size_bytes > remaining:
+    if size_bytes > allowed:
         os.remove(file_path)
-        raise storage_full
+        raise too_big
 
     new_material = CourseMaterial(
         course_id=course_id,

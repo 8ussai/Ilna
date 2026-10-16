@@ -41,7 +41,11 @@ export function CourseDetailsForm({ initial, submitLabel, onSubmit, onCancel }: 
         color,
       })
     } catch (err) {
-      setErrors({ form: err instanceof ApiError && err.status === 0 ? t('errors.network') : t('errors.generic') })
+      let form = t('errors.generic')
+      if (err instanceof ApiError && err.status === 0) form = t('errors.network')
+      // only creating can hit this: the course limit was reached since the page loaded
+      else if (err instanceof ApiError && err.status === 403) form = t('courses.limit.reachedShort')
+      setErrors({ form })
       setBusy(false)
     }
   }

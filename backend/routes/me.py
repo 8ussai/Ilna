@@ -13,7 +13,7 @@ from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, Unread
 from backend.schemas.user import DailyUsageOut, StorageOut, UsageOut
 from backend.services.notifications import NotificationType
 from backend.services.storage import storage_used
-from backend.services.usage import storage_limit, study_limit, study_usage
+from backend.services.usage import course_limit, storage_limit, study_limit, study_usage
 
 router = APIRouter()
 
@@ -44,6 +44,7 @@ def get_usage(
         storage=StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=storage_limit(current_user)),
         summary=daily("summary"),
         quiz=daily("quiz"),
+        course_limit=course_limit(current_user),
     )
 
 

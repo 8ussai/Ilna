@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
-import { fileExtension, isAudio, uploadCourseMaterial } from '../../api/courses'
+import { fileExtension, isAudio, MAX_UPLOAD_BYTES, uploadCourseMaterial } from '../../api/courses'
 import type { CourseMaterial } from '../../api/courses'
 import { fetchStorage } from '../../api/me'
+import { formatBytes } from '../../bytes'
 
 type UploadStatus = 'queued' | 'uploading' | 'done' | 'failed' | 'cancelled'
 
@@ -29,7 +30,7 @@ type UploadQueueOptions = {
 
 // Uploads files to a course one at a time, with progress per file. Unfinished uploads stop on unmount.
 export function useUploadQueue({ courseId, onUploaded, keepDone = true }: UploadQueueOptions) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [uploads, setUploads] = useState<Upload[]>([])
   const [storageLeft, setStorageLeft] = useState<number | null>(null)
 
@@ -83,6 +84,11 @@ export function useUploadQueue({ courseId, onUploaded, keepDone = true }: Upload
 
   async function uploadOne(item: Upload) {
     const { file, key } = item
+    const tooBig = t('courses.upload.tooBig', { max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })
+    if (file.size > MAX_UPLOAD_BYTES) {
+      update(key, { status: 'failed', error: tooBig, retryable: false })
+      return
+    }
     if (leftRef.current !== null && file.size > leftRef.current) {
       update(key, { status: 'failed', error: t('courses.upload.noSpace'), retryable: true })
       return
@@ -110,7 +116,8 @@ export function useUploadQueue({ courseId, onUploaded, keepDone = true }: Upload
       let error = t('courses.upload.failed')
       if (err instanceof ApiError) {
         if (err.status === 0) error = t('errors.network')
-        else if (err.status === 413) error = t('courses.upload.noSpace')
+        // the same status for both limits; Cloudflare also answers 413 for anything it thinks is too big
+        else if (err.status === 413) error = file.size > MAX_UPLOAD_BYTES ? tooBig : t('courses.upload.noSpace')
         else if (err.status === 400) error = t('courses.upload.badType')
       }
       update(key, { status: 'failed', error, retryable: !(err instanceof ApiError && err.status === 400) })

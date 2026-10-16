@@ -2,8 +2,9 @@ import { useEffect, useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
-import { AUDIO_EXTENSIONS, deleteMaterial, fetchTranscript, renameMaterial, retryTranscript } from '../../api/courses'
+import { AUDIO_EXTENSIONS, deleteMaterial, fetchTranscript, MAX_UPLOAD_BYTES, renameMaterial, retryTranscript } from '../../api/courses'
 import type { CourseMaterial, Transcript, TranscriptLanguage, TranscriptSegment } from '../../api/courses'
+import { formatBytes } from '../../bytes'
 import { formatDate, formatDuration, parseServerDate } from '../../dates'
 import { DeleteButton } from '../DeleteButton'
 import { controlClass } from '../Field'
@@ -25,7 +26,7 @@ type VoiceTabProps = {
 }
 
 export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }: VoiceTabProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [recording, setRecording] = useState(false)
   // a new recording opens by itself once its upload finishes, so its transcript can be watched coming in
   const [openId, setOpenId] = useState<number | null>(null)
@@ -71,7 +72,7 @@ export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }
           <DropZone
             compact
             label={t('courses.voice.upload')}
-            hint={t('courses.new.audioHint', { types: extensionList(AUDIO_EXTENSIONS) })}
+            hint={t('courses.new.audioHint', { types: extensionList(AUDIO_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
             accept={['audio/*', acceptList(AUDIO_EXTENSIONS)].join(',')}
             onFiles={(files) => addFiles(files, AUDIO_EXTENSIONS)}
           />

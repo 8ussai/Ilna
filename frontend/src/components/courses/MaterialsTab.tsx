@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
-import { deleteMaterial, DOCUMENT_EXTENSIONS, downloadName, fileExtension, renameMaterial } from '../../api/courses'
+import { deleteMaterial, DOCUMENT_EXTENSIONS, downloadName, fileExtension, MAX_UPLOAD_BYTES, renameMaterial } from '../../api/courses'
 import type { CourseMaterial } from '../../api/courses'
 import { formatBytes } from '../../bytes'
 import { formatDate, parseServerDate } from '../../dates'
@@ -23,7 +23,7 @@ type MaterialsTabProps = {
 }
 
 export function MaterialsTab({ courseId, materials, onAdded, onChanged, onDeleted }: MaterialsTabProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { uploads, addFiles, retry, dismiss } = useUploadQueue({ courseId, onUploaded: onAdded, keepDone: false })
   const [viewingId, setViewingId] = useState<number | null>(null)
   const viewing = materials.find((m) => m.id === viewingId) ?? null
@@ -35,7 +35,7 @@ export function MaterialsTab({ courseId, materials, onAdded, onChanged, onDelete
       <DropZone
         compact
         label={t('courses.materials.add')}
-        hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS) })}
+        hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
         accept={acceptList(DOCUMENT_EXTENSIONS)}
         onFiles={(files) => addFiles(files, DOCUMENT_EXTENSIONS)}
       />

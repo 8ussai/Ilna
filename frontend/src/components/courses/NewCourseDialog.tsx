@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AUDIO_EXTENSIONS, createCourse, DOCUMENT_EXTENSIONS, isAudio } from '../../api/courses'
+import { AUDIO_EXTENSIONS, createCourse, DOCUMENT_EXTENSIONS, isAudio, MAX_UPLOAD_BYTES } from '../../api/courses'
 import type { Course, CourseLink } from '../../api/courses'
 import { formatBytes } from '../../bytes'
 import { Dialog } from '../Dialog'
@@ -77,7 +77,7 @@ function AddContentStep({ course, onDone }: { course: Course; onDone: () => void
         </h3>
         <DropZone
           label={t('courses.new.dropFiles')}
-          hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS) })}
+          hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
           accept={acceptList(DOCUMENT_EXTENSIONS)}
           onFiles={(files) => addFiles(files, DOCUMENT_EXTENSIONS)}
         />
@@ -112,7 +112,7 @@ function AddContentStep({ course, onDone }: { course: Course; onDone: () => void
         </h3>
         <DropZone
           label={t('courses.new.dropAudio')}
-          hint={t('courses.new.audioHint', { types: extensionList(AUDIO_EXTENSIONS) })}
+          hint={t('courses.new.audioHint', { types: extensionList(AUDIO_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
           accept={['audio/*', acceptList(AUDIO_EXTENSIONS)].join(',')}
           onFiles={(files) => addFiles(files, AUDIO_EXTENSIONS)}
         />

@@ -191,11 +191,11 @@
       "optionalHint": "Everything here is optional, and you can add more later.",
       "materials": "Materials",
       "dropFiles": "Drop files here or choose files",
-      "fileTypes": "Slides and documents: {{types}}",
+      "fileTypes": "Slides and documents: {{types}}, up to {{max}} each",
       "links": "Links",
       "voice": "Recordings",
       "dropAudio": "Drop recordings here or choose files",
-      "audioHint": "Lecture audio ({{types}}). It's transcribed after upload.",
+      "audioHint": "Lecture audio ({{types}}), up to {{max}} each. It's transcribed after upload.",
       "done": "Done"
     },
     "upload": {
@@ -208,7 +208,8 @@
       "noSpace": "Not enough storage left for this file.",
       "progress": "Uploading {{name}}",
       "waiting": "Waiting for uploads to finish…",
-      "dismiss": "Dismiss"
+      "dismiss": "Dismiss",
+      "tooBig": "Files can be up to {{max}}."
     },
     "links": {
       "title": "Title",
@@ -301,7 +302,8 @@
         "denied": "Microphone access was blocked. Allow it in your browser's site settings, then try again.",
         "noMic": "No microphone was found.",
         "failed": "Couldn't start recording. Please try again."
-      }
+      },
+      "sizeLimit": "Recording stopped and saved: it reached the size limit."
     },
     "notes": {
       "empty": "No notes yet.",
@@ -521,6 +523,12 @@
         "attempts": "Your attempts",
         "latest": "Latest"
       }
+    },
+    "limit": {
+      "count": "{{count}} of {{limit}} courses",
+      "reachedTitle": "You've reached {{limit}} courses",
+      "reachedBody": "Delete a course to make room, or get Premium for unlimited courses.",
+      "reachedShort": "You've reached your course limit. Delete a course, or get Premium for unlimited courses."
     }
   },
   "replies": {
