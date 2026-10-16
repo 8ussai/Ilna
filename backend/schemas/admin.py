@@ -231,3 +231,53 @@ class PinRequest(BaseModel):
     @classmethod
     def check_pin_hours(cls, value: Optional[int]) -> Optional[int]:
         return _check_pin_hours(value)
+
+
+class ContactSender(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    university: str
+    college: str
+    major: str
+
+    model_config = {"from_attributes": True}
+
+
+class AdminContactOut(BaseModel):
+    id: int
+    subject: str
+    message: str
+    created_at: datetime
+    handled_at: Optional[datetime]
+    sender: ContactSender
+
+    model_config = {"from_attributes": True}
+
+
+class AdminContactPage(BaseModel):
+    items: list[AdminContactOut]
+    total: int
+
+
+class HandledRequest(BaseModel):
+    handled: bool
+
+
+class AdminLogOut(BaseModel):
+    id: int
+    action: str
+    target_type: Optional[str]
+    target_id: Optional[int]
+    # parsed from the stored JSON: reasons, removed text, recipients, ...
+    details: dict
+    created_at: datetime
+
+
+class AdminLogPage(BaseModel):
+    items: list[AdminLogOut]
+    total: int
+    # every action that appears in the log, for the filter
+    actions: list[str]

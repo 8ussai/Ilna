@@ -159,6 +159,9 @@ _add_missing_columns("posts", {
 _add_missing_columns("replies", {
     "removed_by_admin": "BOOLEAN NOT NULL DEFAULT 0",
 })
+_add_missing_columns("contact_messages", {
+    "handled_at": "DATETIME",
+})
 
 
 # usernames are lowercase letters and numbers now; lowercase older ones unless that would clash with another account

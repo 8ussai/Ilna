@@ -13,6 +13,7 @@ from backend.core.apiDependencies import get_admin
 from backend.core.security import create_admin_token, get_password_hash, verify_password
 from backend.database import SessionLocal, get_db
 from backend.models.admin import AdminCode, AdminLog, Report
+from backend.models.contact import ContactMessage
 from backend.models.course import Course, CourseMaterial
 from backend.models.notification import Notification
 from backend.models.post import Post, PostVote, Reply, ReplyVote
@@ -22,6 +23,10 @@ from backend.schemas.post import PostScope
 from backend.schemas.admin import (
     AdminCodeRequest,
     AdminCodeVerify,
+    AdminContactOut,
+    AdminContactPage,
+    AdminLogOut,
+    AdminLogPage,
     AdminMessageCreate,
     AdminPostDetail,
     AdminPostCreate,
@@ -36,6 +41,7 @@ from backend.schemas.admin import (
     AdminUserPage,
     BanRequest,
     DeleteUserRequest,
+    HandledRequest,
     MessageAudience,
     OpenCount,
     PinRequest,
@@ -644,3 +650,76 @@ def delete_admin_post(post_id: int, db: Session = Depends(get_db)):
                     details=json.dumps({"content": post.content}, ensure_ascii=False)))
     db.delete(post)
     db.commit()
+
+
+
+@router.get("/contact", response_model=AdminContactPage, dependencies=[Depends(get_admin)])
+def list_contact_messages(
+    status_filter: str = Query("open", alias="status", pattern="^(open|handled|all)$"),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    """"Contact us" messages, newest first. They were also emailed to CONTACT_EMAIL when sent."""
+    query = db.query(ContactMessage)
+    if status_filter == "open":
+        query = query.filter(ContactMessage.handled_at.is_(None))
+    elif status_filter == "handled":
+        query = query.filter(ContactMessage.handled_at.isnot(None))
+    total = query.count()
+    items = (
+        query.options(joinedload(ContactMessage.sender))
+        .order_by(ContactMessage.created_at.desc(), ContactMessage.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return AdminContactPage(items=items, total=total)
+
+
+@router.get("/contact/count", response_model=OpenCount, dependencies=[Depends(get_admin)])
+def count_contact_messages(db: Session = Depends(get_db)):
+    """Messages not marked handled yet, for the tab's badge."""
+    return OpenCount(count=db.query(ContactMessage).filter(ContactMessage.handled_at.is_(None)).count())
+
+
+@router.post("/contact/{message_id}/handled", response_model=AdminContactOut, dependencies=[Depends(get_admin)])
+def mark_contact_handled(message_id: int, data: HandledRequest, db: Session = Depends(get_db)):
+    message = db.query(ContactMessage).filter(ContactMessage.id == message_id).first()
+    if not message:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+    message.handled_at = _now() if data.handled else None
+    db.commit()
+    db.refresh(message)
+    return message
+
+
+@router.get("/log", response_model=AdminLogPage, dependencies=[Depends(get_admin)])
+def list_admin_log(
+    action: str = Query("", max_length=40, description="One action; empty for all."),
+    limit: int = Query(30, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    """Everything the admin did, newest first."""
+    query = db.query(AdminLog)
+    if action:
+        query = query.filter(AdminLog.action == action)
+    total = query.count()
+    rows = query.order_by(AdminLog.created_at.desc(), AdminLog.id.desc()).offset(offset).limit(limit).all()
+    actions = [a for (a,) in db.query(AdminLog.action).distinct().order_by(AdminLog.action).all()]
+    return AdminLogPage(
+        items=[
+            AdminLogOut(
+                id=row.id,
+                action=row.action,
+                target_type=row.target_type,
+                target_id=row.target_id,
+                details=json.loads(row.details) if row.details else {},
+                created_at=row.created_at,
+            )
+            for row in rows
+        ],
+        total=total,
+        actions=actions,
+    )

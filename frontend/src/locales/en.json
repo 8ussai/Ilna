@@ -834,6 +834,50 @@
       "unpin": "Unpin",
       "confirmDelete": "Delete this admin post?",
       "deleted": "Admin post #P{{id}} was deleted."
+    },
+    "contact": {
+      "title": "Contact",
+      "intro": "\"Contact us\" messages from students, newest first. Each was also emailed to support@ when it was sent.",
+      "show": "Show",
+      "filters": {
+        "open": "Open",
+        "handled": "Handled",
+        "all": "All"
+      },
+      "none": {
+        "open": "Nothing waiting.",
+        "handled": "No handled messages yet.",
+        "all": "No messages yet."
+      },
+      "reply": "Reply by email",
+      "markHandled": "Mark handled",
+      "reopen": "Mark open again",
+      "handledAt": "Handled {{date}}",
+      "openCount_one": "{{count}} open message",
+      "openCount_other": "{{count}} open messages"
+    },
+    "log": {
+      "title": "Log",
+      "filter": "Action",
+      "allActions": "All actions",
+      "none": "Nothing recorded yet.",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "actions": {
+        "login": "Admin login",
+        "ban": "Banned",
+        "unban": "Unbanned",
+        "verify": "Verified manually",
+        "delete_user": "Deleted account",
+        "remove_post": "Removed post",
+        "remove_reply": "Removed reply",
+        "dismiss_reports": "Dismissed reports",
+        "message": "Sent message",
+        "admin_post": "Admin post",
+        "pin": "Pinned",
+        "unpin": "Unpinned",
+        "delete_admin_post": "Deleted admin post"
+      }
     }
   },
   "report": {

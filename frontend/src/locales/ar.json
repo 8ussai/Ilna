@@ -926,6 +926,54 @@
       "unpin": "إلغاء التثبيت",
       "confirmDelete": "حذف هذا المنشور الإداري؟",
       "deleted": "تم حذف المنشور الإداري #P{{id}}."
+    },
+    "contact": {
+      "title": "التواصل",
+      "intro": "رسائل \"تواصل معنا\" من الطلاب، الأحدث أولاً. أُرسلت كل رسالة أيضاً إلى support@ عند إرسالها.",
+      "show": "عرض",
+      "filters": {
+        "open": "مفتوحة",
+        "handled": "تمت معالجتها",
+        "all": "الكل"
+      },
+      "none": {
+        "open": "لا شيء بانتظارك.",
+        "handled": "لا رسائل تمت معالجتها بعد.",
+        "all": "لا رسائل بعد."
+      },
+      "reply": "الرد بالبريد",
+      "markHandled": "تمت المعالجة",
+      "reopen": "إعادة فتحها",
+      "handledAt": "عولجت {{date}}",
+      "openCount_zero": "لا رسائل مفتوحة",
+      "openCount_one": "رسالة مفتوحة واحدة",
+      "openCount_two": "رسالتان مفتوحتان",
+      "openCount_few": "{{count}} رسائل مفتوحة",
+      "openCount_many": "{{count}} رسالة مفتوحة",
+      "openCount_other": "{{count}} رسالة مفتوحة"
+    },
+    "log": {
+      "title": "السجل",
+      "filter": "الإجراء",
+      "allActions": "كل الإجراءات",
+      "none": "لم يُسجّل شيء بعد.",
+      "showDetails": "عرض التفاصيل",
+      "hideDetails": "إخفاء التفاصيل",
+      "actions": {
+        "login": "دخول الإدارة",
+        "ban": "حظر",
+        "unban": "إلغاء حظر",
+        "verify": "تفعيل يدوي",
+        "delete_user": "حذف حساب",
+        "remove_post": "حذف منشور",
+        "remove_reply": "حذف رد",
+        "dismiss_reports": "تجاهل بلاغات",
+        "message": "إرسال رسالة",
+        "admin_post": "منشور إداري",
+        "pin": "تثبيت",
+        "unpin": "إلغاء تثبيت",
+        "delete_admin_post": "حذف منشور إداري"
+      }
     }
   },
   "report": {

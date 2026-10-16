@@ -224,3 +224,46 @@ export function pinAdminPost(id: number, pinHours: number | null) {
 export function deleteAdminPost(id: number) {
   return adminRequest<null>(`/posts/${id}`, { method: 'DELETE' })
 }
+
+export type ContactFilter = 'open' | 'handled' | 'all'
+
+export type AdminContactMessage = {
+  id: number
+  subject: string
+  message: string
+  created_at: string
+  handled_at: string | null
+  sender: AdminPost['author'] & { email: string; university: string; college: string; major: string }
+}
+
+export const ADMIN_CONTACT_PAGE = 20
+
+export function fetchAdminContact(status: ContactFilter, offset = 0) {
+  const params = new URLSearchParams({ status, limit: String(ADMIN_CONTACT_PAGE), offset: String(offset) })
+  return adminRequest<{ items: AdminContactMessage[]; total: number }>(`/contact?${params}`)
+}
+
+export function fetchOpenContactCount() {
+  return adminRequest<{ count: number }>('/contact/count')
+}
+
+export function markContactHandled(id: number, handled: boolean) {
+  return adminRequest<AdminContactMessage>(`/contact/${id}/handled`, json({ handled }))
+}
+
+export type AdminLogEntry = {
+  id: number
+  action: string
+  target_type: 'user' | 'post' | 'reply' | null
+  target_id: number | null
+  // what the backend recorded: reason, username, removed content, recipients, ...
+  details: Record<string, unknown>
+  created_at: string
+}
+
+export const ADMIN_LOG_PAGE = 30
+
+export function fetchAdminLog(action: string, offset = 0) {
+  const params = new URLSearchParams({ action, limit: String(ADMIN_LOG_PAGE), offset: String(offset) })
+  return adminRequest<{ items: AdminLogEntry[]; total: number; actions: string[] }>(`/log?${params}`)
+}

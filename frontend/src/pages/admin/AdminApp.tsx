@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import {
   fetchAdminSession,
+  fetchOpenContactCount,
   fetchOpenReportCount,
   getAdminToken,
   setAdminToken,
@@ -12,14 +13,16 @@ import { fetchCatalog } from '../../api/meta'
 import type { Catalog } from '../../api/meta'
 import { Header } from '../../components/Header'
 import { secondaryButtonInline } from '../../components/styles'
+import { AdminContact } from './AdminContact'
+import { AdminLog } from './AdminLog'
 import { AdminLogin } from './AdminLogin'
 import { AdminMessages } from './AdminMessages'
 import { AdminPosts } from './AdminPosts'
 import { AdminReports } from './AdminReports'
 import { AdminUsers } from './AdminUsers'
 
-// the panel's sections; the log joins in a later step
-const SECTIONS = ['reports', 'users', 'posts', 'messages'] as const
+// the panel's sections
+const SECTIONS = ['reports', 'users', 'posts', 'messages', 'contact', 'log'] as const
 type Section = (typeof SECTIONS)[number]
 
 // kept in the hash (/admin#posts) so a reload stays on the same section
@@ -37,12 +40,15 @@ export function AdminApp() {
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [section, setSection] = useState<Section>(sectionFromHash)
 
-  // open reports, for the badge on the Reports tab
-  const [openReports, setOpenReports] = useState(0)
+  // what's waiting, for the badges on the Reports and Contact tabs
+  const [waiting, setWaiting] = useState<Partial<Record<Section, number>>>({})
 
-  const refreshReportCount = useCallback(() => {
+  const refreshCounts = useCallback(() => {
     fetchOpenReportCount()
-      .then((result) => setOpenReports(result.count))
+      .then((result) => setWaiting((w) => ({ ...w, reports: result.count })))
+      .catch(() => {})
+    fetchOpenContactCount()
+      .then((result) => setWaiting((w) => ({ ...w, contact: result.count })))
       .catch(() => {})
   }, [])
 
@@ -50,7 +56,7 @@ export function AdminApp() {
     setSection(next)
     window.history.replaceState(null, '', `/admin#${next}`)
     // a removal on another tab may have settled some reports
-    refreshReportCount()
+    refreshCounts()
   }
 
   function updateToken(next: string | null) {
@@ -69,13 +75,13 @@ export function AdminApp() {
     if (!token) return
     // names just fall back to blank if this fails
     fetchCatalog().then(setCatalog).catch(() => {})
-    refreshReportCount()
+    refreshCounts()
     fetchAdminSession()
       .then((session) => setEmail(session.email))
       .catch(() => {
         // a 401 already logged out through the handler; other errors leave the panel up
       })
-  }, [token, refreshReportCount])
+  }, [token, refreshCounts])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -97,7 +103,7 @@ export function AdminApp() {
                 </p>
               )}
             </div>
-            <div role="tablist" aria-label={t('admin.title')} className="flex gap-1 border-b border-line">
+            <div role="tablist" aria-label={t('admin.title')} className="flex gap-1 overflow-x-auto border-b border-line">
               {SECTIONS.map((id) => (
                 <button
                   key={id}
@@ -107,25 +113,27 @@ export function AdminApp() {
                   aria-selected={section === id}
                   aria-controls="admin-section"
                   onClick={() => openSection(id)}
-                  className={`-mb-px h-11 border-b-2 px-4 text-sm font-medium ${
+                  className={`-mb-px h-11 shrink-0 border-b-2 px-4 text-sm font-medium whitespace-nowrap ${
                     section === id ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'
                   }`}
                 >
                   {t(`admin.${id}.title`)}
-                  {id === 'reports' && openReports > 0 && (
+                  {(waiting[id] ?? 0) > 0 && (
                     <span className="ms-2 rounded-full bg-danger px-1.5 py-0.5 text-xs font-semibold text-accent-fg">
-                      <span className="sr-only">{t('admin.reports.openCount', { count: openReports })}</span>
-                      <span aria-hidden="true">{openReports}</span>
+                      <span className="sr-only">{t(`admin.${id}.openCount`, { count: waiting[id] })}</span>
+                      <span aria-hidden="true">{waiting[id]}</span>
                     </span>
                   )}
                 </button>
               ))}
             </div>
             <div role="tabpanel" id="admin-section" aria-labelledby={`admin-tab-${section}`}>
-              {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshReportCount} />}
+              {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshCounts} />}
               {section === 'users' && <AdminUsers catalog={catalog} />}
               {section === 'posts' && <AdminPosts catalog={catalog} />}
               {section === 'messages' && <AdminMessages catalog={catalog} />}
+              {section === 'contact' && <AdminContact catalog={catalog} onChanged={refreshCounts} />}
+              {section === 'log' && <AdminLog />}
             </div>
           </div>
         ) : (
