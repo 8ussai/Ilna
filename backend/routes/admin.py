@@ -18,7 +18,7 @@ from backend.core.security import (
     get_password_hash,
     verify_password,
 )
-from backend.database import SessionLocal, get_db
+from backend.database import SessionLocal, get_db, utc_now
 from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.contact import ContactMessage
 from backend.models.course import Course, CourseMaterial
@@ -74,11 +74,6 @@ logger = logging.getLogger(__name__)
 CODE_REQUESTED = {"detail": "If that is the admin email, a code was sent."}
 
 
-def _now() -> datetime:
-    # admin_codes times are stored in UTC without an offset, like the users.otp_* times
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
 def _is_admin_email(email: str) -> bool:
     return bool(backendConfig.ADMIN_EMAIL) and secrets.compare_digest(
         email.strip().lower().encode(), backendConfig.ADMIN_EMAIL.encode()
@@ -90,7 +85,7 @@ def _send_admin_code() -> None:
     Runs after the response, so a right and a wrong email take the same time to answer."""
     db = SessionLocal()
     try:
-        now = _now()
+        now = utc_now()
         latest = db.query(AdminCode).order_by(AdminCode.id.desc()).first()
         if latest and now - latest.sent_at < timedelta(seconds=backendConfig.OTP_RESEND_COOLDOWN_SECONDS):
             return
@@ -132,7 +127,7 @@ def verify_code(data: AdminCodeVerify, db: Session = Depends(get_db)):
         raise wrong_code
 
     latest = db.query(AdminCode).order_by(AdminCode.id.desc()).first()
-    if not latest or not latest.code_hash or _now() > latest.expires_at:
+    if not latest or not latest.code_hash or utc_now() > latest.expires_at:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired")
     if latest.attempts >= backendConfig.OTP_MAX_ATTEMPTS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many attempts")
@@ -284,7 +279,7 @@ def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, 
     user = _get_student(db, user_id)
     user.is_banned = True
     user.banned_reason = data.reason
-    user.banned_at = _now()
+    user.banned_at = utc_now()
     db.add(AdminLog(action="ban", target_type="user", target_id=user.id,
                     details=json.dumps({"username": user.username, "reason": data.reason}, ensure_ascii=False)))
     db.commit()
@@ -313,7 +308,7 @@ def _set_test_password(user: User) -> str:
     password = generate_password()
     user.hashed_password = get_password_hash(password)
     user.test_password_enc = encrypt_secret(password)
-    user.password_changed_at = _now()
+    user.password_changed_at = utc_now()
     return password
 
 
@@ -405,7 +400,7 @@ def grant_premium(user_id: int, db: Session = Depends(get_db)):
         return _with_counts(db, [user])[0]
 
     user.is_premium = True
-    user.premium_since = _now()
+    user.premium_since = utc_now()
     db.add(Notification(user_id=user.id, actor_id=get_admin_account(db).id, type=NotificationType.premium_granted.value))
     db.add(AdminLog(action="premium", target_type="user", target_id=user.id,
                     details=json.dumps({"username": user.username}, ensure_ascii=False)))
@@ -463,7 +458,7 @@ def _post_out(post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
         author=post.author,
         is_admin_post=post.author.is_system,
         pinned_until=post.pinned_until,
-        is_pinned=post.pinned_until is not None and post.pinned_until > _now(),
+        is_pinned=post.pinned_until is not None and post.pinned_until > utc_now(),
         votes_count=votes_count,
         replies_count=replies_count,
     )
@@ -687,7 +682,7 @@ def dismiss_reports(data: ReportTarget, db: Session = Depends(get_db)):
     if not reports:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No open reports on that")
 
-    now = _now()
+    now = utc_now()
     for report in reports:
         report.status = "dismissed"
         report.resolved_at = now
@@ -750,7 +745,7 @@ def _admin_post(db: Session, post_id: int) -> Post:
 
 
 def _pin_until(hours: int | None) -> datetime | None:
-    return None if hours is None else _now() + timedelta(hours=hours)
+    return None if hours is None else utc_now() + timedelta(hours=hours)
 
 
 @router.post("/posts", response_model=AdminPostOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(get_admin)])
@@ -840,7 +835,7 @@ def mark_contact_handled(message_id: int, data: HandledRequest, db: Session = De
     message = db.query(ContactMessage).filter(ContactMessage.id == message_id).first()
     if not message:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
-    message.handled_at = _now() if data.handled else None
+    message.handled_at = utc_now() if data.handled else None
     db.commit()
     db.refresh(message)
     return message

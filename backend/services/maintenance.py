@@ -4,12 +4,12 @@ The state comes from the clock alone, so the site opens again by itself at ends_
 The window is read on every request, so it's cached for a few seconds and dropped whenever the admin changes it."""
 import time
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Literal, Optional
 
 from backend.backendConfig import MAINTENANCE_CACHE_SECONDS
 from backend.core.security import is_maintenance_bypass
-from backend.database import SessionLocal
+from backend.database import SessionLocal, utc_now
 from backend.models.admin import Maintenance
 from backend.schemas.maintenance import MaintenanceStatus
 
@@ -27,10 +27,6 @@ class Window:
 _cache: dict = {"read_at": 0.0, "window": None}
 
 
-def now() -> datetime:
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
 def current_window() -> Optional[Window]:
     """The saved window, or None; one that already ended counts as none."""
     if time.monotonic() - _cache["read_at"] > MAINTENANCE_CACHE_SECONDS:
@@ -42,7 +38,7 @@ def current_window() -> Optional[Window]:
             db.close()
         _cache["read_at"] = time.monotonic()
     window = _cache["window"]
-    return window if window and window.ends_at > now() else None
+    return window if window and window.ends_at > utc_now() else None
 
 
 def forget_cached() -> None:
@@ -51,9 +47,9 @@ def forget_cached() -> None:
 
 
 def state(window: Optional[Window]) -> State:
-    if window is None or window.ends_at <= now():
+    if window is None or window.ends_at <= utc_now():
         return "off"
-    return "scheduled" if window.starts_at > now() else "on"
+    return "scheduled" if window.starts_at > utc_now() else "on"
 
 
 def allows_bypass(token: str) -> bool:
@@ -67,7 +63,7 @@ def status_out(window: Optional[Window], bypass: bool = False) -> MaintenanceSta
         message=window.message if window and current != "off" else None,
         starts_at=window.starts_at if window and current != "off" else None,
         ends_at=window.ends_at if window and current != "off" else None,
-        server_now=now(),
+        server_now=utc_now(),
         bypass=bypass,
     )
 
@@ -79,5 +75,5 @@ def closed_detail(window: Window) -> dict:
         "message": window.message,
         "starts_at": window.starts_at.isoformat(),
         "ends_at": window.ends_at.isoformat(),
-        "server_now": now().isoformat(),
+        "server_now": utc_now().isoformat(),
     }

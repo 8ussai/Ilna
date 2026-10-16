@@ -1,12 +1,10 @@
-from datetime import datetime, timezone
-
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import case, func, select
 
 from backend.backendConfig import HOT_REPLY_WEIGHT
 from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
-from backend.database import get_db
+from backend.database import get_db, utc_now
 from backend.models.user import User
 from backend.models.post import Post, PostVote, Reply
 from backend.core.apiDependencies import get_current_user, get_full_user
@@ -42,13 +40,8 @@ def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0, replies_cou
         replies_count=replies_count,
         author=post.author,
         is_admin_post=post.author.is_system,
-        is_pinned=post.pinned_until is not None and post.pinned_until > _utc_now(),
+        is_pinned=post.pinned_until is not None and post.pinned_until > utc_now(),
     )
-
-
-def _utc_now() -> datetime:
-    # pinned_until is stored in UTC without an offset
-    return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
 def can_see_post(post: Post, user: User) -> bool:
@@ -123,7 +116,7 @@ def get_posts(
     query = _scope_filter(query, scope, current_user).group_by(Post.id)
 
     # a pinned admin post stays on top until its time runs out, whatever the sort
-    query = query.order_by(case((Post.pinned_until > _utc_now(), 0), else_=1))
+    query = query.order_by(case((Post.pinned_until > utc_now(), 0), else_=1))
     newest = (Post.created_at.desc(), Post.id.desc())
     if sort == PostSort.new:
         query = query.order_by(*newest)

@@ -54,7 +54,7 @@ export function serializeDrawing(drawing: Drawing) {
   })
 }
 
-export function strokeWidth(stroke: Pick<Stroke, 'tool' | 'size'>) {
+function strokeWidth(stroke: Pick<Stroke, 'tool' | 'size'>) {
   return stroke.tool === 'highlighter' ? stroke.size * HIGHLIGHTER_SCALE : stroke.size
 }
 
@@ -103,7 +103,7 @@ export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke, last =
   ctx.restore()
 }
 
-export function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
+function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
   ctx.save()
   ctx.fillStyle = '#ffffff'
   ctx.fillRect(0, 0, PAGE_WIDTH, PAGE_HEIGHT)

@@ -2,11 +2,11 @@ export const TABS = ['general', 'university', 'college', 'major', 'my-courses'] 
 export type Tab = (typeof TABS)[number]
 
 // 'home' is the settings menu itself (/settings); the rest are its sub-pages (/settings/<page>)
-export const SETTINGS_PAGES = ['home', 'account', 'activity', 'storage', 'policy'] as const
+const SETTINGS_PAGES = ['home', 'account', 'activity', 'storage', 'policy'] as const
 export type SettingsPage = (typeof SETTINGS_PAGES)[number]
 
 // pages linked from the account drawer, each at /<page>
-export const DRAWER_PAGES = ['notifications', 'contact'] as const
+const DRAWER_PAGES = ['notifications', 'contact'] as const
 export type DrawerPage = (typeof DRAWER_PAGES)[number]
 
 // the tabs inside a course page, kept in the URL hash (/course/<id>#recordings)
@@ -16,7 +16,7 @@ export type CourseSection = (typeof COURSE_SECTIONS)[number]
 
 // the tab each kind of AI study item lives in
 export const STUDY_SECTIONS = { summary: 'summaries', quiz: 'quizzes' } as const satisfies Record<string, CourseSection>
-export type StudySection = (typeof STUDY_SECTIONS)[keyof typeof STUDY_SECTIONS]
+type StudySection = (typeof STUDY_SECTIONS)[keyof typeof STUDY_SECTIONS]
 
 export type Route =
   | { kind: 'tab'; tab: Tab }

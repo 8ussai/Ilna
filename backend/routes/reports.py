@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from backend.backendConfig import REPORTS_PER_HOUR
 from backend.core.apiDependencies import get_current_user
-from backend.database import get_db
+from backend.database import get_db, utc_now
 from backend.models.admin import Report
 from backend.models.post import Post, Reply
 from backend.models.user import User
@@ -26,7 +26,7 @@ def _check_can_report(db: Session, user: User, post: Post, author: User | None) 
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Admin posts can't be reported.")
 
     # created_at is stored in UTC without an offset, so compare against a naive UTC time
-    an_hour_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1)
+    an_hour_ago = utc_now() - timedelta(hours=1)
     made_last_hour = (
         db.query(func.count(Report.id))
         .filter(Report.reporter_id == user.id, Report.created_at > an_hour_ago)

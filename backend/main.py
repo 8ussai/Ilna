@@ -1,13 +1,11 @@
-import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
-from sqlalchemy import inspect, text
 
-from backend.database import engine, Base, SessionLocal
+from backend.database import Base, SessionLocal, engine, utc_now
 # imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
 from backend.routes import admin, admin_maintenance, auth, contact, me, posts, replies, reports, courses, meta, study
@@ -93,7 +91,7 @@ async def _maintenance_gate(request: Request, call_next):
     auth = request.headers.get("authorization", "")
     if auth.lower().startswith("bearer ") and maintenance.allows_bypass(auth[7:].strip()):
         return await call_next(request)
-    seconds_left = max(1, int((window.ends_at - maintenance.now()).total_seconds()))
+    seconds_left = max(1, int((window.ends_at - utc_now()).total_seconds()))
     return JSONResponse(
         status_code=503,
         content={"detail": maintenance.closed_detail(window)},
@@ -119,127 +117,6 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
-
-# create_all doesn't add columns to existing tables, so add posts.scope to older databases
-if "scope" not in {column["name"] for column in inspect(engine).get_columns("posts")}:
-    with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE posts ADD COLUMN scope VARCHAR NOT NULL DEFAULT 'general'"))
-
-# same for course_materials.size_bytes; files uploaded before it existed get their size read from disk once
-if "size_bytes" not in {column["name"] for column in inspect(engine).get_columns("course_materials")}:
-    with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE course_materials ADD COLUMN size_bytes INTEGER NOT NULL DEFAULT 0"))
-        for material_id, file_path in connection.execute(text("SELECT id, file_path FROM course_materials")).all():
-            # a file missing from disk counts as 0
-            size = os.path.getsize(file_path) if os.path.isfile(file_path) else 0
-            connection.execute(
-                text("UPDATE course_materials SET size_bytes = :size WHERE id = :id"),
-                {"size": size, "id": material_id},
-            )
-
-
-def _add_missing_columns(table: str, columns: dict):
-    """Adds each column (name -> SQL type and default) that the table doesn't have yet."""
-    existing = {column["name"] for column in inspect(engine).get_columns(table)}
-    with engine.begin() as connection:
-        for name, definition in columns.items():
-            if name not in existing:
-                connection.execute(text(f"ALTER TABLE {table} ADD COLUMN {name} {definition}"))
-
-
-# courses workspace: colors, kinds and recordings
-_add_missing_columns("courses", {
-    "color": "VARCHAR",
-    "last_opened_at": "DATETIME",
-})
-# every material uploaded before this was a pdf or ppt
-_add_missing_columns("course_materials", {
-    "kind": "VARCHAR NOT NULL DEFAULT 'document'",
-    "mime_type": "VARCHAR",
-    "duration_sec": "FLOAT",
-})
-# each kind of AI study item has its own daily limit now
-_add_missing_columns("study_generations", {
-    "kind": "VARCHAR",
-})
-_add_missing_columns("course_notes", {
-    "kind": "VARCHAR NOT NULL DEFAULT 'text'",
-    "indexed_at": "DATETIME",
-})
-# accounts made before sign-up codes existed count as verified
-_add_missing_columns("users", {
-    "is_verified": "BOOLEAN NOT NULL DEFAULT 1",
-    "otp_hash": "VARCHAR",
-    "otp_sent_at": "DATETIME",
-    "otp_expires_at": "DATETIME",
-    "otp_attempts": "INTEGER NOT NULL DEFAULT 0",
-})
-# forgot password, and logging out every session when the password changes
-_add_missing_columns("users", {
-    "reset_hash": "VARCHAR",
-    "reset_sent_at": "DATETIME",
-    "reset_expires_at": "DATETIME",
-    "reset_attempts": "INTEGER NOT NULL DEFAULT 0",
-    "password_changed_at": "DATETIME",
-})
-# admin panel: bans and the hidden admin account
-_add_missing_columns("users", {
-    "is_banned": "BOOLEAN NOT NULL DEFAULT 0",
-    "banned_reason": "VARCHAR",
-    "banned_at": "DATETIME",
-    "is_system": "BOOLEAN NOT NULL DEFAULT 0",
-})
-# test accounts made from the admin panel
-_add_missing_columns("users", {
-    "is_test": "BOOLEAN NOT NULL DEFAULT 0",
-    "is_active": "BOOLEAN NOT NULL DEFAULT 1",
-    "test_password_enc": "VARCHAR",
-})
-# premium, turned on from the admin panel
-_add_missing_columns("users", {
-    "is_premium": "BOOLEAN NOT NULL DEFAULT 0",
-    "premium_since": "DATETIME",
-})
-_add_missing_columns("posts", {
-    "pinned_until": "DATETIME",
-})
-_add_missing_columns("replies", {
-    "removed_by_admin": "BOOLEAN NOT NULL DEFAULT 0",
-})
-_add_missing_columns("contact_messages", {
-    "handled_at": "DATETIME",
-})
-
-
-# usernames are lowercase letters and numbers now; lowercase older ones unless that would clash with another account
-with engine.begin() as _connection:
-    _connection.execute(text(
-        "UPDATE users SET username = lower(username) "
-        "WHERE is_system = 0 AND username != lower(username) "
-        "AND lower(username) NOT IN (SELECT username FROM users)"
-    ))
-
-
-# admin notifications have no post, but SQLite can't drop NOT NULL from notifications.post_id,
-# so older databases get the table rebuilt once with every row copied over
-def _rebuild_notifications_table():
-    columns = {column["name"]: column for column in inspect(engine).get_columns("notifications")}
-    if columns["post_id"]["nullable"] and "message" in columns:
-        return
-    old_columns = ", ".join(columns)
-    with engine.begin() as connection:
-        connection.execute(text("ALTER TABLE notifications RENAME TO notifications_old"))
-        # indexes keep their names when the table is renamed; drop them so the new table can have them
-        for (index_name,) in connection.execute(text(
-            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'notifications_old' AND sql IS NOT NULL"
-        )).all():
-            connection.execute(text(f'DROP INDEX "{index_name}"'))
-        notification.Notification.__table__.create(connection)
-        connection.execute(text(f"INSERT INTO notifications ({old_columns}) SELECT {old_columns} FROM notifications_old"))
-        connection.execute(text("DROP TABLE notifications_old"))
-
-
-_rebuild_notifications_table()
 
 with SessionLocal() as _db:
     get_admin_account(_db)

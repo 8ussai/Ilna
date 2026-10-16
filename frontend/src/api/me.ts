@@ -36,7 +36,7 @@ export function fetchUsage() {
   return authRequest<Usage>('/me/usage')
 }
 
-export type NotificationType =
+type NotificationType =
   | 'post_vote'
   | 'reply_vote'
   | 'post_reply'

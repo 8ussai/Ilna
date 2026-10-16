@@ -1,4 +1,5 @@
 import math
+from datetime import datetime, timezone
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import declarative_base
@@ -21,6 +22,12 @@ def _register_sqlite_functions(dbapi_connection, _):
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
+
+
+def utc_now() -> datetime:
+    """Now, in UTC without an offset: how every time is stored (SQLite keeps no time zone)."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
 
 def get_db():
     db = SessionLocal()

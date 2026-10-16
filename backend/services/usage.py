@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
+from backend.database import utc_now
 from backend.backendConfig import (
     COURSE_LIMIT,
     PREMIUM_STORAGE_LIMIT_BYTES,
@@ -18,7 +19,7 @@ from backend.models.user import User
 def study_usage(db: Session, user_id: int, kind: str) -> tuple[int, datetime | None]:
     """How many of this kind the user started in the window, and when the oldest of them leaves it (in UTC)."""
     # created_at is stored in UTC without an offset, so compare against a naive UTC time
-    window_start = datetime.now(timezone.utc).replace(tzinfo=None) - STUDY_LIMIT_WINDOW
+    window_start = utc_now() - STUDY_LIMIT_WINDOW
     used, oldest = (
         db.query(func.count(StudyGeneration.id), func.min(StudyGeneration.created_at))
         .filter(

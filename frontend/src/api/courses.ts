@@ -32,7 +32,7 @@ export type CourseSummary = Course & {
   notes_count: number
 }
 
-export type TranscriptStatus = 'pending' | 'processing' | 'done' | 'failed'
+type TranscriptStatus = 'pending' | 'processing' | 'done' | 'failed'
 
 export type CourseMaterial = {
   id: number

@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from backend.backendConfig import MAINTENANCE_MAX_WINDOW
 from backend.core.apiDependencies import get_admin
 from backend.core.security import create_maintenance_bypass_token
-from backend.database import get_db
+from backend.database import get_db, utc_now
 from backend.models.admin import AdminLog, Maintenance
 from backend.models.user import User
 from backend.schemas.maintenance import MaintenanceBypass, MaintenanceSchedule, MaintenanceStatus
@@ -28,7 +28,7 @@ def get_maintenance():
 @router.put("", response_model=MaintenanceStatus)
 def schedule_maintenance(data: MaintenanceSchedule, db: Session = Depends(get_db)):
     """Closes the site from starts_at (or now) until ends_at; also changes a window that's scheduled or on."""
-    now = maintenance.now()
+    now = utc_now()
     # a start in the past means now
     starts_at = max(data.starts_at or now, now)
     if data.ends_at <= starts_at + timedelta(minutes=1):
@@ -56,7 +56,7 @@ def schedule_maintenance(data: MaintenanceSchedule, db: Session = Depends(get_db
 def end_maintenance(db: Session = Depends(get_db)):
     """Opens the site now, or cancels a scheduled window."""
     row = db.get(Maintenance, 1)
-    if row and row.ends_at > maintenance.now():
+    if row and row.ends_at > utc_now():
         details = _window_details(row)
         details["was"] = maintenance.state(maintenance.Window(row.message, row.starts_at, row.ends_at))
         db.add(AdminLog(action="maintenance_end", details=json.dumps(details, ensure_ascii=False)))

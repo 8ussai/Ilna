@@ -1,6 +1,6 @@
 import logging
 import smtplib
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import func
@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from backend.backendConfig import CONTACT_MESSAGES_PER_HOUR
 from backend.core.apiDependencies import get_full_user
-from backend.database import get_db
+from backend.database import get_db, utc_now
 from backend.models.contact import ContactMessage
 from backend.models.user import User
 from backend.schemas.contact import ContactCreate
@@ -31,7 +31,7 @@ def send_contact_message(
         )
 
     # created_at is stored in UTC without an offset, so compare against a naive UTC time
-    an_hour_ago = datetime.now(timezone.utc).replace(tzinfo=None) - timedelta(hours=1)
+    an_hour_ago = utc_now() - timedelta(hours=1)
     sent_last_hour = (
         db.query(func.count(ContactMessage.id))
         .filter(ContactMessage.user_id == current_user.id, ContactMessage.created_at > an_hour_ago)

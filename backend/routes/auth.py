@@ -1,7 +1,7 @@
 import logging
 import secrets
 import smtplib
-from datetime import datetime, timedelta, timezone
+from datetime import timedelta
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from backend import backendConfig
 from backend.core.apiDependencies import ACCOUNT_SUSPENDED, TEST_ACCOUNT_NOT_ALLOWED, TEST_ACCOUNT_OFF, get_current_user
 from backend.core.security import create_access_token, get_password_hash, verify_password
-from backend.database import SessionLocal, get_db
+from backend.database import SessionLocal, get_db, utc_now
 from backend.models.user import User
 from backend.schemas.user import (
     OtpResend,
@@ -34,15 +34,10 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def _now() -> datetime:
-    # the otp_* times are stored in UTC without an offset
-    return datetime.now(timezone.utc).replace(tzinfo=None)
-
-
 def _send_code(user: User, db: Session) -> None:
     """Emails the user a new sign-up code, unless one was sent within the cooldown.
     Raises 502 if the email can't be sent."""
-    now = _now()
+    now = utc_now()
     if user.otp_sent_at and now - user.otp_sent_at < timedelta(seconds=backendConfig.OTP_RESEND_COOLDOWN_SECONDS):
         return
 
@@ -115,7 +110,7 @@ def verify_otp(otp_data: OtpVerify, db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
     if user.otp_attempts >= backendConfig.OTP_MAX_ATTEMPTS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many attempts")
-    if _now() > user.otp_expires_at:
+    if utc_now() > user.otp_expires_at:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired")
 
     if not verify_password(otp_data.code.strip(), user.otp_hash):
@@ -157,7 +152,7 @@ def _find_login(identifier: str, db: Session) -> User | None:
 def _set_password(user: User, password: str) -> None:
     """Saves a new password and ends every login made before it."""
     user.hashed_password = get_password_hash(password)
-    user.password_changed_at = _now()
+    user.password_changed_at = utc_now()
 
 
 def _send_password_changed(user_id: int) -> None:
@@ -183,7 +178,7 @@ def _send_reset_code(identifier: str) -> None:
         # only accounts that can log in and have a real email; one never verified finishes sign-up by logging in instead
         if not user or user.is_system or user.is_test or user.is_banned or not user.is_verified:
             return
-        now = _now()
+        now = utc_now()
         if user.reset_sent_at and now - user.reset_sent_at < timedelta(seconds=backendConfig.OTP_RESEND_COOLDOWN_SECONDS):
             return
 
@@ -225,7 +220,7 @@ def reset_password(data: PasswordReset, background_tasks: BackgroundTasks, db: S
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
     if user.reset_attempts >= backendConfig.OTP_MAX_ATTEMPTS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many attempts")
-    if _now() > user.reset_expires_at:
+    if utc_now() > user.reset_expires_at:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired")
 
     if not verify_password(data.code.strip(), user.reset_hash):

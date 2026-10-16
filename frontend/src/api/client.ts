@@ -48,7 +48,7 @@ export function setMaintenanceHandler(handler: (() => void) | null) {
 }
 
 // the 503 detail while the site is closed (backend/services/maintenance.py closed_detail)
-export function isMaintenanceDetail(detail: unknown) {
+function isMaintenanceDetail(detail: unknown) {
   return !!detail && typeof detail === 'object' && 'code' in detail && detail.code === 'maintenance'
 }
 

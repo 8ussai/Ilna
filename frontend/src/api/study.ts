@@ -1,14 +1,14 @@
 import { authRequest } from './client'
 
 export type StudyKind = 'summary' | 'quiz'
-export type StudyStatus = 'pending' | 'processing' | 'done' | 'failed'
+type StudyStatus = 'pending' | 'processing' | 'done' | 'failed'
 export type StudyLanguage = 'ar' | 'en'
 export const STUDY_LANGUAGES: StudyLanguage[] = ['en', 'ar']
 // each language named in itself, like a language menu, whatever language the page is in
 export const LANGUAGE_NAMES: Record<StudyLanguage, string> = { en: 'English', ar: 'العربية' }
 
 // why writing or translating one failed (the backend's study_generator.ERRORS)
-export type StudyErrorCode = 'quota' | 'no_text' | 'empty_answer' | 'no_summary' | 'no_questions' | 'bad_translation' | 'other'
+type StudyErrorCode = 'quota' | 'no_text' | 'empty_answer' | 'no_summary' | 'no_questions' | 'bad_translation' | 'other'
 
 export type SummaryLength = 'brief' | 'detailed'
 export const QUESTION_COUNTS = [5, 10, 15, 20] as const
@@ -128,12 +128,7 @@ export function updateStudyItem(courseId: number, itemId: number, changes: { tit
   return authRequest<StudyItemSummary>(`/courses/${courseId}/study/${itemId}`, { method: 'PATCH', headers: json, body: JSON.stringify(changes) })
 }
 
-// the other of the two languages
-export function otherLanguage(language: StudyLanguage): StudyLanguage {
-  return language === 'ar' ? 'en' : 'ar'
-}
-
-export type QuestionResult = {
+type QuestionResult = {
   chosen: number | null
   correct_index: number
   is_correct: boolean

@@ -3,14 +3,13 @@ uvicorn
 sqlalchemy
 pydantic
 passlib[bcrypt]
-python-jose
 python-multipart
 email-validator
 python-jose[cryptography]
 python-dotenv
 
-langchain
 langchain-community
+langchain-text-splitters
 langchain-huggingface
 langchain_chroma
 chromadb

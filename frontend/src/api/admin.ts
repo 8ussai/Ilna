@@ -29,7 +29,7 @@ export function setAdminUnauthorizedHandler(handler: (() => void) | null) {
   onAdminUnauthorized = handler
 }
 
-export async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   const token = getAdminToken()
   if (token) headers.set('Authorization', `Bearer ${token}`)

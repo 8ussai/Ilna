@@ -21,8 +21,6 @@ def _run():
         except Exception:
             # a job reports its own failures; this only keeps the worker alive if one slips through
             traceback.print_exc()
-        finally:
-            _queue.task_done()
 
 
 def submit(job, *args):
@@ -32,8 +30,3 @@ def submit(job, *args):
             _worker = threading.Thread(target=_run, name="ai-jobs", daemon=True)
             _worker.start()
     _queue.put((job, args))
-
-
-def wait_until_idle():
-    """Blocks until every submitted job has finished (used by tests and scripts)."""
-    _queue.join()
