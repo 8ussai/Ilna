@@ -72,6 +72,18 @@ export function AdminApp() {
   }, [])
 
   useEffect(() => {
+    // on a phone the tab row scrolls; keep the open tab in sight (again once the badges widen the tabs)
+    document.getElementById(`admin-tab-${section}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
+  }, [section, token, waiting])
+
+  useEffect(() => {
+    // a link to /admin#users, or the hash edited by hand, switches the tab without a reload
+    const onHashChange = () => setSection(sectionFromHash())
+    window.addEventListener('hashchange', onHashChange)
+    return () => window.removeEventListener('hashchange', onHashChange)
+  }, [])
+
+  useEffect(() => {
     if (!token) return
     // names just fall back to blank if this fails
     fetchCatalog().then(setCatalog).catch(() => {})
@@ -103,7 +115,7 @@ export function AdminApp() {
                 </p>
               )}
             </div>
-            <div role="tablist" aria-label={t('admin.title')} className="flex gap-1 overflow-x-auto border-b border-line">
+            <div role="tablist" aria-label={t('admin.title')} className="relative flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line">
               {SECTIONS.map((id) => (
                 <button
                   key={id}
@@ -113,7 +125,7 @@ export function AdminApp() {
                   aria-selected={section === id}
                   aria-controls="admin-section"
                   onClick={() => openSection(id)}
-                  className={`-mb-px h-11 shrink-0 border-b-2 px-4 text-sm font-medium whitespace-nowrap ${
+                  className={`h-11 shrink-0 border-b-2 px-4 text-sm font-medium whitespace-nowrap ${
                     section === id ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'
                   }`}
                 >

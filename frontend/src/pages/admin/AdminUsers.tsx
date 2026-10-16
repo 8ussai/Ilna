@@ -201,7 +201,9 @@ function UserRow({
             <span className="font-medium">
               {user.first_name} {user.last_name}
             </span>
-            <span className="text-sm text-muted">@{user.username}</span>
+            <span dir="ltr" className="text-sm text-muted">
+              @{user.username}
+            </span>
             {user.is_banned && (
               <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">{t('admin.users.banned')}</span>
             )}

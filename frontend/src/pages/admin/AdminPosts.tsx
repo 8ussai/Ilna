@@ -492,7 +492,9 @@ function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highli
             <span className="font-medium">
               {reply.author.first_name} {reply.author.last_name}
             </span>
-            <span className="text-muted">@{reply.author.username}</span>
+            <span dir="ltr" className="text-muted">
+              @{reply.author.username}
+            </span>
           </>
         ) : (
           <span className="text-muted italic">{t('replies.deletedAuthor')}</span>

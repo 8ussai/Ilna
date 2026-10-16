@@ -137,7 +137,7 @@ function ReportRow({
         </span>
         {group.target_type === 'reply' && (
           <span className="text-muted">
-            {t('admin.reports.onPost')} <span dir="ltr">#P{group.post_id}</span>
+            {t('admin.reports.onPost')} <bdi dir="ltr">#P{group.post_id}</bdi>
           </span>
         )}
         <span className="text-muted">
@@ -149,12 +149,14 @@ function ReportRow({
       <div className="mt-3 flex items-start gap-3">
         <UserAvatar username={group.author.username} size={32} />
         <div className="min-w-0 flex-1">
-          <p className="text-sm">
+          <p className="flex flex-wrap items-center gap-x-2 text-sm">
             <span className="font-medium">
               {group.author.first_name} {group.author.last_name}
             </span>
-            <span className="ms-2 text-muted">@{group.author.username}</span>
-            <span className="ms-2 text-muted">· {formatDateTime(parseServerDate(group.created_at), i18n.language)}</span>
+            <span dir="ltr" className="text-muted">
+              @{group.author.username}
+            </span>
+            <span className="text-muted">· {formatDateTime(parseServerDate(group.created_at), i18n.language)}</span>
           </p>
           <p dir="auto" className="mt-1 line-clamp-4 whitespace-pre-wrap break-words">
             {group.content}
@@ -165,10 +167,13 @@ function ReportRow({
       <ul className="mt-3 space-y-1.5 rounded-xl bg-surface px-3 py-2.5 text-sm">
         {group.reports.map((report, i) => (
           <li key={i}>
-            <span className="font-medium">{t(`report.reasons.${report.reason}`)}</span>
-            <span className="text-muted">
-              {' '}
-              · @{report.reporter.username} · {formatDateTime(parseServerDate(report.created_at), i18n.language)}
+            <span className="flex flex-wrap items-center gap-x-1.5">
+              <span className="font-medium">{t(`report.reasons.${report.reason}`)}</span>
+              <span className="text-muted">·</span>
+              <span dir="ltr" className="text-muted">
+                @{report.reporter.username}
+              </span>
+              <span className="text-muted">· {formatDateTime(parseServerDate(report.created_at), i18n.language)}</span>
             </span>
             {report.note && (
               <span dir="auto" className="mt-0.5 block text-muted">

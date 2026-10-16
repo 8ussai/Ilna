@@ -139,10 +139,15 @@ function ContactCard({ message, catalog, onToggle }: { message: AdminContactMess
         </h3>
         <span className="text-sm text-muted">{formatDateTime(parseServerDate(message.created_at), i18n.language)}</span>
       </div>
-      <p className="mt-1 text-sm text-muted">
-        {sender.first_name} {sender.last_name} · @{sender.username} ·{' '}
+      <p className="mt-1 flex flex-wrap items-center gap-x-1.5 text-sm text-muted">
+        <span>
+          {sender.first_name} {sender.last_name}
+        </span>
+        <span>·</span>
+        <span dir="ltr">@{sender.username}</span>
+        <span>·</span>
         <span dir="ltr">{sender.email}</span>
-        {origin && ` · ${origin}`}
+        {origin && <span>· {origin}</span>}
       </p>
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
         {message.message}
