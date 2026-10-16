@@ -577,7 +577,8 @@
       "adminBadge": "Admin",
       "adminMessage": "Message from {{name}}",
       "showAll": "Show all",
-      "showLess": "Show less"
+      "showLess": "Show less",
+      "premiumGranted": "{{name}} upgraded your account to Premium: unlimited summaries and quizzes, 5 GB of storage, and a gold name."
     },
     "password": {
       "title": "Change password",
@@ -745,7 +746,13 @@
       "deleteExplain": "This permanently removes the account and everything in it: posts, replies, votes, courses, files and quizzes. Their replies that others answered stay as \"[deleted]\". This can't be undone.",
       "deleteType": "Type {{username}} to confirm",
       "deleteConfirm": "Delete for good",
-      "deletedNotice": "@{{username}} and everything in the account was deleted."
+      "deletedNotice": "@{{username}} and everything in the account was deleted.",
+      "premiumOnly": "Premium only",
+      "premiumSince": "Premium since {{date}}",
+      "makePremium": "Make premium",
+      "removePremium": "Remove premium",
+      "premiumNotice": "@{{username}} is now Premium and was notified.",
+      "premiumRemovedNotice": "@{{username}} is no longer Premium."
     },
     "reason": "Reason",
     "reasonTooLong": "Keep the reason under 500 characters.",
@@ -880,7 +887,9 @@
         "admin_post": "Admin post",
         "pin": "Pinned",
         "unpin": "Unpinned",
-        "delete_admin_post": "Deleted admin post"
+        "delete_admin_post": "Deleted admin post",
+        "premium": "Made premium",
+        "unpremium": "Removed premium"
       }
     }
   },
@@ -901,5 +910,19 @@
     "note": "Anything to add? (optional)",
     "submit": "Send report",
     "tooMany": "You've sent a lot of reports. Please try again in an hour."
+  },
+  "premium": {
+    "label": "Premium",
+    "upgrade": "Upgrade to Premium",
+    "youArePremium": "You're Premium",
+    "soonBadge": "Soon",
+    "soon": "Premium is coming soon.",
+    "activeIntro": "Your account has Premium:",
+    "perks": {
+      "study": "Unlimited AI summaries and quizzes",
+      "storage": "5 GB of storage instead of 1 GB",
+      "name": "Your name and username in gold, with a crown"
+    },
+    "ok": "OK"
   }
 }

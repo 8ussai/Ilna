@@ -200,11 +200,14 @@ def _with_counts(db: Session, users: list[User]) -> list[AdminUserOut]:
 @router.get("/users", response_model=AdminUserPage, dependencies=[Depends(get_admin)])
 def list_users(
     q: str = Query("", max_length=100, description="Part of a name, username or email; empty lists everyone."),
+    premium: bool = Query(False, description="Only premium students."),
     limit: int = Query(25, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
 ):
     query = db.query(User).filter(User.is_system.is_(False))
+    if premium:
+        query = query.filter(User.is_premium.is_(True))
     # every word has to match somewhere, so "ahmad ali" finds Ahmad Ali
     for word in q.strip().split():
         like = f"%{word}%"
@@ -276,6 +279,40 @@ def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, 
 
     if smtp_configured():
         background_tasks.add_task(_email_quietly, send_suspended_email, user, data.reason)
+    return _with_counts(db, [user])[0]
+
+
+@router.post("/users/{user_id}/premium", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def grant_premium(user_id: int, db: Session = Depends(get_db)):
+    """Premium lasts until it's turned off here. The student gets a notification."""
+    user = _get_student(db, user_id)
+    if user.is_premium:
+        return _with_counts(db, [user])[0]
+
+    user.is_premium = True
+    user.premium_since = _now()
+    db.add(Notification(user_id=user.id, actor_id=get_admin_account(db).id, type=NotificationType.premium_granted.value))
+    db.add(AdminLog(action="premium", target_type="user", target_id=user.id,
+                    details=json.dumps({"username": user.username}, ensure_ascii=False)))
+    db.commit()
+    db.refresh(user)
+    return _with_counts(db, [user])[0]
+
+
+@router.post("/users/{user_id}/unpremium", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def remove_premium(user_id: int, db: Session = Depends(get_db)):
+    """Back to the normal limits; files already over the normal storage limit are kept, but no more can be uploaded."""
+    user = _get_student(db, user_id)
+    if not user.is_premium:
+        return _with_counts(db, [user])[0]
+
+    db.add(AdminLog(action="unpremium", target_type="user", target_id=user.id,
+                    details=json.dumps({"username": user.username, "premium_since": user.premium_since.isoformat() if user.premium_since else None},
+                                       ensure_ascii=False)))
+    user.is_premium = False
+    user.premium_since = None
+    db.commit()
+    db.refresh(user)
     return _with_counts(db, [user])[0]
 
 

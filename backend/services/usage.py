@@ -3,8 +3,14 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
-from backend.backendConfig import STUDY_DAILY_LIMITS
+from backend.backendConfig import (
+    PREMIUM_STORAGE_LIMIT_BYTES,
+    PREMIUM_STUDY_DAILY_LIMITS,
+    STORAGE_LIMIT_BYTES,
+    STUDY_DAILY_LIMITS,
+)
 from backend.models.study import StudyGeneration
+from backend.models.user import User
 
 # the daily limits count what was started in the last this-long, rather than resetting at midnight
 STUDY_LIMIT_WINDOW = timedelta(days=1)
@@ -27,5 +33,9 @@ def study_usage(db: Session, user_id: int, kind: str) -> tuple[int, datetime | N
     return used, frees_at
 
 
-def study_limit(kind: str) -> int:
-    return STUDY_DAILY_LIMITS[kind]
+def study_limit(user: User, kind: str) -> int:
+    return (PREMIUM_STUDY_DAILY_LIMITS if user.is_premium else STUDY_DAILY_LIMITS)[kind]
+
+
+def storage_limit(user: User) -> int:
+    return PREMIUM_STORAGE_LIMIT_BYTES if user.is_premium else STORAGE_LIMIT_BYTES

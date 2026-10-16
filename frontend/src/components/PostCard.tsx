@@ -8,6 +8,7 @@ import { formatDateTime, parseServerDate } from '../dates'
 import { DeleteButton } from './DeleteButton'
 import { RepliesSection } from './Replies'
 import { ReportButton } from './ReportButton'
+import { goldClass, UserName } from './Premium'
 import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
@@ -71,8 +72,8 @@ export function PostCard({
         <UserAvatar username={author.username} size={40} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">
-            {author.first_name} {author.last_name}
-            <span className="ms-2 text-sm font-normal text-muted">@{author.username}</span>
+            <UserName user={author} />
+            <span className={`ms-2 text-sm font-normal ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
             {post.is_admin_post && (
               <span className="ms-2 rounded-full bg-accent/15 px-2 py-0.5 align-middle text-xs font-medium text-accent">
                 {t('settings.notifications.adminBadge')}

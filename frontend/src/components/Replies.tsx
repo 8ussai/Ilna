@@ -9,6 +9,7 @@ import { applyVote } from '../votes'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
 import { ReportButton } from './ReportButton'
+import { goldClass, UserName } from './Premium'
 import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
@@ -90,10 +91,8 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
           {author ? (
             <>
               <UserAvatar username={author.username} size={28} />
-              <span className="truncate font-medium">
-                {author.first_name} {author.last_name}
-              </span>
-              <span className="truncate text-muted">@{author.username}</span>
+              <UserName user={author} className="truncate font-medium" />
+              <span className={`truncate ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
             </>
           ) : (
             <span className="text-muted italic">{t('replies.deletedAuthor')}</span>

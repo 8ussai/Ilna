@@ -11,6 +11,8 @@ export type Me = {
   college: string
   major: string
   created_at: string
+  // turned on by the admin: more summaries, quizzes and storage, and a gold name
+  is_premium: boolean
 }
 
 export function fetchMe() {

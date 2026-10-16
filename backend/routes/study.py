@@ -167,10 +167,11 @@ def create_study_item(
     sources = _snapshot_sources(db, course, data)
 
     used, frees_at = study_usage(db, current_user.id, data.kind.value)
-    if used >= study_limit(data.kind.value):
+    limit = study_limit(current_user, data.kind.value)
+    if used >= limit:
         raise HTTPException(
             status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail=f"You can make {study_limit(data.kind.value)} {'summaries' if data.kind == StudyKind.summary else 'quizzes'} a day. "
+            detail=f"You can make {limit} {'summaries' if data.kind == StudyKind.summary else 'quizzes'} a day. "
                    f"The next one is available at {frees_at.isoformat()}.",
         )
 

@@ -42,6 +42,8 @@ class PostAuthor(BaseModel):
     username: str
     first_name: str
     last_name: str
+    # shown with a gold name and a crown
+    is_premium: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -92,7 +94,7 @@ class ActivityItem(BaseModel):
 
 class NotificationOut(BaseModel):
     id: int
-    # post_vote, reply_vote, post_reply, reply_reply, post_removed, reply_removed or admin_message
+    # post_vote, reply_vote, post_reply, reply_reply, post_removed, reply_removed, admin_message or premium_granted
     type: str
     # 1 or -1 for votes, null for replies
     vote_dir: Optional[int]

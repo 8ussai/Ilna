@@ -39,6 +39,9 @@ class User(Base):
     is_banned = Column(Boolean, nullable=False, default=False)
     banned_reason = Column(String)
     banned_at = Column(DateTime)
+    # turned on from the admin panel, and stays until turned off there: more summaries, quizzes and storage, and a gold name
+    is_premium = Column(Boolean, nullable=False, default=False)
+    premium_since = Column(DateTime)
     # the hidden "Ilna Admin" account that owns the admin's posts and messages; it can never log in
     is_system = Column(Boolean, nullable=False, default=False)
 

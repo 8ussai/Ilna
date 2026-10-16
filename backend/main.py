@@ -160,6 +160,11 @@ _add_missing_columns("users", {
     "banned_at": "DATETIME",
     "is_system": "BOOLEAN NOT NULL DEFAULT 0",
 })
+# premium, turned on from the admin panel
+_add_missing_columns("users", {
+    "is_premium": "BOOLEAN NOT NULL DEFAULT 0",
+    "premium_since": "DATETIME",
+})
 _add_missing_columns("posts", {
     "pinned_until": "DATETIME",
 })

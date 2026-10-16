@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { fetchNotifications, markNotificationsRead, NOTIFICATIONS_PAGE_SIZE } from '../api/me'
 import type { AppNotification } from '../api/me'
+import { UserName } from '../components/Premium'
 import { secondaryButton } from '../components/styles'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDateTime, parseServerDate } from '../dates'
@@ -33,7 +34,24 @@ function messageKey(n: AppNotification) {
       return 'replyRemoved'
     case 'admin_message':
       return 'adminMessage'
+    case 'premium_granted':
+      return 'premiumGranted'
   }
+}
+
+// stands in for the name in the translated sentence, so the name can be put back styled (gold for premium)
+const NAME_MARK = '\u0001'
+
+function withName(text: string, actor: AppNotification['actor']) {
+  const at = text.indexOf(NAME_MARK)
+  if (at === -1) return text
+  return (
+    <>
+      {text.slice(0, at)}
+      <UserName user={actor} />
+      {text.slice(at + NAME_MARK.length)}
+    </>
+  )
 }
 
 // an admin message longer than this (or with line breaks) folds, with a button to show it all
@@ -121,14 +139,13 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
         <ul className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-card">
           {items.map((n) => {
             const created = parseServerDate(n.created_at)
-            const name = `${n.actor.first_name} ${n.actor.last_name}`
             const body = (
               <>
                 <UserAvatar username={n.actor.username} size={40} />
                 <span className="min-w-0 flex-1">
                   <span className="block">
                     {!n.is_read && <span className="sr-only">{t('settings.notifications.unread')}: </span>}
-                    {t(`settings.notifications.${messageKey(n)}`, { name, ref: n.ref ?? '' })}
+                    {withName(t(`settings.notifications.${messageKey(n)}`, { name: NAME_MARK, ref: n.ref ?? '' }), n.actor)}
                     {n.actor_is_admin && (
                       <span className="ms-2 rounded-full bg-accent/15 px-2 py-0.5 align-middle text-xs font-medium text-accent">
                         {t('settings.notifications.adminBadge')}

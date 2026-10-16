@@ -17,7 +17,7 @@ export type Post = {
   votes_count: number
   my_vote: VoteDir
   replies_count: number
-  author: { id: number; username: string; first_name: string; last_name: string }
+  author: { id: number; username: string; first_name: string; last_name: string; is_premium: boolean }
   // written by the admin ("Ilna Admin"); can't be reported
   is_admin_post: boolean
   // pinned to the top of its blog right now

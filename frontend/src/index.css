@@ -12,6 +12,8 @@
   --accent-fg: #ffffff;
   --danger: #b3261e;
   --success: #2e7d32;
+  /* premium names; 4.5:1 or better on bg, surface and card */
+  --gold: #8a6100;
 }
 
 :root[data-theme="dark"] {
@@ -26,6 +28,7 @@
   --accent-fg: #141413;
   --danger: #f2998f;
   --success: #81c995;
+  --gold: #e5b93b;
 }
 
 @theme inline {
@@ -39,6 +42,7 @@
   --color-accent-fg: var(--accent-fg);
   --color-danger: var(--danger);
   --color-success: var(--success);
+  --color-gold: var(--gold);
 
   /* Latin glyphs come from the first family, Arabic glyphs fall through to the Arabic one. */
   --font-sans: "Inter", "IBM Plex Sans Arabic", system-ui, sans-serif;

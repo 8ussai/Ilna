@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -6,6 +6,7 @@ import type { Me } from '../api/auth'
 import { inAppClick } from '../links'
 import type { DrawerPage } from '../tabs'
 import { CountBadge } from './CountBadge'
+import { goldClass, PremiumCrown, PremiumDialog, UserName } from './Premium'
 import { secondaryButton } from './styles'
 import { UserAvatar } from './UserAvatar'
 
@@ -23,13 +24,19 @@ type AccountDrawerProps = {
 export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOpenSettings, onLogout }: AccountDrawerProps) {
   const { t } = useTranslation()
   const closeRef = useRef<HTMLButtonElement>(null)
+  const [premiumOpen, setPremiumOpen] = useState(false)
+  const premiumOpenRef = useRef(false)
+  useEffect(() => {
+    premiumOpenRef.current = premiumOpen
+  }, [premiumOpen])
 
   useEffect(() => {
     if (!open) return
     closeRef.current?.focus()
 
     function onKey(e: KeyboardEvent) {
-      if (e.key === 'Escape') onClose()
+      // Esc in the premium dialog closes just the dialog
+      if (e.key === 'Escape' && !premiumOpenRef.current) onClose()
     }
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -76,9 +83,9 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
             <div className="flex flex-col items-center text-center">
               <UserAvatar username={me.username} size={96} />
               <p className="mt-3 text-lg font-semibold">
-                {me.first_name} {me.last_name}
+                <UserName user={me} />
               </p>
-              <p className="text-sm text-muted">@{me.username}</p>
+              <p className={`text-sm ${me.is_premium ? goldClass : 'text-muted'}`}>@{me.username}</p>
             </div>
           )}
 
@@ -87,6 +94,19 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
               <DrawerLink page="notifications" onOpen={onOpenPage} label={t('settings.notifications.title')} badge={unreadCount}>
                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />
               </DrawerLink>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => setPremiumOpen(true)}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-start font-medium hover:bg-surface"
+                >
+                  <PremiumCrown className="size-5" />
+                  <span className="flex-1">{me?.is_premium ? t('premium.youArePremium') : t('premium.upgrade')}</span>
+                  {!me?.is_premium && (
+                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-xs font-medium text-gold">{t('premium.soonBadge')}</span>
+                  )}
+                </button>
+              </li>
               <DrawerLink page="contact" onOpen={onOpenPage} label={t('settings.contact.title')}>
                 <rect x="3" y="5" width="18" height="14" rx="2" />
                 <path d="m3 7 9 6 9-6" />
@@ -107,6 +127,7 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
           </button>
         </div>
       </aside>
+      {premiumOpen && <PremiumDialog isPremium={!!me?.is_premium} onClose={() => setPremiumOpen(false)} />}
     </div>
   )
 }

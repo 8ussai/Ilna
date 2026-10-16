@@ -4,7 +4,6 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.orm import Session, joinedload
 
-from backend.backendConfig import STORAGE_LIMIT_BYTES
 from backend.core.apiDependencies import get_current_user
 from backend.database import get_db
 from backend.models.notification import Notification
@@ -14,7 +13,7 @@ from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, Unread
 from backend.schemas.user import DailyUsageOut, StorageOut, UsageOut
 from backend.services.notifications import NotificationType
 from backend.services.storage import storage_used
-from backend.services.usage import study_limit, study_usage
+from backend.services.usage import storage_limit, study_limit, study_usage
 
 router = APIRouter()
 
@@ -27,7 +26,7 @@ def get_storage(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    return StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=STORAGE_LIMIT_BYTES)
+    return StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=storage_limit(current_user))
 
 
 @router.get("/usage", response_model=UsageOut)
@@ -38,10 +37,11 @@ def get_usage(
     """Storage, and how many summaries and quizzes are left today."""
     def daily(kind: str) -> DailyUsageOut:
         used, frees_at = study_usage(db, current_user.id, kind)
-        return DailyUsageOut(used=used, limit=study_limit(kind), frees_at=frees_at)
+        return DailyUsageOut(used=used, limit=study_limit(current_user, kind), frees_at=frees_at)
 
     return UsageOut(
-        storage=StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=STORAGE_LIMIT_BYTES),
+        premium=current_user.is_premium,
+        storage=StorageOut(used_bytes=storage_used(db, current_user.id), limit_bytes=storage_limit(current_user)),
         summary=daily("summary"),
         quiz=daily("quiz"),
     )
@@ -142,6 +142,8 @@ def _map_notification(n: Notification) -> NotificationOut:
     elif n.type == NotificationType.admin_message.value:
         # shown in full; the notifications page folds long ones
         out.preview = n.message or ""
+    elif n.type == NotificationType.premium_granted.value:
+        pass  # the app writes the whole notice in the reader's language
     else:
         out.preview = (n.reply.content if n.reply else n.post.content)[:NOTIFICATION_PREVIEW_CHARS]
     return out

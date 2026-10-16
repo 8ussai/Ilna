@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 
 from backend.database import get_db
-from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS, STORAGE_LIMIT_BYTES
+from backend.backendConfig import ALLOWED_EXTENSIONS, AUDIO_EXTENSIONS, DOCUMENT_EXTENSIONS
 from backend.models.user import User
 from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
 from backend.schemas.course import (
@@ -42,6 +42,7 @@ from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import transcribe_material
 from backend.services.storage import storage_used
+from backend.services.usage import storage_limit
 
 router = APIRouter()
 
@@ -385,7 +386,7 @@ def upload_course_material(
             detail=f"language must be one of {sorted(TRANSCRIPT_LANGUAGES)}, and only for audio."
         )
 
-    remaining = STORAGE_LIMIT_BYTES - storage_used(db, current_user.id)
+    remaining = storage_limit(current_user) - storage_used(db, current_user.id)
     storage_full = HTTPException(
         status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
         detail="This file would go over your storage limit.",

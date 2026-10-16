@@ -53,6 +53,8 @@ class AdminUserOut(BaseModel):
     is_banned: bool
     banned_reason: Optional[str]
     banned_at: Optional[datetime]
+    is_premium: bool
+    premium_since: Optional[datetime]
     created_at: datetime
     # catalog ids; the panel shows their names
     country: str

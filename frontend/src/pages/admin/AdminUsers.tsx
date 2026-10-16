@@ -7,6 +7,8 @@ import {
   banUser,
   deleteUser,
   fetchAdminUsers,
+  grantPremium,
+  removePremium,
   resendUserCode,
   unbanUser,
   verifyUser,
@@ -18,6 +20,7 @@ import { formatBytes } from '../../bytes'
 import { postOriginNames } from '../../catalog'
 import { Dialog } from '../../components/Dialog'
 import { Field } from '../../components/Field'
+import { goldClass, PremiumCrown, UserName } from '../../components/Premium'
 import { dangerButtonInline, secondaryButtonInline, smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDate, formatDateTime, parseServerDate } from '../../dates'
@@ -31,6 +34,7 @@ const SEARCH_DELAY_MS = 300
 export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
+  const [premiumOnly, setPremiumOnly] = useState(false)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [total, setTotal] = useState(0)
   const [status, setStatus] = useState<Status>('loading')
@@ -43,7 +47,7 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
     let cancelled = false
     const timer = setTimeout(() => {
       setStatus('loading')
-      fetchAdminUsers(query.trim())
+      fetchAdminUsers(query.trim(), 0, premiumOnly)
         .then((page) => {
           if (cancelled) return
           setUsers(page.items)
@@ -56,12 +60,12 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query])
+  }, [query, premiumOnly])
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const page = await fetchAdminUsers(query.trim(), users.length)
+      const page = await fetchAdminUsers(query.trim(), users.length, premiumOnly)
       setUsers((current) => [...current, ...page.items])
       setTotal(page.total)
     } catch {
@@ -83,6 +87,10 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
         placeholder={t('admin.users.searchPlaceholder')}
         autoComplete="off"
       />
+      <label className="inline-flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={premiumOnly} onChange={(e) => setPremiumOnly(e.target.checked)} className="size-4 accent-accent" />
+        {t('admin.users.premiumOnly')}
+      </label>
 
       {notice && (
         <p role="status" className="rounded-xl border border-line bg-card px-4 py-3 text-sm">
@@ -198,12 +206,17 @@ function UserRow({
         <UserAvatar username={user.username} size={40} />
         <div className="min-w-0 flex-1 space-y-0.5">
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="font-medium">
-              {user.first_name} {user.last_name}
-            </span>
-            <span dir="ltr" className="text-sm text-muted">
+            <UserName user={user} className="font-medium" />
+            <span dir="ltr" className={`text-sm ${user.is_premium ? goldClass : 'text-muted'}`}>
               @{user.username}
             </span>
+            {user.is_premium && (
+              <span className="rounded-full bg-gold/15 px-2 py-0.5 text-xs font-medium text-gold">
+                {user.premium_since
+                  ? t('admin.users.premiumSince', { date: formatDate(parseServerDate(user.premium_since), i18n.language) })
+                  : t('premium.label')}
+              </span>
+            )}
             {user.is_banned && (
               <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">{t('admin.users.banned')}</span>
             )}
@@ -235,6 +248,36 @@ function UserRow({
         ) : (
           <button type="button" disabled={busy} onClick={() => onAction('ban')} className={`${smallSecondaryButton} text-danger`}>
             {t('admin.users.ban')}
+          </button>
+        )}
+        {user.is_premium ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                onChange(await removePremium(user.id))
+                onNotice(t('admin.users.premiumRemovedNotice', { username: user.username }))
+              })
+            }
+            className={smallSecondaryButton}
+          >
+            {t('admin.users.removePremium')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() =>
+              run(async () => {
+                onChange(await grantPremium(user.id))
+                onNotice(t('admin.users.premiumNotice', { username: user.username }))
+              })
+            }
+            className={`${smallSecondaryButton} inline-flex items-center gap-1.5`}
+          >
+            <PremiumCrown />
+            {t('admin.users.makePremium')}
           </button>
         )}
         {!user.is_verified && (

@@ -28,20 +28,30 @@ export function fetchStorage() {
 // summaries or quizzes started in the last 24 hours, out of the limit;
 // frees_at is when the oldest of them leaves the 24 hours (null when none were started)
 export type DailyUsage = { used: number; limit: number; frees_at: string | null }
-export type Usage = { storage: Storage; summary: DailyUsage; quiz: DailyUsage }
+// premium shows as unlimited summaries and quizzes; its limits are only a hidden cap
+export type Usage = { premium: boolean; storage: Storage; summary: DailyUsage; quiz: DailyUsage }
 
 export function fetchUsage() {
   return authRequest<Usage>('/me/usage')
 }
 
-export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply' | 'post_removed' | 'reply_removed' | 'admin_message'
+export type NotificationType =
+  | 'post_vote'
+  | 'reply_vote'
+  | 'post_reply'
+  | 'reply_reply'
+  | 'post_removed'
+  | 'reply_removed'
+  | 'admin_message'
+  // from the admin when premium is turned on
+  | 'premium_granted'
 
 export type AppNotification = {
   id: number
   type: NotificationType
   // 1 or -1 for votes, null for replies
   vote_dir: 1 | -1 | null
-  actor: { id: number; username: string; first_name: string; last_name: string }
+  actor: { id: number; username: string; first_name: string; last_name: string; is_premium: boolean }
   // the hidden admin account ("Ilna Admin")
   actor_is_admin: boolean
   // the post to open; null when there's nothing to open (a removed post)

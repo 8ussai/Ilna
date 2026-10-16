@@ -73,6 +73,8 @@ export type AdminUser = {
   is_banned: boolean
   banned_reason: string | null
   banned_at: string | null
+  is_premium: boolean
+  premium_since: string | null
   created_at: string
   country: string
   university: string
@@ -86,8 +88,9 @@ export type AdminUser = {
 
 export const ADMIN_USERS_PAGE = 25
 
-export function fetchAdminUsers(q: string, offset = 0) {
+export function fetchAdminUsers(q: string, offset = 0, premiumOnly = false) {
   const params = new URLSearchParams({ q, limit: String(ADMIN_USERS_PAGE), offset: String(offset) })
+  if (premiumOnly) params.set('premium', 'true')
   return adminRequest<{ items: AdminUser[]; total: number }>(`/users?${params}`)
 }
 
@@ -97,6 +100,15 @@ export function banUser(id: number, reason: string) {
 
 export function unbanUser(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/unban`, { method: 'POST' })
+}
+
+// lasts until removed; the student gets a notification
+export function grantPremium(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/premium`, { method: 'POST' })
+}
+
+export function removePremium(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/unpremium`, { method: 'POST' })
 }
 
 export function verifyUser(id: number) {

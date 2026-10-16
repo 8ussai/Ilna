@@ -77,6 +77,8 @@ class DailyUsageOut(BaseModel):
 
 
 class UsageOut(BaseModel):
+    # premium is shown as unlimited summaries and quizzes; the limits here are its hidden cap
+    premium: bool
     storage: StorageOut
     summary: DailyUsageOut
     quiz: DailyUsageOut
@@ -84,6 +86,7 @@ class UsageOut(BaseModel):
 
 class UserOut(UserBase):
     id: int
+    is_premium: bool = False
     created_at: datetime
     updated_at: datetime
 

@@ -18,6 +18,8 @@ class NotificationType(str, Enum):
     post_removed = "post_removed"
     reply_removed = "reply_removed"
     admin_message = "admin_message"
+    # from the admin when premium is turned on; the app writes the text in the reader's language
+    premium_granted = "premium_granted"
 
 
 # the start of removed text kept in a removal notice, so the author knows which one it was

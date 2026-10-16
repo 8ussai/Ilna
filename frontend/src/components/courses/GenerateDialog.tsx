@@ -37,6 +37,8 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
   const [selected, setSelected] = useState<Set<string>>(new Set())
   // this kind's daily limit; null until known (the server checks it either way)
   const [usage, setUsage] = useState<DailyUsage | null>(null)
+  // premium shows no count; its limit is only a hidden cap
+  const [premium, setPremium] = useState(false)
   const [length, setLength] = useState<SummaryLength>('brief')
   const [count, setCount] = useState<QuestionCount>(10)
   const [language, setLanguage] = useState<StudyLanguage | ''>('')
@@ -48,7 +50,9 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
     let ignore = false
     fetchUsage()
       .then((u) => {
-        if (!ignore) setUsage(u[kind])
+        if (ignore) return
+        setUsage(u[kind])
+        setPremium(u.premium)
       })
       .catch(() => {})
     return () => {
@@ -245,7 +249,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
                   ? t(`courses.study.generate.submitUsedUp.${kind}`, {
                       when: usage?.frees_at ? formatRelative(parseServerDate(usage.frees_at), i18n.language) : '',
                     })
-                  : usage
+                  : usage && !premium
                     ? t(`courses.study.generate.submitLeft.${kind}`, { left: usage.limit - usage.used })
                     : t(`courses.study.generate.submit.${kind}`)}
             </button>

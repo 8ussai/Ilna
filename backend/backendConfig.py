@@ -52,11 +52,15 @@ MAX_TEXT_NOTE_CHARS = 100_000
 
 # total size of all files one user can upload
 STORAGE_LIMIT_BYTES = 1024 ** 3
+# premium (turned on from the admin panel) gets more room
+PREMIUM_STORAGE_LIMIT_BYTES = 5 * 1024 ** 3
 
 # summaries and quizzes are written by Gemini; GOOGLE_API_KEY goes in .env
 GEMINI_MODEL = "gemini-2.5-flash"
 # summaries and quizzes one user can start in any 24 hours, by kind (retries of failed ones don't count)
 STUDY_DAILY_LIMITS = {"summary": 2, "quiz": 2}
+# premium is shown as unlimited; this hidden cap only guards the Gemini quota
+PREMIUM_STUDY_DAILY_LIMITS = {"summary": 50, "quiz": 50}
 # sources one summary or quiz can be made from
 STUDY_MAX_SOURCES = 50
 

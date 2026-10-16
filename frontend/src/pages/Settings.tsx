@@ -10,6 +10,7 @@ import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
 import { secondaryButton } from '../components/styles'
+import { goldClass, UserName } from '../components/Premium'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
@@ -245,9 +246,9 @@ function AccountPage({ me, catalog, onPasswordChanged }: { me: Me; catalog: Cata
           <UserAvatar username={me.username} size={56} />
           <div className="min-w-0">
             <p className="truncate text-lg font-semibold">
-              {me.first_name} {me.last_name}
+              <UserName user={me} />
             </p>
-            <p className="truncate text-sm text-muted">@{me.username}</p>
+            <p className={`truncate text-sm ${me.is_premium ? goldClass : 'text-muted'}`}>@{me.username}</p>
           </div>
         </div>
         <dl className="divide-y divide-line">
