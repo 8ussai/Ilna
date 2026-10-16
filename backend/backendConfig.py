@@ -13,8 +13,11 @@ os.environ.setdefault("HF_HOME", os.path.join(PROJECT_ROOT, "models"))
 
 SQLALCHEMY_DATABASE_URL = "sqlite:///./ilna.db"
 
-SECRET_KEY = "DEVELOPMENT_TEST_KEY" 
-ALGORITHM = "HS256"               
+# signs login tokens; set in .env, never in code
+SECRET_KEY = os.getenv("SECRET_KEY")
+if not SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is missing from .env (see .env.example)")
+ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
@@ -66,6 +69,9 @@ OTP_EXPIRE_MINUTES = 10
 OTP_MAX_ATTEMPTS = 5
 # seconds before another code can be sent to the same account
 OTP_RESEND_COOLDOWN_SECONDS = 60
+
+# the one admin logs in at /admin with a code sent to this address; set in .env
+ADMIN_EMAIL = (os.getenv("ADMIN_EMAIL") or "").strip().lower()
 
 # the mailbox that sends contact messages and codes; set these in .env, never in code. Port 465 uses SSL, anything else STARTTLS.
 SMTP_HOST = os.getenv("SMTP_HOST")
