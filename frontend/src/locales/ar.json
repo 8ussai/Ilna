@@ -576,7 +576,8 @@
     "show_two": "عرض ردّين",
     "show_few": "عرض {{count}} ردود",
     "show_many": "عرض {{count}} رداً",
-    "show_other": "عرض {{count}} رد"
+    "show_other": "عرض {{count}} رد",
+    "removedByAdmin": "[حذفته الإدارة]"
   },
   "account": {
     "open": "إعدادات الحساب",
@@ -597,7 +598,7 @@
     },
     "notifications": {
       "title": "الإشعارات",
-      "description": "التصويتات والردود على منشوراتك وردودك، الأحدث أولًا.",
+      "description": "التصويتات والردود على منشوراتك وردودك، ورسائل الإدارة، الأحدث أولًا.",
       "postUpvote": "صوّت {{name}} لصالح منشورك",
       "postDownvote": "صوّت {{name}} ضد منشورك",
       "replyUpvote": "صوّت {{name}} لصالح ردك",
@@ -612,7 +613,11 @@
       "unreadCount_many": "{{count}} إشعارًا غير مقروء",
       "unreadCount_other": "{{count}} إشعار غير مقروء",
       "empty": "لا توجد إشعارات بعد. عندما يصوّت أحد على منشوراتك أو يرد عليها، سيظهر ذلك هنا.",
-      "loadFailed": "تعذّر تحميل إشعاراتك."
+      "loadFailed": "تعذّر تحميل إشعاراتك.",
+      "postRemoved": "حذفت الإدارة منشورك #{{ref}}",
+      "replyRemoved": "حذفت الإدارة ردك #{{ref}}",
+      "reason": "السبب: {{reason}}",
+      "adminBadge": "الإدارة"
     },
     "password": {
       "title": "تغيير كلمة المرور",
@@ -790,8 +795,6 @@
       "codeSent": "تم إرسال رمز تسجيل جديد إلى {{email}}.",
       "banTitle": "حظر @{{username}}",
       "banExplain": "يتم تسجيل خروجه فوراً ولا يمكنه الدخول حتى تلغي الحظر. يُرسل السبب في البريد الذي يصله.",
-      "reason": "السبب",
-      "reasonTooLong": "اجعل السبب أقل من 500 حرف.",
       "banConfirm": "حظر وإرسال البريد",
       "bannedNotice": "تم حظر @{{username}}. بريد الإيقاف في الطريق.",
       "deleteTitle": "حذف @{{username}}",
@@ -799,6 +802,48 @@
       "deleteType": "اكتب {{username}} للتأكيد",
       "deleteConfirm": "حذف نهائي",
       "deletedNotice": "تم حذف @{{username}} وكل ما في الحساب."
+    },
+    "reason": "السبب",
+    "reasonTooLong": "اجعل السبب أقل من 500 حرف.",
+    "posts": {
+      "title": "المنشورات",
+      "jump": "فتح بالرقم",
+      "open": "فتح",
+      "idInvalid": "اكتب رقم منشور أو رد، مثل P42 أو R17.",
+      "idNotFound": "لا يوجد شيء بهذا الرقم. ربما تم حذفه.",
+      "foundPost": "المنشور #P{{id}}",
+      "foundReply": "الرد #R{{reply}} على المنشور #P{{post}}",
+      "close": "إغلاق",
+      "blog": "المدونة",
+      "allBlogs": "كل المدونات",
+      "search": "البحث في المنشورات",
+      "searchPlaceholder": "كلمات في المنشور",
+      "count_zero": "لا منشورات",
+      "count_one": "منشور واحد",
+      "count_two": "منشوران",
+      "count_few": "{{count}} منشورات",
+      "count_many": "{{count}} منشوراً",
+      "count_other": "{{count}} منشور",
+      "none": "لا توجد منشورات مطابقة.",
+      "score_zero": "0 نقاط",
+      "score_one": "نقطة واحدة",
+      "score_two": "نقطتان",
+      "score_few": "{{count}} نقاط",
+      "score_many": "{{count}} نقطة",
+      "score_other": "{{count}} نقطة",
+      "showThread": "عرض الردود",
+      "hideThread": "إخفاء الردود",
+      "noReplies": "لا ردود.",
+      "gone": "هذا المنشور لم يعد موجوداً.",
+      "removePost": "حذف المنشور",
+      "removeReply": "حذف الرد",
+      "removePostTitle": "حذف المنشور #P{{id}}",
+      "removeReplyTitle": "حذف الرد #R{{id}}",
+      "removePostExplain": "يختفي المنشور وكل ردوده عن الجميع. يصل للكاتب إشعار بالسبب.",
+      "removeReplyExplain": "يختفي الرد عن الجميع؛ وإذا أجاب عليه آخرون يبقى بعبارة \"[حذفته الإدارة]\" حتى يبقى النقاش مفهوماً. يصل للكاتب إشعار بالسبب.",
+      "removeConfirm": "حذف وإشعار",
+      "postRemoved": "تم حذف المنشور #P{{id}} وإشعار كاتبه.",
+      "replyRemoved": "تم حذف الرد #R{{id}} وإشعار كاتبه."
     }
   }
 }

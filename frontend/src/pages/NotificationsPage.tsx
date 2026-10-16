@@ -27,6 +27,10 @@ function messageKey(n: AppNotification) {
       return 'postReply'
     case 'reply_reply':
       return 'replyReply'
+    case 'post_removed':
+      return 'postRemoved'
+    case 'reply_removed':
+      return 'replyRemoved'
   }
 }
 
@@ -110,28 +114,50 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
           {items.map((n) => {
             const created = parseServerDate(n.created_at)
             const name = `${n.actor.first_name} ${n.actor.last_name}`
+            const body = (
+              <>
+                <UserAvatar username={n.actor.username} size={40} />
+                <span className="min-w-0 flex-1">
+                  <span className="block">
+                    {!n.is_read && <span className="sr-only">{t('settings.notifications.unread')}: </span>}
+                    {t(`settings.notifications.${messageKey(n)}`, { name, ref: n.ref ?? '' })}
+                    {n.actor_is_admin && (
+                      <span className="ms-2 rounded-full bg-accent/15 px-2 py-0.5 align-middle text-xs font-medium text-accent">
+                        {t('settings.notifications.adminBadge')}
+                      </span>
+                    )}
+                  </span>
+                  {n.reason && (
+                    <span dir="auto" className="mt-1 block text-sm">
+                      {t('settings.notifications.reason', { reason: n.reason })}
+                    </span>
+                  )}
+                  <span dir="auto" className="mt-1 line-clamp-2 block break-words text-sm text-muted">
+                    {n.preview}
+                  </span>
+                  <time dateTime={created.toISOString()} className="mt-1 block text-xs text-muted">
+                    {formatDateTime(created, i18n.language)}
+                  </time>
+                </span>
+                {!n.is_read && <span aria-hidden="true" className="mt-2 size-2.5 shrink-0 rounded-full bg-accent" />}
+              </>
+            )
+            const rowClass = `flex gap-3 px-5 py-4 ${n.is_read ? '' : 'bg-accent/5'}`
+            const postId = n.post_id
             return (
               <li key={n.id}>
-                <a
-                  href={postPath(n.post_id, n.reply_id)}
-                  onClick={inAppClick(() => onOpenPost(n.post_id, n.reply_id))}
-                  className={`flex gap-3 px-5 py-4 hover:bg-surface ${n.is_read ? '' : 'bg-accent/5'}`}
-                >
-                  <UserAvatar username={n.actor.username} size={40} />
-                  <span className="min-w-0 flex-1">
-                    <span className="block">
-                      {!n.is_read && <span className="sr-only">{t('settings.notifications.unread')}: </span>}
-                      {t(`settings.notifications.${messageKey(n)}`, { name })}
-                    </span>
-                    <span dir="auto" className="mt-1 line-clamp-2 block break-words text-sm text-muted">
-                      {n.preview}
-                    </span>
-                    <time dateTime={created.toISOString()} className="mt-1 block text-xs text-muted">
-                      {formatDateTime(created, i18n.language)}
-                    </time>
-                  </span>
-                  {!n.is_read && <span aria-hidden="true" className="mt-2 size-2.5 shrink-0 rounded-full bg-accent" />}
-                </a>
+                {/* a removed post has nothing to open */}
+                {postId === null ? (
+                  <div className={rowClass}>{body}</div>
+                ) : (
+                  <a
+                    href={postPath(postId, n.reply_id)}
+                    onClick={inAppClick(() => onOpenPost(postId, n.reply_id))}
+                    className={`${rowClass} hover:bg-surface`}
+                  >
+                    {body}
+                  </a>
+                )}
               </li>
             )
           })}

@@ -21,6 +21,7 @@ import { Field } from '../../components/Field'
 import { dangerButtonInline, secondaryButtonInline, smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDate, formatDateTime, parseServerDate } from '../../dates'
+import { ReasonDialog } from './ReasonDialog'
 
 type Status = 'loading' | 'ready' | 'error'
 type Action = { kind: 'ban' | 'delete'; user: AdminUser }
@@ -125,10 +126,13 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
       )}
 
       {action?.kind === 'ban' && (
-        <BanDialog
-          user={action.user}
+        <ReasonDialog
+          title={t('admin.users.banTitle', { username: action.user.username })}
+          explain={t('admin.users.banExplain')}
+          confirmLabel={t('admin.users.banConfirm')}
           onClose={() => setAction(null)}
-          onBanned={(updated) => {
+          onConfirm={async (reason) => {
+            const updated = await banUser(action.user.id, reason)
             replaceUser(updated)
             setAction(null)
             setNotice(t('admin.users.bannedNotice', { username: updated.username }))
@@ -256,72 +260,6 @@ function UserRow({
         </button>
       </div>
     </li>
-  )
-}
-
-function BanDialog({ user, onClose, onBanned }: { user: AdminUser; onClose: () => void; onBanned: (user: AdminUser) => void }) {
-  const { t } = useTranslation()
-  const [reason, setReason] = useState('')
-  const [submitted, setSubmitted] = useState(false)
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  const reasonError = !reason.trim() ? t('errors.required') : reason.trim().length > 500 ? t('admin.users.reasonTooLong') : undefined
-
-  async function onSubmit(e: FormEvent) {
-    e.preventDefault()
-    setSubmitted(true)
-    setError('')
-    if (reasonError) return
-    setBusy(true)
-    try {
-      onBanned(await banUser(user.id, reason.trim()))
-    } catch (err) {
-      setError(err instanceof ApiError && err.status === 0 ? t('errors.network') : t('errors.generic'))
-      setBusy(false)
-    }
-  }
-
-  return (
-    <Dialog title={t('admin.users.banTitle', { username: user.username })} onClose={onClose}>
-      <form onSubmit={onSubmit} noValidate className="space-y-4">
-        <p className="text-sm text-muted">{t('admin.users.banExplain')}</p>
-        <div>
-          <label htmlFor="ban-reason" className="mb-1.5 block text-sm font-medium">
-            {t('admin.users.reason')}
-          </label>
-          <textarea
-            id="ban-reason"
-            dir="auto"
-            rows={3}
-            maxLength={500}
-            value={reason}
-            onChange={(e) => setReason(e.target.value)}
-            aria-invalid={submitted && reasonError ? true : undefined}
-            className={`block w-full resize-y rounded-lg border bg-card px-3 py-2 text-fg placeholder:text-muted ${
-              submitted && reasonError ? 'border-danger' : 'border-line'
-            }`}
-          />
-          {submitted && reasonError && (
-            <p role="alert" className="mt-1.5 text-sm text-danger">
-              {reasonError}
-            </p>
-          )}
-        </div>
-        {error && (
-          <p role="alert" className="text-sm text-danger">
-            {error}
-          </p>
-        )}
-        <div className="flex flex-wrap justify-end gap-2">
-          <button type="button" onClick={onClose} className={secondaryButtonInline}>
-            {t('admin.cancel')}
-          </button>
-          <button type="submit" disabled={busy} className={dangerButtonInline}>
-            {busy ? t('auth.working') : t('admin.users.banConfirm')}
-          </button>
-        </div>
-      </form>
-    </Dialog>
   )
 }
 

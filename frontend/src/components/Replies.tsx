@@ -109,7 +109,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
         </div>
 
         {reply.is_deleted ? (
-          <p className="mt-1.5 text-muted italic">{t('replies.deleted')}</p>
+          <p className="mt-1.5 text-muted italic">{t(reply.removed_by_admin ? 'replies.removedByAdmin' : 'replies.deleted')}</p>
         ) : (
           <p dir="auto" className="mt-1.5 whitespace-pre-wrap break-words">
             {reply.content}

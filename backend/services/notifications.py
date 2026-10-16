@@ -1,3 +1,4 @@
+import json
 from enum import Enum
 from typing import Optional
 
@@ -12,6 +13,42 @@ class NotificationType(str, Enum):
     reply_vote = "reply_vote"
     post_reply = "post_reply"
     reply_reply = "reply_reply"
+    # from the admin; the text lives in Notification.message
+    post_removed = "post_removed"
+    reply_removed = "reply_removed"
+    admin_message = "admin_message"
+
+
+# the start of removed text kept in a removal notice, so the author knows which one it was
+REMOVED_PREVIEW_CHARS = 200
+
+
+def notify_removal(
+    db: Session,
+    *,
+    recipient_id: int,
+    admin_account_id: int,
+    type: NotificationType,
+    ref: str,
+    reason: str,
+    content: str,
+    post_id: Optional[int] = None,
+) -> None:
+    """Tell an author the admin removed their post or reply. The notice has no post link (the post may be gone),
+    so what it needs is kept in message: the #P/#R ref, the reason, a preview and, for a reply, its post. Doesn't commit."""
+    if recipient_id == admin_account_id:
+        return
+    db.add(Notification(
+        user_id=recipient_id,
+        actor_id=admin_account_id,
+        type=type.value,
+        message=json.dumps({
+            "ref": ref,
+            "reason": reason,
+            "preview": content[:REMOVED_PREVIEW_CHARS],
+            "post_id": post_id,
+        }, ensure_ascii=False),
+    ))
 
 
 def sync_vote_notification(

@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator
 
+from backend.schemas.post import PostAuthor, PostScope
+
 
 class AdminCodeRequest(BaseModel):
     email: str
@@ -23,7 +25,8 @@ class AdminSession(BaseModel):
     email: str
 
 
-class BanRequest(BaseModel):
+class ReasonRequest(BaseModel):
+    """A ban or a removal; the student is told the reason."""
     reason: str
 
     @field_validator("reason")
@@ -31,10 +34,13 @@ class BanRequest(BaseModel):
     def check_reason(cls, value: str) -> str:
         value = value.strip()
         if not value:
-            raise ValueError("Give a reason; it goes in the email to the student.")
+            raise ValueError("Give a reason; the student is told it.")
         if len(value) > 500:
             raise ValueError("Reason is too long (max 500 characters).")
         return value
+
+
+BanRequest = ReasonRequest
 
 
 class AdminUserOut(BaseModel):
@@ -71,3 +77,48 @@ class AdminUserPage(BaseModel):
 class DeleteUserRequest(BaseModel):
     # the admin types the username to confirm, so a slip of the mouse can't delete an account
     confirm_username: str
+
+
+class AdminPostOut(BaseModel):
+    id: int
+    content: str
+    scope: PostScope
+    university: str
+    college: str
+    major: str
+    created_at: datetime
+    author: PostAuthor
+    # an admin post (step 8); the author is the hidden admin account
+    is_admin_post: bool
+    pinned_until: Optional[datetime]
+    votes_count: int
+    # replies that aren't deleted
+    replies_count: int
+
+
+class AdminPostPage(BaseModel):
+    items: list[AdminPostOut]
+    total: int
+
+
+class AdminReplyOut(BaseModel):
+    id: int
+    parent_id: Optional[int]
+    # empty and author-less for placeholders
+    content: str
+    is_deleted: bool
+    removed_by_admin: bool
+    author: Optional[PostAuthor]
+    created_at: datetime
+    votes_count: int
+
+
+class AdminPostDetail(BaseModel):
+    post: AdminPostOut
+    # the whole thread, flat and oldest first; parent_id builds the tree
+    replies: list[AdminReplyOut]
+
+
+class ReplyLookup(BaseModel):
+    reply_id: int
+    post_id: int

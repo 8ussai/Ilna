@@ -88,16 +88,23 @@ class ActivityItem(BaseModel):
 
 class NotificationOut(BaseModel):
     id: int
-    # post_vote, reply_vote, post_reply or reply_reply
+    # post_vote, reply_vote, post_reply, reply_reply, post_removed or reply_removed
     type: str
     # 1 or -1 for votes, null for replies
     vote_dir: Optional[int]
     actor: PostAuthor
-    post_id: int
+    # the hidden admin account, shown as "Ilna Admin" with a badge
+    actor_is_admin: bool = False
+    # the post to open; null when there's nothing to open (e.g. a removed post)
+    post_id: Optional[int]
     # the reply to open and highlight, if any
     reply_id: Optional[int]
-    # the start of the reply (or of the post for post votes), cut to NOTIFICATION_PREVIEW_CHARS
+    # the start of the reply (or of the post for post votes), cut to NOTIFICATION_PREVIEW_CHARS;
+    # for removal notices, the start of what was removed
     preview: str
+    # removal notices: the admin's reason and the #P42 / #R17 that was removed
+    reason: Optional[str] = None
+    ref: Optional[str] = None
     is_read: bool
     created_at: datetime
 

@@ -57,6 +57,8 @@ class Reply(Base):
     content = Column(Text, nullable=False)
     # a deleted reply that still has answers stays as a "[deleted]" placeholder so the thread holds together
     is_deleted = Column(Boolean, nullable=False, default=False)
+    # the admin removed it; its placeholder reads "[removed by admin]" instead of "[deleted]"
+    removed_by_admin = Column(Boolean, nullable=False, default=False)
 
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

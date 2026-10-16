@@ -1,3 +1,5 @@
+import json
+
 from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.orm import Session, joinedload
@@ -10,6 +12,7 @@ from backend.models.post import Post, Reply
 from backend.models.user import User
 from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, UnreadCount
 from backend.schemas.user import DailyUsageOut, StorageOut, UsageOut
+from backend.services.notifications import NotificationType
 from backend.services.storage import storage_used
 from backend.services.usage import study_limit, study_usage
 
@@ -113,20 +116,32 @@ def get_notifications(
         .all()
     )
 
-    return [
-        NotificationOut(
-            id=n.id,
-            type=n.type,
-            vote_dir=n.vote_dir,
-            actor=n.actor,
-            post_id=n.post_id,
-            reply_id=n.reply_id,
-            preview=(n.reply.content if n.reply else n.post.content)[:NOTIFICATION_PREVIEW_CHARS],
-            is_read=n.is_read,
-            created_at=n.created_at,
-        )
-        for n in notifications
-    ]
+    return [_map_notification(n) for n in notifications]
+
+
+def _map_notification(n: Notification) -> NotificationOut:
+    out = NotificationOut(
+        id=n.id,
+        type=n.type,
+        vote_dir=n.vote_dir,
+        actor=n.actor,
+        actor_is_admin=n.actor.is_system,
+        post_id=n.post_id,
+        reply_id=n.reply_id,
+        preview="",
+        is_read=n.is_read,
+        created_at=n.created_at,
+    )
+    if n.type in (NotificationType.post_removed.value, NotificationType.reply_removed.value):
+        # what was removed is gone, so the notice carries its own text (see notify_removal)
+        data = json.loads(n.message or "{}")
+        out.post_id = data.get("post_id")
+        out.preview = data.get("preview", "")
+        out.reason = data.get("reason")
+        out.ref = data.get("ref")
+    else:
+        out.preview = (n.reply.content if n.reply else n.post.content)[:NOTIFICATION_PREVIEW_CHARS]
+    return out
 
 
 @router.get("/notifications/unread-count", response_model=UnreadCount)

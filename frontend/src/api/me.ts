@@ -34,7 +34,7 @@ export function fetchUsage() {
   return authRequest<Usage>('/me/usage')
 }
 
-export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply'
+export type NotificationType = 'post_vote' | 'reply_vote' | 'post_reply' | 'reply_reply' | 'post_removed' | 'reply_removed'
 
 export type AppNotification = {
   id: number
@@ -42,11 +42,17 @@ export type AppNotification = {
   // 1 or -1 for votes, null for replies
   vote_dir: 1 | -1 | null
   actor: { id: number; username: string; first_name: string; last_name: string }
-  post_id: number
+  // the hidden admin account ("Ilna Admin")
+  actor_is_admin: boolean
+  // the post to open; null when there's nothing to open (a removed post)
+  post_id: number | null
   // the reply to open and highlight, if any
   reply_id: number | null
-  // the start of the reply (or of the post for post votes)
+  // the start of the reply (or of the post for post votes); for removal notices, of what was removed
   preview: string
+  // removal notices: the admin's reason and the #P42 / #R17 that was removed
+  reason: string | null
+  ref: string | null
   is_read: boolean
   created_at: string
 }

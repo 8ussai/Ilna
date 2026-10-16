@@ -532,7 +532,8 @@
     "deletedAuthor": "[deleted]",
     "hide": "Hide replies",
     "show_one": "Show {{count}} reply",
-    "show_other": "Show {{count}} replies"
+    "show_other": "Show {{count}} replies",
+    "removedByAdmin": "[removed by admin]"
   },
   "account": {
     "open": "Account settings",
@@ -553,7 +554,7 @@
     },
     "notifications": {
       "title": "Notifications",
-      "description": "Votes and replies on your posts and replies, newest first.",
+      "description": "Votes and replies on your posts and replies, and messages from the admin, newest first.",
       "postUpvote": "{{name}} upvoted your post",
       "postDownvote": "{{name}} downvoted your post",
       "replyUpvote": "{{name}} upvoted your reply",
@@ -564,7 +565,11 @@
       "unreadCount_one": "{{count}} unread notification",
       "unreadCount_other": "{{count}} unread notifications",
       "empty": "No notifications yet. When someone votes on or replies to your posts, it shows up here.",
-      "loadFailed": "Couldn't load your notifications."
+      "loadFailed": "Couldn't load your notifications.",
+      "postRemoved": "The admin removed your post #{{ref}}",
+      "replyRemoved": "The admin removed your reply #{{ref}}",
+      "reason": "Reason: {{reason}}",
+      "adminBadge": "Admin"
     },
     "password": {
       "title": "Change password",
@@ -726,8 +731,6 @@
       "codeSent": "A new sign-up code was sent to {{email}}.",
       "banTitle": "Ban @{{username}}",
       "banExplain": "They're logged out right away and can't log in again until you unban them. The reason goes in the email they get.",
-      "reason": "Reason",
-      "reasonTooLong": "Keep the reason under 500 characters.",
       "banConfirm": "Ban and send email",
       "bannedNotice": "@{{username}} is banned. The suspended email is on its way.",
       "deleteTitle": "Delete @{{username}}",
@@ -735,6 +738,40 @@
       "deleteType": "Type {{username}} to confirm",
       "deleteConfirm": "Delete for good",
       "deletedNotice": "@{{username}} and everything in the account was deleted."
+    },
+    "reason": "Reason",
+    "reasonTooLong": "Keep the reason under 500 characters.",
+    "posts": {
+      "title": "Posts",
+      "jump": "Open by ID",
+      "open": "Open",
+      "idInvalid": "Type a post or reply ID, like P42 or R17.",
+      "idNotFound": "Nothing with that ID. It may have been deleted.",
+      "foundPost": "Post #P{{id}}",
+      "foundReply": "Reply #R{{reply}} on post #P{{post}}",
+      "close": "Close",
+      "blog": "Blog",
+      "allBlogs": "All blogs",
+      "search": "Search posts",
+      "searchPlaceholder": "Words in the post",
+      "count_one": "{{count}} post",
+      "count_other": "{{count}} posts",
+      "none": "No posts match.",
+      "score_one": "{{count}} point",
+      "score_other": "{{count}} points",
+      "showThread": "Show replies",
+      "hideThread": "Hide replies",
+      "noReplies": "No replies.",
+      "gone": "This post no longer exists.",
+      "removePost": "Remove post",
+      "removeReply": "Remove reply",
+      "removePostTitle": "Remove post #P{{id}}",
+      "removeReplyTitle": "Remove reply #R{{id}}",
+      "removePostExplain": "The post and all its replies disappear for everyone. The author gets a notification with your reason.",
+      "removeReplyExplain": "The reply disappears for everyone; if others answered it, it stays as \"[removed by admin]\" so the thread still reads. The author gets a notification with your reason.",
+      "removeConfirm": "Remove and notify",
+      "postRemoved": "Post #P{{id}} was removed and its author notified.",
+      "replyRemoved": "Reply #R{{id}} was removed and its author notified."
     }
   }
 }

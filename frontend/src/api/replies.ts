@@ -9,6 +9,8 @@ export type Reply = {
   // empty and author-less when is_deleted is true
   content: string
   is_deleted: boolean
+  // a placeholder the admin left, shown as "[removed by admin]"
+  removed_by_admin: boolean
   created_at: string
   votes_count: number
   my_vote: VoteDir

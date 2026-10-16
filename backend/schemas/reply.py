@@ -30,6 +30,8 @@ class ReplyOut(BaseModel):
     # empty and author-less when is_deleted is true
     content: str
     is_deleted: bool
+    # a placeholder the admin left, shown as "[removed by admin]"
+    removed_by_admin: bool = False
     created_at: datetime
     votes_count: int
     my_vote: int

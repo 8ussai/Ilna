@@ -10,6 +10,7 @@ from backend.routes.posts import can_see_post
 from backend.schemas.post import PostVoteAction, PostVoteResult
 from backend.schemas.reply import ReplyCreate, ReplyOut
 from backend.services.notifications import NotificationType, notify_new_reply, sync_vote_notification
+from backend.services.reply_removal import remove_reply
 from backend.services.votes import check_vote_dir, toggle_vote
 
 router = APIRouter()
@@ -23,6 +24,7 @@ def _map_to_reply_out(reply: Reply, votes_count: int = 0, my_vote: int = 0) -> R
         user_id=None if reply.is_deleted else reply.user_id,
         content="" if reply.is_deleted else reply.content,
         is_deleted=reply.is_deleted,
+        removed_by_admin=reply.removed_by_admin,
         created_at=reply.created_at,
         votes_count=votes_count,
         my_vote=my_vote,
@@ -115,27 +117,7 @@ def delete_reply(
     if reply.is_deleted or reply.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only delete your own replies.")
 
-    if reply.children:
-        # keep a placeholder so the answers below it stay in the thread
-        reply.is_deleted = True
-        reply.content = ""
-        reply.votes.clear()
-        # what it said is gone, so are the notifications pointing at it
-        reply.notifications.clear()
-    else:
-        # remove the reply, then any placeholders above it that no longer hold anything
-        parent = reply.parent
-        db.delete(reply)
-        db.flush()
-        while parent is not None and parent.is_deleted:
-            db.refresh(parent)
-            if parent.children:
-                break
-            grandparent = parent.parent
-            db.delete(parent)
-            db.flush()
-            parent = grandparent
-
+    remove_reply(db, reply)
     db.commit()
 
 

@@ -156,6 +156,9 @@ _add_missing_columns("users", {
 _add_missing_columns("posts", {
     "pinned_until": "DATETIME",
 })
+_add_missing_columns("replies", {
+    "removed_by_admin": "BOOLEAN NOT NULL DEFAULT 0",
+})
 
 
 # usernames are lowercase letters and numbers now; lowercase older ones unless that would clash with another account

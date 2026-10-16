@@ -1,4 +1,5 @@
 import { ApiError, request } from './client'
+import type { PostScope } from './posts'
 
 // sessionStorage, so the admin login ends when the tab is closed; kept apart from the student login
 const ADMIN_TOKEN_KEY = 'ilna-admin-token'
@@ -108,4 +109,55 @@ export function resendUserCode(id: number) {
 
 export function deleteUser(id: number, confirmUsername: string) {
   return adminRequest<null>(`/users/${id}/delete`, json({ confirm_username: confirmUsername }))
+}
+
+export type AdminPost = {
+  id: number
+  content: string
+  scope: PostScope
+  university: string
+  college: string
+  major: string
+  created_at: string
+  author: { id: number; username: string; first_name: string; last_name: string }
+  is_admin_post: boolean
+  pinned_until: string | null
+  votes_count: number
+  replies_count: number
+}
+
+export type AdminReply = {
+  id: number
+  parent_id: number | null
+  // empty and author-less for placeholders
+  content: string
+  is_deleted: boolean
+  removed_by_admin: boolean
+  author: AdminPost['author'] | null
+  created_at: string
+  votes_count: number
+}
+
+export const ADMIN_POSTS_PAGE = 20
+
+export function fetchAdminPosts(scope: PostScope | '', q: string, offset = 0) {
+  const params = new URLSearchParams({ q, limit: String(ADMIN_POSTS_PAGE), offset: String(offset) })
+  if (scope) params.set('scope', scope)
+  return adminRequest<{ items: AdminPost[]; total: number }>(`/posts?${params}`)
+}
+
+export function fetchAdminPost(id: number) {
+  return adminRequest<{ post: AdminPost; replies: AdminReply[] }>(`/posts/${id}`)
+}
+
+export function findAdminReply(id: number) {
+  return adminRequest<{ reply_id: number; post_id: number }>(`/replies/${id}`)
+}
+
+export function removePost(id: number, reason: string) {
+  return adminRequest<null>(`/posts/${id}/remove`, json({ reason }))
+}
+
+export function removeReply(id: number, reason: string) {
+  return adminRequest<null>(`/replies/${id}/remove`, json({ reason }))
 }

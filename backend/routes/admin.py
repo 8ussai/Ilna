@@ -12,21 +12,31 @@ from backend import backendConfig
 from backend.core.apiDependencies import get_admin
 from backend.core.security import create_admin_token, get_password_hash, verify_password
 from backend.database import SessionLocal, get_db
-from backend.models.admin import AdminCode, AdminLog
+from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.course import Course, CourseMaterial
-from backend.models.post import Post, Reply
+from backend.models.post import Post, PostVote, Reply, ReplyVote
 from backend.models.user import User
 from backend.routes.auth import _send_code as send_code
+from backend.schemas.post import PostScope
 from backend.schemas.admin import (
     AdminCodeRequest,
     AdminCodeVerify,
+    AdminPostDetail,
+    AdminPostOut,
+    AdminPostPage,
+    AdminReplyOut,
     AdminSession,
     AdminToken,
     AdminUserOut,
     AdminUserPage,
     BanRequest,
     DeleteUserRequest,
+    ReasonRequest,
+    ReplyLookup,
 )
+from backend.services.admin_account import get_admin_account
+from backend.services.notifications import NotificationType, notify_removal
+from backend.services.reply_removal import remove_reply
 from backend.services.account_deletion import delete_account
 from backend.services.email import send_admin_code_email, send_restored_email, send_suspended_email, smtp_configured
 
@@ -269,3 +279,173 @@ def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = De
     if smtp_configured():
         background_tasks.add_task(_email_quietly, send_restored_email, user)
     return _with_counts(db, [user])[0]
+
+
+
+def _post_out(post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
+    return AdminPostOut(
+        id=post.id,
+        content=post.content,
+        scope=post.scope,
+        university=post.university,
+        college=post.college,
+        major=post.major,
+        created_at=post.created_at,
+        author=post.author,
+        is_admin_post=post.author.is_system,
+        pinned_until=post.pinned_until,
+        votes_count=votes_count,
+        replies_count=replies_count,
+    )
+
+
+def _posts_with_counts(db: Session):
+    votes = (
+        db.query(func.coalesce(func.sum(PostVote.vote_dir), 0))
+        .filter(PostVote.post_id == Post.id)
+        .correlate(Post)
+        .scalar_subquery()
+    )
+    replies = (
+        db.query(func.count(Reply.id))
+        .filter(Reply.post_id == Post.id, Reply.is_deleted.is_(False))
+        .correlate(Post)
+        .scalar_subquery()
+    )
+    return db.query(Post, votes, replies)
+
+
+@router.get("/posts", response_model=AdminPostPage, dependencies=[Depends(get_admin)])
+def list_posts(
+    scope: PostScope | None = Query(None, description="One blog; leave empty for all of them."),
+    q: str = Query("", max_length=100, description="Words the post has to contain."),
+    limit: int = Query(20, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    """Posts from every university, newest first."""
+    query = db.query(Post)
+    if scope is not None:
+        query = query.filter(Post.scope == scope.value)
+    for word in q.strip().split():
+        query = query.filter(Post.content.ilike(f"%{word}%"))
+    total = query.count()
+
+    rows = (
+        _posts_with_counts(db)
+        .filter(Post.id.in_(query.with_entities(Post.id)))
+        .order_by(Post.created_at.desc(), Post.id.desc())
+        .offset(offset)
+        .limit(limit)
+        .all()
+    )
+    return AdminPostPage(items=[_post_out(post, votes, replies) for post, votes, replies in rows], total=total)
+
+
+@router.get("/posts/{post_id}", response_model=AdminPostDetail, dependencies=[Depends(get_admin)])
+def get_post_detail(post_id: int, db: Session = Depends(get_db)):
+    row = _posts_with_counts(db).filter(Post.id == post_id).first()
+    if not row:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+    post, votes, replies_count = row
+
+    reply_votes = dict(
+        db.query(ReplyVote.reply_id, func.sum(ReplyVote.vote_dir))
+        .join(Reply, Reply.id == ReplyVote.reply_id)
+        .filter(Reply.post_id == post_id)
+        .group_by(ReplyVote.reply_id)
+        .all()
+    )
+    replies = db.query(Reply).filter(Reply.post_id == post_id).order_by(Reply.id).all()
+    return AdminPostDetail(
+        post=_post_out(post, votes, replies_count),
+        replies=[
+            AdminReplyOut(
+                id=reply.id,
+                parent_id=reply.parent_id,
+                content="" if reply.is_deleted else reply.content,
+                is_deleted=reply.is_deleted,
+                removed_by_admin=reply.removed_by_admin,
+                author=None if reply.is_deleted else reply.author,
+                created_at=reply.created_at,
+                votes_count=reply_votes.get(reply.id, 0),
+            )
+            for reply in replies
+        ],
+    )
+
+
+@router.get("/replies/{reply_id}", response_model=ReplyLookup, dependencies=[Depends(get_admin)])
+def find_reply(reply_id: int, db: Session = Depends(get_db)):
+    """For jumping to #R17: which post it's on."""
+    reply = db.query(Reply).filter(Reply.id == reply_id).first()
+    if not reply:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reply not found")
+    return ReplyLookup(reply_id=reply.id, post_id=reply.post_id)
+
+
+@router.post("/posts/{post_id}/remove", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
+def remove_post(post_id: int, data: ReasonRequest, db: Session = Depends(get_db)):
+    """Removes the post with its whole thread, and tells the author why."""
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Post not found")
+
+    author = post.author
+    db.add(AdminLog(action="remove_post", target_type="post", target_id=post.id, details=json.dumps({
+        "reason": data.reason,
+        "author": author.username,
+        "scope": post.scope,
+        "content": post.content,
+        "replies": [
+            {"id": r.id, "author": r.author.username if r.author else None, "content": r.content}
+            for r in post.replies if not r.is_deleted
+        ],
+    }, ensure_ascii=False)))
+
+    # reports on the post or anything in its thread are settled by removing it
+    reply_ids = [r.id for r in post.replies]
+    db.query(Report).filter(or_(Report.post_id == post.id, Report.reply_id.in_(reply_ids))).delete(synchronize_session=False)
+
+    notify_removal(
+        db,
+        recipient_id=author.id,
+        admin_account_id=get_admin_account(db).id,
+        type=NotificationType.post_removed,
+        ref=f"P{post.id}",
+        reason=data.reason,
+        content=post.content,
+    )
+    # its replies, votes and notifications go with it (the ORM cascade)
+    db.delete(post)
+    db.commit()
+
+
+@router.post("/replies/{reply_id}/remove", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
+def remove_reply_as_admin(reply_id: int, data: ReasonRequest, db: Session = Depends(get_db)):
+    """Removes a reply and tells its author why. One that has answers stays as "[removed by admin]"."""
+    reply = db.query(Reply).filter(Reply.id == reply_id).first()
+    if not reply or reply.is_deleted:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Reply not found")
+
+    author = reply.author
+    db.add(AdminLog(action="remove_reply", target_type="reply", target_id=reply.id, details=json.dumps({
+        "reason": data.reason,
+        "author": author.username,
+        "post_id": reply.post_id,
+        "content": reply.content,
+    }, ensure_ascii=False)))
+    db.query(Report).filter(Report.reply_id == reply.id).delete(synchronize_session=False)
+
+    notify_removal(
+        db,
+        recipient_id=author.id,
+        admin_account_id=get_admin_account(db).id,
+        type=NotificationType.reply_removed,
+        ref=f"R{reply.id}",
+        reason=data.reason,
+        content=reply.content,
+        post_id=reply.post_id,
+    )
+    remove_reply(db, reply, by_admin=True)
+    db.commit()

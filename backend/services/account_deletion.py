@@ -10,33 +10,7 @@ from backend.models.study import StudyGeneration
 from backend.models.user import User
 from backend.services.admin_account import get_admin_account
 from backend.services.embeddings import delete_course_vectors
-
-
-def remove_reply(db: Session, reply: Reply, placeholder_owner_id: int | None = None) -> None:
-    """The same rule as a student deleting their own reply: one that has answers stays as a "[deleted]"
-    placeholder so the thread holds together, anything else goes, along with placeholders left empty above it.
-    placeholder_owner_id moves a kept placeholder to another account (the user it belonged to is being deleted)."""
-    if reply.children:
-        reply.is_deleted = True
-        reply.content = ""
-        reply.votes.clear()
-        reply.notifications.clear()
-        if placeholder_owner_id is not None:
-            reply.user_id = placeholder_owner_id
-        db.flush()
-        return
-
-    parent = reply.parent
-    db.delete(reply)
-    db.flush()
-    while parent is not None and parent.is_deleted:
-        db.refresh(parent)
-        if parent.children:
-            break
-        grandparent = parent.parent
-        db.delete(parent)
-        db.flush()
-        parent = grandparent
+from backend.services.reply_removal import remove_reply
 
 
 def delete_account(db: Session, user: User) -> dict:
