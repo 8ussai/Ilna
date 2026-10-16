@@ -4,7 +4,8 @@ import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
 
 from backend import backendConfig
@@ -12,8 +13,21 @@ from backend.core.apiDependencies import get_admin
 from backend.core.security import create_admin_token, get_password_hash, verify_password
 from backend.database import SessionLocal, get_db
 from backend.models.admin import AdminCode, AdminLog
+from backend.models.course import Course, CourseMaterial
+from backend.models.post import Post, Reply
 from backend.models.user import User
-from backend.schemas.admin import AdminCodeRequest, AdminCodeVerify, AdminSession, AdminToken, AdminUserOut, BanRequest
+from backend.routes.auth import _send_code as send_code
+from backend.schemas.admin import (
+    AdminCodeRequest,
+    AdminCodeVerify,
+    AdminSession,
+    AdminToken,
+    AdminUserOut,
+    AdminUserPage,
+    BanRequest,
+    DeleteUserRequest,
+)
+from backend.services.account_deletion import delete_account
 from backend.services.email import send_admin_code_email, send_restored_email, send_suspended_email, smtp_configured
 
 router = APIRouter()
@@ -123,6 +137,103 @@ def _email_quietly(send, *args) -> None:
         logger.exception("Couldn't send %s", send.__name__)
 
 
+def _with_counts(db: Session, users: list[User]) -> list[AdminUserOut]:
+    """Adds post, reply, course and storage totals, with one query each for the whole page."""
+    ids = [user.id for user in users]
+    if not ids:
+        return []
+
+    def per_user(query):
+        return dict(query.all())
+
+    posts = per_user(db.query(Post.user_id, func.count(Post.id)).filter(Post.user_id.in_(ids)).group_by(Post.user_id))
+    replies = per_user(
+        db.query(Reply.user_id, func.count(Reply.id))
+        .filter(Reply.user_id.in_(ids), Reply.is_deleted.is_(False))
+        .group_by(Reply.user_id)
+    )
+    courses = per_user(db.query(Course.user_id, func.count(Course.id)).filter(Course.user_id.in_(ids)).group_by(Course.user_id))
+    storage = per_user(
+        db.query(Course.user_id, func.coalesce(func.sum(CourseMaterial.size_bytes), 0))
+        .join(CourseMaterial, CourseMaterial.course_id == Course.id)
+        .filter(Course.user_id.in_(ids))
+        .group_by(Course.user_id)
+    )
+    return [
+        AdminUserOut.model_validate(user).model_copy(update={
+            "posts_count": posts.get(user.id, 0),
+            "replies_count": replies.get(user.id, 0),
+            "courses_count": courses.get(user.id, 0),
+            "storage_bytes": storage.get(user.id, 0),
+        })
+        for user in users
+    ]
+
+
+@router.get("/users", response_model=AdminUserPage, dependencies=[Depends(get_admin)])
+def list_users(
+    q: str = Query("", max_length=100, description="Part of a name, username or email; empty lists everyone."),
+    limit: int = Query(25, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    db: Session = Depends(get_db),
+):
+    query = db.query(User).filter(User.is_system.is_(False))
+    # every word has to match somewhere, so "ahmad ali" finds Ahmad Ali
+    for word in q.strip().split():
+        like = f"%{word}%"
+        query = query.filter(or_(
+            User.username.ilike(like), User.email.ilike(like), User.first_name.ilike(like), User.last_name.ilike(like)
+        ))
+    total = query.count()
+    users = query.order_by(User.created_at.desc(), User.id.desc()).offset(offset).limit(limit).all()
+    return AdminUserPage(items=_with_counts(db, users), total=total)
+
+
+@router.get("/users/{user_id}", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def get_user(user_id: int, db: Session = Depends(get_db)):
+    return _with_counts(db, [_get_student(db, user_id)])[0]
+
+
+@router.post("/users/{user_id}/verify", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def verify_user(user_id: int, db: Session = Depends(get_db)):
+    """For a student who never got their sign-up code."""
+    user = _get_student(db, user_id)
+    if not user.is_verified:
+        user.is_verified = True
+        user.otp_hash = None
+        user.otp_sent_at = None
+        user.otp_expires_at = None
+        user.otp_attempts = 0
+        db.add(AdminLog(action="verify", target_type="user", target_id=user.id,
+                        details=json.dumps({"username": user.username}, ensure_ascii=False)))
+        db.commit()
+    return _with_counts(db, [user])[0]
+
+
+@router.post("/users/{user_id}/resend-code", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
+def resend_user_code(user_id: int, db: Session = Depends(get_db)):
+    user = _get_student(db, user_id)
+    if user.is_verified:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Already verified")
+    if not smtp_configured():
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Email isn't set up")
+    # the student's own resend, cooldown included; raises 502 if the email can't be sent
+    send_code(user, db)
+
+
+@router.post("/users/{user_id}/delete", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
+def delete_user(user_id: int, data: DeleteUserRequest, db: Session = Depends(get_db)):
+    user = _get_student(db, user_id)
+    if data.confirm_username.strip().lower() != user.username:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username doesn't match")
+
+    details = {"username": user.username, "email": user.email, "name": f"{user.first_name} {user.last_name}"}
+    details["removed"] = delete_account(db, user)
+    db.add(AdminLog(action="delete_user", target_type="user", target_id=user_id,
+                    details=json.dumps(details, ensure_ascii=False)))
+    db.commit()
+
+
 @router.post("/users/{user_id}/ban", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
 def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Bans at once: every request from the account is refused from here on, which logs the student out.
@@ -138,14 +249,14 @@ def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, 
 
     if smtp_configured():
         background_tasks.add_task(_email_quietly, send_suspended_email, user, data.reason)
-    return user
+    return _with_counts(db, [user])[0]
 
 
 @router.post("/users/{user_id}/unban", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
 def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     user = _get_student(db, user_id)
     if not user.is_banned:
-        return user
+        return _with_counts(db, [user])[0]
 
     db.add(AdminLog(action="unban", target_type="user", target_id=user.id,
                     details=json.dumps({"username": user.username, "was_banned_for": user.banned_reason}, ensure_ascii=False)))
@@ -157,4 +268,4 @@ def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = De
 
     if smtp_configured():
         background_tasks.add_task(_email_quietly, send_restored_email, user)
-    return user
+    return _with_counts(db, [user])[0]

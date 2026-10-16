@@ -61,3 +61,51 @@ export async function verifyAdminCode(email: string, code: string) {
 export function fetchAdminSession() {
   return adminRequest<{ email: string }>('/session')
 }
+
+export type AdminUser = {
+  id: number
+  username: string
+  first_name: string
+  last_name: string
+  email: string
+  is_verified: boolean
+  is_banned: boolean
+  banned_reason: string | null
+  banned_at: string | null
+  created_at: string
+  country: string
+  university: string
+  college: string
+  major: string
+  posts_count: number
+  replies_count: number
+  courses_count: number
+  storage_bytes: number
+}
+
+export const ADMIN_USERS_PAGE = 25
+
+export function fetchAdminUsers(q: string, offset = 0) {
+  const params = new URLSearchParams({ q, limit: String(ADMIN_USERS_PAGE), offset: String(offset) })
+  return adminRequest<{ items: AdminUser[]; total: number }>(`/users?${params}`)
+}
+
+export function banUser(id: number, reason: string) {
+  return adminRequest<AdminUser>(`/users/${id}/ban`, json({ reason }))
+}
+
+export function unbanUser(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/unban`, { method: 'POST' })
+}
+
+export function verifyUser(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/verify`, { method: 'POST' })
+}
+
+export function resendUserCode(id: number) {
+  return adminRequest<null>(`/users/${id}/resend-code`, { method: 'POST' })
+}
+
+export function deleteUser(id: number, confirmUsername: string) {
+  return adminRequest<null>(`/users/${id}/delete`, json({ confirm_username: confirmUsername }))
+}

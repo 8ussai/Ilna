@@ -48,5 +48,26 @@ class AdminUserOut(BaseModel):
     banned_reason: Optional[str]
     banned_at: Optional[datetime]
     created_at: datetime
+    # catalog ids; the panel shows their names
+    country: str
+    university: str
+    college: str
+    major: str
+    posts_count: int = 0
+    # replies that aren't deleted
+    replies_count: int = 0
+    courses_count: int = 0
+    storage_bytes: int = 0
 
     model_config = {"from_attributes": True}
+
+
+class AdminUserPage(BaseModel):
+    items: list[AdminUserOut]
+    # every match, not just this page
+    total: int
+
+
+class DeleteUserRequest(BaseModel):
+    # the admin types the username to confirm, so a slip of the mouse can't delete an account
+    confirm_username: str
