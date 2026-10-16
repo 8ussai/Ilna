@@ -2,17 +2,29 @@ import { useCallback, useEffect, useState } from 'react'
 import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { ADMIN_POSTS_PAGE, fetchAdminPost, fetchAdminPosts, findAdminReply, removePost, removeReply } from '../../api/admin'
+import {
+  ADMIN_POSTS_PAGE,
+  deleteAdminPost,
+  fetchAdminPost,
+  fetchAdminPosts,
+  findAdminReply,
+  MAX_PIN_HOURS,
+  pinAdminPost,
+  removePost,
+  removeReply,
+} from '../../api/admin'
 import type { AdminPost, AdminReply } from '../../api/admin'
 import { ApiError } from '../../api/client'
 import type { Catalog } from '../../api/meta'
 import type { PostScope } from '../../api/posts'
 import { postOriginNames } from '../../catalog'
+import { DeleteButton } from '../../components/DeleteButton'
 import { Field } from '../../components/Field'
 import { Select } from '../../components/Select'
 import { secondaryButtonInline, smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDateTime, parseServerDate } from '../../dates'
+import { AdminPostComposer } from './AdminPostComposer'
 import { ReasonDialog } from './ReasonDialog'
 
 type Status = 'loading' | 'ready' | 'error'
@@ -36,12 +48,14 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
   const [jumped, setJumped] = useState<{ postId: number; replyId: number | null } | null>(null)
   const [removing, setRemoving] = useState<Removing | null>(null)
   const [notice, setNotice] = useState('')
+  const [adminOnly, setAdminOnly] = useState(false)
+  const [composing, setComposing] = useState(false)
 
   useEffect(() => {
     let cancelled = false
     const timer = setTimeout(() => {
       setStatus('loading')
-      fetchAdminPosts(scope, query.trim())
+      fetchAdminPosts(scope, query.trim(), 0, adminOnly)
         .then((page) => {
           if (cancelled) return
           setPosts(page.items)
@@ -54,12 +68,12 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
       cancelled = true
       clearTimeout(timer)
     }
-  }, [scope, query, reloadKey])
+  }, [scope, query, adminOnly, reloadKey])
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const page = await fetchAdminPosts(scope, query.trim(), posts.length)
+      const page = await fetchAdminPosts(scope, query.trim(), posts.length, adminOnly)
       setPosts((current) => [...current, ...page.items.filter((p) => !current.some((c) => c.id === p.id))])
       setTotal(page.total)
     } catch {
@@ -93,6 +107,22 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
 
   return (
     <section className="space-y-4">
+      {composing ? (
+        <AdminPostComposer
+          catalog={catalog}
+          onCancel={() => setComposing(false)}
+          onPosted={(post) => {
+            setComposing(false)
+            setNotice(t('admin.adminPosts.posted', { id: post.id }))
+            setReloadKey((k) => k + 1)
+          }}
+        />
+      ) : (
+        <button type="button" onClick={() => (setNotice(''), setComposing(true))} className={smallPrimaryButton}>
+          {t('admin.adminPosts.new')}
+        </button>
+      )}
+
       <JumpToId onFound={(target) => (setNotice(''), setJumped(target))} />
 
       {jumped && (
@@ -129,6 +159,10 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
           autoComplete="off"
         />
       </div>
+      <label className="flex w-fit cursor-pointer items-center gap-2 text-sm">
+        <input type="checkbox" checked={adminOnly} onChange={(e) => setAdminOnly(e.target.checked)} className="size-4 accent-[var(--accent)]" />
+        {t('admin.adminPosts.onlyMine')}
+      </label>
 
       {notice && (
         <p role="status" className="rounded-xl border border-line bg-card px-4 py-3 text-sm">
@@ -155,6 +189,12 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
                     post={post}
                     catalog={catalog}
                     reloadKey={reloadKey}
+                    onChanged={(updated) => setPosts((current) => current.map((p) => (p.id === updated.id ? updated : p)))}
+                    onDeleted={() => {
+                      setPosts((current) => current.filter((p) => p.id !== post.id))
+                      setTotal((n) => n - 1)
+                      setNotice(t('admin.adminPosts.deleted', { id: post.id }))
+                    }}
                     onRemovePost={() => setRemoving({ kind: 'post', post })}
                     onRemoveReply={(reply) => setRemoving({ kind: 'reply', reply, postId: post.id })}
                   />
@@ -289,12 +329,16 @@ function PostRow({
   post,
   catalog,
   reloadKey,
+  onChanged,
+  onDeleted,
   onRemovePost,
   onRemoveReply,
 }: {
   post: AdminPost
   catalog: Catalog | null
   reloadKey: number
+  onChanged: (post: AdminPost) => void
+  onDeleted: () => void
   onRemovePost: () => void
   onRemoveReply: (reply: AdminReply) => void
 }) {
@@ -314,10 +358,21 @@ function PostRow({
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className={smallSecondaryButton}>
           {open ? t('admin.posts.hideThread') : t('admin.posts.showThread')}
         </button>
-        <button type="button" onClick={onRemovePost} className={`${smallSecondaryButton} text-danger`}>
-          {t('admin.posts.removePost')}
-        </button>
+        {post.is_admin_post ? (
+          <DeleteButton
+            question={t('admin.adminPosts.confirmDelete')}
+            onConfirm={async () => {
+              await deleteAdminPost(post.id)
+              onDeleted()
+            }}
+          />
+        ) : (
+          <button type="button" onClick={onRemovePost} className={`${smallSecondaryButton} text-danger`}>
+            {t('admin.posts.removePost')}
+          </button>
+        )}
       </div>
+      {post.is_admin_post && <PinControls post={post} onChanged={onChanged} />}
       {open && <Thread key={reloadKey} postId={post.id} highlightReplyId={null} onRemoveReply={onRemoveReply} />}
     </article>
   )
@@ -459,6 +514,64 @@ function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highli
             {t('admin.posts.removeReply')}
           </button>
         </>
+      )}
+    </div>
+  )
+}
+
+function PinControls({ post, onChanged }: { post: AdminPost; onChanged: (post: AdminPost) => void }) {
+  const { t, i18n } = useTranslation()
+  const [hours, setHours] = useState('24')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const until = post.pinned_until ? parseServerDate(post.pinned_until) : null
+  const pinned = post.is_pinned
+  const value = Number(hours)
+  const valid = Number.isInteger(value) && value >= 1 && value <= MAX_PIN_HOURS
+
+  async function pin(pinHours: number | null) {
+    setBusy(true)
+    setError('')
+    try {
+      onChanged(await pinAdminPost(post.id, pinHours))
+    } catch {
+      setError(t('errors.generic'))
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return (
+    <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl bg-surface px-3 py-2 text-sm">
+      <span className="me-1">
+        {pinned && until
+          ? `📌 ${t('admin.adminPosts.pinnedUntil', { date: formatDateTime(until, i18n.language) })}`
+          : t('admin.adminPosts.notPinned')}
+      </span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={1}
+        max={MAX_PIN_HOURS}
+        value={hours}
+        onChange={(e) => setHours(e.target.value)}
+        aria-label={t('admin.adminPosts.hours')}
+        className="h-9 w-20 rounded-lg border border-line bg-card px-2 text-fg"
+      />
+      <span className="text-muted">{t('admin.adminPosts.hours')}</span>
+      <button type="button" disabled={busy || !valid} onClick={() => pin(value)} className={smallSecondaryButton}>
+        {pinned ? t('admin.adminPosts.repin') : t('admin.adminPosts.pin')}
+      </button>
+      {pinned && (
+        <button type="button" disabled={busy} onClick={() => pin(null)} className={smallSecondaryButton}>
+          {t('admin.adminPosts.unpin')}
+        </button>
+      )}
+      {!valid && <span className="text-danger">{t('admin.adminPosts.pinRange', { max: MAX_PIN_HOURS })}</span>}
+      {error && (
+        <span role="alert" className="text-danger">
+          {error}
+        </span>
       )}
     </div>
   )

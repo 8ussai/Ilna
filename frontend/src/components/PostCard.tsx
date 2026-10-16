@@ -73,6 +73,11 @@ export function PostCard({
           <p className="truncate font-medium">
             {author.first_name} {author.last_name}
             <span className="ms-2 text-sm font-normal text-muted">@{author.username}</span>
+            {post.is_admin_post && (
+              <span className="ms-2 rounded-full bg-accent/15 px-2 py-0.5 align-middle text-xs font-medium text-accent">
+                {t('settings.notifications.adminBadge')}
+              </span>
+            )}
           </p>
           {originText && <p className="truncate text-sm text-muted">{originText}</p>}
           <p className="text-sm text-muted">
@@ -83,6 +88,9 @@ export function PostCard({
           </p>
         </div>
 
+        {post.is_pinned && (
+          <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">📌 {t('feed.pinned')}</span>
+        )}
         {post.user_id === userId && <DeleteButton question={t('feed.confirmDelete')} onConfirm={remove} />}
       </header>
 
@@ -105,7 +113,7 @@ export function PostCard({
           </svg>
           {t('replies.count', { count: post.replies_count })}
         </button>
-        {post.user_id !== userId && (
+        {post.user_id !== userId && !post.is_admin_post && (
           <div className="ms-auto">
             <ReportButton kind="post" id={post.id} />
           </div>

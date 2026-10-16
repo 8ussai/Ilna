@@ -36,3 +36,19 @@ def email_matches_domain(email: str, domain: str) -> bool:
     email_domain = email.rsplit("@", 1)[-1].lower()
     # the university domain itself or one of its subdomains (e.g. std.ksu.edu.sa)
     return email_domain == domain or email_domain.endswith("." + domain)
+
+
+def locate(kind: str, item_id: str) -> Optional[dict]:
+    """The university, college and major ids for a university, college or major id ("" below the level asked for),
+    or None if there's no such one. College and major ids are unique across the catalog."""
+    for country in CATALOG["countries"]:
+        for university in country["universities"]:
+            if kind == "university" and university["id"] == item_id:
+                return {"university": university["id"], "college": "", "major": ""}
+            for college in university["colleges"]:
+                if kind == "college" and college["id"] == item_id:
+                    return {"university": university["id"], "college": college["id"], "major": ""}
+                for major in college["majors"]:
+                    if kind == "major" and major["id"] == item_id:
+                        return {"university": university["id"], "college": college["id"], "major": major["id"]}
+    return None

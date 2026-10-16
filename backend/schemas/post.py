@@ -63,6 +63,10 @@ class PostOut(PostBase):
     major: str
 
     author: PostAuthor
+    # written by the admin (author is "Ilna Admin"); can't be reported
+    is_admin_post: bool = False
+    # pinned to the top of its blog right now
+    is_pinned: bool = False
 
     model_config = {"from_attributes": True}
 

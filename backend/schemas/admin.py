@@ -91,6 +91,8 @@ class AdminPostOut(BaseModel):
     # an admin post (step 8); the author is the hidden admin account
     is_admin_post: bool
     pinned_until: Optional[datetime]
+    # pinned_until is still ahead
+    is_pinned: bool
     votes_count: int
     # replies that aren't deleted
     replies_count: int
@@ -185,3 +187,47 @@ class AdminMessageCreate(MessageAudience):
 
 class RecipientCount(BaseModel):
     count: int
+
+
+# matches the pin-hours field in the panel
+MAX_PIN_HOURS = 168
+
+
+def _check_pin_hours(value: Optional[int]) -> Optional[int]:
+    if value is not None and not 1 <= value <= MAX_PIN_HOURS:
+        raise ValueError(f"Pin for 1 to {MAX_PIN_HOURS} hours.")
+    return value
+
+
+class AdminPostCreate(BaseModel):
+    scope: PostScope
+    # the university, college or major id for a scoped blog; empty for general
+    value: Optional[str] = None
+    content: str
+    # pinned to the top for this many hours; null for not pinned
+    pin_hours: Optional[int] = None
+
+    @field_validator("content")
+    @classmethod
+    def check_content(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Post can't be empty.")
+        if len(value) > 5000:
+            raise ValueError("Post is too long (max 5000 characters).")
+        return value
+
+    @field_validator("pin_hours")
+    @classmethod
+    def check_pin_hours(cls, value: Optional[int]) -> Optional[int]:
+        return _check_pin_hours(value)
+
+
+class PinRequest(BaseModel):
+    # null unpins
+    pin_hours: Optional[int] = None
+
+    @field_validator("pin_hours")
+    @classmethod
+    def check_pin_hours(cls, value: Optional[int]) -> Optional[int]:
+        return _check_pin_hours(value)

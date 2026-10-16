@@ -24,6 +24,7 @@ from backend.schemas.admin import (
     AdminCodeVerify,
     AdminMessageCreate,
     AdminPostDetail,
+    AdminPostCreate,
     AdminPostOut,
     AdminPostPage,
     AdminReplyOut,
@@ -37,6 +38,7 @@ from backend.schemas.admin import (
     DeleteUserRequest,
     MessageAudience,
     OpenCount,
+    PinRequest,
     RecipientCount,
     ReasonRequest,
     ReplyLookup,
@@ -46,6 +48,7 @@ from backend.services.admin_account import get_admin_account
 from backend.services.notifications import NotificationType, notify_removal
 from backend.services.reply_removal import remove_reply
 from backend.services.account_deletion import delete_account
+from backend.services.catalog import locate
 from backend.services.email import send_admin_code_email, send_restored_email, send_suspended_email, smtp_configured
 
 router = APIRouter()
@@ -302,6 +305,7 @@ def _post_out(post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
         author=post.author,
         is_admin_post=post.author.is_system,
         pinned_until=post.pinned_until,
+        is_pinned=post.pinned_until is not None and post.pinned_until > _now(),
         votes_count=votes_count,
         replies_count=replies_count,
     )
@@ -326,6 +330,7 @@ def _posts_with_counts(db: Session):
 @router.get("/posts", response_model=AdminPostPage, dependencies=[Depends(get_admin)])
 def list_posts(
     scope: PostScope | None = Query(None, description="One blog; leave empty for all of them."),
+    admin_only: bool = Query(False, description="Only the admin's own posts."),
     q: str = Query("", max_length=100, description="Words the post has to contain."),
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -333,6 +338,8 @@ def list_posts(
 ):
     """Posts from every university, newest first."""
     query = db.query(Post)
+    if admin_only:
+        query = query.filter(Post.user_id == get_admin_account(db).id)
     if scope is not None:
         query = query.filter(Post.scope == scope.value)
     for word in q.strip().split():
@@ -574,3 +581,66 @@ def send_message(data: AdminMessageCreate, db: Session = Depends(get_db)):
                                         "recipients": len(recipient_ids), "message": data.message}, ensure_ascii=False)))
     db.commit()
     return RecipientCount(count=len(recipient_ids))
+
+
+
+def _admin_post(db: Session, post_id: int) -> Post:
+    post = db.query(Post).filter(Post.id == post_id, Post.user_id == get_admin_account(db).id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Admin post not found")
+    return post
+
+
+def _pin_until(hours: int | None) -> datetime | None:
+    return None if hours is None else _now() + timedelta(hours=hours)
+
+
+@router.post("/posts", response_model=AdminPostOut, status_code=status.HTTP_201_CREATED, dependencies=[Depends(get_admin)])
+def create_admin_post(data: AdminPostCreate, db: Session = Depends(get_db)):
+    """A post from Ilna Admin in any blog: general, or one university's, college's or major's."""
+    if data.scope == PostScope.general:
+        place = {"university": "", "college": "", "major": ""}
+    else:
+        place = locate(data.scope.value, data.value or "")
+        if place is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Unknown {data.scope.value}")
+
+    post = Post(
+        user_id=get_admin_account(db).id,
+        content=data.content,
+        scope=data.scope.value,
+        pinned_until=_pin_until(data.pin_hours),
+        **place,
+    )
+    db.add(post)
+    db.flush()
+    db.add(AdminLog(action="admin_post", target_type="post", target_id=post.id, details=json.dumps({
+        "scope": data.scope.value, "value": data.value, "pin_hours": data.pin_hours, "content": data.content,
+    }, ensure_ascii=False)))
+    db.commit()
+    db.refresh(post)
+    return _post_out(post, 0, 0)
+
+
+@router.post("/posts/{post_id}/pin", response_model=AdminPostOut, dependencies=[Depends(get_admin)])
+def pin_admin_post(post_id: int, data: PinRequest, db: Session = Depends(get_db)):
+    """Pins an admin post for some hours from now, or unpins it (pin_hours null)."""
+    post = _admin_post(db, post_id)
+    post.pinned_until = _pin_until(data.pin_hours)
+    db.add(AdminLog(action="pin" if data.pin_hours else "unpin", target_type="post", target_id=post.id,
+                    details=json.dumps({"pin_hours": data.pin_hours})))
+    db.commit()
+    votes, replies = _posts_with_counts(db).filter(Post.id == post.id).one()[1:]
+    return _post_out(post, votes, replies)
+
+
+@router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
+def delete_admin_post(post_id: int, db: Session = Depends(get_db)):
+    """Deletes one of the admin's own posts with its thread. Students' posts go through /remove instead."""
+    post = _admin_post(db, post_id)
+    reply_ids = [r.id for r in post.replies]
+    db.query(Report).filter(or_(Report.post_id == post.id, Report.reply_id.in_(reply_ids))).delete(synchronize_session=False)
+    db.add(AdminLog(action="delete_admin_post", target_type="post", target_id=post.id,
+                    details=json.dumps({"content": post.content}, ensure_ascii=False)))
+    db.delete(post)
+    db.commit()

@@ -122,6 +122,8 @@ export type AdminPost = {
   author: { id: number; username: string; first_name: string; last_name: string }
   is_admin_post: boolean
   pinned_until: string | null
+  // pinned_until is still ahead
+  is_pinned: boolean
   votes_count: number
   replies_count: number
 }
@@ -140,9 +142,11 @@ export type AdminReply = {
 
 export const ADMIN_POSTS_PAGE = 20
 
-export function fetchAdminPosts(scope: PostScope | '', q: string, offset = 0) {
+// adminOnly lists just the admin's own posts
+export function fetchAdminPosts(scope: PostScope | '', q: string, offset = 0, adminOnly = false) {
   const params = new URLSearchParams({ q, limit: String(ADMIN_POSTS_PAGE), offset: String(offset) })
   if (scope) params.set('scope', scope)
+  if (adminOnly) params.set('admin_only', 'true')
   return adminRequest<{ items: AdminPost[]; total: number }>(`/posts?${params}`)
 }
 
@@ -202,4 +206,21 @@ export function previewMessage(audience: MessageAudience) {
 // confirmCount is the number the admin was shown; a 409 { code: 'count_changed', count } means it changed
 export function sendMessage(audience: MessageAudience, message: string, confirmCount: number) {
   return adminRequest<{ count: number }>('/messages', json({ ...audience, message, confirm_count: confirmCount }))
+}
+
+// matches MAX_PIN_HOURS in backend/schemas/admin.py
+export const MAX_PIN_HOURS = 168
+
+// value is the university, college or major id for a scoped blog; pinHours null means not pinned
+export function createAdminPost(scope: PostScope, value: string | null, content: string, pinHours: number | null) {
+  return adminRequest<AdminPost>('/posts', json({ scope, value, content, pin_hours: pinHours }))
+}
+
+// pinHours null unpins
+export function pinAdminPost(id: number, pinHours: number | null) {
+  return adminRequest<AdminPost>(`/posts/${id}/pin`, json({ pin_hours: pinHours }))
+}
+
+export function deleteAdminPost(id: number) {
+  return adminRequest<null>(`/posts/${id}`, { method: 'DELETE' })
 }

@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 
 from backend.models.notification import Notification
 from backend.models.post import Post, Reply
+from backend.models.user import User
 
 
 class NotificationType(str, Enum):
@@ -65,6 +66,10 @@ def sync_vote_notification(
     Removing it on un-vote means toggling a vote again and again can't flood the owner. Doesn't commit."""
     if owner_id == actor_id:
         return
+    # nobody reads the hidden admin account's notifications
+    owner = db.get(User, owner_id)
+    if owner is None or owner.is_system:
+        return
 
     existing = (
         db.query(Notification)
@@ -94,6 +99,9 @@ def notify_new_reply(db: Session, reply: Reply, post: Post, parent: Optional[Rep
     """Tell the parent reply's author someone answered them, and the post's author their post got a reply.
     Each person is told once, and never about their own reply. Call after flushing so reply.id is set."""
     notified = {reply.user_id}
+    # nobody reads the hidden admin account's notifications
+    if post.author.is_system:
+        notified.add(post.user_id)
 
     if parent is not None and parent.user_id not in notified:
         db.add(Notification(

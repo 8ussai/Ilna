@@ -118,7 +118,8 @@
       "hot": "Hot",
       "new": "New",
       "top": "Top"
-    }
+    },
+    "pinned": "Pinned"
   },
   "courses": {
     "loadFailed": "Couldn't load your courses.",
@@ -816,6 +817,23 @@
       "sent_one": "Sent to {{count}} student.",
       "sent_other": "Sent to {{count}} students.",
       "countChanged": "The number of students changed to {{count}} since you looked. Check it, then send again."
+    },
+    "adminPosts": {
+      "new": "New admin post",
+      "content": "Post",
+      "pinFor": "Pin to the top for",
+      "hours": "hours",
+      "pinRange": "Pin for 1 to {{max}} hours.",
+      "publish": "Publish as Ilna Admin",
+      "posted": "Posted #P{{id}} as Ilna Admin.",
+      "onlyMine": "Only admin posts",
+      "pinnedUntil": "Pinned until {{date}}",
+      "notPinned": "Not pinned",
+      "pin": "Pin",
+      "repin": "Pin from now",
+      "unpin": "Unpin",
+      "confirmDelete": "Delete this admin post?",
+      "deleted": "Admin post #P{{id}} was deleted."
     }
   },
   "report": {

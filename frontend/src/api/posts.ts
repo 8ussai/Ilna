@@ -18,6 +18,10 @@ export type Post = {
   my_vote: VoteDir
   replies_count: number
   author: { id: number; username: string; first_name: string; last_name: string }
+  // written by the admin ("Ilna Admin"); can't be reported
+  is_admin_post: boolean
+  // pinned to the top of its blog right now
+  is_pinned: boolean
 }
 
 export const PAGE_SIZE = 20
