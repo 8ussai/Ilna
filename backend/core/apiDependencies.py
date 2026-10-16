@@ -1,3 +1,5 @@
+from datetime import timezone
+
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from jose import JWTError, jwt
@@ -35,6 +37,13 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     # the hidden admin account is never used as a student login
     if user is None or user.is_system:
         raise credentials_exception
+
+    # a login from before the last password change is over; tokens from before iat existed count as older
+    if user.password_changed_at:
+        changed = int(user.password_changed_at.replace(tzinfo=timezone.utc).timestamp())
+        issued = payload.get("iat")
+        if not isinstance(issued, (int, float)) or issued < changed:
+            raise credentials_exception
 
     # checked on every request, so a ban logs the student out right away; the app shows the suspended notice
     if user.is_banned:

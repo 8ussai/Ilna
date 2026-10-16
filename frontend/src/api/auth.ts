@@ -63,6 +63,25 @@ export function resendOtp(email: string) {
   })
 }
 
+// always succeeds for any email or username, so it doesn't tell which accounts exist; a code is emailed if one does
+export function forgotPassword(identifier: string) {
+  return request<null>('/auth/forgot-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier }),
+  })
+}
+
+// the emailed code and a new password; logs in, and every other session is logged out
+export async function resetPassword(identifier: string, code: string, new_password: string): Promise<string> {
+  const { access_token } = await request<{ access_token: string }>('/auth/reset-password', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier, code, new_password }),
+  })
+  return access_token
+}
+
 // login answers 403 with this detail when the password is right but the email was never verified
 export function unverifiedEmail(detail: unknown): string | null {
   if (detail && typeof detail === 'object' && 'code' in detail && detail.code === 'email_not_verified' && 'email' in detail) {

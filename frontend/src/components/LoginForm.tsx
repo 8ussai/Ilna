@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { login, unverifiedEmail } from '../api/auth'
 import { ACCOUNT_SUSPENDED, ApiError } from '../api/client'
 import { Field } from './Field'
+import { ForgotPasswordForm } from './ForgotPasswordForm'
 import { primaryButton } from './styles'
 import { VerifyEmailForm } from './VerifyEmailForm'
 
@@ -17,6 +18,7 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
   const [formError, setFormError] = useState('')
   // set when the account still needs its emailed code
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
+  const [forgot, setForgot] = useState(false)
 
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
@@ -41,6 +43,9 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
   if (verifyEmail) {
     return <VerifyEmailForm email={verifyEmail} onAuthenticated={onAuthenticated} onBack={() => setVerifyEmail(null)} />
   }
+  if (forgot) {
+    return <ForgotPasswordForm initialIdentifier={identifier.trim()} onAuthenticated={onAuthenticated} onBack={() => setForgot(false)} />
+  }
 
   return (
     <form onSubmit={onSubmit} noValidate className="space-y-4">
@@ -61,6 +66,11 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
         autoComplete="current-password"
         error={submitted && !password ? t('errors.required') : undefined}
       />
+      <div className="-mt-2 text-end">
+        <button type="button" onClick={() => setForgot(true)} className="text-sm font-medium text-muted hover:text-fg hover:underline">
+          {t('auth.forgotLink')}
+        </button>
+      </div>
 
       {formError && (
         <p role="alert" className="text-sm text-danger">

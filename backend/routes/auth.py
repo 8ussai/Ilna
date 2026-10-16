@@ -3,7 +3,7 @@ import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from sqlalchemy import or_
@@ -12,10 +12,23 @@ from sqlalchemy.orm import Session
 from backend import backendConfig
 from backend.core.apiDependencies import ACCOUNT_SUSPENDED, get_current_user
 from backend.core.security import create_access_token, get_password_hash, verify_password
-from backend.database import get_db
+from backend.database import SessionLocal, get_db
 from backend.models.user import User
-from backend.schemas.user import OtpResend, OtpVerify, PasswordChange, UserCreate, UserOut
-from backend.services.email import send_otp_email, smtp_configured
+from backend.schemas.user import (
+    OtpResend,
+    OtpVerify,
+    PasswordChange,
+    PasswordReset,
+    PasswordResetRequest,
+    UserCreate,
+    UserOut,
+)
+from backend.services.email import (
+    send_otp_email,
+    send_password_changed_email,
+    send_password_reset_email,
+    smtp_configured,
+)
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -134,12 +147,112 @@ def resend_otp(otp_data: OtpResend, db: Session = Depends(get_db)):
         _send_code(user, db)
 
 
+def _find_login(identifier: str, db: Session) -> User | None:
+    """The account an email or username on the login form belongs to."""
+    identifier = identifier.strip()
+    # usernames are all lowercase, so "Khaled05" still finds khaled05
+    return db.query(User).filter(or_(User.email == identifier, User.username == identifier.lower())).first()
+
+
+def _set_password(user: User, password: str) -> None:
+    """Saves a new password and ends every login made before it."""
+    user.hashed_password = get_password_hash(password)
+    user.password_changed_at = _now()
+
+
+def _send_password_changed(user_id: int) -> None:
+    """Runs after the response; a failed notice doesn't undo the change."""
+    db = SessionLocal()
+    try:
+        user = db.get(User, user_id)
+        if user:
+            send_password_changed_email(user)
+    except (smtplib.SMTPException, OSError):
+        logger.exception("Couldn't send the password-changed email to user %s", user_id)
+    finally:
+        db.close()
+
+
+def _send_reset_code(identifier: str) -> None:
+    """Emails a reset code to the account, unless one was sent within the cooldown.
+    Runs after the response, so a real and an unknown account take the same time to answer."""
+    db = SessionLocal()
+    try:
+        user = _find_login(identifier, db)
+        # only accounts that can log in; one never verified finishes sign-up by logging in instead
+        if not user or user.is_system or user.is_banned or not user.is_verified:
+            return
+        now = _now()
+        if user.reset_sent_at and now - user.reset_sent_at < timedelta(seconds=backendConfig.OTP_RESEND_COOLDOWN_SECONDS):
+            return
+
+        code = f"{secrets.randbelow(1_000_000):06d}"
+        try:
+            send_password_reset_email(user, code)
+        except (smtplib.SMTPException, OSError):
+            logger.exception("Couldn't send a password reset code to user %s", user.id)
+            return
+
+        # saved only once sent, so a failed send doesn't start the cooldown
+        user.reset_hash = get_password_hash(code)
+        user.reset_sent_at = now
+        user.reset_expires_at = now + timedelta(minutes=backendConfig.OTP_EXPIRE_MINUTES)
+        user.reset_attempts = 0
+        db.commit()
+    finally:
+        db.close()
+
+
+# always 204, so it can't be used to find out which emails have accounts
+@router.post("/forgot-password", status_code=status.HTTP_204_NO_CONTENT)
+def forgot_password(data: PasswordResetRequest, background_tasks: BackgroundTasks):
+    if not smtp_configured():
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Password reset isn't available right now",
+        )
+    if data.identifier.strip():
+        background_tasks.add_task(_send_reset_code, data.identifier)
+
+
+@router.post("/reset-password")
+def reset_password(data: PasswordReset, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Checks the emailed code; on success the password is changed, other sessions end, and this one is logged in."""
+    user = _find_login(data.identifier, db)
+    # the same answer as a wrong code, so it doesn't tell which accounts exist
+    if not user or user.is_system or not user.reset_hash:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
+    if user.reset_attempts >= backendConfig.OTP_MAX_ATTEMPTS:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many attempts")
+    if _now() > user.reset_expires_at:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired")
+
+    if not verify_password(data.code.strip(), user.reset_hash):
+        user.reset_attempts += 1
+        db.commit()
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
+    # the code was right, so it's safe to say the account is suspended
+    if user.is_banned:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
+
+    _set_password(user, data.new_password)
+    user.reset_hash = None
+    user.reset_sent_at = None
+    user.reset_expires_at = None
+    user.reset_attempts = 0
+    db.commit()
+    background_tasks.add_task(_send_password_changed, user.id)
+
+    return {
+        "access_token": create_access_token(data={"sub": str(user.id)}),
+        "token_type": "bearer",
+    }
+
+
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db),):
 
-    identifier = form_data.username.strip()
-    # usernames are all lowercase, so "Khaled05" still finds khaled05
-    user = db.query(User).filter(or_(User.email == identifier, User.username == identifier.lower())).first()
+    user = _find_login(form_data.username, db)
 
     # the hidden admin account answers like an unknown account
     if not user or user.is_system or not verify_password(form_data.password, user.hashed_password):
@@ -181,6 +294,7 @@ def get_me(current_user: User = Depends(get_current_user)):
 @router.post("/change-password", status_code=status.HTTP_204_NO_CONTENT)
 def change_password(
     password_data: PasswordChange,
+    background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
@@ -191,5 +305,7 @@ def change_password(
             detail="Current password is incorrect",
         )
 
-    current_user.hashed_password = get_password_hash(password_data.new_password)
+    # this logs out every session, the one that made the change too; the app then asks to log in again
+    _set_password(current_user, password_data.new_password)
     db.commit()
+    background_tasks.add_task(_send_password_changed, current_user.id)

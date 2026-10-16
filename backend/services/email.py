@@ -50,6 +50,46 @@ def send_otp_email(user: User, code: str) -> None:
     _send(email)
 
 
+def send_password_reset_email(user: User, code: str) -> None:
+    """Email the 6-digit "Forgot password?" code, in English and Arabic.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    minutes = backendConfig.OTP_EXPIRE_MINUTES
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = user.email
+    email["Subject"] = f"Your Ilna password reset code: {code}"
+    email.set_content(
+        f"Hi {user.first_name},\n\n"
+        f"Your code to reset your Ilna password is: {code}\n"
+        f"It expires in {minutes} minutes.\n\n"
+        f"رمز إعادة تعيين كلمة المرور الخاصة بك في Ilna هو: {code}\n"
+        f"ينتهي خلال {minutes} دقائق.\n\n"
+        "If you didn't ask for this, you can ignore this email. Your password hasn't changed.\n"
+        "إذا لم تطلب ذلك، يمكنك تجاهل هذه الرسالة. لم تتغير كلمة المرور الخاصة بك.\n"
+    )
+    _send(email)
+
+
+def send_password_changed_email(user: User) -> None:
+    """Tell a student their password was changed, in English and Arabic.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    support = backendConfig.CONTACT_EMAIL
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = user.email
+    email["Reply-To"] = support
+    email["Subject"] = "Your Ilna password was changed"
+    email.set_content(
+        f"Hi {user.first_name},\n\n"
+        "Your Ilna password was just changed, and every device was logged out.\n"
+        f"If this wasn't you, reset your password from the login page right away and write to {support}.\n\n"
+        f"مرحباً {user.first_name}،\n\n"
+        "تم تغيير كلمة المرور الخاصة بك في Ilna للتو، وتم تسجيل الخروج من جميع الأجهزة.\n"
+        f"إذا لم تكن أنت، أعد تعيين كلمة المرور من صفحة تسجيل الدخول فوراً وراسلنا على {support}.\n"
+    )
+    _send(email)
+
+
 def send_admin_code_email(code: str) -> None:
     """Email an admin login code to ADMIN_EMAIL.
     Raises smtplib.SMTPException or OSError if it can't be sent."""

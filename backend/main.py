@@ -145,6 +145,14 @@ _add_missing_columns("users", {
     "otp_expires_at": "DATETIME",
     "otp_attempts": "INTEGER NOT NULL DEFAULT 0",
 })
+# forgot password, and logging out every session when the password changes
+_add_missing_columns("users", {
+    "reset_hash": "VARCHAR",
+    "reset_sent_at": "DATETIME",
+    "reset_expires_at": "DATETIME",
+    "reset_attempts": "INTEGER NOT NULL DEFAULT 0",
+    "password_changed_at": "DATETIME",
+})
 # admin panel: bans and the hidden admin account
 _add_missing_columns("users", {
     "is_banned": "BOOLEAN NOT NULL DEFAULT 0",

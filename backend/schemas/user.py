@@ -97,3 +97,20 @@ class OtpVerify(BaseModel):
 
 class OtpResend(BaseModel):
     email: EmailStr
+
+
+# "Forgot password?": the email or username typed on the login form
+class PasswordResetRequest(BaseModel):
+    identifier: str
+
+
+class PasswordReset(BaseModel):
+    identifier: str
+    code: str
+    new_password: str
+
+    @field_validator("new_password")
+    @classmethod
+    def check_new_password(cls, value: str) -> str:
+        check_password_strength(value)
+        return value

@@ -39,8 +39,9 @@ def check_password_strength(password: str) -> None:
 def create_access_token(data: dict) -> str:
     payload = data.copy()
 
-    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    payload.update({"exp": expire})
+    now = datetime.now(timezone.utc)
+    # iat is checked against User.password_changed_at, so a new password logs out older logins
+    payload.update({"iat": int(now.timestamp()), "exp": now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
 
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 

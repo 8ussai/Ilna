@@ -27,6 +27,14 @@ class User(Base):
     otp_expires_at = Column(DateTime)
     otp_attempts = Column(Integer, nullable=False, default=0)
 
+    # the "Forgot password?" code, kept apart from the sign-up code; bcrypt hash, cleared once used
+    reset_hash = Column(String)
+    reset_sent_at = Column(DateTime)
+    reset_expires_at = Column(DateTime)
+    reset_attempts = Column(Integer, nullable=False, default=0)
+    # UTC; logins issued before this are rejected, so a new password logs out every session
+    password_changed_at = Column(DateTime)
+
     # a banned user is logged out and can't log in again until unbanned
     is_banned = Column(Boolean, nullable=False, default=False)
     banned_reason = Column(String)
