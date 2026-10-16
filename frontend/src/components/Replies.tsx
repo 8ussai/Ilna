@@ -8,6 +8,7 @@ import { formatDateTime, parseServerDate } from '../dates'
 import { applyVote } from '../votes'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
+import { ReportButton } from './ReportButton'
 import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
@@ -145,6 +146,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
           {!reply.is_deleted && reply.user_id === actions.userId && (
             <DeleteButton question={t('replies.confirmDelete')} onConfirm={remove} />
           )}
+          {!reply.is_deleted && reply.user_id !== actions.userId && <ReportButton kind="reply" id={reply.id} />}
         </div>
 
         {error && (

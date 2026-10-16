@@ -1,23 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { fetchAdminSession, getAdminToken, setAdminToken, setAdminUnauthorizedHandler } from '../../api/admin'
+import {
+  fetchAdminSession,
+  fetchOpenReportCount,
+  getAdminToken,
+  setAdminToken,
+  setAdminUnauthorizedHandler,
+} from '../../api/admin'
 import { fetchCatalog } from '../../api/meta'
 import type { Catalog } from '../../api/meta'
 import { Header } from '../../components/Header'
 import { secondaryButtonInline } from '../../components/styles'
 import { AdminLogin } from './AdminLogin'
 import { AdminPosts } from './AdminPosts'
+import { AdminReports } from './AdminReports'
 import { AdminUsers } from './AdminUsers'
 
-// the panel's sections; reports, messages and the log join in the next steps
-const SECTIONS = ['users', 'posts'] as const
+// the panel's sections; messages and the log join in the next steps
+const SECTIONS = ['reports', 'users', 'posts'] as const
 type Section = (typeof SECTIONS)[number]
 
 // kept in the hash (/admin#posts) so a reload stays on the same section
 function sectionFromHash(): Section {
   const hash = window.location.hash.slice(1)
-  return (SECTIONS as readonly string[]).includes(hash) ? (hash as Section) : 'users'
+  return (SECTIONS as readonly string[]).includes(hash) ? (hash as Section) : 'reports'
 }
 
 // Everything under /admin; it has its own login and ignores whether a student is logged in.
@@ -29,9 +36,20 @@ export function AdminApp() {
   const [catalog, setCatalog] = useState<Catalog | null>(null)
   const [section, setSection] = useState<Section>(sectionFromHash)
 
+  // open reports, for the badge on the Reports tab
+  const [openReports, setOpenReports] = useState(0)
+
+  const refreshReportCount = useCallback(() => {
+    fetchOpenReportCount()
+      .then((result) => setOpenReports(result.count))
+      .catch(() => {})
+  }, [])
+
   function openSection(next: Section) {
     setSection(next)
     window.history.replaceState(null, '', `/admin#${next}`)
+    // a removal on another tab may have settled some reports
+    refreshReportCount()
   }
 
   function updateToken(next: string | null) {
@@ -50,12 +68,13 @@ export function AdminApp() {
     if (!token) return
     // names just fall back to blank if this fails
     fetchCatalog().then(setCatalog).catch(() => {})
+    refreshReportCount()
     fetchAdminSession()
       .then((session) => setEmail(session.email))
       .catch(() => {
         // a 401 already logged out through the handler; other errors leave the panel up
       })
-  }, [token])
+  }, [token, refreshReportCount])
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -92,11 +111,19 @@ export function AdminApp() {
                   }`}
                 >
                   {t(`admin.${id}.title`)}
+                  {id === 'reports' && openReports > 0 && (
+                    <span className="ms-2 rounded-full bg-danger px-1.5 py-0.5 text-xs font-semibold text-accent-fg">
+                      <span className="sr-only">{t('admin.reports.openCount', { count: openReports })}</span>
+                      <span aria-hidden="true">{openReports}</span>
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
             <div role="tabpanel" id="admin-section" aria-labelledby={`admin-tab-${section}`}>
-              {section === 'users' ? <AdminUsers catalog={catalog} /> : <AdminPosts catalog={catalog} />}
+              {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshReportCount} />}
+              {section === 'users' && <AdminUsers catalog={catalog} />}
+              {section === 'posts' && <AdminPosts catalog={catalog} />}
             </div>
           </div>
         ) : (

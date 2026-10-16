@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -122,3 +122,39 @@ class AdminPostDetail(BaseModel):
 class ReplyLookup(BaseModel):
     reply_id: int
     post_id: int
+
+
+class AdminReportEntry(BaseModel):
+    reason: str
+    note: Optional[str]
+    # shown to the admin only, never to the author
+    reporter: PostAuthor
+    created_at: datetime
+
+
+class AdminReportGroup(BaseModel):
+    """Every open report on one post or reply."""
+    target_type: Literal["post", "reply"]
+    target_id: int
+    # the post itself, or the one the reply is on
+    post_id: int
+    content: str
+    author: PostAuthor
+    # the post's blog and where its author was
+    scope: PostScope
+    university: str
+    college: str
+    major: str
+    created_at: datetime
+    reports_count: int
+    latest_at: datetime
+    reports: list[AdminReportEntry]
+
+
+class ReportTarget(BaseModel):
+    target_type: Literal["post", "reply"]
+    target_id: int
+
+
+class OpenCount(BaseModel):
+    count: int

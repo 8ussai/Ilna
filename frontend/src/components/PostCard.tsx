@@ -7,6 +7,7 @@ import { postOriginNames } from '../catalog'
 import { formatDateTime, parseServerDate } from '../dates'
 import { DeleteButton } from './DeleteButton'
 import { RepliesSection } from './Replies'
+import { ReportButton } from './ReportButton'
 import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
@@ -104,6 +105,11 @@ export function PostCard({
           </svg>
           {t('replies.count', { count: post.replies_count })}
         </button>
+        {post.user_id !== userId && (
+          <div className="ms-auto">
+            <ReportButton kind="post" id={post.id} />
+          </div>
+        )}
       </div>
 
       {error && (

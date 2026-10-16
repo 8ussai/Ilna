@@ -64,6 +64,8 @@ STUDY_MAX_SOURCES = 50
 CONTACT_EMAIL = "support@ilna-academic.com"
 # at most this many contact messages per user per hour
 CONTACT_MESSAGES_PER_HOUR = 5
+# at most this many reports per user per hour
+REPORTS_PER_HOUR = 20
 
 # new accounts confirm their email with a 6-digit code before they can log in
 OTP_EXPIRE_MINUTES = 10

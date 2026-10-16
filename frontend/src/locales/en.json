@@ -772,6 +772,37 @@
       "removeConfirm": "Remove and notify",
       "postRemoved": "Post #P{{id}} was removed and its author notified.",
       "replyRemoved": "Reply #R{{id}} was removed and its author notified."
+    },
+    "reports": {
+      "title": "Reports",
+      "intro": "What students reported, most reported first. Removing notifies the author; dismissing leaves it up. Reporters are never told the outcome.",
+      "none": "No open reports.",
+      "count_one": "{{count}} report",
+      "count_other": "{{count}} reports",
+      "openCount_one": "{{count}} open report",
+      "openCount_other": "{{count}} open reports",
+      "onPost": "on post",
+      "dismiss": "Dismiss",
+      "showThread": "Show thread",
+      "dismissed": "Reports on #{{ref}} were dismissed."
     }
+  },
+  "report": {
+    "button": "Report",
+    "sent": "Reported",
+    "titlePost": "Report this post",
+    "titleReply": "Report this reply",
+    "explain": "Only the admin sees reports. The author isn't told who reported it.",
+    "why": "What's wrong with it?",
+    "reasons": {
+      "spam": "Spam or advertising",
+      "harassment": "Harassment or bullying",
+      "inappropriate": "Inappropriate or offensive",
+      "other": "Something else"
+    },
+    "pickReason": "Pick a reason.",
+    "note": "Anything to add? (optional)",
+    "submit": "Send report",
+    "tooMany": "You've sent a lot of reports. Please try again in an hour."
   }
 }

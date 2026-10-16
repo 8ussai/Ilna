@@ -161,3 +161,32 @@ export function removePost(id: number, reason: string) {
 export function removeReply(id: number, reason: string) {
   return adminRequest<null>(`/replies/${id}/remove`, json({ reason }))
 }
+
+export type AdminReportGroup = {
+  target_type: 'post' | 'reply'
+  target_id: number
+  // the post itself, or the one the reply is on
+  post_id: number
+  content: string
+  author: AdminPost['author']
+  scope: PostScope
+  university: string
+  college: string
+  major: string
+  created_at: string
+  reports_count: number
+  latest_at: string
+  reports: { reason: string; note: string | null; reporter: AdminPost['author']; created_at: string }[]
+}
+
+export function fetchAdminReports() {
+  return adminRequest<AdminReportGroup[]>('/reports')
+}
+
+export function fetchOpenReportCount() {
+  return adminRequest<{ count: number }>('/reports/count')
+}
+
+export function dismissReports(targetType: 'post' | 'reply', targetId: number) {
+  return adminRequest<null>('/reports/dismiss', json({ target_type: targetType, target_id: targetId }))
+}

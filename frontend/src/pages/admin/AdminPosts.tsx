@@ -323,8 +323,8 @@ function PostRow({
   )
 }
 
-// a post found by its ID: the whole post with its thread
-function PostThread({
+// a post found by its ID (or a reported one): the whole post with its thread
+export function PostThread({
   postId,
   highlightReplyId,
   catalog,
