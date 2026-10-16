@@ -4,7 +4,10 @@ from datetime import datetime, timedelta, timezone
 from jose import jwt
 from passlib.context import CryptContext
 
-from backend.backendConfig import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES
+from backend.backendConfig import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, ADMIN_SESSION_MINUTES
+
+# the claim that marks an admin login; student tokens never have it
+ADMIN_SCOPE = "admin"
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -40,3 +43,9 @@ def create_access_token(data: dict) -> str:
     payload.update({"exp": expire})
 
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_admin_token() -> str:
+    """A login for the one admin; its scope keeps it apart from student tokens."""
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ADMIN_SESSION_MINUTES)
+    return jwt.encode({"sub": ADMIN_SCOPE, "scope": ADMIN_SCOPE, "exp": expire}, SECRET_KEY, algorithm=ALGORITHM)

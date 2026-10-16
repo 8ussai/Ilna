@@ -50,6 +50,22 @@ def send_otp_email(user: User, code: str) -> None:
     _send(email)
 
 
+def send_admin_code_email(code: str) -> None:
+    """Email an admin login code to ADMIN_EMAIL.
+    Raises smtplib.SMTPException or OSError if it can't be sent."""
+    email = EmailMessage()
+    email["From"] = backendConfig.SMTP_FROM
+    email["To"] = backendConfig.ADMIN_EMAIL
+    email["Subject"] = f"Ilna admin code: {code}"
+    email.set_content(
+        f"Your Ilna admin login code is: {code}\n"
+        f"It expires in {backendConfig.OTP_EXPIRE_MINUTES} minutes.\n\n"
+        "If you didn't ask for this, someone typed the admin email at /admin. "
+        "They can't get in without this code.\n"
+    )
+    _send(email)
+
+
 def _send(email: EmailMessage) -> None:
     context = ssl.create_default_context()
     if backendConfig.SMTP_PORT == 465:

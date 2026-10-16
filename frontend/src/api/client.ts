@@ -11,8 +11,9 @@ export class ApiError extends Error {
   }
 }
 
-// status 0 means the request never reached the server
-export async function request<T>(path: string, init?: RequestInit): Promise<T> {
+// status 0 means the request never reached the server;
+// admin requests pass notifyUnauthorized = false so a 401 there doesn't log the student out
+export async function request<T>(path: string, init?: RequestInit, notifyUnauthorized = true): Promise<T> {
   let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, init)
@@ -22,7 +23,7 @@ export async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   const body = await response.json().catch(() => null)
   if (!response.ok) {
-    if (response.status === 401) onUnauthorized?.()
+    if (response.status === 401 && notifyUnauthorized) onUnauthorized?.()
     throw new ApiError(response.status, body?.detail)
   }
   return body as T

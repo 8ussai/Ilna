@@ -683,5 +683,20 @@
       }
     ]
   },
-  "footer": "© {{year}} Ilna"
+  "footer": "© {{year}} Ilna",
+  "admin": {
+    "title": "Admin panel",
+    "logout": "Log out",
+    "signedInAs": "Signed in as",
+    "comingSoon": "You're in. The panel's sections (users, posts, reports, messages) come in the next steps.",
+    "login": {
+      "title": "Admin login",
+      "intro": "Enter the admin email and we'll send a 6-digit code.",
+      "email": "Admin email",
+      "sendCode": "Send code",
+      "codeSent": "If that's the admin email, a 6-digit code is on its way.",
+      "signIn": "Sign in",
+      "emailDown": "Email isn't set up on the server, so no code can be sent."
+    }
+  }
 }

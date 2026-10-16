@@ -21,6 +21,8 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 10080
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+# admin logins come from the emailed code, not a password; tokenUrl only labels the docs page
+admin_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="admin/verify-code", scheme_name="AdminLogin")
 
 UPLOAD_DIR = "uploads/courses"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -72,6 +74,9 @@ OTP_RESEND_COOLDOWN_SECONDS = 60
 
 # the one admin logs in at /admin with a code sent to this address; set in .env
 ADMIN_EMAIL = (os.getenv("ADMIN_EMAIL") or "").strip().lower()
+# an admin login lasts this long, then a new code is needed
+ADMIN_SESSION_MINUTES = 120
+# admin codes use OTP_EXPIRE_MINUTES, OTP_MAX_ATTEMPTS and OTP_RESEND_COOLDOWN_SECONDS too
 
 # the mailbox that sends contact messages and codes; set these in .env, never in code. Port 465 uses SSL, anything else STARTTLS.
 SMTP_HOST = os.getenv("SMTP_HOST")
