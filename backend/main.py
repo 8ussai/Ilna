@@ -1,17 +1,20 @@
 import os
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 from sqlalchemy import inspect, text
 
 from backend.database import engine, Base, SessionLocal
 # imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
-from backend.routes import admin, auth, contact, me, posts, replies, reports, courses, meta, study
+from backend.routes import admin, admin_maintenance, auth, contact, me, posts, replies, reports, courses, meta, study
 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs, study_generator
+from backend.services import maintenance
 from backend.services.admin_account import get_admin_account
 from backend.services.note_index import index_note, stale_note_ids
 from backend.services.rag_pipeline import index_course_material
@@ -74,6 +77,32 @@ app = FastAPI(
     version="1.0.0",
     lifespan=lifespan,
 )
+
+# what still answers while the site is closed: the admin panel, the status check the app polls, the catalog, docs
+MAINTENANCE_OPEN_PATHS = ("/admin", "/meta", "/health", "/docs", "/redoc", "/openapi.json")
+
+
+async def _maintenance_gate(request: Request, call_next):
+    """While a maintenance window is on, every student request gets 503 with the message and end time,
+    except a test user's login opened from the admin panel."""
+    if request.method == "OPTIONS" or request.url.path.startswith(MAINTENANCE_OPEN_PATHS):
+        return await call_next(request)
+    window = maintenance.current_window()
+    if window is None or maintenance.state(window) != "on":
+        return await call_next(request)
+    auth = request.headers.get("authorization", "")
+    if auth.lower().startswith("bearer ") and maintenance.allows_bypass(auth[7:].strip()):
+        return await call_next(request)
+    seconds_left = max(1, int((window.ends_at - maintenance.now()).total_seconds()))
+    return JSONResponse(
+        status_code=503,
+        content={"detail": maintenance.closed_detail(window)},
+        headers={"Retry-After": str(seconds_left)},
+    )
+
+
+# added before CORS so CORS wraps it, and the browser can read the 503 from another origin
+app.add_middleware(BaseHTTPMiddleware, dispatch=_maintenance_gate)
 
 app.add_middleware(
     CORSMiddleware,
@@ -227,6 +256,7 @@ app.include_router(reports.router, tags=["Reports"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
 app.include_router(study.router, prefix="/courses", tags=["Summaries & Quizzes"])
 app.include_router(contact.router, prefix="/contact", tags=["Contact"])
+app.include_router(admin_maintenance.router, prefix="/admin/maintenance", tags=["Admin"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
 

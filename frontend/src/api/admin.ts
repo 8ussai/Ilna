@@ -1,4 +1,5 @@
 import { ApiError, request } from './client'
+import type { MaintenanceStatus } from './meta'
 import type { PostScope } from './posts'
 
 // sessionStorage, so the admin login ends when the tab is closed; kept apart from the student login
@@ -317,4 +318,23 @@ export const ADMIN_LOG_PAGE = 30
 export function fetchAdminLog(action: string, offset = 0) {
   const params = new URLSearchParams({ action, limit: String(ADMIN_LOG_PAGE), offset: String(offset) })
   return adminRequest<{ items: AdminLogEntry[]; total: number; actions: string[] }>(`/log?${params}`)
+}
+
+export function fetchMaintenance() {
+  return adminRequest<MaintenanceStatus>('/maintenance')
+}
+
+// starts_at null = now; times as ISO strings with their offset. Also changes a window that's scheduled or on.
+export function scheduleMaintenance(message: string, starts_at: string | null, ends_at: string) {
+  return adminRequest<MaintenanceStatus>('/maintenance', { ...json({ message, starts_at, ends_at }), method: 'PUT' })
+}
+
+// opens the site now, or cancels a scheduled closing
+export function endMaintenance() {
+  return adminRequest<MaintenanceStatus>('/maintenance', { method: 'DELETE' })
+}
+
+// a login for the test user that works while the site is closed, until the window ends
+export function enterAsTestUser(userId: number) {
+  return adminRequest<{ token: string; expires_at: string }>(`/maintenance/enter/${userId}`, { method: 'POST' })
 }

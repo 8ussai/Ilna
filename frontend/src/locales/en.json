@@ -895,7 +895,10 @@
         "show_test_password": "Viewed test password",
         "new_test_password": "New test password",
         "activate_test_user": "Turned test user on",
-        "deactivate_test_user": "Turned test user off"
+        "deactivate_test_user": "Turned test user off",
+        "maintenance_schedule": "Scheduled maintenance",
+        "maintenance_end": "Ended maintenance",
+        "maintenance_enter": "Opened site as test user"
       }
     },
     "testUsers": {
@@ -921,6 +924,51 @@
       "newPasswordExplain": "The old password stops working and this test user is logged out everywhere.",
       "newPasswordConfirm": "Make new password",
       "done": "Done"
+    },
+    "maintenance": {
+      "title": "Maintenance",
+      "stateOff": "The site is open.",
+      "stateScheduled": "Scheduled: the site closes {{when}} ({{from}}) and opens again at {{to}}.",
+      "stateOn": "The site is closed. It opens again {{when}} ({{to}}).",
+      "endNow": "Open the site now",
+      "cancelSchedule": "Cancel the closing",
+      "endConfirmText": "Open the site for everyone now?",
+      "cancelConfirmText": "Cancel this scheduled closing?",
+      "closedNotice": "The site is closed. Visitors see your message and the countdown.",
+      "scheduledNotice": "Saved. Students see a warning in the last 24 hours before it closes.",
+      "openedNotice": "The site is open again.",
+      "cancelledNotice": "The closing was cancelled.",
+      "newTitle": "Close the site",
+      "editTitle": "Change the closing",
+      "message": "Message for visitors",
+      "messagePlaceholder": "We're updating Ilna and will be back shortly.",
+      "start": "Closes",
+      "closedSince": "Closed since {{time}}.",
+      "startNow": "Now",
+      "startLater": "At a set time",
+      "end": "Opens again at",
+      "quick": "Quick end times",
+      "quickEnds": {
+        "m30": "+30 min",
+        "h1": "+1 hour",
+        "h2": "+2 hours",
+        "d1": "+1 day"
+      },
+      "endHint": "Times are in your time zone. The site opens by itself at this time.",
+      "errorOrder": "The opening time has to be after the closing time.",
+      "errorLong": "The site can be closed for at most 30 days.",
+      "save": "Save changes",
+      "closeNow": "Close the site now",
+      "schedule": "Schedule",
+      "preview": "What visitors will see",
+      "testTitle": "Test users",
+      "testExplain": "While the site is closed (or scheduled to close), test users can use it only when opened from here. Their session ends when the closing does.",
+      "testOff": "Close or schedule the site first; then test users can be opened from here.",
+      "noTestUsers": "There are no active test users. Make one on the Users tab.",
+      "openAs": "Open site as {{username}}",
+      "bannerOn": "The site is closed to students until {{to}}.",
+      "bannerScheduled": "The site will close from {{from}} to {{to}}.",
+      "manage": "Manage"
     }
   },
   "report": {
@@ -963,5 +1011,19 @@
     "noContact": "Contact us isn't available for test accounts.",
     "noEmail": "None (test account)",
     "passwordByAdmin": "This test account's password is managed by the admin."
+  },
+  "maintenance": {
+    "title": "Ilna is down for maintenance",
+    "units": {
+      "days": "days",
+      "hours": "hours",
+      "minutes": "minutes",
+      "seconds": "seconds"
+    },
+    "backAt": "Back at {{time}}",
+    "opening": "Opening again…",
+    "warning": "Heads up: Ilna will be closed for maintenance from {{from}} to {{to}}.",
+    "dismiss": "Dismiss",
+    "bypass": "The site is closed to everyone else until {{time}}. You're in as a test user from the admin panel."
   }
 }

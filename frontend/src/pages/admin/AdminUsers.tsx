@@ -27,6 +27,7 @@ import { dangerButtonInline, secondaryButtonInline, smallSecondaryButton } from 
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDate, formatDateTime, parseServerDate } from '../../dates'
 import { ReasonDialog } from './ReasonDialog'
+import { openSiteAs } from './openSiteAs'
 import { NewTestUserDialog, TestPasswordDialog } from './TestUserDialogs'
 
 type Status = 'loading' | 'ready' | 'error'
@@ -39,7 +40,8 @@ type RowAction = 'ban' | 'delete' | 'password'
 
 const SEARCH_DELAY_MS = 300
 
-export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
+// siteClosing: maintenance is on or scheduled, so test users can be opened on the site from here
+export function AdminUsers({ catalog, siteClosing = false }: { catalog: Catalog | null; siteClosing?: boolean }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [premiumOnly, setPremiumOnly] = useState(false)
@@ -137,6 +139,7 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
                   onChange={replaceUser}
                   onAction={(kind) => setAction({ kind, user })}
                   onNotice={setNotice}
+                  siteClosing={siteClosing}
                 />
               ))}
             </ul>
@@ -201,12 +204,14 @@ function UserRow({
   onChange,
   onAction,
   onNotice,
+  siteClosing,
 }: {
   user: AdminUser
   catalog: Catalog | null
   onChange: (user: AdminUser) => void
   onAction: (kind: RowAction) => void
   onNotice: (text: string) => void
+  siteClosing: boolean
 }) {
   const { t, i18n } = useTranslation()
   const [busy, setBusy] = useState(false)
@@ -328,6 +333,11 @@ function UserRow({
             <button type="button" disabled={busy} onClick={() => onAction('password')} className={smallSecondaryButton}>
               {t('admin.testUsers.showPassword')}
             </button>
+            {siteClosing && user.is_active && (
+              <button type="button" disabled={busy} onClick={() => run(() => openSiteAs(user.id))} className={smallSecondaryButton}>
+                {t('admin.maintenance.openAs', { username: user.username })}
+              </button>
+            )}
             {user.is_active ? (
               <button
                 type="button"

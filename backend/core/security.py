@@ -85,6 +85,28 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
+# marks a test user's login opened from the admin panel, which may use the site while it's closed
+MAINTENANCE_BYPASS = "maintenance_bypass"
+
+
+def create_maintenance_bypass_token(user_id: int, expires_at: datetime) -> str:
+    """A test user's login that gets past maintenance; it ends with the window it was made for (expires_at, UTC)."""
+    now = datetime.now(timezone.utc)
+    return jwt.encode(
+        {"sub": str(user_id), "iat": int(now.timestamp()), "exp": expires_at, MAINTENANCE_BYPASS: True},
+        SECRET_KEY,
+        algorithm=ALGORITHM,
+    )
+
+
+def is_maintenance_bypass(token: str) -> bool:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except Exception:
+        return False
+    return payload.get(MAINTENANCE_BYPASS) is True
+
+
 def create_admin_token() -> str:
     """A login for the one admin; its scope keeps it apart from student tokens."""
     expire = datetime.now(timezone.utc) + timedelta(minutes=ADMIN_SESSION_MINUTES)

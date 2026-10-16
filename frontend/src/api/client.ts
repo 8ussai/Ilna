@@ -40,10 +40,23 @@ export type LogoutReason = 'expired' | 'suspended' | 'testOff'
 
 let onUnauthorized: ((reason: LogoutReason) => void) | null = null
 
+// told when a request is refused because the site is closed for maintenance; the session stays
+let onMaintenance: (() => void) | null = null
+
+export function setMaintenanceHandler(handler: (() => void) | null) {
+  onMaintenance = handler
+}
+
+// the 503 detail while the site is closed (backend/services/maintenance.py closed_detail)
+export function isMaintenanceDetail(detail: unknown) {
+  return !!detail && typeof detail === 'object' && 'code' in detail && detail.code === 'maintenance'
+}
+
 function checkSession(status: number, detail: unknown) {
   if (status === 401) onUnauthorized?.('expired')
   else if (status === 403 && detail === ACCOUNT_SUSPENDED) onUnauthorized?.('suspended')
   else if (status === 403 && detail === TEST_ACCOUNT_OFF) onUnauthorized?.('testOff')
+  else if (status === 503 && isMaintenanceDetail(detail)) onMaintenance?.()
 }
 
 // App keeps these in sync with the logged-in session.

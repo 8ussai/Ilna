@@ -61,3 +61,15 @@ class AdminLog(Base):
     created_at = Column(DateTime(timezone=True), default=func.now())
 
     __table_args__ = (Index("ix_admin_log_created", "created_at"),)
+
+
+class Maintenance(Base):
+    """The one maintenance window, if any: the site is closed to students from starts_at to ends_at (UTC).
+    Once ends_at passes the site is open again by itself; the row is just left behind until the next one."""
+    __tablename__ = "maintenance"
+
+    id = Column(Integer, primary_key=True)
+    message = Column(Text, nullable=False)
+    starts_at = Column(DateTime, nullable=False)
+    ends_at = Column(DateTime, nullable=False)
+    updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())

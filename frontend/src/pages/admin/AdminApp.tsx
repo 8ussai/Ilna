@@ -13,16 +13,18 @@ import { fetchCatalog } from '../../api/meta'
 import type { Catalog } from '../../api/meta'
 import { Header } from '../../components/Header'
 import { secondaryButtonInline } from '../../components/styles'
+import { formatDateTime, parseServerDate } from '../../dates'
 import { AdminContact } from './AdminContact'
 import { AdminLog } from './AdminLog'
 import { AdminLogin } from './AdminLogin'
+import { AdminMaintenance, useAdminMaintenance } from './AdminMaintenance'
 import { AdminMessages } from './AdminMessages'
 import { AdminPosts } from './AdminPosts'
 import { AdminReports } from './AdminReports'
 import { AdminUsers } from './AdminUsers'
 
 // the panel's sections
-const SECTIONS = ['reports', 'users', 'posts', 'messages', 'contact', 'log'] as const
+const SECTIONS = ['reports', 'users', 'posts', 'messages', 'contact', 'maintenance', 'log'] as const
 type Section = (typeof SECTIONS)[number]
 
 // kept in the hash (/admin#posts) so a reload stays on the same section
@@ -33,7 +35,7 @@ function sectionFromHash(): Section {
 
 // Everything under /admin; it has its own login and ignores whether a student is logged in.
 export function AdminApp() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [token, setTokenState] = useState<string | null>(getAdminToken)
   const [email, setEmail] = useState('')
   // for showing university and major names
@@ -42,6 +44,9 @@ export function AdminApp() {
 
   // what's waiting, for the badges on the Reports and Contact tabs
   const [waiting, setWaiting] = useState<Partial<Record<Section, number>>>({})
+  // for the banner while the site is closed or about to be, and the Maintenance tab
+  const maintenance = useAdminMaintenance(!!token)
+  const siteStatus = maintenance.status
 
   const refreshCounts = useCallback(() => {
     fetchOpenReportCount()
@@ -115,6 +120,25 @@ export function AdminApp() {
                 </p>
               )}
             </div>
+            {/* the Maintenance tab shows the same, in more detail */}
+            {section !== 'maintenance' && siteStatus && siteStatus.state !== 'off' && siteStatus.starts_at && siteStatus.ends_at && (
+              <p
+                role="status"
+                className={`rounded-xl border px-4 py-3 text-sm ${
+                  siteStatus.state === 'on' ? 'border-danger/50 bg-danger/5' : 'border-accent/50 bg-accent/5'
+                }`}
+              >
+                {siteStatus.state === 'on'
+                  ? t('admin.maintenance.bannerOn', { to: formatDateTime(parseServerDate(siteStatus.ends_at), i18n.language) })
+                  : t('admin.maintenance.bannerScheduled', {
+                      from: formatDateTime(parseServerDate(siteStatus.starts_at), i18n.language),
+                      to: formatDateTime(parseServerDate(siteStatus.ends_at), i18n.language),
+                    })}{' '}
+                <button type="button" onClick={() => openSection('maintenance')} className="font-medium text-accent hover:underline">
+                  {t('admin.maintenance.manage')}
+                </button>
+              </p>
+            )}
             <div role="tablist" aria-label={t('admin.title')} className="relative flex gap-1 overflow-x-auto overflow-y-hidden border-b border-line">
               {SECTIONS.map((id) => (
                 <button
@@ -141,10 +165,11 @@ export function AdminApp() {
             </div>
             <div role="tabpanel" id="admin-section" aria-labelledby={`admin-tab-${section}`}>
               {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshCounts} />}
-              {section === 'users' && <AdminUsers catalog={catalog} />}
+              {section === 'users' && <AdminUsers catalog={catalog} siteClosing={!!siteStatus && siteStatus.state !== 'off'} />}
               {section === 'posts' && <AdminPosts catalog={catalog} />}
               {section === 'messages' && <AdminMessages catalog={catalog} />}
               {section === 'contact' && <AdminContact catalog={catalog} onChanged={refreshCounts} />}
+              {section === 'maintenance' && <AdminMaintenance maintenance={maintenance} />}
               {section === 'log' && <AdminLog />}
             </div>
           </div>

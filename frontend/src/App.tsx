@@ -3,14 +3,25 @@ import { useState } from 'react'
 import { getToken, setToken } from './api/auth'
 import { setAuth } from './api/client'
 import type { LogoutReason } from './api/client'
+import { MaintenanceBypassBanner, MaintenanceWarning } from './components/MaintenanceBanners'
+import { MaintenancePage } from './components/MaintenanceScreen'
+import { parseServerDate } from './dates'
+import { useMaintenance } from './maintenance'
 import { AdminApp } from './pages/admin/AdminApp'
 import { Home } from './pages/Home'
 import { Landing } from './pages/Landing'
 import type { LandingNotice } from './pages/Landing'
 
 export default function App() {
+  // /admin has its own login, whether or not a student is logged in here, and stays open during maintenance
+  if (isAdminPath()) return <AdminApp />
+  return <Site />
+}
+
+function Site() {
   const [token, setTokenState] = useState<string | null>(getToken)
   const [notice, setNotice] = useState<LandingNotice | null>(null)
+  const { status, serverNow, refresh } = useMaintenance()
 
   function updateToken(next: string | null) {
     setToken(next)
@@ -38,16 +49,25 @@ export default function App() {
     else if (reason === 'testOff') setNotice('testOff')
   }
 
-  // /admin has its own login, whether or not a student is logged in here
-  if (isAdminPath()) return <AdminApp />
-
   // set during render so child effects already send the token on their first request
   setAuth(token, token ? onSessionEnded : null)
 
-  return token ? (
-    <Home onLogout={onLogout} onPasswordChanged={onPasswordChanged} />
-  ) : (
-    <Landing notice={notice} onAuthenticated={updateToken} />
+  // closed: everyone sees the countdown instead of the site. The login is kept, and the page they were on
+  // (it's in the address bar) opens again when the site does.
+  if (status?.state === 'on' && !status.bypass && status.message && status.ends_at) {
+    return <MaintenancePage message={status.message} endsAt={parseServerDate(status.ends_at)} serverNow={serverNow} onReached={refresh} />
+  }
+
+  return (
+    <>
+      {status && <MaintenanceWarning status={status} serverNow={serverNow} />}
+      {status && <MaintenanceBypassBanner status={status} />}
+      {token ? (
+        <Home onLogout={onLogout} onPasswordChanged={onPasswordChanged} />
+      ) : (
+        <Landing notice={notice} onAuthenticated={updateToken} />
+      )}
+    </>
   )
 }
 
