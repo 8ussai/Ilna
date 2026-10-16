@@ -16,6 +16,12 @@ export default function App() {
     setNotice(null)
   }
 
+  function onLogout() {
+    // the landing page lives at "/"; don't leave the old page's path (e.g. /general) in the address bar
+    window.history.replaceState(null, '', '/')
+    updateToken(null)
+  }
+
   function onPasswordChanged() {
     // the next sign-in should start on the feed, not back on the settings page
     window.history.replaceState(null, '', '/')
@@ -27,7 +33,7 @@ export default function App() {
   setAuth(token, token ? () => updateToken(null) : null)
 
   return token ? (
-    <Home onLogout={() => updateToken(null)} onPasswordChanged={onPasswordChanged} />
+    <Home onLogout={onLogout}onPasswordChanged={onPasswordChanged} />
   ) : (
     <Landing notice={notice} onAuthenticated={updateToken} />
   )
