@@ -136,7 +136,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
     user = db.query(User).filter(or_(User.email == form_data.username, User.username == form_data.username)).first()
 
-    if not user or not verify_password(form_data.password, user.hashed_password):
+    # the hidden admin account answers like an unknown account
+    if not user or user.is_system or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Email or password is incorrect",

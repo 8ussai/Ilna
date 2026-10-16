@@ -7,11 +7,12 @@ from sqlalchemy import inspect, text
 
 from backend.database import engine, Base, SessionLocal
 # imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
-from backend.models import user, post, course, notification, study as study_model, contact as contact_model
+from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
 from backend.routes import auth, contact, me, posts, replies, courses, meta, study
 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs, study_generator
+from backend.services.admin_account import get_admin_account
 from backend.services.note_index import index_note, stale_note_ids
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import index_transcript, transcribe_material
@@ -145,6 +146,41 @@ _add_missing_columns("users", {
     "otp_expires_at": "DATETIME",
     "otp_attempts": "INTEGER NOT NULL DEFAULT 0",
 })
+# admin panel: bans and the hidden admin account
+_add_missing_columns("users", {
+    "is_banned": "BOOLEAN NOT NULL DEFAULT 0",
+    "banned_reason": "VARCHAR",
+    "banned_at": "DATETIME",
+    "is_system": "BOOLEAN NOT NULL DEFAULT 0",
+})
+_add_missing_columns("posts", {
+    "pinned_until": "DATETIME",
+})
+
+
+# admin notifications have no post, but SQLite can't drop NOT NULL from notifications.post_id,
+# so older databases get the table rebuilt once with every row copied over
+def _rebuild_notifications_table():
+    columns = {column["name"]: column for column in inspect(engine).get_columns("notifications")}
+    if columns["post_id"]["nullable"] and "message" in columns:
+        return
+    old_columns = ", ".join(columns)
+    with engine.begin() as connection:
+        connection.execute(text("ALTER TABLE notifications RENAME TO notifications_old"))
+        # indexes keep their names when the table is renamed; drop them so the new table can have them
+        for (index_name,) in connection.execute(text(
+            "SELECT name FROM sqlite_master WHERE type = 'index' AND tbl_name = 'notifications_old' AND sql IS NOT NULL"
+        )).all():
+            connection.execute(text(f'DROP INDEX "{index_name}"'))
+        notification.Notification.__table__.create(connection)
+        connection.execute(text(f"INSERT INTO notifications ({old_columns}) SELECT {old_columns} FROM notifications_old"))
+        connection.execute(text("DROP TABLE notifications_old"))
+
+
+_rebuild_notifications_table()
+
+with SessionLocal() as _db:
+    get_admin_account(_db)
 
 
 # no public file mount: course files are only served to their owner, by /courses/{id}/materials/{mid}/file

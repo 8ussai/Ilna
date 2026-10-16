@@ -27,7 +27,8 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
 
     user = db.query(User).filter(User.id == int(user_id)).first()
 
-    if user is None:
+    # the hidden admin account is never used as a student login
+    if user is None or user.is_system:
         raise credentials_exception
 
     return user

@@ -20,6 +20,9 @@ class Post(Base):
     college = Column(String, nullable=False, index=True)
     major = Column(String, nullable=False, index=True)
 
+    # an admin post stays at the top of its blog until this time; null means not pinned
+    pinned_until = Column(DateTime)
+
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 

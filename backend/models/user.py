@@ -27,6 +27,13 @@ class User(Base):
     otp_expires_at = Column(DateTime)
     otp_attempts = Column(Integer, nullable=False, default=0)
 
+    # a banned user is logged out and can't log in again until unbanned
+    is_banned = Column(Boolean, nullable=False, default=False)
+    banned_reason = Column(String)
+    banned_at = Column(DateTime)
+    # the hidden "Ilna Admin" account that owns the admin's posts and messages; it can never log in
+    is_system = Column(Boolean, nullable=False, default=False)
+
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
