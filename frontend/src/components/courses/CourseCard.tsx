@@ -11,12 +11,12 @@ import { Dialog } from '../Dialog'
 import { Field } from '../Field'
 import { dangerButtonInline, primaryButtonInline, secondaryButtonInline } from '../styles'
 import { CourseLookPicker } from './CourseLookPicker'
-import { courseColorClass, isSingleEmoji } from './courseColors'
+import { courseColorClass } from './courseColors'
 
 type CourseCardProps = {
   course: CourseSummary
   onOpen: () => void
-  onUpdate: (changes: { title?: string; color?: CourseColor | null; emoji?: string | null }) => Promise<void>
+  onUpdate: (changes: { title?: string; color?: CourseColor | null }) => Promise<void>
   onDelete: () => Promise<void>
 }
 
@@ -41,11 +41,6 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardPro
       <div aria-hidden="true" className={`h-2 shrink-0 ${courseColorClass(course.color)}`} />
       <a href={coursePath(course.id)} onClick={inAppClick(onOpen)} className="flex flex-1 flex-col p-4 pe-14 sm:p-5 sm:pe-14">
         <div className="flex items-center gap-3">
-          {course.emoji && (
-            <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-xl bg-surface text-xl">
-              {course.emoji}
-            </span>
-          )}
           <h2 dir="auto" className="min-w-0 break-words text-lg font-semibold leading-snug">
             {course.title}
           </h2>
@@ -74,7 +69,7 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardPro
         <RenameDialog title={course.title} onClose={() => setDialog(null)} onSave={(title) => onUpdate({ title })} />
       )}
       {dialog === 'look' && (
-        <LookDialog course={course} onClose={() => setDialog(null)} onSave={(color, emoji) => onUpdate({ color, emoji })} />
+        <LookDialog course={course} onClose={() => setDialog(null)} onSave={(color) => onUpdate({ color })} />
       )}
       {dialog === 'delete' && <DeleteDialog course={course} onClose={() => setDialog(null)} onDelete={onDelete} />}
     </article>
@@ -268,37 +263,21 @@ function LookDialog({
 }: {
   course: CourseSummary
   onClose: () => void
-  onSave: (color: CourseColor | null, emoji: string | null) => Promise<void>
+  onSave: (color: CourseColor | null) => Promise<void>
 }) {
   const { t } = useTranslation()
   const [color, setColor] = useState(course.color)
-  const [emoji, setEmoji] = useState(course.emoji ?? '')
-  const [emojiError, setEmojiError] = useState('')
   const { busy, error, run } = useSave(onClose)
 
   function submit(e: FormEvent) {
     e.preventDefault()
-    const trimmed = emoji.trim()
-    if (trimmed && !isSingleEmoji(trimmed)) {
-      setEmojiError(t('courses.form.emojiInvalid'))
-      return
-    }
-    run(() => onSave(color, trimmed || null))
+    run(() => onSave(color))
   }
 
   return (
     <Dialog title={t('courses.menu.look')} onClose={onClose}>
       <form onSubmit={submit} noValidate>
-        <CourseLookPicker
-          color={color}
-          emoji={emoji}
-          emojiError={emojiError}
-          onColorChange={setColor}
-          onEmojiChange={(value) => {
-            setEmoji(value)
-            setEmojiError('')
-          }}
-        />
+        <CourseLookPicker color={color} onColorChange={setColor} />
         {error && (
           <p role="alert" className="mt-3 text-sm text-danger">
             {error}

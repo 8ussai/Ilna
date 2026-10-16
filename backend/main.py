@@ -121,7 +121,6 @@ def _add_missing_columns(table: str, columns: dict):
 # courses workspace: colors, kinds and recordings
 _add_missing_columns("courses", {
     "color": "VARCHAR",
-    "emoji": "VARCHAR",
     "last_opened_at": "DATETIME",
 })
 # every material uploaded before this was a pdf or ppt

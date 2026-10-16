@@ -17,7 +17,6 @@ export type Course = {
   title: string
   description: string | null
   color: CourseColor | null
-  emoji: string | null
   last_opened_at: string | null
   created_at: string
   updated_at: string
@@ -76,7 +75,6 @@ export type CourseInput = {
   title: string
   description: string | null
   color: CourseColor | null
-  emoji: string | null
 }
 
 const json = { 'Content-Type': 'application/json' }
@@ -94,7 +92,7 @@ export function createCourse(input: CourseInput) {
   return authRequest<Course>('/courses/', { method: 'POST', headers: json, body: JSON.stringify(input) })
 }
 
-// only the fields sent change; null clears description, color and emoji
+// only the fields sent change; null clears description and color
 export function updateCourse(id: number, changes: Partial<CourseInput>) {
   return authRequest<Course>(`/courses/${id}`, { method: 'PATCH', headers: json, body: JSON.stringify(changes) })
 }

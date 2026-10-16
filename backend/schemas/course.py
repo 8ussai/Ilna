@@ -57,16 +57,6 @@ def _clean_description(value: Optional[str]) -> Optional[str]:
     return value or None
 
 
-def _clean_emoji(value: Optional[str]) -> Optional[str]:
-    if value is None:
-        return None
-    value = value.strip()
-    # one emoji can be several code points (skin tones, flags, families), so this only bounds the size
-    if len(value) > 16 or any(char.isspace() for char in value):
-        raise ValueError("Emoji must be a single emoji.")
-    return value or None
-
-
 def _clean_note_title(value: Optional[str]) -> Optional[str]:
     if value is None:
         return None
@@ -109,7 +99,6 @@ class CourseBase(BaseModel):
     title: str
     description: Optional[str] = None
     color: Optional[CourseColor] = None
-    emoji: Optional[str] = None
 
 class CourseCreate(CourseBase):
     @field_validator("title")
@@ -122,18 +111,12 @@ class CourseCreate(CourseBase):
     def check_description(cls, value: Optional[str]) -> Optional[str]:
         return _clean_description(value)
 
-    @field_validator("emoji")
-    @classmethod
-    def check_emoji(cls, value: Optional[str]) -> Optional[str]:
-        return _clean_emoji(value)
-
 # every field is optional; only the ones sent are changed
 class CourseUpdate(BaseModel):
     title: Optional[str] = None
     description: Optional[str] = None
     # null clears these
     color: Optional[CourseColor] = None
-    emoji: Optional[str] = None
 
     @field_validator("title")
     @classmethod
@@ -146,11 +129,6 @@ class CourseUpdate(BaseModel):
     @classmethod
     def check_description(cls, value: Optional[str]) -> Optional[str]:
         return _clean_description(value)
-
-    @field_validator("emoji")
-    @classmethod
-    def check_emoji(cls, value: Optional[str]) -> Optional[str]:
-        return _clean_emoji(value)
 
 class CourseOut(CourseBase):
     id: int

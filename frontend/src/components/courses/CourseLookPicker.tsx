@@ -1,23 +1,17 @@
-import { useId } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { COURSE_COLORS } from '../../api/courses'
 import type { CourseColor } from '../../api/courses'
-import { controlClass, FieldMessage } from '../Field'
-import { COURSE_COLOR_CLASS, EMOJI_CHOICES } from './courseColors'
+import { COURSE_COLOR_CLASS } from './courseColors'
 
 type CourseLookPickerProps = {
   color: CourseColor | null
-  emoji: string
-  emojiError?: string
   onColorChange: (color: CourseColor | null) => void
-  onEmojiChange: (emoji: string) => void
 }
 
-// The color swatches and the emoji field, used when creating a course and from a card's menu.
-export function CourseLookPicker({ color, emoji, emojiError, onColorChange, onEmojiChange }: CourseLookPickerProps) {
+// The color swatches, used when creating a course and from a card's menu.
+export function CourseLookPicker({ color, onColorChange }: CourseLookPickerProps) {
   const { t } = useTranslation()
-  const emojiId = useId()
 
   return (
     <div className="space-y-5">
@@ -36,36 +30,6 @@ export function CourseLookPicker({ color, emoji, emojiError, onColorChange, onEm
           ))}
         </div>
       </fieldset>
-
-      <div>
-        <label htmlFor={emojiId} className="mb-1.5 block text-sm font-medium">
-          {t('courses.form.emoji')} <span className="font-normal text-muted">{t('courses.form.optional')}</span>
-        </label>
-        <div className="flex flex-wrap items-center gap-2">
-          <input
-            id={emojiId}
-            value={emoji}
-            onChange={(e) => onEmojiChange(e.target.value)}
-            aria-invalid={emojiError ? true : undefined}
-            aria-describedby={emojiError ? `${emojiId}-err` : `${emojiId}-hint`}
-            className={`${controlClass} w-16 text-center text-xl ${emojiError ? 'border-danger' : ''}`}
-          />
-          <div role="group" aria-label={t('courses.form.emojiChoices')} className="flex flex-wrap gap-1">
-            {EMOJI_CHOICES.map((choice) => (
-              <button
-                key={choice}
-                type="button"
-                aria-pressed={emoji === choice}
-                onClick={() => onEmojiChange(emoji === choice ? '' : choice)}
-                className={`grid size-9 place-items-center rounded-lg text-lg hover:bg-surface ${emoji === choice ? 'bg-surface ring-2 ring-accent' : ''}`}
-              >
-                {choice}
-              </button>
-            ))}
-          </div>
-        </div>
-        <FieldMessage id={emojiId} error={emojiError} hint={t('courses.form.emojiHint')} />
-      </div>
     </div>
   )
 }

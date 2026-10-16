@@ -13,7 +13,6 @@ class Course(Base):
     description = Column(String, nullable=True)
     # one of the preset names in schemas.course.CourseColor; the frontend maps it to a theme color
     color = Column(String, nullable=True)
-    emoji = Column(String, nullable=True)
     # set when the course page opens; the courses grid sorts by it
     last_opened_at = Column(DateTime(timezone=True), nullable=True)
     created_at = Column(DateTime(timezone=True), default=func.now())

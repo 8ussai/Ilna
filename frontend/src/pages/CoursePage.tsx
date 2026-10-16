@@ -184,11 +184,6 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
       <header className="overflow-hidden rounded-2xl border border-line bg-card">
         <div aria-hidden="true" className={`h-2 ${courseColorClass(course.color)}`} />
         <div className="flex items-start gap-4 p-5">
-          {course.emoji && (
-            <span aria-hidden="true" className="grid size-14 shrink-0 place-items-center rounded-2xl bg-surface text-3xl">
-              {course.emoji}
-            </span>
-          )}
           <div className="min-w-0 flex-1">
             <h1 dir="auto" className="break-words font-serif text-3xl font-semibold">
               {course.title}

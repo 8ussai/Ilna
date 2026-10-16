@@ -172,10 +172,6 @@
       "description": "Description",
       "optional": "(optional)",
       "color": "Color",
-      "emoji": "Emoji",
-      "emojiChoices": "Suggested emoji",
-      "emojiHint": "Type or pick one emoji.",
-      "emojiInvalid": "Use a single emoji.",
       "save": "Save"
     },
     "new": {
