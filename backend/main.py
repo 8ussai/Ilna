@@ -158,6 +158,15 @@ _add_missing_columns("posts", {
 })
 
 
+# usernames are lowercase letters and numbers now; lowercase older ones unless that would clash with another account
+with engine.begin() as _connection:
+    _connection.execute(text(
+        "UPDATE users SET username = lower(username) "
+        "WHERE is_system = 0 AND username != lower(username) "
+        "AND lower(username) NOT IN (SELECT username FROM users)"
+    ))
+
+
 # admin notifications have no post, but SQLite can't drop NOT NULL from notifications.post_id,
 # so older databases get the table rebuilt once with every row copied over
 def _rebuild_notifications_table():

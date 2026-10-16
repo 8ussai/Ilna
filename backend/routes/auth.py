@@ -134,7 +134,9 @@ def resend_otp(otp_data: OtpResend, db: Session = Depends(get_db)):
 @router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db),):
 
-    user = db.query(User).filter(or_(User.email == form_data.username, User.username == form_data.username)).first()
+    identifier = form_data.username.strip()
+    # usernames are all lowercase, so "Khaled05" still finds khaled05
+    user = db.query(User).filter(or_(User.email == identifier, User.username == identifier.lower())).first()
 
     # the hidden admin account answers like an unknown account
     if not user or user.is_system or not verify_password(form_data.password, user.hashed_password):

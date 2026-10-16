@@ -38,7 +38,8 @@ const empty: Values = {
 }
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-const USERNAME_RE = /^[A-Za-z0-9_.]{3,30}$/
+// same rule as USERNAME_RE in backend/schemas/user.py
+const USERNAME_RE = /^[a-z0-9]{3,30}$/
 
 export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t, i18n } = useTranslation()
@@ -251,7 +252,7 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
       <Field
         label={t('auth.username')}
         value={values.username}
-        onChange={(e) => setText('username', e.target.value)}
+        onChange={(e) => setText('username', e.target.value.toLowerCase())}
         autoComplete="username"
         hint={t('auth.usernameHint')}
         error={show('username')}

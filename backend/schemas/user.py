@@ -1,3 +1,4 @@
+import re
 from typing import Optional
 
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
@@ -19,8 +20,20 @@ class UserBase(BaseModel):
     major: str
 
 
+# same rule as USERNAME_RE in frontend/src/components/RegisterForm.tsx
+USERNAME_RE = re.compile(r"^[a-z0-9]{3,30}$")
+
+
 class UserCreate(UserBase):
     password: str
+
+    @field_validator("username")
+    @classmethod
+    def check_username(cls, value: str) -> str:
+        value = value.strip()
+        if not USERNAME_RE.fullmatch(value):
+            raise ValueError("Username must be 3-30 lowercase letters (a-z) or numbers.")
+        return value
 
     @field_validator("password")
     @classmethod
