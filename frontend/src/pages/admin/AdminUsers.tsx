@@ -3,8 +3,10 @@ import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import {
+  activateTestUser,
   ADMIN_USERS_PAGE,
   banUser,
+  deactivateTestUser,
   deleteUser,
   fetchAdminUsers,
   grantPremium,
@@ -25,9 +27,15 @@ import { dangerButtonInline, secondaryButtonInline, smallSecondaryButton } from 
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDate, formatDateTime, parseServerDate } from '../../dates'
 import { ReasonDialog } from './ReasonDialog'
+import { NewTestUserDialog, TestPasswordDialog } from './TestUserDialogs'
 
 type Status = 'loading' | 'ready' | 'error'
-type Action = { kind: 'ban' | 'delete'; user: AdminUser }
+type Action =
+  | { kind: 'ban' | 'delete'; user: AdminUser }
+  // initialPassword: just made, so it's shown without asking the server
+  | { kind: 'password'; user: AdminUser; initialPassword?: string }
+  | { kind: 'newTest' }
+type RowAction = 'ban' | 'delete' | 'password'
 
 const SEARCH_DELAY_MS = 300
 
@@ -35,6 +43,7 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [premiumOnly, setPremiumOnly] = useState(false)
+  const [testOnly, setTestOnly] = useState(false)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [total, setTotal] = useState(0)
   const [status, setStatus] = useState<Status>('loading')
@@ -47,7 +56,7 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
     let cancelled = false
     const timer = setTimeout(() => {
       setStatus('loading')
-      fetchAdminUsers(query.trim(), 0, premiumOnly)
+      fetchAdminUsers(query.trim(), 0, { premium: premiumOnly, test: testOnly })
         .then((page) => {
           if (cancelled) return
           setUsers(page.items)
@@ -60,12 +69,12 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
       cancelled = true
       clearTimeout(timer)
     }
-  }, [query, premiumOnly])
+  }, [query, premiumOnly, testOnly])
 
   async function loadMore() {
     setLoadingMore(true)
     try {
-      const page = await fetchAdminUsers(query.trim(), users.length, premiumOnly)
+      const page = await fetchAdminUsers(query.trim(), users.length, { premium: premiumOnly, test: testOnly })
       setUsers((current) => [...current, ...page.items])
       setTotal(page.total)
     } catch {
@@ -87,10 +96,19 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
         placeholder={t('admin.users.searchPlaceholder')}
         autoComplete="off"
       />
-      <label className="inline-flex items-center gap-2 text-sm">
-        <input type="checkbox" checked={premiumOnly} onChange={(e) => setPremiumOnly(e.target.checked)} className="size-4 accent-accent" />
-        {t('admin.users.premiumOnly')}
-      </label>
+      <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={premiumOnly} onChange={(e) => setPremiumOnly(e.target.checked)} className="size-4 accent-accent" />
+          {t('admin.users.premiumOnly')}
+        </label>
+        <label className="inline-flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={testOnly} onChange={(e) => setTestOnly(e.target.checked)} className="size-4 accent-accent" />
+          {t('admin.testUsers.only')}
+        </label>
+        <button type="button" onClick={() => setAction({ kind: 'newTest' })} className={`${smallSecondaryButton} ms-auto`}>
+          {t('admin.testUsers.new')}
+        </button>
+      </div>
 
       {notice && (
         <p role="status" className="rounded-xl border border-line bg-card px-4 py-3 text-sm">
@@ -147,6 +165,20 @@ export function AdminUsers({ catalog }: { catalog: Catalog | null }) {
           }}
         />
       )}
+      {action?.kind === 'newTest' && (
+        <NewTestUserDialog
+          catalog={catalog}
+          onClose={() => setAction(null)}
+          onCreated={(user, password) => {
+            setUsers((current) => [user, ...current])
+            setTotal((n) => n + 1)
+            setAction({ kind: 'password', user, initialPassword: password })
+          }}
+        />
+      )}
+      {action?.kind === 'password' && (
+        <TestPasswordDialog user={action.user} initialPassword={action.initialPassword} onClose={() => setAction(null)} />
+      )}
       {action?.kind === 'delete' && (
         <DeleteDialog
           user={action.user}
@@ -173,7 +205,7 @@ function UserRow({
   user: AdminUser
   catalog: Catalog | null
   onChange: (user: AdminUser) => void
-  onAction: (kind: 'ban' | 'delete') => void
+  onAction: (kind: RowAction) => void
   onNotice: (text: string) => void
 }) {
   const { t, i18n } = useTranslation()
@@ -223,10 +255,21 @@ function UserRow({
             {!user.is_verified && (
               <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">{t('admin.users.unverified')}</span>
             )}
+            {user.is_test && (
+              <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">{t('admin.testUsers.badge')}</span>
+            )}
+            {user.is_test && !user.is_active && (
+              <span className="rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">{t('admin.testUsers.offBadge')}</span>
+            )}
           </p>
-          <p dir="ltr" className="truncate text-start text-sm text-muted">
-            {user.email}
-          </p>
+          {/* a test account's email is a stand-in */}
+          {user.is_test ? (
+            <p className="text-sm text-muted">{t('admin.testUsers.noEmail')}</p>
+          ) : (
+            <p dir="ltr" className="truncate text-start text-sm text-muted">
+              {user.email}
+            </p>
+          )}
           {originText && <p className="text-sm text-muted">{originText}</p>}
           <p className="text-sm text-muted">
             {t('admin.users.joined', { date: formatDate(parseServerDate(user.created_at), i18n.language) })} · {stats}
@@ -279,6 +322,42 @@ function UserRow({
             <PremiumCrown />
             {t('admin.users.makePremium')}
           </button>
+        )}
+        {user.is_test && (
+          <>
+            <button type="button" disabled={busy} onClick={() => onAction('password')} className={smallSecondaryButton}>
+              {t('admin.testUsers.showPassword')}
+            </button>
+            {user.is_active ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    onChange(await deactivateTestUser(user.id))
+                    onNotice(t('admin.testUsers.offNotice', { username: user.username }))
+                  })
+                }
+                className={`${smallSecondaryButton} text-danger`}
+              >
+                {t('admin.testUsers.turnOff')}
+              </button>
+            ) : (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() =>
+                  run(async () => {
+                    onChange(await activateTestUser(user.id))
+                    onNotice(t('admin.testUsers.onNotice', { username: user.username }))
+                  })
+                }
+                className={smallSecondaryButton}
+              >
+                {t('admin.testUsers.turnOn')}
+              </button>
+            )}
+          </>
         )}
         {!user.is_verified && (
           <>

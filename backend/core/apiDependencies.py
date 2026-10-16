@@ -10,6 +10,10 @@ from backend.core.security import ADMIN_SCOPE
 
 # the detail the frontend looks for to show "your account has been suspended"
 ACCOUNT_SUSPENDED = "Account suspended"
+# a test account the admin turned off; the frontend says so instead of "suspended"
+TEST_ACCOUNT_OFF = "Test account turned off"
+# posting, replying, voting and Contact us aren't open to test accounts
+TEST_ACCOUNT_NOT_ALLOWED = "Test accounts can't do this"
 
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)) -> User:
@@ -48,7 +52,17 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     # checked on every request, so a ban logs the student out right away; the app shows the suspended notice
     if user.is_banned:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
+    # the same for a test account the admin turned off
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TEST_ACCOUNT_OFF)
 
+    return user
+
+
+def get_full_user(user: User = Depends(get_current_user)) -> User:
+    """get_current_user, but test accounts are refused: for posting, replying, voting and Contact us."""
+    if user.is_test:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TEST_ACCOUNT_NOT_ALLOWED)
     return user
 
 

@@ -86,6 +86,9 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
                 <UserName user={me} />
               </p>
               <p className={`text-sm ${me.is_premium ? goldClass : 'text-muted'}`}>@{me.username}</p>
+              {me.is_test && (
+                <span className="mt-2 rounded-full bg-surface px-2.5 py-0.5 text-xs font-medium text-muted">{t('testAccount.badge')}</span>
+              )}
             </div>
           )}
 
@@ -107,10 +110,12 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
                   )}
                 </button>
               </li>
-              <DrawerLink page="contact" onOpen={onOpenPage} label={t('settings.contact.title')}>
-                <rect x="3" y="5" width="18" height="14" rx="2" />
-                <path d="m3 7 9 6 9-6" />
-              </DrawerLink>
+              {!me?.is_test && (
+                <DrawerLink page="contact" onOpen={onOpenPage} label={t('settings.contact.title')}>
+                  <rect x="3" y="5" width="18" height="14" rx="2" />
+                  <path d="m3 7 9 6 9-6" />
+                </DrawerLink>
+              )}
             </ul>
           </nav>
         </div>

@@ -1,9 +1,10 @@
 from datetime import datetime
 from typing import Literal, Optional
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 
 from backend.schemas.post import PostAuthor, PostScope
+from backend.services.catalog import validate_selection
 
 
 class AdminCodeRequest(BaseModel):
@@ -55,6 +56,9 @@ class AdminUserOut(BaseModel):
     banned_at: Optional[datetime]
     is_premium: bool
     premium_since: Optional[datetime]
+    # test accounts: email is a stand-in, and the admin can turn them off
+    is_test: bool
+    is_active: bool
     created_at: datetime
     # catalog ids; the panel shows their names
     country: str
@@ -283,3 +287,35 @@ class AdminLogPage(BaseModel):
     total: int
     # every action that appears in the log, for the filter
     actions: list[str]
+
+
+class TestUserCreate(BaseModel):
+    first_name: str
+    last_name: str
+    # catalog ids, as at sign-up
+    country: str
+    university: str
+    college: str
+    major: str
+
+    @field_validator("first_name", "last_name")
+    @classmethod
+    def check_name(cls, value: str) -> str:
+        value = value.strip()
+        if not value or len(value) > 50:
+            raise ValueError("Names must be 1-50 characters.")
+        return value
+
+    @model_validator(mode="after")
+    def check_catalog(self):
+        validate_selection(self.country, self.university, self.college, self.major)
+        return self
+
+
+class TestPassword(BaseModel):
+    password: str
+
+
+class TestUserCreated(BaseModel):
+    user: AdminUserOut
+    password: str

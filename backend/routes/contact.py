@@ -7,7 +7,7 @@ from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from backend.backendConfig import CONTACT_MESSAGES_PER_HOUR
-from backend.core.apiDependencies import get_current_user
+from backend.core.apiDependencies import get_full_user
 from backend.database import get_db
 from backend.models.contact import ContactMessage
 from backend.models.user import User
@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 def send_contact_message(
     contact_data: ContactCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_full_user),
 ):
     if not smtp_configured():
         raise HTTPException(

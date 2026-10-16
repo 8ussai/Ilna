@@ -228,7 +228,8 @@ function AccountPage({ me, catalog, onPasswordChanged }: { me: Me; catalog: Cata
     [t('auth.firstName'), me.first_name],
     [t('auth.lastName'), me.last_name],
     [t('auth.username'), `@${me.username}`],
-    [t('settings.account.email'), me.email],
+    // a test account's email is a stand-in that's never used
+    [t('settings.account.email'), me.is_test ? t('testAccount.noEmail') : me.email],
     [t('auth.country'), names.country],
     [t('auth.university'), names.university],
     [t('auth.college'), names.college],
@@ -265,7 +266,11 @@ function AccountPage({ me, catalog, onPasswordChanged }: { me: Me; catalog: Cata
         <h2 id="password-title" className="mb-4 font-serif text-xl font-semibold">
           {t('settings.password.title')}
         </h2>
-        <ChangePasswordForm onChanged={onPasswordChanged} />
+        {me.is_test ? (
+          <p className="text-sm text-muted">{t('testAccount.passwordByAdmin')}</p>
+        ) : (
+          <ChangePasswordForm onChanged={onPasswordChanged} />
+        )}
       </section>
     </>
   )

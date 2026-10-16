@@ -10,7 +10,7 @@ from sqlalchemy import or_
 from sqlalchemy.orm import Session
 
 from backend import backendConfig
-from backend.core.apiDependencies import ACCOUNT_SUSPENDED, get_current_user
+from backend.core.apiDependencies import ACCOUNT_SUSPENDED, TEST_ACCOUNT_NOT_ALLOWED, TEST_ACCOUNT_OFF, get_current_user
 from backend.core.security import create_access_token, get_password_hash, verify_password
 from backend.database import SessionLocal, get_db
 from backend.models.user import User
@@ -165,7 +165,8 @@ def _send_password_changed(user_id: int) -> None:
     db = SessionLocal()
     try:
         user = db.get(User, user_id)
-        if user:
+        # a test account has no real email
+        if user and not user.is_test:
             send_password_changed_email(user)
     except (smtplib.SMTPException, OSError):
         logger.exception("Couldn't send the password-changed email to user %s", user_id)
@@ -179,8 +180,8 @@ def _send_reset_code(identifier: str) -> None:
     db = SessionLocal()
     try:
         user = _find_login(identifier, db)
-        # only accounts that can log in; one never verified finishes sign-up by logging in instead
-        if not user or user.is_system or user.is_banned or not user.is_verified:
+        # only accounts that can log in and have a real email; one never verified finishes sign-up by logging in instead
+        if not user or user.is_system or user.is_test or user.is_banned or not user.is_verified:
             return
         now = _now()
         if user.reset_sent_at and now - user.reset_sent_at < timedelta(seconds=backendConfig.OTP_RESEND_COOLDOWN_SECONDS):
@@ -265,6 +266,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     # the password was right, so it's safe to say the account is suspended
     if user.is_banned:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
+    if not user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TEST_ACCOUNT_OFF)
 
     # the password was right, so it's safe to say which email the code goes to
     if not user.is_verified:
@@ -298,6 +301,9 @@ def change_password(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
+    # the admin panel owns a test account's password, so it can show it
+    if current_user.is_test:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=TEST_ACCOUNT_NOT_ALLOWED)
     # 400 rather than 401: the client treats any 401 as an expired session and logs out
     if not verify_password(password_data.current_password, current_user.hashed_password):
         raise HTTPException(

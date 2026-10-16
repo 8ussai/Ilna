@@ -633,7 +633,8 @@
   },
   "notices": {
     "passwordChanged": "Your password was changed. Log in with your new password.",
-    "suspended": "Your account has been suspended. If you think this is a mistake, write to support@ilna-academic.com."
+    "suspended": "Your account has been suspended. If you think this is a mistake, write to support@ilna-academic.com.",
+    "testOff": "This test account has been turned off."
   },
   "policy": {
     "title": "Policy",
@@ -889,8 +890,37 @@
         "unpin": "Unpinned",
         "delete_admin_post": "Deleted admin post",
         "premium": "Made premium",
-        "unpremium": "Removed premium"
+        "unpremium": "Removed premium",
+        "create_test_user": "Created test user",
+        "show_test_password": "Viewed test password",
+        "new_test_password": "New test password",
+        "activate_test_user": "Turned test user on",
+        "deactivate_test_user": "Turned test user off"
       }
+    },
+    "testUsers": {
+      "new": "New test user",
+      "only": "Test users only",
+      "newTitle": "New test user",
+      "newExplain": "The username (testuser + its number) and a password are made for you. Test users can use everything except posting, replying, voting and Contact us.",
+      "create": "Create",
+      "created": "Test user created. Hand out these details:",
+      "badge": "Test",
+      "offBadge": "Turned off",
+      "noEmail": "No email (test account)",
+      "showPassword": "Password",
+      "turnOff": "Turn off",
+      "turnOn": "Turn on",
+      "offNotice": "@{{username}} was turned off and logged out.",
+      "onNotice": "@{{username}} was turned on.",
+      "passwordTitle": "Login for @{{username}}",
+      "copy": "Copy",
+      "copied": "Copied",
+      "unreadable": "The saved password can't be shown (the server's secret key changed). Make a new one.",
+      "newPassword": "Make a new password",
+      "newPasswordExplain": "The old password stops working and this test user is logged out everywhere.",
+      "newPasswordConfirm": "Make new password",
+      "done": "Done"
     }
   },
   "report": {
@@ -924,5 +954,14 @@
       "name": "Your name and username in gold, with a crown"
     },
     "ok": "OK"
+  },
+  "testAccount": {
+    "badge": "Test account",
+    "readOnly": "This is a test account: you can read the blogs, but not post, reply or vote.",
+    "noReply": "Test accounts can't reply.",
+    "noVote": "Test accounts can't vote",
+    "noContact": "Contact us isn't available for test accounts.",
+    "noEmail": "None (test account)",
+    "passwordByAdmin": "This test account's password is managed by the admin."
   }
 }

@@ -32,15 +32,18 @@ export async function request<T>(path: string, init?: RequestInit, notifyUnautho
 let authToken: string | null = null
 // matches ACCOUNT_SUSPENDED in backend/core/apiDependencies.py
 export const ACCOUNT_SUSPENDED = 'Account suspended'
+// matches TEST_ACCOUNT_OFF: the admin turned this test account off
+export const TEST_ACCOUNT_OFF = 'Test account turned off'
 
-// why the session ended: the login ran out, or the admin banned the account
-export type LogoutReason = 'expired' | 'suspended'
+// why the session ended: the login ran out, the admin banned the account, or turned the test account off
+export type LogoutReason = 'expired' | 'suspended' | 'testOff'
 
 let onUnauthorized: ((reason: LogoutReason) => void) | null = null
 
 function checkSession(status: number, detail: unknown) {
   if (status === 401) onUnauthorized?.('expired')
   else if (status === 403 && detail === ACCOUNT_SUSPENDED) onUnauthorized?.('suspended')
+  else if (status === 403 && detail === TEST_ACCOUNT_OFF) onUnauthorized?.('testOff')
 }
 
 // App keeps these in sync with the logged-in session.

@@ -5,6 +5,7 @@ import { ApiError } from '../api/client'
 import type { Catalog } from '../api/meta'
 import { createPost, deletePost, fetchPosts, PAGE_SIZE, votePost } from '../api/posts'
 import type { Post, PostScope, PostSort } from '../api/posts'
+import { useReadOnly } from '../readOnly'
 import { applyVote } from '../votes'
 import { Composer } from './Composer'
 import { PostCard } from './PostCard'
@@ -27,6 +28,7 @@ export function BlogFeed({
   catalog: Catalog | null
 }) {
   const { t } = useTranslation()
+  const readOnly = useReadOnly()
   const [sort, setSort] = useState<PostSort>('hot')
   const [posts, setPosts] = useState<Post[]>([])
   const [status, setStatus] = useState<Status>('loading')
@@ -103,15 +105,19 @@ export function BlogFeed({
         {title}
       </h1>
 
-      <Composer
-        label={t('feed.composerLabel')}
-        placeholder={t('feed.placeholder', { name: title })}
-        submitLabel={t('feed.post')}
-        onSubmit={async (content) => {
-          const post = await createPost(scope, content)
-          setPosts((current) => [post, ...current])
-        }}
-      />
+      {readOnly ? (
+        <p className="rounded-xl border border-line bg-card px-4 py-3 text-sm text-muted">{t('testAccount.readOnly')}</p>
+      ) : (
+        <Composer
+          label={t('feed.composerLabel')}
+          placeholder={t('feed.placeholder', { name: title })}
+          submitLabel={t('feed.post')}
+          onSubmit={async (content) => {
+            const post = await createPost(scope, content)
+            setPosts((current) => [post, ...current])
+          }}
+        />
+      )}
 
       <div role="group" aria-label={t('feed.sortBy')} className="flex w-fit rounded-lg border border-line p-0.5">
         {SORTS.map((option) => (

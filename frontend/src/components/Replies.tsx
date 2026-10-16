@@ -5,11 +5,12 @@ import { ApiError } from '../api/client'
 import { createReply, deleteReply, fetchReplies, voteReply } from '../api/replies'
 import type { Reply } from '../api/replies'
 import { formatDateTime, parseServerDate } from '../dates'
+import { useReadOnly } from '../readOnly'
 import { applyVote } from '../votes'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
-import { ReportButton } from './ReportButton'
 import { goldClass, UserName } from './Premium'
+import { ReportButton } from './ReportButton'
 import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
@@ -52,6 +53,7 @@ function countDescendants(id: number, childrenOf: Map<number | null, Reply[]>): 
 
 function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; actions: Actions }) {
   const { t, i18n } = useTranslation()
+  const readOnly = useReadOnly()
   const [replying, setReplying] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
   const [voting, setVoting] = useState(false)
@@ -120,14 +122,16 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
           {!reply.is_deleted && (
             <>
               <VoteButtons count={reply.votes_count} myVote={reply.my_vote} disabled={voting} onVote={vote} />
-              <button
-                type="button"
-                onClick={() => setReplying((open) => !open)}
-                aria-expanded={replying}
-                className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
-              >
-                {t('replies.reply')}
-              </button>
+              {!readOnly && (
+                <button
+                  type="button"
+                  onClick={() => setReplying((open) => !open)}
+                  aria-expanded={replying}
+                  className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
+                >
+                  {t('replies.reply')}
+                </button>
+              )}
             </>
           )}
           {children.length > 0 && (
@@ -211,6 +215,7 @@ export function RepliesSection({
   onCountChange: (delta: number) => void
 }) {
   const { t } = useTranslation()
+  const readOnly = useReadOnly()
   const [replies, setReplies] = useState<Reply[]>([])
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
@@ -287,13 +292,17 @@ export function RepliesSection({
 
   return (
     <div className="mt-4 space-y-4 border-t border-line pt-4">
-      <Composer
-        label={t('replies.composerLabel')}
-        placeholder={t('replies.placeholder')}
-        submitLabel={t('replies.reply')}
-        rows={2}
-        onSubmit={(content) => add(null, content)}
-      />
+      {readOnly ? (
+        <p className="text-sm text-muted">{t('testAccount.noReply')}</p>
+      ) : (
+        <Composer
+          label={t('replies.composerLabel')}
+          placeholder={t('replies.placeholder')}
+          submitLabel={t('replies.reply')}
+          rows={2}
+          onSubmit={(content) => add(null, content)}
+        />
+      )}
 
       {status === 'loading' && (
         <p className="text-center text-sm text-muted" role="status">

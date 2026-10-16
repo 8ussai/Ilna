@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
 import type { VoteDir } from '../api/posts'
+import { useReadOnly } from '../readOnly'
 
 function Arrow({ up }: { up: boolean }) {
   return (
@@ -22,6 +23,8 @@ export function VoteButtons({
   onVote: (dir: 1 | -1) => void
 }) {
   const { t } = useTranslation()
+  // a test account sees the score but can't vote
+  const readOnly = useReadOnly()
 
   const button = (dir: 1 | -1) => {
     const active = myVote === dir
@@ -29,12 +32,12 @@ export function VoteButtons({
     return (
       <button
         type="button"
-        disabled={disabled}
+        disabled={disabled || readOnly}
         onClick={() => onVote(dir)}
         aria-pressed={active}
         aria-label={label}
-        title={label}
-        className={`grid size-8 place-items-center rounded-md hover:bg-surface disabled:cursor-wait ${
+        title={readOnly ? t('testAccount.noVote') : label}
+        className={`grid size-8 place-items-center rounded-md hover:bg-surface ${readOnly ? 'disabled:cursor-not-allowed disabled:opacity-50' : 'disabled:cursor-wait'} ${
           active ? (dir === 1 ? 'text-accent' : 'text-danger') : 'text-muted hover:text-fg'
         }`}
       >

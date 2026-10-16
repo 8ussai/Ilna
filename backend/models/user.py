@@ -42,6 +42,13 @@ class User(Base):
     # turned on from the admin panel, and stays until turned off there: more summaries, quizzes and storage, and a gold name
     is_premium = Column(Boolean, nullable=False, default=False)
     premium_since = Column(DateTime)
+    # made by the admin, named testuser{id}, with no real email: can use everything but the blogs' posting,
+    # replying and voting, and Contact us. The admin can turn it off, and can always see its password.
+    is_test = Column(Boolean, nullable=False, default=False)
+    # only test accounts are ever turned off; an off account can't log in and is logged out at once
+    is_active = Column(Boolean, nullable=False, default=True)
+    # the test account's password, encrypted with a key from SECRET_KEY so the admin panel can show it again
+    test_password_enc = Column(String)
     # the hidden "Ilna Admin" account that owns the admin's posts and messages; it can never log in
     is_system = Column(Boolean, nullable=False, default=False)
 

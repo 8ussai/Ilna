@@ -10,7 +10,14 @@ from sqlalchemy.orm import Session, joinedload
 
 from backend import backendConfig
 from backend.core.apiDependencies import get_admin
-from backend.core.security import create_admin_token, get_password_hash, verify_password
+from backend.core.security import (
+    create_admin_token,
+    decrypt_secret,
+    encrypt_secret,
+    generate_password,
+    get_password_hash,
+    verify_password,
+)
 from backend.database import SessionLocal, get_db
 from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.contact import ContactMessage
@@ -49,6 +56,9 @@ from backend.schemas.admin import (
     ReasonRequest,
     ReplyLookup,
     ReportTarget,
+    TestPassword,
+    TestUserCreate,
+    TestUserCreated,
 )
 from backend.services.admin_account import get_admin_account
 from backend.services.notifications import NotificationType, notify_removal
@@ -201,6 +211,7 @@ def _with_counts(db: Session, users: list[User]) -> list[AdminUserOut]:
 def list_users(
     q: str = Query("", max_length=100, description="Part of a name, username or email; empty lists everyone."),
     premium: bool = Query(False, description="Only premium students."),
+    test: bool = Query(False, description="Only test accounts."),
     limit: int = Query(25, ge=1, le=100),
     offset: int = Query(0, ge=0),
     db: Session = Depends(get_db),
@@ -208,6 +219,8 @@ def list_users(
     query = db.query(User).filter(User.is_system.is_(False))
     if premium:
         query = query.filter(User.is_premium.is_(True))
+    if test:
+        query = query.filter(User.is_test.is_(True))
     # every word has to match somewhere, so "ahmad ali" finds Ahmad Ali
     for word in q.strip().split():
         like = f"%{word}%"
@@ -277,8 +290,114 @@ def ban_user(user_id: int, data: BanRequest, background_tasks: BackgroundTasks, 
     db.commit()
     db.refresh(user)
 
-    if smtp_configured():
+    # a test account has no real email
+    if smtp_configured() and not user.is_test:
         background_tasks.add_task(_email_quietly, send_suspended_email, user, data.reason)
+    return _with_counts(db, [user])[0]
+
+
+# test accounts get a stand-in address under this domain; it's never shown and never emailed
+TEST_EMAIL_DOMAIN = "test-accounts.ilna-academic.com"
+
+
+def _get_test_user(db: Session, user_id: int) -> User:
+    user = _get_student(db, user_id)
+    if not user.is_test:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Not a test account")
+    return user
+
+
+def _log_test(db: Session, action: str, user: User) -> None:
+    db.add(AdminLog(action=action, target_type="user", target_id=user.id,
+                    details=json.dumps({"username": user.username}, ensure_ascii=False)))
+
+
+def _set_test_password(user: User) -> str:
+    """A new generated password; logins made with the old one end."""
+    password = generate_password()
+    user.hashed_password = get_password_hash(password)
+    user.test_password_enc = encrypt_secret(password)
+    user.password_changed_at = _now()
+    return password
+
+
+@router.post("/test-users", response_model=TestUserCreated, status_code=status.HTTP_201_CREATED, dependencies=[Depends(get_admin)])
+def create_test_user(data: TestUserCreate, db: Session = Depends(get_db)):
+    """Makes testuser{id}: verified, no real email, a generated password the panel can show again."""
+    # placeholders until the id is known, then named after it
+    placeholder = secrets.token_hex(8)
+    user = User(
+        username=f"pending{placeholder}",
+        email=f"pending{placeholder}@{TEST_EMAIL_DOMAIN}",
+        first_name=data.first_name,
+        last_name=data.last_name,
+        hashed_password="",
+        country=data.country,
+        university=data.university,
+        college=data.college,
+        major=data.major,
+        is_verified=True,
+        is_test=True,
+        is_active=True,
+    )
+    db.add(user)
+    db.flush()
+
+    username = f"testuser{user.id}"
+    if db.query(User).filter(User.username == username, User.id != user.id).first():
+        db.rollback()
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=f"{username} is already taken")
+    user.username = username
+    user.email = f"{username}@{TEST_EMAIL_DOMAIN}"
+    password = _set_test_password(user)
+    _log_test(db, "create_test_user", user)
+    db.commit()
+    db.refresh(user)
+    return TestUserCreated(user=_with_counts(db, [user])[0], password=password)
+
+
+@router.get("/users/{user_id}/test-password", response_model=TestPassword, dependencies=[Depends(get_admin)])
+def show_test_password(user_id: int, db: Session = Depends(get_db)):
+    user = _get_test_user(db, user_id)
+    password = decrypt_secret(user.test_password_enc) if user.test_password_enc else None
+    if password is None:
+        # SECRET_KEY changed since it was saved; a new password fixes it
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Password can't be shown")
+    _log_test(db, "show_test_password", user)
+    db.commit()
+    return TestPassword(password=password)
+
+
+@router.post("/users/{user_id}/test-password", response_model=TestPassword, dependencies=[Depends(get_admin)])
+def new_test_password(user_id: int, db: Session = Depends(get_db)):
+    """Makes a new password; the test account is logged out everywhere."""
+    user = _get_test_user(db, user_id)
+    password = _set_test_password(user)
+    _log_test(db, "new_test_password", user)
+    db.commit()
+    return TestPassword(password=password)
+
+
+@router.post("/users/{user_id}/activate", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def activate_test_user(user_id: int, db: Session = Depends(get_db)):
+    user = _get_test_user(db, user_id)
+    if not user.is_active:
+        user.is_active = True
+        _log_test(db, "activate_test_user", user)
+        db.commit()
+        db.refresh(user)
+    return _with_counts(db, [user])[0]
+
+
+@router.post("/users/{user_id}/deactivate", response_model=AdminUserOut, dependencies=[Depends(get_admin)])
+def deactivate_test_user(user_id: int, db: Session = Depends(get_db)):
+    """Every request from the account is refused from here on, which logs it out; its data stays."""
+    user = _get_test_user(db, user_id)
+    if user.is_active:
+        user.is_active = False
+        _log_test(db, "deactivate_test_user", user)
+        db.commit()
+        db.refresh(user)
     return _with_counts(db, [user])[0]
 
 
@@ -330,7 +449,7 @@ def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = De
     db.commit()
     db.refresh(user)
 
-    if smtp_configured():
+    if smtp_configured() and not user.is_test:
         background_tasks.add_task(_email_quietly, send_restored_email, user)
     return _with_counts(db, [user])[0]
 

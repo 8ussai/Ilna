@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { login, unverifiedEmail } from '../api/auth'
-import { ACCOUNT_SUSPENDED, ApiError } from '../api/client'
+import { ACCOUNT_SUSPENDED, ApiError, TEST_ACCOUNT_OFF } from '../api/client'
 import { Field } from './Field'
 import { ForgotPasswordForm } from './ForgotPasswordForm'
 import { primaryButton } from './styles'
@@ -31,6 +31,7 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
       onAuthenticated(await login(identifier.trim(), password))
     } catch (err) {
       if (err instanceof ApiError && err.status === 403 && err.detail === ACCOUNT_SUSPENDED) setFormError(t('errors.suspended'))
+      else if (err instanceof ApiError && err.status === 403 && err.detail === TEST_ACCOUNT_OFF) setFormError(t('notices.testOff'))
       else if (err instanceof ApiError && err.status === 403 && unverifiedEmail(err.detail)) setVerifyEmail(unverifiedEmail(err.detail))
       else if (err instanceof ApiError && err.status === 401) setFormError(t('errors.badLogin'))
       else if (err instanceof ApiError && err.status === 0) setFormError(t('errors.network'))

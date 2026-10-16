@@ -75,6 +75,9 @@ export type AdminUser = {
   banned_at: string | null
   is_premium: boolean
   premium_since: string | null
+  // made from the panel as testuser{id}; email is a stand-in, and the account can be turned off
+  is_test: boolean
+  is_active: boolean
   created_at: string
   country: string
   university: string
@@ -88,9 +91,12 @@ export type AdminUser = {
 
 export const ADMIN_USERS_PAGE = 25
 
-export function fetchAdminUsers(q: string, offset = 0, premiumOnly = false) {
+export type AdminUserFilters = { premium?: boolean; test?: boolean }
+
+export function fetchAdminUsers(q: string, offset = 0, filters: AdminUserFilters = {}) {
   const params = new URLSearchParams({ q, limit: String(ADMIN_USERS_PAGE), offset: String(offset) })
-  if (premiumOnly) params.set('premium', 'true')
+  if (filters.premium) params.set('premium', 'true')
+  if (filters.test) params.set('test', 'true')
   return adminRequest<{ items: AdminUser[]; total: number }>(`/users?${params}`)
 }
 
@@ -100,6 +106,39 @@ export function banUser(id: number, reason: string) {
 
 export function unbanUser(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/unban`, { method: 'POST' })
+}
+
+export type TestUserInput = {
+  first_name: string
+  last_name: string
+  country: string
+  university: string
+  college: string
+  major: string
+}
+
+// makes testuser{id} with a generated password
+export function createTestUser(input: TestUserInput) {
+  return adminRequest<{ user: AdminUser; password: string }>('/test-users', json(input))
+}
+
+// the test account's current password; 409 if it can't be read back (SECRET_KEY changed), then make a new one
+export function fetchTestPassword(id: number) {
+  return adminRequest<{ password: string }>(`/users/${id}/test-password`)
+}
+
+// a new generated password; the test account is logged out everywhere
+export function newTestPassword(id: number) {
+  return adminRequest<{ password: string }>(`/users/${id}/test-password`, { method: 'POST' })
+}
+
+export function activateTestUser(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/activate`, { method: 'POST' })
+}
+
+// logs the test account out at once; its data stays
+export function deactivateTestUser(id: number) {
+  return adminRequest<AdminUser>(`/users/${id}/deactivate`, { method: 'POST' })
 }
 
 // lasts until removed; the student gets a notification

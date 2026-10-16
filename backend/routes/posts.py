@@ -8,7 +8,7 @@ from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostV
 from backend.database import get_db
 from backend.models.user import User
 from backend.models.post import Post, PostVote, Reply
-from backend.core.apiDependencies import get_current_user
+from backend.core.apiDependencies import get_current_user, get_full_user
 from backend.services.notifications import NotificationType, sync_vote_notification
 from backend.services.votes import check_vote_dir, toggle_vote
 
@@ -94,7 +94,7 @@ def _posts_with_counts(db: Session, user: User):
 def create_post(
     post_data: PostCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_full_user),
 ):
     new_post = Post(
         user_id=current_user.id,
@@ -196,7 +196,7 @@ def vote_post(
     post_id: int,
     vote_action: PostVoteAction,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_full_user),
 ):
     vote_dir = vote_action.vote_dir
 

@@ -35,6 +35,7 @@ export default function App() {
     updateToken(null)
     // a banned student is told why they were logged out; the suspended email follows
     if (reason === 'suspended') setNotice('suspended')
+    else if (reason === 'testOff') setNotice('testOff')
   }
 
   // /admin has its own login, whether or not a student is logged in here

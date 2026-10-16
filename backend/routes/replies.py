@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import case, func
 from sqlalchemy.orm import Session, joinedload
 
-from backend.core.apiDependencies import get_current_user
+from backend.core.apiDependencies import get_current_user, get_full_user
 from backend.database import get_db
 from backend.models.post import Post, Reply, ReplyVote
 from backend.models.user import User
@@ -78,7 +78,7 @@ def create_reply(
     post_id: int,
     reply_data: ReplyCreate,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_full_user),
 ):
     post = _get_visible_post(db, post_id, current_user)
 
@@ -126,7 +126,7 @@ def vote_reply(
     reply_id: int,
     vote_action: PostVoteAction,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(get_full_user),
 ):
     vote_dir = vote_action.vote_dir
 

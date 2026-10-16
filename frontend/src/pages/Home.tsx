@@ -15,6 +15,7 @@ import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
 import { useUnreadCount } from '../hooks/useUnreadCount'
+import { ReadOnlyContext } from '../readOnly'
 import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { CourseSection, Route } from '../tabs'
 import { ContactPage } from './ContactPage'
@@ -147,6 +148,8 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     if (route.kind === 'drawer') {
       return route.page === 'notifications' ? (
         <NotificationsPage onOpenPost={openPost} onMarkedRead={onMarkedRead} />
+      ) : me.is_test ? (
+        <p className="py-16 text-center text-muted">{t('testAccount.noContact')}</p>
       ) : (
         <ContactPage email={me.email} />
       )
@@ -203,7 +206,9 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
       </div>
 
       {/* the courses grid needs room for three columns; everything else reads better narrow */}
-      <main className={`mx-auto w-full flex-1 px-5 py-8 sm:px-8 ${isCoursesArea ? 'max-w-6xl' : 'max-w-3xl'}`}>{renderContent()}</main>
+      <main className={`mx-auto w-full flex-1 px-5 py-8 sm:px-8 ${isCoursesArea ? 'max-w-6xl' : 'max-w-3xl'}`}>
+        <ReadOnlyContext.Provider value={!!me?.is_test}>{renderContent()}</ReadOnlyContext.Provider>
+      </main>
 
       <AccountDrawer
         open={drawerOpen}

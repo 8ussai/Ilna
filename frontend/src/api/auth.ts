@@ -13,6 +13,8 @@ export type Me = {
   created_at: string
   // turned on by the admin: more summaries, quizzes and storage, and a gold name
   is_premium: boolean
+  // made by the admin: reads the blogs but can't post, reply, vote or use Contact us; its email isn't real
+  is_test: boolean
 }
 
 export function fetchMe() {

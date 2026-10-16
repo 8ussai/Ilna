@@ -160,6 +160,12 @@ _add_missing_columns("users", {
     "banned_at": "DATETIME",
     "is_system": "BOOLEAN NOT NULL DEFAULT 0",
 })
+# test accounts made from the admin panel
+_add_missing_columns("users", {
+    "is_test": "BOOLEAN NOT NULL DEFAULT 0",
+    "is_active": "BOOLEAN NOT NULL DEFAULT 1",
+    "test_password_enc": "VARCHAR",
+})
 # premium, turned on from the admin panel
 _add_missing_columns("users", {
     "is_premium": "BOOLEAN NOT NULL DEFAULT 0",

@@ -22,6 +22,8 @@ class UserBase(BaseModel):
 
 # same rule as USERNAME_RE in frontend/src/components/RegisterForm.tsx
 USERNAME_RE = re.compile(r"^[a-z0-9]{3,30}$")
+# kept for the admin's test accounts (testuser12, ...)
+TEST_USERNAME_PREFIX = "testuser"
 
 
 class UserCreate(UserBase):
@@ -33,6 +35,8 @@ class UserCreate(UserBase):
         value = value.strip()
         if not USERNAME_RE.fullmatch(value):
             raise ValueError("Username must be 3-30 lowercase letters (a-z) or numbers.")
+        if value.startswith(TEST_USERNAME_PREFIX):
+            raise ValueError("Usernames starting with \"testuser\" are kept for test accounts.")
         return value
 
     @field_validator("password")
@@ -87,6 +91,8 @@ class UsageOut(BaseModel):
 class UserOut(UserBase):
     id: int
     is_premium: bool = False
+    # made by the admin; its email is a stand-in that's never shown or emailed
+    is_test: bool = False
     created_at: datetime
     updated_at: datetime
 
