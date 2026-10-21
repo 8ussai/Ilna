@@ -49,7 +49,7 @@ export function Header({ children, onLogoClick }: HeaderProps) {
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-5 py-4 sm:px-8">
       <a href="/" onClick={onLogoClick} className="flex items-center gap-2.5">
         <img src={logo} alt="" className="size-9" />
-        <span className="font-serif text-2xl font-semibold tracking-tight">Ilna</span>
+        <span className="font-serif text-2xl font-semibold uppercase tracking-wide">Ilna</span>
       </a>
 
       <div className="flex items-center gap-2">
