@@ -142,8 +142,8 @@ ADMIN_SESSION_MINUTES = 120
 ADMIN_USERNAME = "ilna-admin"
 # the longest a post can be pinned, in hours (matches MAX_PIN_HOURS in frontend/src/api/admin.ts)
 MAX_PIN_HOURS = 168
-# usernames can't contain this (anonymous posts show as "Anonymous N"); matches RegisterForm.tsx
-ANONYMOUS_USERNAME_WORD = "anonymous"
+# usernames can't contain these, since anonymous posts show as "Anonymous N" and "Author"; matches RegisterForm.tsx
+RESERVED_USERNAME_WORDS = ("anonymous", "author")
 # the admin's test accounts are named this plus their id (testuser12, ...)
 TEST_USERNAME_PREFIX = "testuser"
 # test accounts get a stand-in address under this domain; it's never shown and never emailed

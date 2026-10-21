@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 from datetime import datetime
 
-from backend.backendConfig import ACCENT_PRESETS, ANONYMOUS_USERNAME_WORD, TEST_USERNAME_PREFIX
+from backend.backendConfig import ACCENT_PRESETS, RESERVED_USERNAME_WORDS, TEST_USERNAME_PREFIX
 from backend.core.security import check_password_strength
 from backend.services.catalog import validate_selection, email_matches_domain
 
@@ -22,7 +22,8 @@ class UserBase(BaseModel):
 
 
 # same rule as USERNAME_RE in frontend/src/components/RegisterForm.tsx
-USERNAME_RE = re.compile(r"^[a-z0-9]{3,30}$")
+USERNAME_RE = re.compile(r"^[a-z0-9_]{3,30}$")
+USERNAME_LETTER_RE = re.compile(r"[a-z]")
 
 
 class UserCreate(UserBase):
@@ -33,12 +34,15 @@ class UserCreate(UserBase):
     def check_username(cls, value: str) -> str:
         value = value.strip()
         if not USERNAME_RE.fullmatch(value):
-            raise ValueError("Username must be 3-30 lowercase letters (a-z) or numbers.")
+            raise ValueError("Username must be 3-30 lowercase letters (a-z), numbers or underscores (_).")
+        if not USERNAME_LETTER_RE.search(value):
+            raise ValueError("Username must have at least one letter (a-z).")
         if value.startswith(TEST_USERNAME_PREFIX):
             raise ValueError("Usernames starting with \"testuser\" are kept for test accounts.")
-        # anonymous posts show as "Anonymous N", so nobody can be named like them
-        if ANONYMOUS_USERNAME_WORD in value:
-            raise ValueError("Usernames containing \"anonymous\" aren't allowed.")
+        # anonymous posts show as "Anonymous N" and "Author", so nobody can be named like them
+        for word in RESERVED_USERNAME_WORDS:
+            if word in value:
+                raise ValueError(f"Usernames containing \"{word}\" aren't allowed.")
         return value
 
     @field_validator("password")

@@ -39,7 +39,9 @@ const empty: Values = {
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 // same rule as USERNAME_RE in backend/schemas/user.py
-const USERNAME_RE = /^[a-z0-9]{3,30}$/
+const USERNAME_RE = /^[a-z0-9_]{3,30}$/
+// same as RESERVED_USERNAME_WORDS in backend/backendConfig.py: anonymous posts show as "Anonymous N" and "Author"
+const RESERVED_USERNAME_WORDS = ['anonymous', 'author']
 
 export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t, i18n } = useTranslation()
@@ -99,8 +101,11 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
 
     if (!values.username.trim()) e.username = required
     else if (!USERNAME_RE.test(values.username)) e.username = t('errors.usernameInvalid')
-    // anonymous posts show as "Anonymous N" (ANONYMOUS_USERNAME_WORD in backend/backendConfig.py)
-    else if (values.username.includes('anonymous')) e.username = t('errors.usernameAnonymous')
+    else if (!/[a-z]/.test(values.username)) e.username = t('errors.usernameNoLetter')
+    else {
+      const reserved = RESERVED_USERNAME_WORDS.find((word) => values.username.includes(word))
+      if (reserved) e.username = t('errors.usernameReserved', { word: reserved })
+    }
 
     const emailDomain = values.email.trim().split('@')[1]?.toLowerCase() ?? ''
     if (!values.email.trim()) e.email = required
