@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean, Float, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -13,16 +13,67 @@ class Course(Base):
     description = Column(String, nullable=True)
     # one of the preset names in schemas.course.CourseColor; the frontend maps it to a theme color
     color = Column(String, nullable=True)
-    # set when the course page opens; the courses grid sorts by it
+    # set when the owner opens the course page; the courses grid sorts by it (members have their own)
     last_opened_at = Column(DateTime(timezone=True), nullable=True)
+    # the course ID people type to add it, like "K7Q2-M9XD" (services/course_sharing.py); random, so
+    # private courses can't be found by counting. The owner can swap it for a new one.
+    share_code = Column(String, nullable=False, unique=True, index=True)
+    # anyone with the code can add a public course; a private one only reaches the people it's shared with
+    is_public = Column(Boolean, nullable=False, default=False, server_default="0")
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
     owner = relationship("User", back_populates="courses")
+    shares = relationship("CourseShare", back_populates="course", cascade="all, delete-orphan")
+    members = relationship("CourseMember", back_populates="course", cascade="all, delete-orphan")
+    share_responses = relationship("CourseShareResponse", cascade="all, delete-orphan")
     materials = relationship("CourseMaterial", back_populates="course", cascade="all, delete-orphan")
     notes = relationship("CourseNote", back_populates="course", cascade="all, delete-orphan")
     links = relationship("CourseLink", back_populates="course", cascade="all, delete-orphan")
     study_items = relationship("StudyItem", back_populates="course", cascade="all, delete-orphan")
+
+
+class CourseShare(Base):
+    """Who a private course is shared with. target_type is university, college or major (target is the owner's
+    catalog id), friends (the owner's friends list, as it is now), or user (target is their user id)."""
+    __tablename__ = "course_shares"
+
+    id = Column(Integer, primary_key=True, index=True)
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False, index=True)
+    target_type = Column(String, nullable=False)
+    target = Column(String, nullable=False, default="", server_default="")
+    created_at = Column(DateTime(timezone=True), default=func.now())
+
+    course = relationship("Course", back_populates="shares")
+
+    __table_args__ = (UniqueConstraint("course_id", "target_type", "target"),)
+
+
+class CourseMember(Base):
+    """Someone who added another student's course: they can read it but not change it, while it's
+    public or still shared with them (see services/course_sharing.py)."""
+    __tablename__ = "course_members"
+
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    # their own "recently opened", for sorting their grid
+    last_opened_at = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+
+    course = relationship("Course", back_populates="members")
+
+    __table_args__ = (PrimaryKeyConstraint("course_id", "user_id"),)
+
+
+class CourseShareResponse(Base):
+    """The user pressed Ignore on a course shared with them (or left it), so it stays out of "Shared with you"."""
+    __tablename__ = "course_share_responses"
+
+    course_id = Column(Integer, ForeignKey("courses.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+
+    __table_args__ = (PrimaryKeyConstraint("course_id", "user_id"),)
 
 
 class CourseMaterial(Base):

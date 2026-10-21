@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-// "Delete" that asks for confirmation inline before calling onConfirm.
-export function DeleteButton({ question, onConfirm }: { question: string; onConfirm: () => Promise<void> }) {
+// "Delete" (or label) that asks for confirmation inline before calling onConfirm.
+export function DeleteButton({ question, onConfirm, label }: { question: string; onConfirm: () => Promise<void>; label?: string }) {
   const { t } = useTranslation()
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
@@ -25,7 +25,7 @@ export function DeleteButton({ question, onConfirm }: { question: string; onConf
         onClick={() => setConfirming(true)}
         className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-danger"
       >
-        {t('feed.delete')}
+        {label ?? t('feed.delete')}
       </button>
     )
   }

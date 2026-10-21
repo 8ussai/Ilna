@@ -10,6 +10,7 @@ import { DeleteButton } from '../DeleteButton'
 import { controlClass } from '../Field'
 import { primaryButtonInline, secondaryButtonInline } from '../styles'
 import { InlineRename } from './InlineRename'
+import { useCourseCanEdit } from './courseAccess'
 import { IndexBadge } from './MaterialsTab'
 import { DropZone, UploadList } from './Uploader'
 import { acceptList, extensionList, useUploadQueue } from './uploadQueue'
@@ -39,6 +40,7 @@ export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }
     },
   })
   const recordButtonRef = useRef<HTMLButtonElement>(null)
+  const canEdit = useCourseCanEdit()
 
   function closeRecorder() {
     setRecording(false)
@@ -47,7 +49,7 @@ export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }
 
   return (
     <div className="space-y-4">
-      {recording ? (
+      {!canEdit ? null : recording ? (
         <VoiceRecorder
           onRecorded={(file, durationSec) => {
             addFiles([file], AUDIO_EXTENSIONS, durationSec)
@@ -118,6 +120,7 @@ function RecordingCard({
   onDeleted: () => void
 }) {
   const { t, i18n } = useTranslation()
+  const canEdit = useCourseCanEdit()
   const [renaming, setRenaming] = useState(false)
   const [error, setError] = useState('')
   const panelId = useId()
@@ -190,10 +193,14 @@ function RecordingCard({
 
         {!renaming && (
           <div className="-me-2 flex shrink-0 items-center gap-1">
-            <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
-              {t('courses.menu.rename')}
-            </button>
-            <DeleteButton question={t('courses.voice.confirmDelete')} onConfirm={remove} />
+            {canEdit && (
+              <>
+                <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
+                  {t('courses.menu.rename')}
+                </button>
+                <DeleteButton question={t('courses.voice.confirmDelete')} onConfirm={remove} />
+              </>
+            )}
           </div>
         )}
       </div>
@@ -235,6 +242,7 @@ function RecordingPanel({
   onChanged: (material: CourseMaterial) => void
 }) {
   const { t } = useTranslation()
+  const canEdit = useCourseCanEdit()
   const file = useMaterialUrl(courseId, material.id, true)
   const audioRef = useRef<HTMLAudioElement>(null)
   const pendingSeek = useRef<number | null>(null)
@@ -294,7 +302,7 @@ function RecordingPanel({
         <div className="space-y-3 rounded-xl bg-surface p-4">
           <p className="text-sm text-danger">{t('courses.voice.failedLong')}</p>
           {material.transcript?.error && <p className="text-xs text-muted">{material.transcript.error}</p>}
-          <RetryTranscript courseId={courseId} material={material} onRetried={onChanged} />
+          {canEdit && <RetryTranscript courseId={courseId} material={material} onRetried={onChanged} />}
         </div>
       ) : (
         <TranscriptProgress material={material} />
@@ -341,6 +349,7 @@ function TranscriptView({
   onRetried: (material: CourseMaterial) => void
 }) {
   const { t } = useTranslation()
+  const canEdit = useCourseCanEdit()
   const [transcript, setTranscript] = useState<Transcript | null>(null)
   const [failed, setFailed] = useState(false)
   const [attempt, setAttempt] = useState(0)
@@ -420,7 +429,7 @@ function TranscriptView({
           ))}
         </ol>
       )}
-      <div className="pt-1">
+      <div className={canEdit ? 'pt-1' : 'hidden'}>
         {redoing ? (
           <div className="rounded-xl bg-surface p-4">
             <RetryTranscript courseId={courseId} material={material} onRetried={onRetried} onCancel={() => setRedoing(false)} redo />

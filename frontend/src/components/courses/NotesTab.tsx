@@ -10,6 +10,8 @@ import { primaryButtonInline } from '../styles'
 import { DrawingNoteEditor } from './DrawingNoteEditor'
 import { DrawingThumbnail } from './DrawingThumbnail'
 import { TextNoteEditor } from './TextNoteEditor'
+import { useCourseCanEdit } from './courseAccess'
+import { NoteViewer } from './NoteViewer'
 
 type NotesTabProps = {
   courseId: number
@@ -31,6 +33,8 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
   const nextKey = useRef(1)
   const [choosing, setChoosing] = useState(false)
   const choicesRef = useRef<HTMLDivElement>(null)
+  // in a course someone else owns, notes open read-only
+  const canEdit = useCourseCanEdit()
 
   function open(note: CourseNote | null, kind: CourseNote['kind'] = note?.kind ?? 'text') {
     returnFocusRef.current = note?.id ?? 'new'
@@ -50,6 +54,10 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
     // a deleted note's row is gone, so fall back to "New note"
     ;(listRef.current?.querySelector<HTMLElement>(selector) ?? listRef.current?.querySelector<HTMLElement>('[data-new-note]'))?.focus()
   }, [editing])
+
+  if (editing && !canEdit && editing.note) {
+    return <NoteViewer note={editing.note} onClose={() => setEditing(null)} />
+  }
 
   if (editing) {
     const editorProps = {
@@ -75,7 +83,7 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
 
   return (
     <div ref={listRef} className="space-y-4">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className={canEdit ? 'flex flex-wrap items-center gap-2' : 'hidden'}>
         <button
           type="button"
           data-new-note
@@ -144,6 +152,7 @@ function NoteCard({
 }) {
   const { t, i18n } = useTranslation()
   const [error, setError] = useState('')
+  const canEdit = useCourseCanEdit()
   const isDrawing = note.kind === 'drawing'
   const lines = isDrawing ? [] : note.content.split('\n').filter((line) => line.trim())
   // without a title, the first line stands in for it and the preview starts after it
@@ -200,9 +209,11 @@ function NoteCard({
         <span className="text-xs text-muted">
           {t('courses.notes.updated', { when: formatRelative(parseServerDate(note.updated_at), i18n.language) })}
         </span>
-        <div className="-me-2">
-          <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />
-        </div>
+        {canEdit && (
+          <div className="-me-2">
+            <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />
+          </div>
+        )}
       </div>
       {error && (
         <p role="alert" className="px-4 pb-3 text-sm text-danger">

@@ -2,12 +2,14 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
+import { leaveCourse } from '../api/courseSharing'
 import { deleteCourse, fetchCourses, updateCourse } from '../api/courses'
 import type { Course, CourseSummary } from '../api/courses'
 import { fetchUsage } from '../api/me'
 import { CourseCard } from '../components/courses/CourseCard'
 import { NewCourseDialog } from '../components/courses/NewCourseDialog'
-import { secondaryButtonInline } from '../components/styles'
+import { AddByIdDialog, SharedWithYou } from '../components/courses/SharedCourses'
+import { secondaryButtonInline, smallSecondaryButton } from '../components/styles'
 
 type Status = 'loading' | 'ready' | 'error'
 
@@ -17,6 +19,7 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
   const [creating, setCreating] = useState(false)
+  const [addingById, setAddingById] = useState(false)
   // null for premium (no limit), and while unknown; the server enforces it either way
   const [courseLimit, setCourseLimit] = useState<number | null>(null)
   const headingRef = useRef<HTMLHeadingElement>(null)
@@ -72,6 +75,13 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
     headingRef.current?.focus()
   }
 
+  // an added course: off the list (the owner's course is untouched)
+  async function leave(id: number) {
+    await leaveCourse(id)
+    setCourses((current) => current.filter((c) => c.id !== id))
+    headingRef.current?.focus()
+  }
+
   // closed after creating: reload so the new course shows with the counts of what was added
   function closeDialog(created: Course | null) {
     setCreating(false)
@@ -108,10 +118,17 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
         <h1 id="courses-title" ref={headingRef} tabIndex={-1} className="font-serif text-3xl font-semibold focus:outline-none">
           {t('tabs.my-courses')}
         </h1>
-        {status === 'ready' && courseLimit !== null && (
-          <p className="text-sm text-muted">{t('courses.limit.count', { count: courses.length, limit: courseLimit })}</p>
-        )}
+        <div className="flex items-center gap-3">
+          {status === 'ready' && courseLimit !== null && (
+            <p className="text-sm text-muted">{t('courses.limit.count', { count: courses.length, limit: courseLimit })}</p>
+          )}
+          <button type="button" onClick={() => setAddingById(true)} className={smallSecondaryButton}>
+            {t('courses.shared.addById')}
+          </button>
+        </div>
       </div>
+
+      <SharedWithYou reloadKey={reloadKey} onAdded={() => setReloadKey((k) => k + 1)} />
 
       {status === 'loading' && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3" role="status" aria-label={t('feed.loading')}>
@@ -149,6 +166,7 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
                 onOpen={() => onOpenCourse(course.id)}
                 onUpdate={async (changes) => patchCourse(course.id, await updateCourse(course.id, changes))}
                 onDelete={() => remove(course.id)}
+                onLeave={() => leave(course.id)}
               />
             </li>
           ))}
@@ -156,6 +174,15 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
       )}
 
       {creating && <NewCourseDialog onClose={closeDialog} onDone={(course) => onOpenCourse(course.id)} />}
+      {addingById && (
+        <AddByIdDialog
+          onClose={() => setAddingById(false)}
+          onAdded={(courseId) => {
+            setAddingById(false)
+            onOpenCourse(courseId)
+          }}
+        />
+      )}
     </section>
   )
 }

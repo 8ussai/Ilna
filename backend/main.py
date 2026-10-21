@@ -9,7 +9,7 @@ from backend.database import SessionLocal, utc_now
 from backend.migrations.runner import run_migrations
 # imported so every model is registered with Base; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
-from backend.routes import admin, admin_maintenance, auth, contact, friends, me, posts, replies, reports, courses, meta, study
+from backend.routes import admin, admin_courses, admin_maintenance, auth, contact, course_sharing, friends, me, posts, replies, reports, courses, meta, study
 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs, study_generator
@@ -131,11 +131,14 @@ app.include_router(meta.router, prefix="/meta", tags=["Meta"])
 app.include_router(posts.router, prefix="/posts", tags=["Posts"])
 app.include_router(replies.router, tags=["Replies"])
 app.include_router(reports.router, tags=["Reports"])
+# before courses: its /courses/{course_id} would otherwise catch /courses/shared-with-me
+app.include_router(course_sharing.router, prefix="/courses", tags=["Course sharing"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
 app.include_router(study.router, prefix="/courses", tags=["Summaries & Quizzes"])
 app.include_router(contact.router, prefix="/contact", tags=["Contact"])
 app.include_router(friends.router, tags=["Friends"])
 app.include_router(admin_maintenance.router, prefix="/admin/maintenance", tags=["Admin"])
+app.include_router(admin_courses.router, prefix="/admin/courses", tags=["Admin"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 
 

@@ -21,11 +21,12 @@ from backend.backendConfig import (
     UPLOAD_DIR,
 )
 from backend.models.user import User
-from backend.models.course import Course, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
+from backend.models.course import Course, CourseMember, CourseNote, CourseLink, CourseMaterial, MaterialTranscript
 from backend.schemas.course import (
     CourseCreate,
     CourseUpdate,
     CourseOut,
+    CourseOwner,
     CourseSummaryOut,
     MaterialKind,
     NoteKind,
@@ -50,28 +51,31 @@ from backend.services import jobs
 from backend.services.rag_pipeline import index_course_material
 from backend.services.transcription import transcribe_material
 from backend.services.storage import storage_used
-from backend.services.usage import course_limit, storage_limit
+from backend.services.usage import storage_limit
+# get_owned_course: only the owner, for changes; get_viewable_course: the owner or a member, for reading
+from backend.services.course_sharing import (
+    check_course_limit,
+    get_owned_course,
+    get_viewable_course,
+    member_courses,
+    new_share_code,
+)
 
 router = APIRouter()
 
 
-def get_owned_course(db: Session, course_id: int, user: User) -> Course:
-    """The course, if it exists and belongs to the user; 404 or 403 otherwise."""
-    course = db.query(Course).filter(Course.id == course_id).first()
-
-    if not course:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Course with id {course_id} not found."
+def course_fields(course: Course, is_owner: bool, member: Optional[CourseMember] = None) -> dict:
+    """CourseOut's fields as the viewer sees them: a member gets the owner's name, their own
+    last-opened time, and no course ID (only the owner can hand that out)."""
+    data = CourseOut.model_validate(course).model_dump()
+    if not is_owner:
+        data.update(
+            is_owner=False,
+            owner=CourseOwner.model_validate(course.owner),
+            share_code=None,
+            last_opened_at=member.last_opened_at if member else None,
         )
-
-    if course.user_id != user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="You do not have permission to access this course."
-        )
-
-    return course
+    return data
 
 
 def _get_course_item(db: Session, model, item_id: int, course: Course, label: str):
@@ -116,14 +120,9 @@ def create_course(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    limit = course_limit(current_user)
-    if limit is not None and db.query(Course).filter(Course.user_id == current_user.id).count() >= limit:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=f"You can have up to {limit} courses. Delete one or get Premium for unlimited courses.",
-        )
+    check_course_limit(db, current_user)
 
-    new_course = Course(user_id=current_user.id, **course_data.model_dump(mode="json"))
+    new_course = Course(user_id=current_user.id, share_code=new_share_code(db), **course_data.model_dump(mode="json"))
 
     db.add(new_course)
     db.commit()
@@ -141,35 +140,43 @@ def _count_in_course(model, *conditions):
     )
 
 
-@router.get("/", response_model=List[CourseSummaryOut])
-def get_courses(
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
-):
+def course_counts(db: Session, course_ids: List[int]) -> dict[int, tuple[int, int, int, int]]:
+    """course id -> (documents, recordings, links, notes)."""
+    if not course_ids:
+        return {}
     rows = (
         db.query(
-            Course,
+            Course.id,
             _count_in_course(CourseMaterial, CourseMaterial.kind == MaterialKind.document.value),
             _count_in_course(CourseMaterial, CourseMaterial.kind == MaterialKind.audio.value),
             _count_in_course(CourseLink),
             _count_in_course(CourseNote),
         )
-        .filter(Course.user_id == current_user.id)
-        # recently opened first; never-opened courses after them, newest change first
-        .order_by(Course.last_opened_at.is_(None), Course.last_opened_at.desc(), Course.updated_at.desc())
+        .filter(Course.id.in_(course_ids))
         .all()
     )
+    return {course_id: tuple(counts) for course_id, *counts in rows}
 
-    return [
-        CourseSummaryOut(
-            **CourseOut.model_validate(course).model_dump(),
-            documents_count=documents,
-            audio_count=audio,
-            links_count=links,
-            notes_count=notes,
-        )
-        for course, documents, audio, links, notes in rows
-    ]
+
+@router.get("/", response_model=List[CourseSummaryOut])
+def get_courses(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """The user's own courses and the ones they added (marked is_owner false), together."""
+    owned = db.query(Course).filter(Course.user_id == current_user.id).all()
+    added = member_courses(db, current_user)
+    counts = course_counts(db, [c.id for c in owned] + [c.id for c, _ in added])
+
+    def summary(fields: dict, course_id: int) -> CourseSummaryOut:
+        documents, audio, links, notes = counts.get(course_id, (0, 0, 0, 0))
+        return CourseSummaryOut(**fields, documents_count=documents, audio_count=audio, links_count=links, notes_count=notes)
+
+    items = [summary(course_fields(c, True), c.id) for c in owned]
+    items += [summary(course_fields(c, False, member), c.id) for c, member in added]
+    # recently opened first; never-opened courses after them, newest change first
+    items.sort(key=lambda c: (c.last_opened_at is not None, c.last_opened_at or c.updated_at, c.updated_at), reverse=True)
+    return items
 
 
 @router.get("/{course_id}", response_model=CourseDetailOut)
@@ -178,17 +185,29 @@ def get_course_detail(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    course = get_owned_course(db, course_id, current_user)
+    course, is_owner = get_viewable_course(db, course_id, current_user)
+    now = datetime.now(timezone.utc)
 
-    # setting updated_at to itself stops its onupdate, so opening a course doesn't count as changing it
-    db.query(Course).filter(Course.id == course.id).update(
-        {Course.last_opened_at: datetime.now(timezone.utc), Course.updated_at: Course.updated_at},
-        synchronize_session=False,
-    )
+    if is_owner:
+        # setting updated_at to itself stops its onupdate, so opening a course doesn't count as changing it
+        db.query(Course).filter(Course.id == course.id).update(
+            {Course.last_opened_at: now, Course.updated_at: Course.updated_at},
+            synchronize_session=False,
+        )
+        member = None
+    else:
+        member = db.get(CourseMember, (course.id, current_user.id))
+        member.last_opened_at = now
     db.commit()
     db.refresh(course)
 
-    return course
+    return CourseDetailOut(
+        **course_fields(course, is_owner, member),
+        materials=course.materials,
+        # shared like the rest; members can read them, not change them
+        notes=course.notes,
+        links=course.links,
+    )
 
 
 # what the course page polls while files are indexing or recordings are transcribing;
@@ -199,7 +218,7 @@ def get_course_materials(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    course = get_owned_course(db, course_id, current_user)
+    course, _ = get_viewable_course(db, course_id, current_user)
     return course.materials
 
 
@@ -216,7 +235,7 @@ def update_course(
     db.commit()
     db.refresh(course)
 
-    return course
+    return CourseOut(**course_fields(course, True))
 
 
 @router.delete("/{course_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -468,7 +487,7 @@ def download_course_material(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    course = get_owned_course(db, course_id, current_user)
+    course, _ = get_viewable_course(db, course_id, current_user)
     material = _get_course_item(db, CourseMaterial, material_id, course, "Material")
 
     if not os.path.isfile(material.file_path):
@@ -530,8 +549,11 @@ def delete_course_material(
     _remove_vectors(delete_material_vectors, material_id)
 
 
-def _get_transcript(db: Session, course_id: int, material_id: int, user: User):
-    course = get_owned_course(db, course_id, user)
+def _get_transcript(db: Session, course_id: int, material_id: int, user: User, owner_only: bool):
+    if owner_only:
+        course = get_owned_course(db, course_id, user)
+    else:
+        course, _ = get_viewable_course(db, course_id, user)
     material = _get_course_item(db, CourseMaterial, material_id, course, "Material")
 
     if material.transcript is None:
@@ -550,7 +572,7 @@ def get_material_transcript(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    return _get_transcript(db, course_id, material_id, current_user)
+    return _get_transcript(db, course_id, material_id, current_user, owner_only=False)
 
 
 @router.post("/{course_id}/materials/{material_id}/transcript/retry", response_model=TranscriptOut)
@@ -561,7 +583,7 @@ def retry_material_transcript(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    transcript = _get_transcript(db, course_id, material_id, current_user)
+    transcript = _get_transcript(db, course_id, material_id, current_user, owner_only=True)
 
     if transcript.status in (TranscriptStatus.pending.value, TranscriptStatus.processing.value):
         raise HTTPException(

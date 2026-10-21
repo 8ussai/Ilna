@@ -7,12 +7,14 @@ import { AuthorAvatar, AuthorName } from '../components/Anonymous'
 import { secondaryButton } from '../components/styles'
 import { formatDateTime, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
-import { postPath } from '../tabs'
+import { postPath, tabPath } from '../tabs'
 
 type Status = 'loading' | 'ready' | 'error'
 
 type NotificationsPageProps = {
   onOpenPost: (postId: number, replyId: number | null) => void
+  // a shared course: My Courses, where it waits under "Shared with you"
+  onOpenCourses: () => void
   // called with how many notifications were just marked read, so the badge can drop right away
   onMarkedRead: (count: number) => void
 }
@@ -35,6 +37,10 @@ function messageKey(n: AppNotification) {
       return 'adminMessage'
     case 'premium_granted':
       return 'premiumGranted'
+    case 'course_shared':
+      return 'courseShared'
+    case 'course_removed':
+      return 'courseRemoved'
   }
 }
 
@@ -59,7 +65,7 @@ const folds = (n: AppNotification) => n.type === 'admin_message' && (n.preview.l
 
 // Every vote and reply on the user's posts and replies, newest first. Opening the page marks what it
 // shows as read, but those items keep their unread look until the user leaves so they can spot what's new.
-export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPageProps) {
+export function NotificationsPage({ onOpenPost, onOpenCourses, onMarkedRead }: NotificationsPageProps) {
   const { t, i18n } = useTranslation()
   const [items, setItems] = useState<AppNotification[]>([])
   const [status, setStatus] = useState<Status>('loading')
@@ -194,6 +200,15 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
             )
             const rowClass = `flex gap-3 px-5 py-4 ${n.is_read ? '' : 'bg-accent/5'}`
             const postId = n.post_id
+            if (n.type === 'course_shared') {
+              return (
+                <li key={n.id}>
+                  <a href={tabPath('my-courses')} onClick={inAppClick(onOpenCourses)} className={`${rowClass} hover:bg-surface`}>
+                    {body}
+                  </a>
+                </li>
+              )
+            }
             return (
               <li key={n.id}>
                 {/* a removed post has nothing to open */}

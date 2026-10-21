@@ -199,7 +199,11 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     if (route.kind === 'drawer') {
       if (route.page === 'friends') return <FriendsPage catalog={catalog} />
       return route.page === 'notifications' ? (
-        <NotificationsPage onOpenPost={openPost} onMarkedRead={onMarkedRead} />
+        <NotificationsPage
+          onOpenPost={openPost}
+          onOpenCourses={() => navigate({ kind: 'tab', tab: 'my-courses' })}
+          onMarkedRead={onMarkedRead}
+        />
       ) : me.is_test ? (
         <p className="py-16 text-center text-muted">{t('testAccount.noContact')}</p>
       ) : (

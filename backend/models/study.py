@@ -56,6 +56,8 @@ class QuizAttempt(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     item_id = Column(Integer, ForeignKey("study_items.id", ondelete="CASCADE"), nullable=False, index=True)
+    # who took it: the owner, or someone who added the course; each sees only their own attempts
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
 
     # JSON list with the chosen option index per question, null where it was left unanswered
     answers = Column(Text, nullable=False)

@@ -17,6 +17,7 @@ import { formatDate, parseServerDate } from '../../dates'
 import { inAppClick } from '../../links'
 import { coursePath, STUDY_SECTIONS } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
+import { useCourseCanEdit } from './courseAccess'
 import { secondaryButtonInline } from '../styles'
 import { InlineRename } from './InlineRename'
 import { MixedText } from './MixedText'
@@ -44,6 +45,7 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
   const [picked, setPicked] = useState<StudyLanguage | null>(null)
   const [renaming, setRenaming] = useState(false)
   const [retrying, setRetrying] = useState(false)
+  const canEdit = useCourseCanEdit()
   const [error, setError] = useState('')
   const headingRef = useRef<HTMLHeadingElement>(null)
 
@@ -78,7 +80,8 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
 
   function choose(next: StudyLanguage) {
     setPicked(next)
-    // remembered for next time; reading it in this language works either way
+    // the owner's choice is remembered for next time; someone who added the course just switches
+    if (!canEdit) return
     updateStudyItem(courseId, item.id, { view_language: next })
       .then(onChanged)
       .catch(() => {})
@@ -148,12 +151,14 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         {back}
-        <div className="flex items-center gap-1">
-          <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
-            {t('courses.menu.rename')}
-          </button>
-          <DeleteButton question={t(`courses.study.confirmDelete.${item.kind}`)} onConfirm={remove} />
-        </div>
+        {canEdit && (
+          <div className="flex items-center gap-1">
+            <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
+              {t('courses.menu.rename')}
+            </button>
+            <DeleteButton question={t(`courses.study.confirmDelete.${item.kind}`)} onConfirm={remove} />
+          </div>
+        )}
       </div>
 
       <header className="space-y-3">
@@ -198,9 +203,11 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
               <span className="text-danger">
                 {t('courses.study.translationFailed', { language: LANGUAGE_NAMES[language === 'ar' ? 'en' : 'ar'] })}
               </span>{' '}
-              <button type="button" onClick={retryTranslation} disabled={retrying} className="font-medium underline disabled:opacity-50">
-                {retrying ? t('courses.study.retrying') : t('courses.study.retry')}
-              </button>
+              {canEdit && (
+                <button type="button" onClick={retryTranslation} disabled={retrying} className="font-medium underline disabled:opacity-50">
+                  {retrying ? t('courses.study.retrying') : t('courses.study.retry')}
+                </button>
+              )}
             </span>
           )}
         </div>

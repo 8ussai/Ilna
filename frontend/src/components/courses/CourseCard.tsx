@@ -9,6 +9,7 @@ import { inAppClick } from '../../links'
 import { coursePath } from '../../tabs'
 import { Dialog } from '../Dialog'
 import { Field } from '../Field'
+import { UserName } from '../Premium'
 import { dangerButtonInline, primaryButtonInline, secondaryButtonInline } from '../styles'
 import { CourseLookPicker } from './CourseLookPicker'
 import { courseColorClass } from './courseColors'
@@ -18,11 +19,13 @@ type CourseCardProps = {
   onOpen: () => void
   onUpdate: (changes: { title?: string; color?: CourseColor | null }) => Promise<void>
   onDelete: () => Promise<void>
+  // an added course: taken off the list, not deleted
+  onLeave: () => Promise<void>
 }
 
-type OpenDialog = 'rename' | 'look' | 'delete' | null
+type OpenDialog = 'rename' | 'look' | 'delete' | 'leave' | null
 
-export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardProps) {
+export function CourseCard({ course, onOpen, onUpdate, onDelete, onLeave }: CourseCardProps) {
   const { t, i18n } = useTranslation()
   const [dialog, setDialog] = useState<OpenDialog>(null)
 
@@ -50,6 +53,19 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardPro
             {course.description}
           </p>
         )}
+        {!course.is_owner && course.owner && (
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted">
+            <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">{t('courses.shared.tag')}</span>
+            <span className="min-w-0 truncate">
+              {t('courses.shared.by')} <UserName user={course.owner} />
+            </span>
+          </p>
+        )}
+        {course.is_owner && course.is_public && (
+          <p className="mt-2">
+            <span className="rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">{t('courses.share.public')}</span>
+          </p>
+        )}
         <p className="mt-auto pt-4 text-sm text-muted">{counts.length > 0 ? counts.join(' · ') : t('courses.counts.empty')}</p>
         <p className="mt-1 text-xs text-muted">
           {opened
@@ -60,10 +76,17 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardPro
 
       <CardMenu
         courseTitle={course.title}
-        onRename={() => setDialog('rename')}
-        onChangeLook={() => setDialog('look')}
-        onDelete={() => setDialog('delete')}
+        items={
+          course.is_owner
+            ? [
+                [t('courses.menu.rename'), () => setDialog('rename')],
+                [t('courses.menu.look'), () => setDialog('look')],
+                [t('courses.menu.delete'), () => setDialog('delete'), true],
+              ]
+            : [[t('courses.shared.leave'), () => setDialog('leave'), true]]
+        }
       />
+      {dialog === 'leave' && <LeaveDialog course={course} onClose={() => setDialog(null)} onLeave={onLeave} />}
 
       {dialog === 'rename' && (
         <RenameDialog title={course.title} onClose={() => setDialog(null)} onSave={(title) => onUpdate({ title })} />
@@ -76,17 +99,10 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete }: CourseCardPro
   )
 }
 
-function CardMenu({
-  courseTitle,
-  onRename,
-  onChangeLook,
-  onDelete,
-}: {
-  courseTitle: string
-  onRename: () => void
-  onChangeLook: () => void
-  onDelete: () => void
-}) {
+// label, action, and whether it's the destructive one
+type MenuItem = [string, () => void, boolean?]
+
+function CardMenu({ courseTitle, items }: { courseTitle: string; items: MenuItem[] }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const buttonRef = useRef<HTMLButtonElement>(null)
@@ -125,12 +141,6 @@ function CardMenu({
     buttonRef.current?.focus()
     action()
   }
-
-  const items: [string, () => void, boolean?][] = [
-    [t('courses.menu.rename'), onRename],
-    [t('courses.menu.look'), onChangeLook],
-    [t('courses.menu.delete'), onDelete, true],
-  ]
 
   return (
     <div className="absolute end-2 top-4">
@@ -284,6 +294,33 @@ function LookDialog({
           </p>
         )}
         <DialogButtons busy={busy} submitLabel={t('courses.form.save')} onCancel={onClose} />
+      </form>
+    </Dialog>
+  )
+}
+
+function LeaveDialog({ course, onClose, onLeave }: { course: CourseSummary; onClose: () => void; onLeave: () => Promise<void> }) {
+  const { t } = useTranslation()
+  const { busy, error, run } = useSave(onClose)
+
+  return (
+    <Dialog title={t('courses.shared.leave')} onClose={onClose}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault()
+          run(onLeave)
+        }}
+      >
+        <p>
+          <bdi dir="auto" className="font-semibold">{course.title}</bdi>
+        </p>
+        <p className="mt-2 text-sm text-muted">{t('courses.shared.leaveConfirm')}</p>
+        {error && (
+          <p role="alert" className="mt-3 text-sm text-danger">
+            {error}
+          </p>
+        )}
+        <DialogButtons busy={busy} submitLabel={t('courses.shared.leave')} onCancel={onClose} danger />
       </form>
     </Dialog>
   )

@@ -8,6 +8,7 @@ import { formatRelative, parseServerDate } from '../../dates'
 import { inAppClick } from '../../links'
 import { coursePath, STUDY_SECTIONS } from '../../tabs'
 import { DeleteButton } from '../DeleteButton'
+import { useCourseCanEdit } from './courseAccess'
 import { smallPrimaryButton } from '../styles'
 import { KindIcon, StudyItemPage } from './StudyItemPage'
 
@@ -117,6 +118,7 @@ function StudyCard({
 }) {
   const { t, i18n } = useTranslation()
   const [retrying, setRetrying] = useState(false)
+  const canEdit = useCourseCanEdit()
   const [error, setError] = useState('')
 
   // the card reads in the language this item is read in, not the site's
@@ -246,7 +248,7 @@ function StudyCard({
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-1 px-2 pb-2">
-        {(item.status === 'failed' || item.translation_status === 'failed') && (
+        {canEdit && (item.status === 'failed' || item.translation_status === 'failed') && (
           <button
             type="button"
             onClick={retry}
@@ -256,7 +258,7 @@ function StudyCard({
             {retrying ? t('courses.study.retrying') : t('courses.study.retry')}
           </button>
         )}
-        <DeleteButton question={t(`courses.study.confirmDelete.${item.kind}`)} onConfirm={remove} />
+        {canEdit && <DeleteButton question={t(`courses.study.confirmDelete.${item.kind}`)} onConfirm={remove} />}
         {onOpen && (
           // the title is the link; this is the same action as a button, for a bigger target
           <button type="button" onClick={onOpen} tabIndex={-1} aria-hidden="true" className={`${smallPrimaryButton} ms-1`}>

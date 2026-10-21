@@ -3,10 +3,10 @@ from sqlalchemy.orm import Session
 
 from backend.models.admin import Report
 from backend.models.contact import ContactMessage
-from backend.models.course import Course
+from backend.models.course import Course, CourseMember, CourseShare, CourseShareResponse
 from backend.models.notification import Notification
 from backend.models.post import Post, PostVote, Reply, ReplyVote, ThreadAnonNumber
-from backend.models.study import StudyGeneration
+from backend.models.study import QuizAttempt, StudyGeneration
 from backend.models.user import Friend, User
 from backend.services.admin_account import get_admin_account
 from backend.services.embeddings import delete_course_vectors
@@ -64,6 +64,11 @@ def delete_account(db: Session, user: User) -> dict:
         or_(Notification.user_id == user_id, Notification.actor_id == user_id)
     ).delete(synchronize_session=False)
     db.query(StudyGeneration).filter(StudyGeneration.user_id == user_id).delete(synchronize_session=False)
+    # courses they added, ignored, or that were shared with them by name, and their quiz results in others' courses
+    db.query(CourseMember).filter(CourseMember.user_id == user_id).delete(synchronize_session=False)
+    db.query(CourseShareResponse).filter(CourseShareResponse.user_id == user_id).delete(synchronize_session=False)
+    db.query(CourseShare).filter(CourseShare.target_type == "user", CourseShare.target == str(user_id)).delete(synchronize_session=False)
+    db.query(QuizAttempt).filter(QuizAttempt.user_id == user_id).delete(synchronize_session=False)
     db.query(ContactMessage).filter(ContactMessage.user_id == user_id).delete(synchronize_session=False)
 
     # reports they made, and reports on anything that no longer exists or is now a placeholder

@@ -10,7 +10,7 @@ from backend.database import get_db
 from backend.models.course import Course, CourseMaterial, CourseNote
 from backend.models.study import QuizAttempt, StudyGeneration, StudyItem
 from backend.models.user import User
-from backend.routes.courses import get_owned_course
+from backend.services.course_sharing import get_owned_course, get_viewable_course
 from backend.schemas.study import (
     AttemptCreate,
     AttemptOut,
@@ -48,9 +48,10 @@ def _content(item: StudyItem) -> dict:
     return json.loads(item.content) if item.content else {}
 
 
-def _summary_out(item: StudyItem, model=StudyItemSummaryOut, **extra):
+def _summary_out(item: StudyItem, viewer_id: int, model=StudyItemSummaryOut, **extra):
     content = _content(item)
-    scores = [attempt.score for attempt in item.attempts]
+    # everyone who can open the course takes its quizzes separately; these are the viewer's own scores
+    scores = [attempt.score for attempt in item.attempts if attempt.user_id == viewer_id]
     question_count = None
     if item.kind == StudyKind.quiz.value and item.main_language in content:
         question_count = len(content[item.main_language]["questions"])
@@ -81,10 +82,10 @@ def _summary_out(item: StudyItem, model=StudyItemSummaryOut, **extra):
     )
 
 
-def _item_out(item: StudyItem) -> StudyItemOut:
+def _item_out(item: StudyItem, viewer_id: int) -> StudyItemOut:
     content = _content(item)
     if item.kind == StudyKind.summary.value:
-        return _summary_out(item, StudyItemOut, summary=content)
+        return _summary_out(item, viewer_id, StudyItemOut, summary=content)
     # the answers and explanations stay on the server until an attempt is submitted
     quiz = {
         language: {
@@ -93,7 +94,7 @@ def _item_out(item: StudyItem) -> StudyItemOut:
         }
         for language, version in content.items()
     }
-    return _summary_out(item, StudyItemOut, quiz=quiz)
+    return _summary_out(item, viewer_id, StudyItemOut, quiz=quiz)
 
 
 def _attempt_out(item: StudyItem, attempt: QuizAttempt) -> AttemptOut:
@@ -189,7 +190,7 @@ def create_study_item(
 
     study_generator.submit(generate_item, item.id)
 
-    return _item_out(item)
+    return _item_out(item, current_user.id)
 
 
 @router.get("/{course_id}/study", response_model=List[StudyItemSummaryOut])
@@ -199,7 +200,7 @@ def get_study_items(
     current_user: User = Depends(get_current_user),
 ):
     """Newest first. Also what the course page polls while something is being written or translated."""
-    course = get_owned_course(db, course_id, current_user)
+    course, _ = get_viewable_course(db, course_id, current_user)
     items = (
         db.query(StudyItem)
         .options(selectinload(StudyItem.attempts))
@@ -207,7 +208,7 @@ def get_study_items(
         .order_by(StudyItem.id.desc())
         .all()
     )
-    return [_summary_out(item) for item in items]
+    return [_summary_out(item, current_user.id) for item in items]
 
 
 @router.get("/{course_id}/study/{item_id}", response_model=StudyItemOut)
@@ -217,8 +218,8 @@ def get_study_item(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    course = get_owned_course(db, course_id, current_user)
-    return _item_out(_get_item(db, course, item_id))
+    course, _ = get_viewable_course(db, course_id, current_user)
+    return _item_out(_get_item(db, course, item_id), current_user.id)
 
 
 @router.patch("/{course_id}/study/{item_id}", response_model=StudyItemSummaryOut)
@@ -236,7 +237,7 @@ def update_study_item(
         setattr(item, field, value)
     db.commit()
     db.refresh(item)
-    return _summary_out(item)
+    return _summary_out(item, current_user.id)
 
 
 @router.delete("/{course_id}/study/{item_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -280,11 +281,12 @@ def retry_study_item(
     db.commit()
     db.refresh(item)
     study_generator.submit(job, item.id)
-    return _item_out(item)
+    return _item_out(item, current_user.id)
 
 
 def _get_quiz(db: Session, course_id: int, item_id: int, user: User) -> StudyItem:
-    course = get_owned_course(db, course_id, user)
+    # members take quizzes too
+    course, _ = get_viewable_course(db, course_id, user)
     item = _get_item(db, course, item_id)
     if item.kind != StudyKind.quiz.value:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Only quizzes have attempts.")
@@ -315,7 +317,7 @@ def submit_quiz_attempt(
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="An answer isn't one of its question's options.")
 
     score = sum(a == q["correct_index"] for a, q in zip(attempt.answers, questions))
-    new_attempt = QuizAttempt(item_id=item.id, answers=json.dumps(attempt.answers), score=score, total=len(questions))
+    new_attempt = QuizAttempt(item_id=item.id, user_id=current_user.id, answers=json.dumps(attempt.answers), score=score, total=len(questions))
     db.add(new_attempt)
     db.commit()
     db.refresh(new_attempt)
@@ -330,6 +332,6 @@ def get_quiz_attempts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Every graded attempt, newest first."""
+    """The viewer's own graded attempts, newest first."""
     item = _get_quiz(db, course_id, item_id, current_user)
-    return [_attempt_out(item, attempt) for attempt in reversed(item.attempts)]
+    return [_attempt_out(item, attempt) for attempt in reversed(item.attempts) if attempt.user_id == current_user.id]

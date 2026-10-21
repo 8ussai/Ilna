@@ -130,12 +130,29 @@ class CourseUpdate(BaseModel):
     def check_description(cls, value: Optional[str]) -> Optional[str]:
         return _clean_description(value)
 
+class CourseOwner(BaseModel):
+    id: int
+    username: str
+    first_name: str
+    last_name: str
+    is_premium: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
 class CourseOut(CourseBase):
     id: int
     user_id: int
+    # the viewer's own: the owner's, or when a member last opened it
     last_opened_at: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
+    is_public: bool = False
+    # false for a course the viewer added (read-only, shown with a "Shared" tag)
+    is_owner: bool = True
+    # set on added courses, so the grid can say whose it is
+    owner: Optional[CourseOwner] = None
+    # the course ID; only its owner gets it
+    share_code: Optional[str] = None
 
     model_config = ConfigDict(from_attributes=True)
 

@@ -56,6 +56,10 @@ type NotificationType =
   | 'admin_message'
   // from the admin when premium is turned on
   | 'premium_granted'
+  // someone shared a course with the reader by name; preview is its title
+  | 'course_shared'
+  // the admin removed the reader's public course; preview is its title, ref its ID
+  | 'course_removed'
 
 export type AppNotification = {
   id: number
@@ -75,6 +79,8 @@ export type AppNotification = {
   // removal notices: the admin's reason and the #P42 / #R17 that was removed
   reason: string | null
   ref: string | null
+  // course_shared: the course (it may be gone by now)
+  course_id: number | null
   is_read: boolean
   created_at: string
 }

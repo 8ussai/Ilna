@@ -10,6 +10,7 @@ import { Field } from '../Field'
 import { smallPrimaryButton, smallSecondaryButton } from '../styles'
 import { isWebUrl, LINK_TITLE_MAX } from './courseLinks'
 import { LinkForm } from './LinkForm'
+import { useCourseCanEdit } from './courseAccess'
 
 type LinksTabProps = {
   courseId: number
@@ -21,6 +22,7 @@ type LinksTabProps = {
 
 export function LinksTab({ courseId, links, onAdded, onChanged, onDeleted }: LinksTabProps) {
   const { t } = useTranslation()
+  const canEdit = useCourseCanEdit()
 
   return (
     <div className="space-y-4">
@@ -34,12 +36,14 @@ export function LinksTab({ courseId, links, onAdded, onChanged, onDeleted }: Lin
         </ul>
       )}
 
-      <section aria-labelledby="add-link-title" className="rounded-2xl border border-line bg-card p-4">
-        <h3 id="add-link-title" className="mb-3 font-semibold">
-          {t('courses.links.addTitle')}
-        </h3>
-        <LinkForm courseId={courseId} onAdded={onAdded} />
-      </section>
+      {canEdit && (
+        <section aria-labelledby="add-link-title" className="rounded-2xl border border-line bg-card p-4">
+          <h3 id="add-link-title" className="mb-3 font-semibold">
+            {t('courses.links.addTitle')}
+          </h3>
+          <LinkForm courseId={courseId} onAdded={onAdded} />
+        </section>
+      )}
     </div>
   )
 }
@@ -64,6 +68,7 @@ function LinkRow({
   onDeleted: () => void
 }) {
   const { t } = useTranslation()
+  const canEdit = useCourseCanEdit()
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
 
@@ -112,12 +117,14 @@ function LinkRow({
           </p>
         )}
       </div>
-      <div className="-me-2 flex shrink-0 items-center gap-1">
-        <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
-          {t('courses.links.edit')}
-        </button>
-        <DeleteButton question={t('courses.links.confirmDelete')} onConfirm={remove} />
-      </div>
+      {canEdit && (
+        <div className="-me-2 flex shrink-0 items-center gap-1">
+          <button type="button" onClick={() => setEditing(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
+            {t('courses.links.edit')}
+          </button>
+          <DeleteButton question={t('courses.links.confirmDelete')} onConfirm={remove} />
+        </div>
+      )}
     </li>
   )
 }

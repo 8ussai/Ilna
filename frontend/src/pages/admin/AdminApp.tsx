@@ -20,11 +20,12 @@ import { AdminLogin } from './AdminLogin'
 import { AdminMaintenance, useAdminMaintenance } from './AdminMaintenance'
 import { AdminMessages } from './AdminMessages'
 import { AdminPosts } from './AdminPosts'
+import { AdminCourses } from './AdminCourses'
 import { AdminReports } from './AdminReports'
 import { AdminUsers } from './AdminUsers'
 
 // the panel's sections
-const SECTIONS = ['reports', 'users', 'posts', 'messages', 'contact', 'maintenance', 'log'] as const
+const SECTIONS = ['reports', 'users', 'posts', 'courses', 'messages', 'contact', 'maintenance', 'log'] as const
 type Section = (typeof SECTIONS)[number]
 
 // kept in the hash (/admin#posts) so a reload stays on the same section
@@ -167,6 +168,7 @@ export function AdminApp() {
               {section === 'reports' && <AdminReports catalog={catalog} onChanged={refreshCounts} />}
               {section === 'users' && <AdminUsers catalog={catalog} siteClosing={!!siteStatus && siteStatus.state !== 'off'} />}
               {section === 'posts' && <AdminPosts catalog={catalog} />}
+              {section === 'courses' && <AdminCourses />}
               {section === 'messages' && <AdminMessages catalog={catalog} />}
               {section === 'contact' && <AdminContact catalog={catalog} onChanged={refreshCounts} />}
               {section === 'maintenance' && <AdminMaintenance maintenance={maintenance} />}

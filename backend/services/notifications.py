@@ -21,6 +21,10 @@ class NotificationType(str, Enum):
     admin_message = "admin_message"
     # from the admin when premium is turned on; the app writes the text in the reader's language
     premium_granted = "premium_granted"
+    # a course shared with the reader by name; message holds the course id and title
+    course_shared = "course_shared"
+    # the admin removed the reader's public course; message holds its title, ID and the reason
+    course_removed = "course_removed"
 
 
 def notify_removal(

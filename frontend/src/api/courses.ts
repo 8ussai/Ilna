@@ -19,10 +19,20 @@ export type Course = {
   title: string
   description: string | null
   color: CourseColor | null
+  // the viewer's own last visit
   last_opened_at: string | null
   created_at: string
   updated_at: string
+  is_public: boolean
+  // false for a course added from someone else: read-only, with a "Shared" tag
+  is_owner: boolean
+  // set on added courses
+  owner: CourseOwner | null
+  // the course ID ("K7Q2-M9XD"); only the owner gets it
+  share_code: string | null
 }
+
+export type CourseOwner = { id: number; username: string; first_name: string; last_name: string; is_premium: boolean }
 
 // a card in the courses grid
 export type CourseSummary = Course & {

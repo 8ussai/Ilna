@@ -9,6 +9,7 @@ import { formatDate, parseServerDate } from '../../dates'
 import { DeleteButton } from '../DeleteButton'
 import { secondaryButtonInline } from '../styles'
 import { InlineRename } from './InlineRename'
+import { useCourseCanEdit } from './courseAccess'
 import { DropZone, UploadList } from './Uploader'
 import { acceptList, extensionList, useUploadQueue } from './uploadQueue'
 import { downloadMaterial, useMaterialUrl } from './useMaterialUrl'
@@ -27,18 +28,21 @@ export function MaterialsTab({ courseId, materials, onAdded, onChanged, onDelete
   const { uploads, addFiles, retry, dismiss } = useUploadQueue({ courseId, onUploaded: onAdded, keepDone: false })
   const [viewingId, setViewingId] = useState<number | null>(null)
   const viewing = materials.find((m) => m.id === viewingId) ?? null
+  const canEdit = useCourseCanEdit()
 
   return (
     <div className="space-y-4">
       {viewing && <PdfViewer courseId={courseId} material={viewing} onClose={() => setViewingId(null)} />}
 
-      <DropZone
-        compact
-        label={t('courses.materials.add')}
-        hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
-        accept={acceptList(DOCUMENT_EXTENSIONS)}
-        onFiles={(files) => addFiles(files, DOCUMENT_EXTENSIONS)}
-      />
+      {canEdit && (
+        <DropZone
+          compact
+          label={t('courses.materials.add')}
+          hint={t('courses.new.fileTypes', { types: extensionList(DOCUMENT_EXTENSIONS), max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })}
+          accept={acceptList(DOCUMENT_EXTENSIONS)}
+          onFiles={(files) => addFiles(files, DOCUMENT_EXTENSIONS)}
+        />
+      )}
       <UploadList items={uploads} onRetry={retry} onDismiss={dismiss} />
 
       {materials.length === 0 && uploads.length === 0 ? (
@@ -81,6 +85,7 @@ function MaterialRow({
   onDeleted: () => void
 }) {
   const { t, i18n } = useTranslation()
+  const canEdit = useCourseCanEdit()
   const [renaming, setRenaming] = useState(false)
   const [downloading, setDownloading] = useState(false)
   const [error, setError] = useState('')
@@ -164,10 +169,14 @@ function MaterialRow({
           >
             {downloading ? t('auth.working') : t('courses.materials.download')}
           </button>
-          <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
-            {t('courses.menu.rename')}
-          </button>
-          <DeleteButton question={t('courses.materials.confirmDelete')} onConfirm={remove} />
+          {canEdit && (
+            <>
+              <button type="button" onClick={() => setRenaming(true)} className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg">
+                {t('courses.menu.rename')}
+              </button>
+              <DeleteButton question={t('courses.materials.confirmDelete')} onConfirm={remove} />
+            </>
+          )}
         </div>
       )}
     </li>

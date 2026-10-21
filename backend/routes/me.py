@@ -174,6 +174,15 @@ def _map_notification(n: Notification, anon_numbers: dict[tuple[int, int], int])
         out.preview = n.message or ""
     elif n.type == NotificationType.premium_granted.value:
         pass  # the app writes the whole notice in the reader's language
+    elif n.type == NotificationType.course_shared.value:
+        data = json.loads(n.message or "{}")
+        out.course_id = data.get("course_id")
+        out.preview = data.get("title", "")
+    elif n.type == NotificationType.course_removed.value:
+        data = json.loads(n.message or "{}")
+        out.preview = data.get("title", "")
+        out.reason = data.get("reason")
+        out.ref = data.get("ref")
     else:
         out.preview = (n.reply.content if n.reply else n.post.content)[:NOTIFICATION_PREVIEW_CHARS]
     return out

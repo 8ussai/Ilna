@@ -3,12 +3,17 @@ import type { KeyboardEvent } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
+import { leaveCourse } from '../api/courseSharing'
 import { fetchCourse, fetchMaterials, updateCourse } from '../api/courses'
 import type { CourseDetail, CourseMaterial } from '../api/courses'
 import { fetchStudyItems, isStudyItemWorking } from '../api/study'
 import type { StudyItemSummary, StudyKind } from '../api/study'
 import { AiRail } from '../components/courses/AiRail'
 import { CourseDetailsForm } from '../components/courses/CourseDetailsForm'
+import { CourseCanEditContext } from '../components/courses/courseAccess'
+import { ShareDialog } from '../components/courses/ShareDialog'
+import { DeleteButton } from '../components/DeleteButton'
+import { UserName } from '../components/Premium'
 import { courseColorClass } from '../components/courses/courseColors'
 import { GenerateDialog } from '../components/courses/GenerateDialog'
 import { LinksTab } from '../components/courses/LinksTab'
@@ -41,6 +46,7 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
   const [status, setStatus] = useState<Status>('loading')
   const [reloadKey, setReloadKey] = useState(0)
   const [editing, setEditing] = useState(false)
+  const [sharingOpen, setSharingOpen] = useState(false)
   const [studyItems, setStudyItems] = useState<StudyItemSummary[]>([])
   const [studyLoaded, setStudyLoaded] = useState(false)
   // the summary or quiz being set up in the generate dialog
@@ -165,8 +171,10 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
     summaries: summaries.length,
     quizzes: quizzes.length,
   }
+  const canEdit = course.is_owner
   // the summaries and quizzes tabs each appear with their first item (or when their link is opened directly)
   const sections = COURSE_SECTIONS.filter((name) => counts[name] > 0 || name === section || !(name === 'summaries' || name === 'quizzes'))
+  const shownSection: CourseSection = sections.includes(section) ? section : 'materials'
 
   function openStudyItem(item: StudyItemSummary) {
     setStudyItems((current) => [item, ...current])
@@ -194,22 +202,50 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
               </p>
             )}
           </div>
-          <button type="button" onClick={() => setEditing(true)} className={`${smallSecondaryButton} shrink-0`}>
-            {t('courses.edit')}
-          </button>
+          {canEdit ? (
+            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+              <button type="button" onClick={() => setSharingOpen(true)} className={smallSecondaryButton}>
+                {course.is_public ? t('courses.share.buttonPublic') : t('courses.share.button')}
+              </button>
+              <button type="button" onClick={() => setEditing(true)} className={smallSecondaryButton}>
+                {t('courses.edit')}
+              </button>
+            </div>
+          ) : (
+            <DeleteButton
+              label={t('courses.shared.leave')}
+              question={t('courses.shared.leaveConfirm')}
+              onConfirm={async () => {
+                await leaveCourse(course.id)
+                onBack()
+              }}
+            />
+          )}
         </div>
+        {!canEdit && course.owner && (
+          <p className="flex flex-wrap items-center gap-2 border-t border-line px-5 py-3 text-sm text-muted">
+            <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">{t('courses.shared.tag')}</span>
+            <span>
+              {t('courses.shared.by')} <UserName user={course.owner} className="font-medium text-fg" />{' '}
+              <span dir="ltr">@{course.owner.username}</span>
+            </span>
+            <span aria-hidden="true">·</span>
+            <span>{t('courses.shared.readOnly')}</span>
+          </p>
+        )}
       </header>
 
+      <CourseCanEditContext.Provider value={canEdit}>
       <div className="flex gap-6">
-        <AiRail onUse={(feature) => feature !== 'voice' && setGenerating(feature === 'summarize' ? 'summary' : 'quiz')} />
+        {canEdit && <AiRail onUse={(feature) => feature !== 'voice' && setGenerating(feature === 'summarize' ? 'summary' : 'quiz')} />}
 
         <div className="min-w-0 flex-1">
-          <SectionTabs sections={sections} section={section} counts={counts} onSelect={onSectionChange} />
-          <div id={`course-panel-${section}`} role="tabpanel" aria-labelledby={`course-tab-${section}`} className="pt-5">
-            {section === 'materials' && (
+          <SectionTabs sections={sections} section={shownSection} counts={counts} onSelect={onSectionChange} />
+          <div id={`course-panel-${shownSection}`} role="tabpanel" aria-labelledby={`course-tab-${shownSection}`} className="pt-5">
+            {shownSection === 'materials' && (
               <MaterialsTab courseId={course.id} materials={documents} onAdded={addMaterial} onChanged={changeMaterial} onDeleted={removeMaterial} />
             )}
-            {section === 'links' && (
+            {shownSection === 'links' && (
               <LinksTab
                 courseId={course.id}
                 links={course.links}
@@ -218,10 +254,10 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
                 onDeleted={(id) => update({ links: course.links.filter((l) => l.id !== id) })}
               />
             )}
-            {section === 'recordings' && (
+            {shownSection === 'recordings' && (
               <VoiceTab courseId={course.id} recordings={recordings} onAdded={addMaterial} onChanged={changeMaterial} onDeleted={removeMaterial} />
             )}
-            {section === 'notes' && (
+            {shownSection === 'notes' && (
               <NotesTab
                 courseId={course.id}
                 notes={notes}
@@ -231,15 +267,15 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
                 onDeleted={(id) => update({ notes: course.notes.filter((n) => n.id !== id) })}
               />
             )}
-            {(section === 'summaries' || section === 'quizzes') && (
+            {(shownSection === 'summaries' || shownSection === 'quizzes') && (
               <StudyTab
-                key={section}
+                key={shownSection}
                 courseId={course.id}
-                kind={section === 'summaries' ? 'summary' : 'quiz'}
-                items={section === 'summaries' ? summaries : quizzes}
+                kind={shownSection === 'summaries' ? 'summary' : 'quiz'}
+                items={shownSection === 'summaries' ? summaries : quizzes}
                 loaded={studyLoaded}
                 openId={studyItemId}
-                onOpen={(itemId) => onSectionChange(section, itemId)}
+                onOpen={(itemId) => onSectionChange(shownSection, itemId)}
                 onChanged={changeStudyItem}
                 onDeleted={removeStudyItem}
               />
@@ -247,6 +283,15 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
           </div>
         </div>
       </div>
+      </CourseCanEditContext.Provider>
+
+      {sharingOpen && (
+        <ShareDialog
+          courseId={course.id}
+          onClose={() => setSharingOpen(false)}
+          onChanged={(sharing) => update({ is_public: sharing.is_public, share_code: sharing.share_code })}
+        />
+      )}
 
       {generating && (
         <GenerateDialog

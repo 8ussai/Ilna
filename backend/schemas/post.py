@@ -133,9 +133,11 @@ class NotificationOut(BaseModel):
     # the start of the reply (or of the post for post votes), cut to NOTIFICATION_PREVIEW_CHARS;
     # for removal notices, the start of what was removed
     preview: str
-    # removal notices: the admin's reason and the #P42 / #R17 that was removed
+    # removal notices: the admin's reason and the #P42 / #R17 (or course ID) that was removed
     reason: Optional[str] = None
     ref: Optional[str] = None
+    # course_shared: the course to open (it may be gone by now)
+    course_id: Optional[int] = None
     is_read: bool
     created_at: datetime
 

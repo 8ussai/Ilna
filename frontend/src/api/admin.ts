@@ -351,3 +351,47 @@ export function endMaintenance() {
 export function enterAsTestUser(userId: number) {
   return adminRequest<{ token: string; expires_at: string }>(`/maintenance/enter/${userId}`, { method: 'POST' })
 }
+
+// --- public courses (private ones never reach the admin panel) ---
+
+export type AdminCourse = {
+  id: number
+  title: string
+  description: string | null
+  share_code: string
+  owner: { id: number; username: string; first_name: string; last_name: string; is_premium: boolean }
+  documents_count: number
+  audio_count: number
+  links_count: number
+  // people who added it
+  members_count: number
+  created_at: string
+}
+
+export type AdminCourseDetail = {
+  course: AdminCourse
+  materials: { id: number; file_name: string; kind: 'document' | 'audio'; size_bytes: number }[]
+  links: { title: string; url: string }[]
+  // content is empty for a drawing
+  notes: { title: string | null; kind: 'text' | 'drawing'; content: string }[]
+}
+
+export const ADMIN_COURSES_PAGE = 20
+
+export function fetchAdminCourses(q: string, offset = 0) {
+  const params = new URLSearchParams({ q, offset: String(offset) })
+  return adminRequest<{ items: AdminCourse[]; total: number }>(`/courses?${params}`)
+}
+
+export function fetchAdminCourse(id: number) {
+  return adminRequest<AdminCourseDetail>(`/courses/${id}`)
+}
+
+export function fetchAdminCourseFile(courseId: number, materialId: number) {
+  return blobRequest(`/admin/courses/${courseId}/materials/${materialId}/file`, getAdminToken(), false)
+}
+
+// deletes it for the owner and everyone who added it; the owner is told the reason
+export function removeAdminCourse(id: number, reason: string) {
+  return adminRequest<null>(`/courses/${id}/remove`, json({ reason }))
+}
