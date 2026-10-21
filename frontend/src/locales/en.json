@@ -79,6 +79,7 @@
     "passwordWeak": "Password doesn't meet all the requirements below.",
     "emailTaken": "This email is already registered.",
     "usernameTaken": "This username is already taken.",
+    "usernameAnonymous": "Usernames containing \"anonymous\" aren't allowed.",
     "badLogin": "Email/username or password is incorrect.",
     "network": "Can't reach the server. Check your connection and try again.",
     "generic": "Something went wrong. Please try again.",
@@ -548,6 +549,20 @@
     "show_other": "Show {{count}} replies",
     "removedByAdmin": "[removed by admin]"
   },
+  "anonymous": {
+    "label": "Anonymous",
+    "name": "Anonymous {{number}}",
+    "author": "Author",
+    "postAnonymously": "Post anonymously",
+    "replyAnonymously": "Reply anonymously",
+    "onlyYou": "Anonymous · yours",
+    "onlyYouHint": "Others see this as anonymous. Only you can see it's yours.",
+    "makeAnonymous": "Make anonymous",
+    "showName": "Show my name",
+    "confirmMakeAnonymous": "Hide your name? You can only change this once.",
+    "confirmShowName": "Show your name? You can only change this once.",
+    "postedAs": "Posted as {{name}}"
+  },
   "account": {
     "open": "Account settings",
     "title": "Account",
@@ -710,6 +725,7 @@
         "body": [
           "We store the details you give at sign-up, the content you post and the files you upload.",
           "Other users can see your name, username, avatar, posts and replies. Your email address is not shown to other users.",
+          "When you post or reply anonymously, other users see \"Anonymous\" with a number instead of your name, username and avatar. The admin can still see who wrote it, to keep the community safe.",
           "We don't sell your personal information."
         ]
       },

@@ -3,9 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { fetchNotifications, markNotificationsRead, NOTIFICATIONS_PAGE_SIZE } from '../api/me'
 import type { AppNotification } from '../api/me'
-import { UserName } from '../components/Premium'
+import { AuthorAvatar, AuthorName } from '../components/Anonymous'
 import { secondaryButton } from '../components/styles'
-import { UserAvatar } from '../components/UserAvatar'
 import { formatDateTime, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
 import { postPath } from '../tabs'
@@ -48,7 +47,7 @@ function withName(text: string, actor: AppNotification['actor']) {
   return (
     <>
       {text.slice(0, at)}
-      <UserName user={actor} />
+      <AuthorName author={actor} />
       {text.slice(at + NAME_MARK.length)}
     </>
   )
@@ -141,7 +140,7 @@ export function NotificationsPage({ onOpenPost, onMarkedRead }: NotificationsPag
             const created = parseServerDate(n.created_at)
             const body = (
               <>
-                <UserAvatar username={n.actor.username} size={40} />
+                <AuthorAvatar author={n.actor} size={40} />
                 <span className="min-w-0 flex-1">
                   <span className="block">
                     {!n.is_read && <span className="sr-only">{t('settings.notifications.unread')}: </span>}

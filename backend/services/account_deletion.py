@@ -5,7 +5,7 @@ from backend.models.admin import Report
 from backend.models.contact import ContactMessage
 from backend.models.course import Course
 from backend.models.notification import Notification
-from backend.models.post import Post, PostVote, Reply, ReplyVote
+from backend.models.post import Post, PostVote, Reply, ReplyVote, ThreadAnonNumber
 from backend.models.study import StudyGeneration
 from backend.models.user import User
 from backend.services.admin_account import get_admin_account
@@ -54,6 +54,8 @@ def delete_account(db: Session, user: User) -> dict:
 
     db.query(PostVote).filter(PostVote.user_id == user_id).delete(synchronize_session=False)
     db.query(ReplyVote).filter(ReplyVote.user_id == user_id).delete(synchronize_session=False)
+    # their numbers in other threads; each post's counter keeps the numbers from being handed out again
+    db.query(ThreadAnonNumber).filter(ThreadAnonNumber.user_id == user_id).delete(synchronize_session=False)
     db.query(Notification).filter(
         or_(Notification.user_id == user_id, Notification.actor_id == user_id)
     ).delete(synchronize_session=False)

@@ -19,12 +19,10 @@ const SORTS: PostSort[] = ['hot', 'new', 'top']
 export function BlogFeed({
   scope,
   title,
-  userId,
   catalog,
 }: {
   scope: PostScope
   title: string
-  userId: number
   catalog: Catalog | null
 }) {
   const { t } = useTranslation()
@@ -112,8 +110,9 @@ export function BlogFeed({
           label={t('feed.composerLabel')}
           placeholder={t('feed.placeholder', { name: title })}
           submitLabel={t('feed.post')}
-          onSubmit={async (content) => {
-            const post = await createPost(scope, content)
+          anonymousLabel={t('anonymous.postAnonymously')}
+          onSubmit={async (content, isAnonymous) => {
+            const post = await createPost(scope, content, isAnonymous)
             setPosts((current) => [post, ...current])
           }}
         />
@@ -157,10 +156,10 @@ export function BlogFeed({
           <PostCard
             key={post.id}
             post={post}
-            userId={userId}
             catalog={catalog}
             onDelete={() => remove(post.id)}
             onVote={(dir) => vote(post, dir)}
+            onUpdated={(updated) => patchPost(post.id, updated)}
             onRepliesChange={(delta) =>
               setPosts((current) =>
                 current.map((p) => (p.id === post.id ? { ...p, replies_count: p.replies_count + delta } : p)),

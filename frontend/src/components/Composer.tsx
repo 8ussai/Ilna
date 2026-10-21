@@ -7,11 +7,12 @@ import { primaryButton } from './styles'
 
 const MAX_LENGTH = 5000
 
-// Text box used for both posts and replies.
+// Text box used for both posts and replies. With anonymousLabel it also offers posting anonymously.
 export function Composer({
   label,
   placeholder,
   submitLabel,
+  anonymousLabel,
   onSubmit,
   onCancel,
   autoFocus,
@@ -20,7 +21,8 @@ export function Composer({
   label: string
   placeholder: string
   submitLabel: string
-  onSubmit: (content: string) => Promise<void>
+  anonymousLabel?: string
+  onSubmit: (content: string, isAnonymous: boolean) => Promise<void>
   onCancel?: () => void
   autoFocus?: boolean
   rows?: number
@@ -28,6 +30,7 @@ export function Composer({
   const { t } = useTranslation()
   const id = useId()
   const [content, setContent] = useState('')
+  const [anonymous, setAnonymous] = useState(false)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
@@ -41,8 +44,10 @@ export function Composer({
     setBusy(true)
     setError('')
     try {
-      await onSubmit(trimmed)
+      await onSubmit(trimmed, anonymousLabel !== undefined && anonymous)
       setContent('')
+      // each post asks again, so nobody posts anonymously by accident
+      setAnonymous(false)
     } catch (err) {
       setError(err instanceof ApiError && err.status === 0 ? t('errors.network') : t('errors.generic'))
     } finally {
@@ -68,7 +73,18 @@ export function Composer({
         autoFocus={autoFocus}
         className="block w-full resize-y bg-transparent text-fg placeholder:text-muted focus:outline-none"
       />
-      <div className="mt-3 flex items-center justify-end gap-3">
+      <div className="mt-3 flex flex-wrap items-center justify-end gap-3">
+        {anonymousLabel !== undefined && (
+          <label className="me-auto flex cursor-pointer items-center gap-2 text-sm text-muted select-none">
+            <input
+              type="checkbox"
+              checked={anonymous}
+              onChange={(e) => setAnonymous(e.target.checked)}
+              className="size-4 accent-(--accent)"
+            />
+            {anonymousLabel}
+          </label>
+        )}
         {error && (
           <p role="alert" className="me-auto text-sm text-danger">
             {error}

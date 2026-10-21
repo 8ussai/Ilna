@@ -163,14 +163,14 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     }
 
     if (route.kind === 'post') {
-      return <PostPage key={route.postId} postId={route.postId} replyId={route.replyId} userId={me.id} catalog={catalog} />
+      return <PostPage key={route.postId} postId={route.postId} replyId={route.replyId} catalog={catalog} />
     }
 
     // 'my-courses' and courses returned above, so what's left is a blog scope
     const scope = tab as PostScope
     const names = catalogNames(catalog, me, i18n.language)
     const title = scope === 'general' ? t('tabs.general') : (names[scope] ?? t(`tabs.${scope}`))
-    return <BlogFeed key={scope} scope={scope} title={title} userId={me.id} catalog={catalog} />
+    return <BlogFeed key={scope} scope={scope} title={title} catalog={catalog} />
   }
 
   return (

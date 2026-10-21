@@ -3,11 +3,12 @@ from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import case, func, select
 
 from backend.backendConfig import HOT_REPLY_WEIGHT
-from backend.schemas.post import PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
+from backend.schemas.post import AnonymitySwitch, PostCreate, PostOut, PostScope, PostSort, PostVoteAction, PostVoteResult
 from backend.database import get_db, utc_now
 from backend.models.user import User
 from backend.models.post import Post, PostVote, Reply
 from backend.core.apiDependencies import get_current_user, get_full_user
+from backend.services.anonymity import number_post_author_if_needed, public_post_author
 from backend.services.notifications import NotificationType, sync_vote_notification
 from backend.services.votes import check_vote_dir, toggle_vote
 
@@ -24,10 +25,18 @@ def _replies_count_subquery():
     )
 
 
-def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0, replies_count: int = 0) -> PostOut:
+def _map_to_post_out(
+    post: Post,
+    viewer: User,
+    votes_count: int,
+    my_vote: int = 0,
+    replies_count: int = 0,
+) -> PostOut:
+    """An anonymous post goes out without its author's id, name or username, even to the author:
+    is_mine is how their own page knows it's theirs."""
     return PostOut(
         id=post.id,
-        user_id=post.user_id,
+        user_id=None if post.is_anonymous else post.user_id,
         content=post.content,
         scope=post.scope,
         university=post.university,
@@ -38,9 +47,12 @@ def _map_to_post_out(post: Post, votes_count: int, my_vote: int = 0, replies_cou
         votes_count=votes_count,
         my_vote=my_vote,
         replies_count=replies_count,
-        author=post.author,
+        author=public_post_author(post),
         is_admin_post=post.author.is_system,
         is_pinned=post.pinned_until is not None and post.pinned_until > utc_now(),
+        is_anonymous=post.is_anonymous,
+        is_mine=post.user_id == viewer.id,
+        anonymity_switched=post.anonymity_switched,
     )
 
 
@@ -94,13 +106,14 @@ def create_post(
         university=current_user.university,
         college=current_user.college,
         major=current_user.major,
+        is_anonymous=post_data.is_anonymous,
     )
 
     db.add(new_post)
     db.commit()
     db.refresh(new_post)
 
-    return _map_to_post_out(new_post, 0)
+    return _map_to_post_out(new_post, current_user, 0)
 
 
 @router.get("/", response_model=list[PostOut])
@@ -132,7 +145,7 @@ def get_posts(
 
     results = query.offset(offset).limit(limit).all()
 
-    return [_map_to_post_out(post, votes, mine, replies) for post, votes, mine, replies in results]
+    return [_map_to_post_out(post, current_user, votes, mine, replies) for post, votes, mine, replies in results]
 
 
 @router.get("/{post_id}", response_model=PostOut)
@@ -156,7 +169,34 @@ def get_post(
             detail="This post is outside your blogs.",
         )
 
-    return _map_to_post_out(post, votes, mine, replies)
+    return _map_to_post_out(post, current_user, votes, mine, replies)
+
+
+@router.patch("/{post_id}/anonymity", response_model=PostOut)
+def switch_post_anonymity(
+    post_id: int,
+    data: AnonymitySwitch,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_full_user),
+):
+    """The author's one switch between anonymous and named, after posting."""
+    post = db.query(Post).filter(Post.id == post_id).first()
+    if not post:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Post {post_id} not found.")
+    if post.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="You can only change your own posts.")
+    if post.anonymity_switched:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="You can only change this once.")
+    if post.is_anonymous == data.is_anonymous:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="The post is already like that.")
+
+    post.is_anonymous = data.is_anonymous
+    post.anonymity_switched = True
+    if not data.is_anonymous:
+        number_post_author_if_needed(db, post)
+    db.commit()
+
+    return get_post(post_id, db, current_user)
 
 
 @router.delete("/{post_id}", status_code=status.HTTP_204_NO_CONTENT)

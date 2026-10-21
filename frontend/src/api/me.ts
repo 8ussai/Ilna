@@ -1,6 +1,6 @@
 import type { Me } from './auth'
 import { authRequest } from './client'
-import type { PostScope } from './posts'
+import type { Author, PostScope } from './posts'
 
 export type ActivityItem = {
   type: 'post' | 'reply'
@@ -11,6 +11,7 @@ export type ActivityItem = {
   // a preview, cut to 300 characters by the backend
   content: string
   created_at: string
+  is_anonymous: boolean
 }
 
 export const ACTIVITY_PAGE_SIZE = 20
@@ -61,7 +62,8 @@ export type AppNotification = {
   type: NotificationType
   // 1 or -1 for votes, null for replies
   vote_dir: 1 | -1 | null
-  actor: { id: number; username: string; first_name: string; last_name: string; is_premium: boolean }
+  // blank names and anon_number set when it was an anonymous reply
+  actor: Author
   // the hidden admin account ("Ilna Admin")
   actor_is_admin: boolean
   // the post to open; null when there's nothing to open (a removed post)

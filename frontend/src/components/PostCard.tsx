@@ -2,28 +2,28 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Catalog } from '../api/meta'
+import { setPostAnonymity } from '../api/posts'
 import type { Post } from '../api/posts'
 import { postOriginNames } from '../catalog'
 import { formatDateTime, parseServerDate } from '../dates'
+import { AnonymitySwitchButton, AuthorAvatar, AuthorName, OwnAnonymousTag } from './Anonymous'
 import { DeleteButton } from './DeleteButton'
 import { RepliesSection } from './Replies'
 import { ReportButton } from './ReportButton'
-import { goldClass, UserName } from './Premium'
-import { UserAvatar } from './UserAvatar'
+import { goldClass } from './Premium'
 import { VoteButtons } from './VoteButtons'
 
 export function PostCard({
   post,
-  userId,
   catalog,
   onDelete,
   onVote,
   onRepliesChange,
+  onUpdated,
   initialShowReplies = false,
   highlightReplyId = null,
 }: {
   post: Post
-  userId: number
   catalog: Catalog | null
   // the single-post page opens the thread right away, optionally highlighting one reply
   initialShowReplies?: boolean
@@ -31,6 +31,8 @@ export function PostCard({
   onDelete: () => Promise<void>
   onVote: (dir: 1 | -1) => Promise<void>
   onRepliesChange: (delta: number) => void
+  // the post as the server has it after the author's anonymity switch
+  onUpdated: (post: Post) => void
 }) {
   const { t, i18n } = useTranslation()
   const [voting, setVoting] = useState(false)
@@ -46,6 +48,15 @@ export function PostCard({
       setError(t('errors.generic'))
     } finally {
       setVoting(false)
+    }
+  }
+
+  async function switchAnonymity() {
+    setError('')
+    try {
+      onUpdated(await setPostAnonymity(post.id, !post.is_anonymous))
+    } catch {
+      setError(t('errors.generic'))
     }
   }
 
@@ -69,11 +80,18 @@ export function PostCard({
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">
       <header className="flex items-start gap-3">
-        <UserAvatar username={author.username} size={40} />
+        <AuthorAvatar author={author} size={40} />
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">
-            <UserName user={author} />
-            <span className={`ms-2 text-sm font-normal ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
+            <AuthorName author={author} />
+            {!post.is_anonymous && (
+              <span className={`ms-2 text-sm font-normal ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
+            )}
+            {post.is_anonymous && post.is_mine && (
+              <span className="ms-2 align-middle">
+                <OwnAnonymousTag />
+              </span>
+            )}
             {post.is_admin_post && (
               <span className="ms-2 rounded-full bg-accent/15 px-2 py-0.5 align-middle text-xs font-medium text-accent">
                 {t('settings.notifications.adminBadge')}
@@ -92,7 +110,7 @@ export function PostCard({
         {post.is_pinned && (
           <span className="shrink-0 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">📌 {t('feed.pinned')}</span>
         )}
-        {post.user_id === userId && <DeleteButton question={t('feed.confirmDelete')} onConfirm={remove} />}
+        {post.is_mine && <DeleteButton question={t('feed.confirmDelete')} onConfirm={remove} />}
       </header>
 
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
@@ -114,7 +132,12 @@ export function PostCard({
           </svg>
           {t('replies.count', { count: post.replies_count })}
         </button>
-        {post.user_id !== userId && !post.is_admin_post && (
+        {post.is_mine && !post.is_admin_post && !post.anonymity_switched && (
+          <div className="ms-auto">
+            <AnonymitySwitchButton isAnonymous={post.is_anonymous} onSwitch={switchAnonymity} />
+          </div>
+        )}
+        {!post.is_mine && !post.is_admin_post && (
           <div className="ms-auto">
             <ReportButton kind="post" id={post.id} />
           </div>
@@ -128,7 +151,7 @@ export function PostCard({
       )}
 
       {showReplies && (
-        <RepliesSection postId={post.id} userId={userId} highlightId={highlightReplyId} onCountChange={onRepliesChange} />
+        <RepliesSection postId={post.id} highlightId={highlightReplyId} onCountChange={onRepliesChange} />
       )}
     </article>
   )

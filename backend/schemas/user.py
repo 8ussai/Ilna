@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 from datetime import datetime
 
-from backend.backendConfig import ACCENT_PRESETS, TEST_USERNAME_PREFIX
+from backend.backendConfig import ACCENT_PRESETS, ANONYMOUS_USERNAME_WORD, TEST_USERNAME_PREFIX
 from backend.core.security import check_password_strength
 from backend.services.catalog import validate_selection, email_matches_domain
 
@@ -36,6 +36,9 @@ class UserCreate(UserBase):
             raise ValueError("Username must be 3-30 lowercase letters (a-z) or numbers.")
         if value.startswith(TEST_USERNAME_PREFIX):
             raise ValueError("Usernames starting with \"testuser\" are kept for test accounts.")
+        # anonymous posts show as "Anonymous N", so nobody can be named like them
+        if ANONYMOUS_USERNAME_WORD in value:
+            raise ValueError("Usernames containing \"anonymous\" aren't allowed.")
         return value
 
     @field_validator("password")

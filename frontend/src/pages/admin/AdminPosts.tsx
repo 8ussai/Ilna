@@ -18,6 +18,7 @@ import { ApiError } from '../../api/client'
 import type { Catalog } from '../../api/meta'
 import type { PostScope } from '../../api/posts'
 import { postOriginNames } from '../../catalog'
+import { AnonymousBadge } from '../../components/Anonymous'
 import { DeleteButton } from '../../components/DeleteButton'
 import { Field } from '../../components/Field'
 import { Select } from '../../components/Select'
@@ -306,6 +307,7 @@ function PostHeader({ post, catalog }: { post: AdminPost; catalog: Catalog | nul
             {post.author.first_name} {post.author.last_name}
           </span>
           <span className="text-sm text-muted">@{post.author.username}</span>
+          {post.shown_as && <AnonymousBadge shownAs={post.shown_as} />}
           {post.is_admin_post && (
             <span className="rounded-full bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent">{t('settings.notifications.adminBadge')}</span>
           )}
@@ -495,6 +497,7 @@ function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highli
             <span dir="ltr" className="text-muted">
               @{reply.author.username}
             </span>
+            {reply.shown_as && <AnonymousBadge shownAs={reply.shown_as} />}
           </>
         ) : (
           <span className="text-muted italic">{t('replies.deletedAuthor')}</span>

@@ -12,6 +12,7 @@ from backend.models.post import Post, Reply
 from backend.models.user import User
 from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, UnreadCount
 from backend.schemas.user import AccentColorUpdate, DailyUsageOut, StorageOut, UsageOut, UserOut
+from backend.services.anonymity import anon_numbers_for, anonymous_reply_author
 from backend.services.notifications import NotificationType
 from backend.services.storage import storage_used
 from backend.services.usage import course_limit, storage_limit, study_limit, study_usage
@@ -76,6 +77,7 @@ def get_activity(
         Post.scope.label("scope"),
         Post.content.label("content"),
         Post.created_at.label("created_at"),
+        Post.is_anonymous.label("is_anonymous"),
     ).where(Post.user_id == current_user.id)
 
     replies = (
@@ -86,6 +88,7 @@ def get_activity(
             Post.scope.label("scope"),
             Reply.content.label("content"),
             Reply.created_at.label("created_at"),
+            Reply.is_anonymous.label("is_anonymous"),
         )
         .join(Post, Post.id == Reply.post_id)
         .where(Reply.user_id == current_user.id, Reply.is_deleted.is_(False))
@@ -107,6 +110,7 @@ def get_activity(
             scope=row.scope,
             content=row.content[:ACTIVITY_PREVIEW_CHARS],
             created_at=row.created_at,
+            is_anonymous=row.is_anonymous,
         )
         for row in rows
     ]
@@ -130,15 +134,27 @@ def get_notifications(
         .all()
     )
 
-    return [_map_notification(n) for n in notifications]
+    # an anonymous reply's notice names its "Anonymous N", worked out now so a later switch shows here too
+    anon_numbers = anon_numbers_for(db, (
+        (n.reply.post_id, n.reply.user_id) for n in notifications if _from_anonymous_reply(n)
+    ))
+    return [_map_notification(n, anon_numbers) for n in notifications]
 
 
-def _map_notification(n: Notification) -> NotificationOut:
+def _from_anonymous_reply(n: Notification) -> bool:
+    replied = n.type in (NotificationType.post_reply.value, NotificationType.reply_reply.value)
+    return replied and n.reply is not None and n.reply.is_anonymous and not n.reply.is_deleted
+
+
+def _map_notification(n: Notification, anon_numbers: dict[tuple[int, int], int]) -> NotificationOut:
+    actor = n.actor
+    if _from_anonymous_reply(n):
+        actor = anonymous_reply_author(n.reply.post, n.reply.user_id, anon_numbers.get((n.reply.post_id, n.reply.user_id)))
     out = NotificationOut(
         id=n.id,
         type=n.type,
         vote_dir=n.vote_dir,
-        actor=n.actor,
+        actor=actor,
         actor_is_admin=n.actor.is_system,
         post_id=n.post_id,
         reply_id=n.reply_id,

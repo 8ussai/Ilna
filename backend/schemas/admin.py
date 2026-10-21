@@ -103,6 +103,8 @@ class AdminPostOut(BaseModel):
     votes_count: int
     # replies that aren't deleted
     replies_count: int
+    # posted anonymously: what everyone else sees in place of the author; the admin sees both
+    shown_as: Optional[PostAuthor] = None
 
 
 class AdminPostPage(BaseModel):
@@ -120,6 +122,8 @@ class AdminReplyOut(BaseModel):
     author: Optional[PostAuthor]
     created_at: datetime
     votes_count: int
+    # posted anonymously: what everyone else sees in place of the author
+    shown_as: Optional[PostAuthor] = None
 
 
 class AdminPostDetail(BaseModel):
@@ -158,6 +162,8 @@ class AdminReportGroup(BaseModel):
     reports_count: int
     latest_at: datetime
     reports: list[AdminReportEntry]
+    # the post or reply is anonymous: what everyone else sees in place of the author
+    shown_as: Optional[PostAuthor] = None
 
 
 class ReportTarget(BaseModel):

@@ -10,6 +10,8 @@ class ReplyCreate(BaseModel):
     content: str
     # leave empty to reply to the post itself
     parent_id: Optional[int] = None
+    # shown as "Anonymous N" to everyone but the author and the admin
+    is_anonymous: bool = False
 
     @field_validator("content")
     @classmethod
@@ -26,6 +28,7 @@ class ReplyOut(BaseModel):
     id: int
     post_id: int
     parent_id: Optional[int]
+    # null when the reply is deleted or anonymous
     user_id: Optional[int]
     # empty and author-less when is_deleted is true
     content: str
@@ -36,3 +39,8 @@ class ReplyOut(BaseModel):
     votes_count: int
     my_vote: int
     author: Optional[PostAuthor]
+    is_anonymous: bool = False
+    # the reader wrote it; true for their anonymous replies too
+    is_mine: bool = False
+    # the author already used their one switch between anonymous and named
+    anonymity_switched: bool = False

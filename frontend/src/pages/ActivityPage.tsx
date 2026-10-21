@@ -6,6 +6,7 @@ import { ACTIVITY_PAGE_SIZE, fetchActivity } from '../api/me'
 import type { ActivityItem } from '../api/me'
 import type { Catalog } from '../api/meta'
 import { catalogNames } from '../catalog'
+import { OwnAnonymousTag } from '../components/Anonymous'
 import { secondaryButton } from '../components/styles'
 import { formatDateTime, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
@@ -102,6 +103,7 @@ export function ActivityPage({ me, catalog, onOpenPost }: ActivityPageProps) {
                     </span>
                     <span aria-hidden="true">·</span>
                     <time dateTime={created.toISOString()}>{formatDateTime(created, i18n.language)}</time>
+                    {item.is_anonymous && <OwnAnonymousTag />}
                   </span>
                   <span dir="auto" className="mt-1.5 line-clamp-3 block whitespace-pre-wrap break-words">
                     {item.content}

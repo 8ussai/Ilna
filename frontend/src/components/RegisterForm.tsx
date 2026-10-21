@@ -99,6 +99,8 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
 
     if (!values.username.trim()) e.username = required
     else if (!USERNAME_RE.test(values.username)) e.username = t('errors.usernameInvalid')
+    // anonymous posts show as "Anonymous N" (ANONYMOUS_USERNAME_WORD in backend/backendConfig.py)
+    else if (values.username.includes('anonymous')) e.username = t('errors.usernameAnonymous')
 
     const emailDomain = values.email.trim().split('@')[1]?.toLowerCase() ?? ''
     if (!values.email.trim()) e.email = required

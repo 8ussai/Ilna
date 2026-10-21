@@ -6,6 +6,7 @@ import type { AdminReportGroup } from '../../api/admin'
 import { ApiError } from '../../api/client'
 import type { Catalog } from '../../api/meta'
 import { postOriginNames } from '../../catalog'
+import { AnonymousBadge } from '../../components/Anonymous'
 import { smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDateTime, parseServerDate } from '../../dates'
@@ -156,6 +157,7 @@ function ReportRow({
             <span dir="ltr" className="text-muted">
               @{group.author.username}
             </span>
+            {group.shown_as && <AnonymousBadge shownAs={group.shown_as} />}
             <span className="text-muted">· {formatDateTime(parseServerDate(group.created_at), i18n.language)}</span>
           </p>
           <p dir="auto" className="mt-1 line-clamp-4 whitespace-pre-wrap break-words">

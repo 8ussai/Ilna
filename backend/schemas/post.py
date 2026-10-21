@@ -25,6 +25,8 @@ class PostBase(BaseModel):
 class PostCreate(PostBase):
     # university, college and major are pulled from the user's profile
     scope: PostScope
+    # shown as "Anonymous N" to everyone but the author and the admin
+    is_anonymous: bool = False
 
     @field_validator("content")
     @classmethod
@@ -44,13 +46,19 @@ class PostAuthor(BaseModel):
     last_name: str
     # shown with a gold name and a crown
     is_premium: bool = False
+    # An anonymous author has blank id, names and username (see services/anonymity.py):
+    # anon_number is their number in the thread ("Anonymous 2"), and is_thread_author marks the
+    # anonymous post's own author replying in its thread ("Author"). Neither: the anonymous post itself.
+    anon_number: Optional[int] = None
+    is_thread_author: bool = False
 
     model_config = {"from_attributes": True}
 
 
 class PostOut(PostBase):
     id: int
-    user_id: int
+    # null when the post is anonymous
+    user_id: Optional[int]
     created_at: datetime
     updated_at: datetime
     votes_count: int
@@ -69,6 +77,11 @@ class PostOut(PostBase):
     is_admin_post: bool = False
     # pinned to the top of its blog right now
     is_pinned: bool = False
+    is_anonymous: bool = False
+    # the reader wrote it; true for their anonymous posts too
+    is_mine: bool = False
+    # the author already used their one switch between anonymous and named
+    anonymity_switched: bool = False
 
     model_config = {"from_attributes": True}
 
@@ -90,6 +103,7 @@ class ActivityItem(BaseModel):
     # cut to ACTIVITY_PREVIEW_CHARS; the full text is on the post page
     content: str
     created_at: datetime
+    is_anonymous: bool = False
 
 
 class NotificationOut(BaseModel):
@@ -113,6 +127,11 @@ class NotificationOut(BaseModel):
     ref: Optional[str] = None
     is_read: bool
     created_at: datetime
+
+
+class AnonymitySwitch(BaseModel):
+    # the one switch after posting: true hides the author's name, false shows it
+    is_anonymous: bool
 
 
 class UnreadCount(BaseModel):

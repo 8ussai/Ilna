@@ -1,6 +1,6 @@
 import { ApiError, request } from './client'
 import type { MaintenanceStatus } from './meta'
-import type { PostScope } from './posts'
+import type { Author, PostScope } from './posts'
 
 // sessionStorage, so the admin login ends when the tab is closed; kept apart from the student login
 const ADMIN_TOKEN_KEY = 'ilna-admin-token'
@@ -178,6 +178,8 @@ export type AdminPost = {
   is_pinned: boolean
   votes_count: number
   replies_count: number
+  // posted anonymously: what everyone else sees in place of the author
+  shown_as: Author | null
 }
 
 export type AdminReply = {
@@ -190,6 +192,8 @@ export type AdminReply = {
   author: AdminPost['author'] | null
   created_at: string
   votes_count: number
+  // posted anonymously: what everyone else sees in place of the author
+  shown_as: Author | null
 }
 
 export const ADMIN_POSTS_PAGE = 20
@@ -232,6 +236,8 @@ export type AdminReportGroup = {
   created_at: string
   reports_count: number
   latest_at: string
+  // the post or reply is anonymous: what everyone else sees in place of the author
+  shown_as: Author | null
   reports: { reason: string; note: string | null; reporter: AdminPost['author']; created_at: string }[]
 }
 

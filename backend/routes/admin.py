@@ -3,6 +3,7 @@ import logging
 import secrets
 import smtplib
 from datetime import datetime, timedelta, timezone
+from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_
@@ -23,10 +24,10 @@ from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.contact import ContactMessage
 from backend.models.course import Course, CourseMaterial
 from backend.models.notification import Notification
-from backend.models.post import Post, PostVote, Reply, ReplyVote
+from backend.models.post import Post, PostVote, Reply, ReplyVote, ThreadAnonNumber
 from backend.models.user import User
 from backend.routes.auth import _send_code as send_code
-from backend.schemas.post import PostScope
+from backend.schemas.post import PostAuthor, PostScope
 from backend.schemas.admin import (
     AdminCodeRequest,
     AdminCodeVerify,
@@ -61,6 +62,7 @@ from backend.schemas.admin import (
     TestUserCreated,
 )
 from backend.services.admin_account import get_admin_account
+from backend.services.anonymity import anonymous_author, anonymous_reply_author
 from backend.services.notifications import NotificationType, notify_removal
 from backend.services.reply_removal import remove_reply
 from backend.services.account_deletion import delete_account
@@ -449,7 +451,17 @@ def unban_user(user_id: int, background_tasks: BackgroundTasks, db: Session = De
 
 
 
-def _post_out(post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
+def _shown_as(db: Session, item: Post | Reply) -> Optional[PostAuthor]:
+    """What everyone else sees in place of an anonymous post's or reply's author; None when it's named."""
+    if not item.is_anonymous:
+        return None
+    if isinstance(item, Post):
+        return anonymous_author()
+    row = db.get(ThreadAnonNumber, (item.post_id, item.user_id))
+    return anonymous_reply_author(item.post, item.user_id, row.number if row else None)
+
+
+def _post_out(db: Session, post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
     return AdminPostOut(
         id=post.id,
         content=post.content,
@@ -464,6 +476,7 @@ def _post_out(post: Post, votes_count: int, replies_count: int) -> AdminPostOut:
         is_pinned=post.pinned_until is not None and post.pinned_until > utc_now(),
         votes_count=votes_count,
         replies_count=replies_count,
+        shown_as=_shown_as(db, post),
     )
 
 
@@ -510,7 +523,7 @@ def list_posts(
         .limit(limit)
         .all()
     )
-    return AdminPostPage(items=[_post_out(post, votes, replies) for post, votes, replies in rows], total=total)
+    return AdminPostPage(items=[_post_out(db, post, votes, replies) for post, votes, replies in rows], total=total)
 
 
 @router.get("/posts/{post_id}", response_model=AdminPostDetail, dependencies=[Depends(get_admin)])
@@ -529,7 +542,7 @@ def get_post_detail(post_id: int, db: Session = Depends(get_db)):
     )
     replies = db.query(Reply).filter(Reply.post_id == post_id).order_by(Reply.id).all()
     return AdminPostDetail(
-        post=_post_out(post, votes, replies_count),
+        post=_post_out(db, post, votes, replies_count),
         replies=[
             AdminReplyOut(
                 id=reply.id,
@@ -540,6 +553,7 @@ def get_post_detail(post_id: int, db: Session = Depends(get_db)):
                 author=None if reply.is_deleted else reply.author,
                 created_at=reply.created_at,
                 votes_count=reply_votes.get(reply.id, 0),
+                shown_as=None if reply.is_deleted else _shown_as(db, reply),
             )
             for reply in replies
         ],
@@ -663,6 +677,7 @@ def list_reports(db: Session = Depends(get_db)):
                 reports_count=1,
                 latest_at=report.created_at,
                 reports=[entry],
+                shown_as=_shown_as(db, item),
             )
         else:
             group.reports_count += 1
@@ -775,7 +790,7 @@ def create_admin_post(data: AdminPostCreate, db: Session = Depends(get_db)):
     }, ensure_ascii=False)))
     db.commit()
     db.refresh(post)
-    return _post_out(post, 0, 0)
+    return _post_out(db, post, 0, 0)
 
 
 @router.post("/posts/{post_id}/pin", response_model=AdminPostOut, dependencies=[Depends(get_admin)])
@@ -787,7 +802,7 @@ def pin_admin_post(post_id: int, data: PinRequest, db: Session = Depends(get_db)
                     details=json.dumps({"pin_hours": data.pin_hours})))
     db.commit()
     votes, replies = _posts_with_counts(db).filter(Post.id == post.id).one()[1:]
-    return _post_out(post, votes, replies)
+    return _post_out(db, post, votes, replies)
 
 
 @router.delete("/posts/{post_id}", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])

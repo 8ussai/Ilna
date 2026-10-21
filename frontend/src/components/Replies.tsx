@@ -2,29 +2,29 @@ import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../api/client'
-import { createReply, deleteReply, fetchReplies, voteReply } from '../api/replies'
+import { createReply, deleteReply, fetchReplies, setReplyAnonymity, voteReply } from '../api/replies'
 import type { Reply } from '../api/replies'
 import { formatDateTime, parseServerDate } from '../dates'
 import { useReadOnly } from '../readOnly'
 import { applyVote } from '../votes'
+import { anonymousName, AnonymitySwitchButton, AuthorAvatar, AuthorName, isAnonymousAuthor, OwnAnonymousTag } from './Anonymous'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
-import { goldClass, UserName } from './Premium'
+import { goldClass } from './Premium'
 import { ReportButton } from './ReportButton'
-import { UserAvatar } from './UserAvatar'
 import { VoteButtons } from './VoteButtons'
 
 // deeper replies stop indenting so threads stay readable on phones
 const MAX_INDENT = 5
 
 type Actions = {
-  userId: number
   // the reply opened from a link (#reply-<id>), shown highlighted
   highlightId: number | null
   childrenOf: Map<number | null, Reply[]>
-  onReply: (parentId: number, content: string) => Promise<void>
+  onReply: (parentId: number, content: string, isAnonymous: boolean) => Promise<void>
   onVote: (reply: Reply, dir: 1 | -1) => Promise<void>
   onDelete: (reply: Reply) => Promise<void>
+  onSwitchAnonymity: (reply: Reply) => Promise<void>
 }
 
 // Mirrors the backend: a reply with answers becomes a placeholder; otherwise it goes, along with
@@ -32,7 +32,9 @@ type Actions = {
 function withoutReply(list: Reply[], target: Reply): Reply[] {
   if (list.some((r) => r.parent_id === target.id)) {
     return list.map((r) =>
-      r.id === target.id ? { ...r, is_deleted: true, content: '', author: null, user_id: null, my_vote: 0, votes_count: 0 } : r,
+      r.id === target.id
+        ? { ...r, is_deleted: true, content: '', author: null, user_id: null, my_vote: 0, votes_count: 0, is_anonymous: false, is_mine: false }
+        : r,
     )
   }
 
@@ -75,6 +77,15 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
     }
   }
 
+  async function switchAnonymity() {
+    setError('')
+    try {
+      await actions.onSwitchAnonymity(reply)
+    } catch {
+      setError(t('errors.generic'))
+    }
+  }
+
   async function remove() {
     setError('')
     try {
@@ -92,9 +103,13 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
         <div className="flex items-center gap-2 text-sm">
           {author ? (
             <>
-              <UserAvatar username={author.username} size={28} />
-              <UserName user={author} className="truncate font-medium" />
-              <span className={`truncate ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
+              <AuthorAvatar author={author} size={28} />
+              <AuthorName author={author} className="truncate font-medium" />
+              {reply.is_anonymous ? (
+                reply.is_mine && <OwnAnonymousTag />
+              ) : (
+                <span className={`truncate ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
+              )}
             </>
           ) : (
             <span className="text-muted italic">{t('replies.deletedAuthor')}</span>
@@ -146,10 +161,11 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
                 : t('replies.hide')}
             </button>
           )}
-          {!reply.is_deleted && reply.user_id === actions.userId && (
-            <DeleteButton question={t('replies.confirmDelete')} onConfirm={remove} />
+          {!reply.is_deleted && reply.is_mine && !reply.anonymity_switched && (
+            <AnonymitySwitchButton isAnonymous={reply.is_anonymous} onSwitch={switchAnonymity} />
           )}
-          {!reply.is_deleted && reply.user_id !== actions.userId && <ReportButton kind="reply" id={reply.id} />}
+          {!reply.is_deleted && reply.is_mine && <DeleteButton question={t('replies.confirmDelete')} onConfirm={remove} />}
+          {!reply.is_deleted && !reply.is_mine && <ReportButton kind="reply" id={reply.id} />}
         </div>
 
         {error && (
@@ -163,13 +179,16 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
         <div className="mt-2">
           <Composer
             label={t('replies.composerLabel')}
-            placeholder={t('replies.placeholderTo', { name: author?.first_name ?? '' })}
+            placeholder={t('replies.placeholderTo', {
+              name: !author ? '' : isAnonymousAuthor(author) ? anonymousName(t, author) : author.first_name,
+            })}
             submitLabel={t('replies.reply')}
+            anonymousLabel={t('anonymous.replyAnonymously')}
             rows={2}
             autoFocus
             onCancel={() => setReplying(false)}
-            onSubmit={async (content) => {
-              await actions.onReply(reply.id, content)
+            onSubmit={async (content, isAnonymous) => {
+              await actions.onReply(reply.id, content, isAnonymous)
               setReplying(false)
               setCollapsed(false)
             }}
@@ -205,12 +224,10 @@ type Status = 'loading' | 'ready' | 'error'
 // highlightId is a reply to scroll to and highlight once the thread loads.
 export function RepliesSection({
   postId,
-  userId,
   highlightId = null,
   onCountChange,
 }: {
   postId: number
-  userId: number
   highlightId?: number | null
   onCountChange: (delta: number) => void
 }) {
@@ -255,14 +272,13 @@ export function RepliesSection({
     setReplies((current) => current.map((r) => (r.id === id ? { ...r, ...changes } : r)))
   }
 
-  async function add(parentId: number | null, content: string) {
-    const reply = await createReply(postId, content, parentId)
+  async function add(parentId: number | null, content: string, isAnonymous: boolean) {
+    const reply = await createReply(postId, content, parentId, isAnonymous)
     setReplies((current) => [...current, reply])
     onCountChange(1)
   }
 
   const actions: Actions = {
-    userId,
     highlightId,
     childrenOf,
     onReply: add,
@@ -286,6 +302,10 @@ export function RepliesSection({
       setReplies((current) => withoutReply(current, reply))
       onCountChange(-1)
     },
+    async onSwitchAnonymity(reply) {
+      const updated = await setReplyAnonymity(reply.id, !reply.is_anonymous)
+      patchReply(reply.id, updated)
+    },
   }
 
   const topLevel = childrenOf.get(null) ?? []
@@ -299,8 +319,9 @@ export function RepliesSection({
           label={t('replies.composerLabel')}
           placeholder={t('replies.placeholder')}
           submitLabel={t('replies.reply')}
+          anonymousLabel={t('anonymous.replyAnonymously')}
           rows={2}
-          onSubmit={(content) => add(null, content)}
+          onSubmit={(content, isAnonymous) => add(null, content, isAnonymous)}
         />
       )}
 

@@ -16,12 +16,10 @@ type Status = 'loading' | 'ready' | 'unavailable' | 'deleted' | 'error'
 export function PostPage({
   postId,
   replyId,
-  userId,
   catalog,
 }: {
   postId: number
   replyId: number | null
-  userId: number
   catalog: Catalog | null
 }) {
   const { t } = useTranslation()
@@ -105,12 +103,12 @@ export function PostPage({
   return (
     <PostCard
       post={post}
-      userId={userId}
       catalog={catalog}
       initialShowReplies
       highlightReplyId={replyId}
       onDelete={remove}
       onVote={(dir) => vote(post, dir)}
+      onUpdated={setPost}
       onRepliesChange={(delta) =>
         setPost((current) => (current ? { ...current, replies_count: current.replies_count + delta } : current))
       }

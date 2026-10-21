@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey, PrimaryKeyConstraint
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, Text, ForeignKey, PrimaryKeyConstraint, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from backend.database import Base
@@ -23,6 +23,13 @@ class Post(Base):
     # an admin post stays at the top of its blog until this time; null means not pinned
     pinned_until = Column(DateTime)
 
+    # shown as "Anonymous N" to everyone but its author and the admin
+    is_anonymous = Column(Boolean, nullable=False, default=False, server_default="0")
+    # the author can switch is_anonymous once after posting
+    anonymity_switched = Column(Boolean, nullable=False, default=False, server_default="0")
+    # the last "Anonymous N" number given out in this thread, so numbers are never reused
+    anon_counter = Column(Integer, nullable=False, default=0, server_default="0")
+
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 
@@ -30,6 +37,21 @@ class Post(Base):
     votes = relationship("PostVote", back_populates="post", cascade="all, delete-orphan")
     replies = relationship("Reply", back_populates="post", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="post", cascade="all, delete-orphan")
+    anon_numbers = relationship("ThreadAnonNumber", cascade="all, delete-orphan")
+
+
+class ThreadAnonNumber(Base):
+    """Each person who posts or replies anonymously in a thread keeps one number there: "Anonymous 2"."""
+    __tablename__ = "thread_anon_numbers"
+
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    number = Column(Integer, nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint("post_id", "user_id"),
+        UniqueConstraint("post_id", "number"),
+    )
 
 
 class PostVote(Base):
@@ -59,6 +81,9 @@ class Reply(Base):
     is_deleted = Column(Boolean, nullable=False, default=False)
     # the admin removed it; its placeholder reads "[removed by admin]" instead of "[deleted]"
     removed_by_admin = Column(Boolean, nullable=False, default=False)
+    # shown as "Anonymous N" (its author's number in the thread); switchable once, like a post
+    is_anonymous = Column(Boolean, nullable=False, default=False, server_default="0")
+    anonymity_switched = Column(Boolean, nullable=False, default=False, server_default="0")
 
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
