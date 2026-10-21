@@ -36,6 +36,7 @@ export function VerifyEmailForm({
 
   const codeError = !code ? t('errors.required') : !/^\d{6}$/.test(code) ? t('errors.otpFormat') : undefined
 
+  // checks the emailed code and logs in
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -58,6 +59,7 @@ export function VerifyEmailForm({
     }
   }
 
+  // emails another code
   async function onResend() {
     setFormError('')
     setNotice('')

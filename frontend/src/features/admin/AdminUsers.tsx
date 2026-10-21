@@ -73,6 +73,7 @@ export function AdminUsers({ catalog, siteClosing = false }: { catalog: Catalog 
     }
   }, [query, premiumOnly, testOnly])
 
+  // adds the next page of users
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -86,6 +87,7 @@ export function AdminUsers({ catalog, siteClosing = false }: { catalog: Catalog 
     }
   }
 
+  // puts a changed user in the list
   const replaceUser = (updated: AdminUser) => setUsers((current) => current.map((u) => (u.id === updated.id ? updated : u)))
 
   return (
@@ -198,6 +200,7 @@ export function AdminUsers({ catalog, siteClosing = false }: { catalog: Catalog 
   )
 }
 
+// one student with their totals and actions
 function UserRow({
   user,
   catalog,
@@ -218,6 +221,7 @@ function UserRow({
   const origin = postOriginNames(catalog, user, i18n.language)
   const originText = [origin.major, origin.university].filter(Boolean).join(' · ')
 
+  // runs an action, showing it's busy and any error
   async function run(work: () => Promise<void>) {
     setBusy(true)
     onNotice('')
@@ -397,6 +401,7 @@ function UserRow({
   )
 }
 
+// deleting an account, confirmed by typing the username
 function DeleteDialog({ user, onClose, onDeleted }: { user: AdminUser; onClose: () => void; onDeleted: () => void }) {
   const { t } = useTranslation()
   const [typed, setTyped] = useState('')
@@ -404,6 +409,7 @@ function DeleteDialog({ user, onClose, onDeleted }: { user: AdminUser; onClose: 
   const [error, setError] = useState('')
   const matches = typed.trim().toLowerCase() === user.username
 
+  // deletes the account
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     if (!matches) return

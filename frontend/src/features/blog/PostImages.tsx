@@ -38,6 +38,7 @@ function useImageUrl(image: PostImage, fetchImage: ImageFetcher, enabled: boolea
   return { url, failed }
 }
 
+// true once the element is near the screen, so pictures load as they're scrolled to
 function useNearScreen<T extends Element>() {
   const ref = useRef<T>(null)
   const [near, setNear] = useState(false)
@@ -51,6 +52,7 @@ function useNearScreen<T extends Element>() {
   return { ref, near }
 }
 
+// one picture in the grid, opening the viewer when clicked
 function Tile({
   image,
   index,
@@ -97,6 +99,7 @@ export function PostImages({ images, fetchImage }: { images: PostImage[]; fetchI
   if (images.length === 0) return null
 
   const count = images.length
+  // a tile's shape, by how many pictures there are
   const tileClass = (i: number) => {
     if (count === 1) return 'max-h-[32rem]'
     if (count === 3 && i === 0) return 'col-span-2 aspect-[2/1]'
@@ -125,6 +128,7 @@ export function PostImages({ images, fetchImage }: { images: PostImage[]; fetchI
   )
 }
 
+// the picture shown in the full-screen viewer
 function ViewerImage({ image, fetchImage, label }: { image: PostImage; fetchImage: ImageFetcher; label: string }) {
   const { t } = useTranslation()
   const { url, failed } = useImageUrl(image, fetchImage, true)
@@ -161,6 +165,7 @@ function Viewer({
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
 
+    // Esc closes, arrows move between pictures, Tab stays in the viewer
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         e.stopPropagation()

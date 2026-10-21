@@ -31,12 +31,15 @@ export function NewTestUserDialog({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  // a catalog entry's name in the panel's language
   const nameOf = (item: Named) => (i18n.language === 'ar' ? item.name_ar : item.name_en)
+  // catalog entries as select options
   const toOptions = (items: Named[]) => items.map((item) => ({ value: item.id, label: nameOf(item) }))
   const country = catalog?.countries.find((c) => c.id === values.country)
   const university = country?.universities.find((u) => u.id === values.university)
   const college = university?.colleges.find((c) => c.id === values.college)
 
+  // picks a country, university, college or major, clearing the choices under it
   function setChoice(field: (typeof CHAIN)[number], value: string) {
     setValues((v) => {
       const next = { ...v, [field]: value }
@@ -46,8 +49,10 @@ export function NewTestUserDialog({
   }
 
   const required = t('errors.required')
+  // "required" for an empty field, once submitted
   const missing = (field: keyof TestUserInput) => (submitted && !values[field].trim() ? required : undefined)
 
+  // makes the test account
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -173,6 +178,7 @@ export function TestPasswordDialog({
     }
   }, [user.id, initialPassword, t])
 
+  // makes a new password, which logs the account out
   async function makeNew() {
     setBusy(true)
     setError('')
@@ -189,6 +195,7 @@ export function TestPasswordDialog({
     }
   }
 
+  // copies the username or password
   async function copy(label: string, text: string) {
     try {
       await navigator.clipboard.writeText(text)
@@ -198,6 +205,7 @@ export function TestPasswordDialog({
     }
   }
 
+  // one copyable detail of the account
   const row = (label: string, value: string | null, key: string) => (
     <div className="flex items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2">
       <span className="w-24 shrink-0 text-sm text-muted">{label}</span>

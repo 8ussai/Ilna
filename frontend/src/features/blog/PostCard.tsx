@@ -16,6 +16,7 @@ import { ReportButton } from './ReportButton'
 import { goldClass } from '../account/Premium'
 import { VoteButtons } from './VoteButtons'
 
+// one post: author, text, pictures, votes, replies, and its menu actions
 export function PostCard({
   post,
   catalog,
@@ -42,6 +43,7 @@ export function PostCard({
   const [showReplies, setShowReplies] = useState(initialShowReplies)
   const [error, setError] = useState('')
 
+  // votes on the post
   async function vote(dir: 1 | -1) {
     setVoting(true)
     setError('')
@@ -54,6 +56,7 @@ export function PostCard({
     }
   }
 
+  // the author's one switch between anonymous and named
   async function switchAnonymity() {
     setError('')
     try {
@@ -63,6 +66,7 @@ export function PostCard({
     }
   }
 
+  // deletes the post
   async function remove() {
     setError('')
     try {

@@ -23,6 +23,7 @@ function AnonymousAvatar({ size }: { size: number }) {
   )
 }
 
+// the author's avatar, or the plain one for anonymous authors
 export function AuthorAvatar({ author, size }: { author: Author; size: number }) {
   return isAnonymousAuthor(author) ? <AnonymousAvatar size={size} /> : <UserAvatar username={author.username} size={size} />
 }
@@ -57,6 +58,7 @@ export function AnonymitySwitchButton({ isAnonymous, onSwitch }: { isAnonymous: 
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
 
+  // runs the switch once confirmed
   async function confirm() {
     setBusy(true)
     try {

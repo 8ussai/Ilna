@@ -35,6 +35,7 @@ export function AdminLog() {
     }
   }, [action])
 
+  // adds the next page of the log
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -46,6 +47,7 @@ export function AdminLog() {
     }
   }
 
+  // an action's name in the panel's language
   const label = (a: string) => t(`admin.log.actions.${a}`, { defaultValue: a })
   const options = [{ value: '', label: t('admin.log.allActions') }, ...actions.map((a) => ({ value: a, label: label(a) }))]
 
@@ -84,8 +86,10 @@ export function AdminLog() {
   )
 }
 
+// a log detail as text
 const text = (value: unknown) => (typeof value === 'string' ? value : value === undefined || value === null ? '' : String(value))
 
+// one entry of the admin log with its details
 function LogRow({ entry, label }: { entry: AdminLogEntry; label: string }) {
   const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)

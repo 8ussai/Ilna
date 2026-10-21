@@ -32,6 +32,7 @@ import { NotificationsPage } from '../account/NotificationsPage'
 import { PostPage } from '../blog/PostPage'
 import { Settings } from '../account/Settings'
 
+// the logged-in app: header, tabs and whichever page the address points at
 export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; onPasswordChanged: () => void }) {
   const { t, i18n } = useTranslation()
   const [route, setRoute] = useState<Route>(routeFromPath)
@@ -52,6 +53,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
       .catch(() => {})
   }, [])
 
+  // the friends list shared with the ★, profile cards and the Friends page
   const friends = useMemo<Friends>(() => {
     const ids = new Set(friendList?.friends.map((f) => f.id))
     return {
@@ -86,6 +88,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     [setUnreadCount],
   )
 
+  // loads the student's own account
   const loadMe = useCallback(() => {
     fetchMe()
       .then(setMe)
@@ -97,6 +100,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     if (me) applyAccent(me.accent_color, me.is_premium)
   }, [me])
 
+  // tries loading the account again
   function retryMe() {
     setMeFailed(false)
     loadMe()
@@ -113,11 +117,13 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
   useEffect(() => {
     const path = routePath(routeFromPath())
     if (currentPath() !== path) window.history.replaceState(null, '', path)
+    // follows the browser's back and forward buttons
     const onPop = () => setRoute(routeFromPath())
     window.addEventListener('popstate', onPop)
     return () => window.removeEventListener('popstate', onPop)
   }, [])
 
+  // opens a page and puts its address in the address bar
   function navigate(next: Route) {
     const path = routePath(next)
     if (path !== currentPath()) window.history.pushState(null, '', path)
@@ -134,6 +140,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     setRoute(next)
   }
 
+  // closes the account drawer and puts focus back on its button
   const closeDrawer = useCallback(() => {
     setDrawerOpen(false)
     accountButtonRef.current?.focus()
@@ -145,12 +152,15 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     navigate(next)
   }
 
+  // opens a post, scrolled to a reply if one is given
   const openPost = (postId: number, replyId: number | null) => navigate({ kind: 'post', postId, replyId })
 
   const isCoursesArea = (route.kind === 'tab' && route.tab === 'my-courses') || route.kind === 'course'
 
+  // the page for the current address
   function renderContent() {
     const tab = route.kind === 'tab' ? route.tab : null
+    // opens a course on its first tab
     const openCourse = (courseId: number) => navigate({ kind: 'course', courseId, section: null, itemId: null })
     // courses don't need the profile, so they don't wait for it
     if (tab === 'my-courses') return <CoursesPage onOpenCourse={openCourse} />

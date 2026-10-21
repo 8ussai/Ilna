@@ -17,6 +17,7 @@ type Answers = (number | null)[]
 // answers in progress survive a reload or a wander to another tab, on this device only
 const draftKey = (itemId: number) => `ilna-quiz-draft-${itemId}`
 
+// answers picked so far in this quiz, kept in the browser
 function loadDraft(itemId: number, total: number): Answers {
   const empty: Answers = Array(total).fill(null)
   try {
@@ -27,6 +28,7 @@ function loadDraft(itemId: number, total: number): Answers {
   }
 }
 
+// keeps the picked answers in the browser, or clears them
 function saveDraft(itemId: number, answers: Answers | null) {
   try {
     if (answers && answers.some((a) => a !== null)) localStorage.setItem(draftKey(itemId), JSON.stringify(answers))
@@ -89,6 +91,7 @@ export function QuizBody({ courseId, item, content, language, onAttempted }: Qui
     focusNext.current = null
   })
 
+  // picks an option for a question
   function answer(question: number, option: number) {
     const next = answers.map((a, i) => (i === question ? option : a))
     setAnswers(next)
@@ -96,6 +99,7 @@ export function QuizBody({ courseId, item, content, language, onAttempted }: Qui
     saveDraft(item.id, next)
   }
 
+  // sends the answers to be graded
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (answers.some((a) => a === null) && !confirming) {
@@ -119,6 +123,7 @@ export function QuizBody({ courseId, item, content, language, onAttempted }: Qui
     }
   }
 
+  // starts the quiz again
   function retake() {
     const fresh: Answers = Array(total).fill(null)
     setAnswers(fresh)
@@ -238,6 +243,7 @@ export function QuizBody({ courseId, item, content, language, onAttempted }: Qui
   )
 }
 
+// a graded attempt: each question with the right answer and its explanation
 function Review({
   attempt,
   attempts,
@@ -375,6 +381,7 @@ function Review({
   )
 }
 
+// the A, B, C, D badge of an option
 function Letter({ active, tone, children }: { active: boolean; tone?: 'success' | 'danger'; children: string }) {
   const color = tone === 'success' ? 'bg-success text-accent-fg' : tone === 'danger' ? 'bg-danger text-accent-fg' : active ? 'bg-accent text-accent-fg' : 'bg-surface text-muted'
   return (

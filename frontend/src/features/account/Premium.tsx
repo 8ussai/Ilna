@@ -6,6 +6,7 @@ import { primaryButtonInline } from '../../components/styles'
 // a premium student's name and username are gold; the crown says it without relying on color
 export const goldClass = 'text-gold'
 
+// the gold crown shown with premium names
 export function PremiumCrown({ className = 'size-4' }: { className?: string }) {
   const { t } = useTranslation()
   return (

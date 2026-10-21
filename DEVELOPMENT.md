@@ -112,11 +112,23 @@ backend/                 one folder per feature: models.py (tables), schemas.py 
   meta/                  the catalog and site status
   migrations/            Alembic database migrations, run on startup
   data/                  university, college and major catalog
-frontend/
-  src/api/           typed API client
-  src/pages/         app pages, and admin/ for the admin panel
-  src/components/    UI, and courses/ for the study workspace
-  src/locales/       English and Arabic text
+frontend/src/
+  main.tsx, App.tsx      start-up: the admin panel at /admin, the student site everywhere else
+  api/                   typed API client, one file per backend area
+  features/              one folder per part of the site:
+    auth/                log in, sign up, email code, forgot password
+    landing/             the page for visitors who aren't logged in
+    home/                the logged-in app's shell: header, tabs, account drawer, routing
+    blog/                posts, replies, votes, reports, pictures, anonymous authors
+    friends/             profile cards, the Friends page, the shared friends list
+    account/             settings, activity, notifications, contact, premium
+    courses/             courses, files, recordings, notes, links, sharing, summaries, quizzes
+    admin/               the admin panel
+    maintenance/         the closing-soon banner and the closed page
+  components/            shared UI: dialogs, fields, selects, header, tab bar, button styles
+  hooks/                 shared React hooks (autosave, polling, unread count)
+  lib/                   small helpers: dates, sizes, links, routes, theme color, catalog names
+  locales/               English and Arabic text
 start-demo.ps1       builds and runs the public demo on Windows
 ```
 

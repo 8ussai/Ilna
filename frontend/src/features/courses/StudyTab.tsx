@@ -29,10 +29,12 @@ type StudyTabProps = {
   onDeleted: (itemId: number) => void
 }
 
+// whether a summary or quiz can be opened yet
 function canOpen(item: StudyItemSummary) {
   return item.status === 'done'
 }
 
+// the Summaries or Quizzes tab: the list, or one opened
 export function StudyTab({ courseId, kind, items, loaded, openId, onOpen, onChanged, onDeleted }: StudyTabProps) {
   const { t } = useTranslation()
   const listRef = useRef<HTMLDivElement>(null)
@@ -102,6 +104,7 @@ export function StudyTab({ courseId, kind, items, loaded, openId, onOpen, onChan
   )
 }
 
+// one summary or quiz card with its state
 function StudyCard({
   courseId,
   item,
@@ -129,6 +132,7 @@ function StudyCard({
   const otherLanguage: StudyLanguage | null = item.main_language ? (item.main_language === 'ar' ? 'en' : 'ar') : null
   const writing = item.status === 'pending' || item.status === 'processing'
 
+  // tries a failed summary, quiz or translation again
   async function retry() {
     setRetrying(true)
     setError('')
@@ -141,6 +145,7 @@ function StudyCard({
     }
   }
 
+  // deletes the summary or quiz
   async function remove() {
     setError('')
     try {
@@ -270,6 +275,7 @@ function StudyCard({
   )
 }
 
+// a small status label
 function StatusPill({ working = false, lang, children }: { working?: boolean; lang?: string; children: string }) {
   return (
     <span lang={lang} className="inline-flex items-center gap-1.5 rounded-full bg-surface px-2 py-0.5 text-xs font-medium text-muted">

@@ -24,6 +24,7 @@ export function InlineRename({ value, label, maxLength, onSave, onDone }: Inline
     inputRef.current?.select()
   }, [])
 
+  // saves the new name, or keeps the old one if it's empty or unchanged
   async function save() {
     const trimmed = draft.trim()
     if (!trimmed || trimmed === value) {

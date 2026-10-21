@@ -13,6 +13,7 @@ import { secondaryButtonInline, smallSecondaryButton } from '../../components/st
 
 type Status = 'loading' | 'ready' | 'error'
 
+// My Courses: own and added courses, Shared with you, and Add by ID
 export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number) => void }) {
   const { t } = useTranslation()
   const [courses, setCourses] = useState<CourseSummary[]>([])
@@ -54,15 +55,18 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
 
   const atLimit = courseLimit !== null && courses.length >= courseLimit
 
+  // loads the courses again
   function reload() {
     setStatus('loading')
     setReloadKey((k) => k + 1)
   }
 
+  // updates one course on screen
   function patchCourse(id: number, changes: Partial<CourseSummary>) {
     setCourses((current) => current.map((c) => (c.id === id ? { ...c, ...changes } : c)))
   }
 
+  // deletes a course and takes it off the grid
   async function remove(id: number) {
     try {
       await deleteCourse(id)
@@ -96,6 +100,7 @@ export function CoursesPage({ onOpenCourse }: { onOpenCourse: (courseId: number)
     </div>
   )
 
+  // the "new course" tile; the large one is shown when there are none yet
   const newTile = (large: boolean) => (
     <button
       type="button"

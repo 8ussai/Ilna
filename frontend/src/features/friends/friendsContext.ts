@@ -16,6 +16,7 @@ export type Friends = {
   openProfile: (username: string) => void
 }
 
+// does nothing (outside Home there's no list)
 const noop = async () => {}
 
 // outside Home (the admin panel) there's no list: no ★, nothing to open
@@ -30,6 +31,7 @@ export const FriendsContext = createContext<Friends>({
   openProfile: () => {},
 })
 
+// the shared friends list
 export function useFriends() {
   return useContext(FriendsContext)
 }

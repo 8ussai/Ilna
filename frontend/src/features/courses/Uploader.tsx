@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { formatBytes } from '../../lib/bytes'
 import type { Upload } from './uploadQueue'
 
+// a drop area that also opens the file picker
 export function DropZone({
   label,
   hint,
@@ -21,6 +22,7 @@ export function DropZone({
   const inputId = useId()
   const [dragging, setDragging] = useState(false)
 
+  // takes the dropped files
   function onDrop(e: DragEvent) {
     e.preventDefault()
     setDragging(false)
@@ -69,6 +71,7 @@ export function DropZone({
   )
 }
 
+// the uploads in progress, done or failed, with retry and dismiss
 export function UploadList({
   items,
   onRetry,
@@ -131,6 +134,7 @@ export function UploadList({
   )
 }
 
+// a check mark icon
 export function CheckIcon() {
   return (
     <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-success" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

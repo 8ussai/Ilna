@@ -50,6 +50,7 @@ export function AdminApp() {
   const maintenance = useAdminMaintenance(!!token)
   const siteStatus = maintenance.status
 
+  // refreshes the waiting counts on the Reports and Contact tabs
   const refreshCounts = useCallback(() => {
     fetchOpenReportCount()
       .then((result) => setWaiting((w) => ({ ...w, reports: result.count })))
@@ -59,6 +60,7 @@ export function AdminApp() {
       .catch(() => {})
   }, [])
 
+  // opens a section of the panel and keeps it in the address
   function openSection(next: Section) {
     setSection(next)
     window.history.replaceState(null, '', `/admin#${next}`)
@@ -66,6 +68,7 @@ export function AdminApp() {
     refreshCounts()
   }
 
+  // saves or clears the admin login
   function updateToken(next: string | null) {
     setAdminToken(next)
     setTokenState(next)

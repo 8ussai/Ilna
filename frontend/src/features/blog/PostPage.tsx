@@ -44,6 +44,7 @@ export function PostPage({
     }
   }, [postId, reloadKey])
 
+  // updates the post on screen
   function patchPost(changes: Partial<Post>) {
     setPost((current) => (current ? { ...current, ...changes } : current))
   }
@@ -60,6 +61,7 @@ export function PostPage({
     }
   }
 
+  // deletes the post and shows it's gone
   async function remove() {
     try {
       await deletePost(postId)

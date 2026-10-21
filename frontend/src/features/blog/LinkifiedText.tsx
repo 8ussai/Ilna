@@ -7,6 +7,7 @@ const TRAILING = /[.,!?;:'"،؛؟]+$/
 // links longer than this are shortened on screen; the full address is still what opens
 const MAX_SHOWN = 60
 
+// a found address without the punctuation after it
 function trimLink(raw: string): string {
   let link = raw.replace(TRAILING, '')
   // a closing bracket belongs to the link only if the link also opened one, like Wikipedia's (disambiguation)
@@ -26,6 +27,7 @@ function safeHref(link: string): string | null {
   }
 }
 
+// how a link is shown: without http(s)://, shortened if long
 function shown(link: string): string {
   const bare = link.replace(/^https?:\/\//i, '')
   return bare.length > MAX_SHOWN ? `${bare.slice(0, MAX_SHOWN - 1)}…` : bare

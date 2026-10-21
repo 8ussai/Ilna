@@ -46,6 +46,7 @@ export function ReportButton({ kind, id }: { kind: 'post' | 'reply'; id: number 
   )
 }
 
+// asks why the post or reply is being reported
 function ReportDialog({ kind, id, onClose, onDone }: { kind: 'post' | 'reply'; id: number; onClose: () => void; onDone: () => void }) {
   const { t } = useTranslation()
   const [reason, setReason] = useState<ReportReason | null>(null)
@@ -54,6 +55,7 @@ function ReportDialog({ kind, id, onClose, onDone }: { kind: 'post' | 'reply'; i
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  // sends the report
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

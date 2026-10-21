@@ -32,12 +32,14 @@ export function AdminLogin({ onAuthenticated }: { onAuthenticated: (token: strin
   const emailError = !email.trim() ? t('errors.required') : !EMAIL_RE.test(email.trim()) ? t('errors.emailInvalid') : undefined
   const codeError = !code ? t('errors.required') : !/^\d{6}$/.test(code) ? t('errors.otpFormat') : undefined
 
+  // shows why sending or checking the code failed
   function showError(err: unknown) {
     if (err instanceof ApiError && err.status === 0) setFormError(t('errors.network'))
     else if (err instanceof ApiError && err.status === 503) setFormError(t('admin.login.emailDown'))
     else setFormError(t('errors.generic'))
   }
 
+  // asks for a login code; true when it went out
   async function sendCode() {
     setBusy(true)
     setFormError('')
@@ -54,6 +56,7 @@ export function AdminLogin({ onAuthenticated }: { onAuthenticated: (token: strin
     }
   }
 
+  // sends the code and shows the code step
   async function onEmailSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -64,6 +67,7 @@ export function AdminLogin({ onAuthenticated }: { onAuthenticated: (token: strin
     }
   }
 
+  // sends another code
   async function onResend() {
     if (await sendCode()) {
       setCode('')
@@ -72,6 +76,7 @@ export function AdminLogin({ onAuthenticated }: { onAuthenticated: (token: strin
     }
   }
 
+  // logs in with the code
   async function onCodeSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

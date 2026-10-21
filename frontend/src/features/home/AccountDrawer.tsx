@@ -34,6 +34,7 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
     if (!open) return
     closeRef.current?.focus()
 
+    // Esc closes the drawer, unless the premium dialog is open on top
     function onKey(e: KeyboardEvent) {
       // Esc in the premium dialog closes just the dialog
       if (e.key === 'Escape' && !premiumOpenRef.current) onClose()
@@ -150,6 +151,7 @@ type DrawerLinkProps = {
   children: ReactNode
 }
 
+// one link in the account drawer, with an optional count badge
 function DrawerLink({ page, onOpen, label, badge = 0, children }: DrawerLinkProps) {
   const { t } = useTranslation()
   return (

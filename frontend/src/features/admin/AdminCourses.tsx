@@ -45,6 +45,7 @@ export function AdminCourses() {
     }
   }, [trimmed])
 
+  // adds the next page of courses
   async function loadMore() {
     if (!page) return
     setLoadingMore(true)
@@ -58,6 +59,7 @@ export function AdminCourses() {
     }
   }
 
+  // removes the course with the given reason
   async function confirmRemove(reason: string) {
     if (!removing) return
     await removeAdminCourse(removing.id, reason)
@@ -122,6 +124,7 @@ export function AdminCourses() {
   )
 }
 
+// one public course, opening to its files, links and notes
 function CourseRow({ course, onRemove }: { course: AdminCourse; onRemove: () => void }) {
   const { t, i18n } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -135,6 +138,7 @@ function CourseRow({ course, onRemove }: { course: AdminCourse; onRemove: () => 
       .catch(() => setError(t('errors.generic')))
   }, [open, detail, course.id, t])
 
+  // opens a course file in a new tab
   async function openFile(materialId: number) {
     setError('')
     // opened before the download finishes, so the browser doesn't treat it as a pop-up

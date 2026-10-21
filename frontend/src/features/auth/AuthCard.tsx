@@ -6,10 +6,12 @@ import { RegisterForm } from './RegisterForm'
 
 type Tab = 'login' | 'signup'
 
+// the sign-in card on the landing page: Log in and Sign up tabs
 export function AuthCard({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t } = useTranslation()
   const [tab, setTab] = useState<Tab>('login')
 
+  // a tab's look, raised when it's the open one
   const tabClass = (active: boolean) =>
     `h-10 flex-1 rounded-md text-sm font-medium ${active ? 'bg-card shadow-sm' : 'text-muted hover:text-fg'}`
 

@@ -35,6 +35,7 @@ const chevron = (
   </svg>
 )
 
+// a link to a settings page that opens without reloading
 function PageLink({ page, onNavigate, className, children }: { page: SettingsPage; onNavigate: (page: SettingsPage) => void; className: string; children: ReactNode }) {
   return (
     <a href={settingsPath(page)} onClick={inAppClick(() => onNavigate(page))} className={className}>
@@ -43,10 +44,12 @@ function PageLink({ page, onNavigate, className, children }: { page: SettingsPag
   )
 }
 
+// Settings: the menu, or one of its pages
 export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost, onMeChange }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
+    // one row of the settings menu
     const row = (target: Exclude<SettingsPage, 'home'>, icon: ReactNode) => (
       <li>
         <PageLink page={target} onNavigate={onNavigate} className="flex items-center gap-4 px-5 py-4 hover:bg-surface">
@@ -116,6 +119,7 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
   )
 }
 
+// Settings > Appearance: theme color presets, and any color for premium
 function AppearancePage({ me, onMeChange }: { me: Me; onMeChange: (me: Me) => void }) {
   const { t } = useTranslation()
   const current = me.accent_color ?? DEFAULT_ACCENT
@@ -130,6 +134,7 @@ function AppearancePage({ me, onMeChange }: { me: Me; onMeChange: (me: Me) => vo
   }, [me])
   useEffect(() => () => applyAccent(meRef.current.accent_color, meRef.current.is_premium), [])
 
+  // saves a theme color, putting it back if saving fails
   function save(value: string) {
     setSaving(true)
     setStatus(null)
@@ -146,6 +151,7 @@ function AppearancePage({ me, onMeChange }: { me: Me; onMeChange: (me: Me) => vo
       .finally(() => setSaving(false))
   }
 
+  // shows a picked custom color before it's saved
   function preview(value: string) {
     setCustom(value)
     setStatus(null)
@@ -237,17 +243,20 @@ function AppearancePage({ me, onMeChange }: { me: Me; onMeChange: (me: Me) => vo
   )
 }
 
+// Settings > Storage: how much of the limit is used
 function StoragePage() {
   const { t, i18n } = useTranslation()
   const [storage, setStorage] = useState<Storage | null>(null)
   const [failed, setFailed] = useState(false)
 
+  // loads the storage numbers
   const load = useCallback(() => {
     fetchStorage()
       .then(setStorage)
       .catch(() => setFailed(true))
   }, [])
 
+  // tries loading again
   function retry() {
     setFailed(false)
     load()
@@ -353,6 +362,7 @@ function PolicyPage() {
   )
 }
 
+// Settings > Account: the sign-up details and the password form
 function AccountPage({ me, catalog, onPasswordChanged }: { me: Me; catalog: Catalog | null; onPasswordChanged: () => void }) {
   const { t, i18n } = useTranslation()
   const names = catalogNames(catalog, me, i18n.language)

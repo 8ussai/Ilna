@@ -7,6 +7,7 @@ import { WARN_BEFORE_MS } from './maintenance'
 
 const DISMISSED_KEY = 'ilna-maintenance-dismissed'
 
+// which closing-soon warning was dismissed, if any
 function readDismissed() {
   try {
     return localStorage.getItem(DISMISSED_KEY)
@@ -27,6 +28,7 @@ export function MaintenanceWarning({ status, serverNow }: { status: MaintenanceS
   const key = `${status.starts_at}|${status.ends_at}`
   if (dismissed === key || startsAt.getTime() - serverNow() > WARN_BEFORE_MS) return null
 
+  // hides this warning until a new one comes
   function dismiss() {
     setDismissed(key)
     try {

@@ -22,6 +22,7 @@ export const MAX_DRAWING_BYTES = 1_000_000
 const LINE_GAP = 64
 const MARGIN_TOP = 160
 
+// a blank page with the given background
 export function emptyDrawing(background: Background = 'lined'): Drawing {
   return { version: 1, width: PAGE_WIDTH, height: PAGE_HEIGHT, background, strokes: [] }
 }
@@ -47,6 +48,7 @@ export function parseDrawing(content: string): Drawing {
 
 // one decimal is far finer than a pixel and keeps a page of handwriting well under the size cap
 export function serializeDrawing(drawing: Drawing) {
+  // rounds to one decimal, to keep the saved JSON small
   const round = (n: number) => Math.round(n * 10) / 10
   return JSON.stringify({
     ...drawing,
@@ -54,6 +56,7 @@ export function serializeDrawing(drawing: Drawing) {
   })
 }
 
+// how thick a stroke is drawn; highlighters are wider
 function strokeWidth(stroke: Pick<Stroke, 'tool' | 'size'>) {
   return stroke.tool === 'highlighter' ? stroke.size * HIGHLIGHTER_SCALE : stroke.size
 }
@@ -61,6 +64,7 @@ function strokeWidth(stroke: Pick<Stroke, 'tool' | 'size'>) {
 // perfect-freehand turns the points into a filled outline; outlines are cached per stroke
 const outlines = new WeakMap<Stroke, Path2D>()
 
+// a stroke's outline as a path, cached once it's finished
 function outlinePath(stroke: Stroke, last = true) {
   const cached = last ? outlines.get(stroke) : undefined
   if (cached) return cached
@@ -103,6 +107,7 @@ export function drawStroke(ctx: CanvasRenderingContext2D, stroke: Stroke, last =
   ctx.restore()
 }
 
+// draws the page's lines, grid or nothing
 function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
   ctx.save()
   ctx.fillStyle = '#ffffff'
@@ -127,11 +132,13 @@ function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
   ctx.restore()
 }
 
+// draws a whole page: background, then strokes
 export function drawPage(ctx: CanvasRenderingContext2D, drawing: Pick<Drawing, 'background' | 'strokes'>) {
   drawBackground(ctx, drawing.background)
   for (const stroke of drawing.strokes) drawStroke(ctx, stroke)
 }
 
+// how far a point is from a line segment, for the eraser
 function distanceToSegment(px: number, py: number, [ax, ay]: Point, [bx, by]: Point) {
   const dx = bx - ax
   const dy = by - ay

@@ -5,6 +5,7 @@ import { createContext, useContext } from 'react'
 // those changes either way. CoursePage provides it.
 export const CourseCanEditContext = createContext(true)
 
+// false inside a course added from someone else (read-only)
 export function useCourseCanEdit() {
   return useContext(CourseCanEditContext)
 }

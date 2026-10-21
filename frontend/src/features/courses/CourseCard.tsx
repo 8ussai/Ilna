@@ -25,6 +25,7 @@ type CourseCardProps = {
 
 type OpenDialog = 'rename' | 'look' | 'delete' | 'leave' | null
 
+// one course in the grid, with its menu and dialogs
 export function CourseCard({ course, onOpen, onUpdate, onDelete, onLeave }: CourseCardProps) {
   const { t, i18n } = useTranslation()
   const [dialog, setDialog] = useState<OpenDialog>(null)
@@ -102,6 +103,7 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete, onLeave }: Cour
 // label, action, and whether it's the destructive one
 type MenuItem = [string, () => void, boolean?]
 
+// the ⋯ menu on a course card
 function CardMenu({ courseTitle, items }: { courseTitle: string; items: MenuItem[] }) {
   const { t } = useTranslation()
   const [open, setOpen] = useState(false)
@@ -111,6 +113,7 @@ function CardMenu({ courseTitle, items }: { courseTitle: string; items: MenuItem
   useEffect(() => {
     if (!open) return
     menuRef.current?.querySelector<HTMLElement>('[role="menuitem"]')?.focus()
+    // closes the menu on a click outside it
     function onPointer(e: PointerEvent) {
       if (!menuRef.current?.contains(e.target as Node) && !buttonRef.current?.contains(e.target as Node)) setOpen(false)
     }
@@ -118,6 +121,7 @@ function CardMenu({ courseTitle, items }: { courseTitle: string; items: MenuItem
     return () => document.removeEventListener('pointerdown', onPointer)
   }, [open])
 
+  // arrow keys move through the menu, Esc closes it
   function onMenuKey(e: KeyboardEvent<HTMLUListElement>) {
     const items = [...(menuRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? [])]
     const index = items.indexOf(document.activeElement as HTMLElement)
@@ -192,6 +196,7 @@ function useSave(onClose: () => void) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  // runs a save, showing it's busy and any error, and closes on success
   async function run(save: () => Promise<void>) {
     setBusy(true)
     setError('')
@@ -207,6 +212,7 @@ function useSave(onClose: () => void) {
   return { busy, error, run }
 }
 
+// a dialog's Cancel and submit buttons
 function DialogButtons({ busy, submitLabel, onCancel, danger }: { busy: boolean; submitLabel: string; onCancel: () => void; danger?: boolean }) {
   const { t } = useTranslation()
   return (
@@ -221,12 +227,14 @@ function DialogButtons({ busy, submitLabel, onCancel, danger }: { busy: boolean;
   )
 }
 
+// renaming a course
 function RenameDialog({ title, onClose, onSave }: { title: string; onClose: () => void; onSave: (title: string) => Promise<void> }) {
   const { t } = useTranslation()
   const [value, setValue] = useState(title)
   const [fieldError, setFieldError] = useState('')
   const { busy, error, run } = useSave(onClose)
 
+  // saves the new title
   function submit(e: FormEvent) {
     e.preventDefault()
     const trimmed = value.trim()
@@ -266,6 +274,7 @@ function RenameDialog({ title, onClose, onSave }: { title: string; onClose: () =
   )
 }
 
+// changing a course's color
 function LookDialog({
   course,
   onClose,
@@ -279,6 +288,7 @@ function LookDialog({
   const [color, setColor] = useState(course.color)
   const { busy, error, run } = useSave(onClose)
 
+  // saves the color
   function submit(e: FormEvent) {
     e.preventDefault()
     run(() => onSave(color))
@@ -299,6 +309,7 @@ function LookDialog({
   )
 }
 
+// confirming taking an added course off the list
 function LeaveDialog({ course, onClose, onLeave }: { course: CourseSummary; onClose: () => void; onLeave: () => Promise<void> }) {
   const { t } = useTranslation()
   const { busy, error, run } = useSave(onClose)
@@ -326,6 +337,7 @@ function LeaveDialog({ course, onClose, onLeave }: { course: CourseSummary; onCl
   )
 }
 
+// confirming deleting a course
 function DeleteDialog({ course, onClose, onDelete }: { course: CourseSummary; onClose: () => void; onDelete: () => Promise<void> }) {
   const { t } = useTranslation()
   const { busy, error, run } = useSave(onClose)

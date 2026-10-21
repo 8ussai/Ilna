@@ -19,6 +19,7 @@ type NotificationsPageProps = {
   onMarkedRead: (count: number) => void
 }
 
+// the text key for a notification's sentence
 function messageKey(n: AppNotification) {
   switch (n.type) {
     case 'post_vote':
@@ -47,6 +48,7 @@ function messageKey(n: AppNotification) {
 // stands in for the name in the translated sentence, so the name can be put back styled (gold for premium)
 const NAME_MARK = '\u0001'
 
+// the sentence with the actor's styled name put in place of the mark
 function withName(text: string, actor: AppNotification['actor']) {
   const at = text.indexOf(NAME_MARK)
   if (at === -1) return text
@@ -61,6 +63,7 @@ function withName(text: string, actor: AppNotification['actor']) {
 
 // an admin message longer than this (or with line breaks) folds, with a button to show it all
 const FOLD_CHARS = 160
+// whether an admin message is long enough to fold
 const folds = (n: AppNotification) => n.type === 'admin_message' && (n.preview.length > FOLD_CHARS || n.preview.includes('\n'))
 
 // Every vote and reply on the user's posts and replies, newest first. Opening the page marks what it
@@ -87,6 +90,7 @@ export function NotificationsPage({ onOpenPost, onOpenCourses, onMarkedRead }: N
     [onMarkedRead],
   )
 
+  // loads the first page of notifications and marks the unread ones read
   const load = useCallback(() => {
     fetchNotifications()
       .then((page) => {
@@ -100,11 +104,13 @@ export function NotificationsPage({ onOpenPost, onOpenCourses, onMarkedRead }: N
 
   useEffect(load, [load])
 
+  // tries loading again
   function retry() {
     setStatus('loading')
     load()
   }
 
+  // adds the next page
   async function loadMore() {
     setLoadingMore(true)
     try {

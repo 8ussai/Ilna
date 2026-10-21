@@ -45,6 +45,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
 
   const cssHeight = (cssWidth * PAGE_HEIGHT) / PAGE_WIDTH
 
+  // sizes a canvas for the screen's pixel density and scales it to the page
   function prepare(canvas: HTMLCanvasElement | null) {
     if (!canvas || cssWidth === 0) return null
     const dpr = window.devicePixelRatio || 1
@@ -63,6 +64,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     return ctx
   }
 
+  // redraws the finished strokes
   function paintMain() {
     const ctx = prepare(mainRef.current)
     if (!ctx) return
@@ -70,6 +72,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     drawPage(ctx, { background: drawing.background, strokes: hidden?.size ? drawing.strokes.filter((s) => !hidden.has(s)) : drawing.strokes })
   }
 
+  // draws the stroke being made, on its own layer
   function paintOverlay() {
     frameRef.current = 0
     const ctx = prepare(overlayRef.current)
@@ -90,17 +93,20 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
 
   useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
 
+  // a screen point in page coordinates
   function toPage(e: { clientX: number; clientY: number }): [number, number] {
     const rect = overlayRef.current!.getBoundingClientRect()
     return [((e.clientX - rect.left) / rect.width) * PAGE_WIDTH, ((e.clientY - rect.top) / rect.height) * PAGE_HEIGHT]
   }
 
+  // a pointer event as a stroke point, with pressure
   function pointOf(e: PointerEvent | ReactPointerEvent): Point {
     const [x, y] = toPage(e)
     // mouse and finger report 0.5 (or 0); only a pen's pressure means anything
     return [x, y, e.pointerType === 'pen' && e.pressure > 0 ? e.pressure : 0.5]
   }
 
+  // erases the strokes under the pointer
   function eraseAt(e: { clientX: number; clientY: number }) {
     const erasing = erasingRef.current
     if (!erasing) return
@@ -115,6 +121,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     if (changed) paintMain()
   }
 
+  // drops a stroke in progress (e.g. when a second finger starts scrolling)
   function cancelGesture() {
     liveRef.current = null
     if (erasingRef.current) {
@@ -124,6 +131,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     paintOverlay()
   }
 
+  // starts a stroke or an erase; touch is ignored once a pen has been used
   function onPointerDown(e: ReactPointerEvent<HTMLCanvasElement>) {
     if (e.pointerType === 'pen') penSeenRef.current = true
     if (e.pointerType === 'touch') {
@@ -152,6 +160,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     paintOverlay()
   }
 
+  // adds points to the stroke, or erases along the way
   function onPointerMove(e: ReactPointerEvent<HTMLCanvasElement>) {
     const touches = touchesRef.current
     if (e.pointerType === 'touch' && touches.has(e.pointerId) && (penSeenRef.current || touches.size > 1)) {
@@ -175,6 +184,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     if (!frameRef.current) frameRef.current = requestAnimationFrame(paintOverlay)
   }
 
+  // finishes the stroke
   function onPointerEnd(e: ReactPointerEvent<HTMLCanvasElement>, cancelled: boolean) {
     touchesRef.current.delete(e.pointerId)
     const erasing = erasingRef.current

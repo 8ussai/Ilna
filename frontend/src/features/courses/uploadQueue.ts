@@ -59,15 +59,18 @@ export function useUploadQueue({ courseId, onUploaded, keepDone = true }: Upload
     return () => controller.abort()
   }, [])
 
+  // sets the queue and shows it
   function setQueue(next: Upload[]) {
     queueRef.current = next
     setUploads(next)
   }
 
+  // changes one upload
   function update(key: number, changes: Partial<Upload>) {
     setQueue(queueRef.current.map((u) => (u.key === key ? { ...u, ...changes } : u)))
   }
 
+  // uploads the queued files one at a time
   async function pump() {
     if (runningRef.current) return
     runningRef.current = true
@@ -82,6 +85,7 @@ export function useUploadQueue({ courseId, onUploaded, keepDone = true }: Upload
     }
   }
 
+  // uploads one file, with its length if it's audio
   async function uploadOne(item: Upload) {
     const { file, key } = item
     const tooBig = t('courses.upload.tooBig', { max: formatBytes(MAX_UPLOAD_BYTES, i18n.language) })
@@ -142,11 +146,13 @@ export function useUploadQueue({ courseId, onUploaded, keepDone = true }: Upload
     pump()
   }
 
+  // queues a failed upload again
   function retry(key: number) {
     update(key, { status: 'queued', error: undefined, progress: 0 })
     pump()
   }
 
+  // takes an upload off the list
   function dismiss(key: number) {
     setQueue(queueRef.current.filter((u) => u.key !== key))
   }
@@ -161,6 +167,7 @@ export function extensionList(extensions: string[]) {
   return `⁦${extensions.map((e) => `.${e}`).join(', ')}⁩`
 }
 
+// the file picker's accept list for these extensions
 export function acceptList(extensions: string[]) {
   return extensions.map((e) => `.${e}`).join(',')
 }
@@ -170,6 +177,7 @@ function audioDuration(file: File): Promise<number | null> {
   return new Promise((resolve) => {
     const url = URL.createObjectURL(file)
     const audio = new Audio()
+    // gives the length once known (or null) and cleans up
     const done = (value: number | null) => {
       URL.revokeObjectURL(url)
       clearTimeout(timer)

@@ -20,6 +20,7 @@ export function ChangePasswordForm({ onChanged }: { onChanged: () => void }) {
   const [currentWrong, setCurrentWrong] = useState(false)
   const [formError, setFormError] = useState('')
 
+  // what's wrong with the fields, if anything
   function errors() {
     const required = t('errors.required')
     return {
@@ -36,8 +37,10 @@ export function ChangePasswordForm({ onChanged }: { onChanged: () => void }) {
   }
 
   const e = errors()
+  // a field's error, once the form has been submitted
   const show = (field: keyof typeof e) => (submitted ? e[field] : undefined)
 
+  // changes the password, then the app logs out
   async function onSubmit(event: FormEvent) {
     event.preventDefault()
     setSubmitted(true)

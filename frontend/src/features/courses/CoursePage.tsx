@@ -40,6 +40,7 @@ type CoursePageProps = {
   onBack: () => void
 }
 
+// a course: header, tabs for its files, links, recordings, notes, summaries and quizzes
 export function CoursePage({ courseId, section, studyItemId, onSectionChange, onBack }: CoursePageProps) {
   const { t } = useTranslation()
   const [course, setCourse] = useState<CourseDetail | null>(null)
@@ -152,9 +153,13 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
     )
   }
 
+  // updates the course on screen
   const update = (changes: Partial<CourseDetail>) => setCourse((current) => current && { ...current, ...changes })
+  // adds a new file or recording to the list
   const addMaterial = (material: CourseMaterial) => update({ materials: [material, ...materials] })
+  // replaces a changed file or recording
   const changeMaterial = (material: CourseMaterial) => update({ materials: materials.map((m) => (m.id === material.id ? material : m)) })
+  // takes a deleted file or recording off the list
   const removeMaterial = (id: number) => update({ materials: materials.filter((m) => m.id !== id) })
 
   const byNewest = [...materials].sort((a, b) => b.id - a.id)
@@ -176,12 +181,15 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
   const sections = COURSE_SECTIONS.filter((name) => counts[name] > 0 || name === section || !(name === 'summaries' || name === 'quizzes'))
   const shownSection: CourseSection = sections.includes(section) ? section : 'materials'
 
+  // opens a new summary or quiz in its tab
   function openStudyItem(item: StudyItemSummary) {
     setStudyItems((current) => [item, ...current])
     setGenerating(null)
     onSectionChange(STUDY_SECTIONS[item.kind])
   }
+  // replaces a changed summary or quiz
   const changeStudyItem = (item: StudyItemSummary) => setStudyItems((current) => current.map((i) => (i.id === item.id ? item : i)))
+  // takes a deleted summary or quiz off the list
   const removeStudyItem = (id: number) => setStudyItems((current) => current.filter((i) => i.id !== id))
 
   return (
@@ -351,6 +359,7 @@ function SectionTabs({
     listRef.current?.querySelector(`#course-tab-${section}`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' })
   }, [section])
 
+  // arrow keys and Home/End move between tabs
   function onKeyDown(e: KeyboardEvent<HTMLDivElement>) {
     const index = sections.indexOf(section)
     const rtl = getComputedStyle(e.currentTarget).direction === 'rtl'

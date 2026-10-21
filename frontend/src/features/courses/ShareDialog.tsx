@@ -40,6 +40,7 @@ export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number
       .catch(() => setFailed(true))
   }, [courseId])
 
+  // saves a sharing change and shows the result
   async function apply(run: () => Promise<Sharing>) {
     setBusy(true)
     setError('')
@@ -74,6 +75,7 @@ export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number
     await apply(run)
   }
 
+  // copies the course ID
   async function copyCode() {
     if (!sharing) return
     try {
@@ -95,6 +97,7 @@ export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number
     )
   }
 
+  // the share for a group, if the course is shared with it
   const groupShare = (type: ShareTargetType) => sharing.shares.find((s) => s.target_type === type)
   const people = sharing.shares.filter((s) => s.target_type === 'user' && s.user)
 

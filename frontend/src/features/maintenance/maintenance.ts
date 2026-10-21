@@ -27,6 +27,7 @@ export function useMaintenance(): Maintenance {
   // several requests refused at once (e.g. the app loading) ask for one check, not one each
   const inFlight = useRef(false)
 
+  // asks the server whether the site is open, closing soon or closed
   const refresh = useCallback(() => {
     if (inFlight.current) return
     inFlight.current = true
@@ -62,6 +63,7 @@ export function useMaintenance(): Maintenance {
     }
   }, [refresh])
 
+  // the server's clock, so countdowns don't depend on the visitor's
   const serverNow = useCallback(() => Date.now() + offset.current, [])
   return { status, serverNow, refresh }
 }

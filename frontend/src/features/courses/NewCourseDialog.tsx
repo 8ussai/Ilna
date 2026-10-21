@@ -43,6 +43,7 @@ export function NewCourseDialog({ onClose, onDone }: NewCourseDialogProps) {
   )
 }
 
+// the second step of a new course: add files, recordings or links
 function AddContentStep({ course, onDone }: { course: Course; onDone: () => void }) {
   const { t, i18n } = useTranslation()
   const { uploads, storageLeft, busy, addFiles, retry } = useUploadQueue({ courseId: course.id })
@@ -54,6 +55,7 @@ function AddContentStep({ course, onDone }: { course: Course; onDone: () => void
   // the Create button that had focus is gone, so start step 2 at its intro
   useEffect(() => introRef.current?.focus(), [])
 
+  // waits for uploads to finish, then opens the course
   async function finish() {
     setFinishing(true)
     const saved = (await linkFormRef.current?.flush()) ?? true

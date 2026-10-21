@@ -36,12 +36,14 @@ export function AdminContact({ catalog, onChanged }: { catalog: Catalog | null; 
     }
   }, [filter])
 
+  // shows open, handled or all messages
   function chooseFilter(next: ContactFilter) {
     setStatus('loading')
     setNotice('')
     setFilter(next)
   }
 
+  // adds the next page of messages
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -55,6 +57,7 @@ export function AdminContact({ catalog, onChanged }: { catalog: Catalog | null; 
     }
   }
 
+  // marks a message handled, or open again
   async function toggleHandled(message: AdminContactMessage) {
     setNotice('')
     try {
@@ -123,6 +126,7 @@ export function AdminContact({ catalog, onChanged }: { catalog: Catalog | null; 
   )
 }
 
+// one contact message with its sender
 function ContactCard({ message, catalog, onToggle }: { message: AdminContactMessage; catalog: Catalog | null; onToggle: () => void }) {
   const { t, i18n } = useTranslation()
   const [busy, setBusy] = useState(false)

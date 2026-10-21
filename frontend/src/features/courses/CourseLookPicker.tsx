@@ -34,6 +34,7 @@ export function CourseLookPicker({ color, onColorChange }: CourseLookPickerProps
   )
 }
 
+// one color choice
 function Swatch({ selected, label, onSelect, className }: { selected: boolean; label: string; onSelect: () => void; className: string }) {
   return (
     <button

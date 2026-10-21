@@ -20,6 +20,7 @@ type LinksTabProps = {
   onDeleted: (linkId: number) => void
 }
 
+// the Links tab: the course's saved links and the form to add one
 export function LinksTab({ courseId, links, onAdded, onChanged, onDeleted }: LinksTabProps) {
   const { t } = useTranslation()
   const canEdit = useCourseCanEdit()
@@ -48,6 +49,7 @@ export function LinksTab({ courseId, links, onAdded, onChanged, onDeleted }: Lin
   )
 }
 
+// a link's site name, shown under its title
 function hostOf(url: string) {
   try {
     return new URL(url).host.replace(/^www\./, '')
@@ -56,6 +58,7 @@ function hostOf(url: string) {
   }
 }
 
+// one link, with edit and delete
 function LinkRow({
   courseId,
   link,
@@ -72,6 +75,7 @@ function LinkRow({
   const [editing, setEditing] = useState(false)
   const [error, setError] = useState('')
 
+  // deletes the link
   async function remove() {
     setError('')
     try {
@@ -153,6 +157,7 @@ function Favicon({ url }: { url: string }) {
   )
 }
 
+// changing a link's title or address
 function LinkEditForm({
   courseId,
   link,
@@ -170,6 +175,7 @@ function LinkEditForm({
   const [errors, setErrors] = useState<{ title?: string; url?: string; form?: string }>({})
   const [busy, setBusy] = useState(false)
 
+  // saves the changed link
   async function submit(e: FormEvent) {
     e.preventDefault()
     const next: typeof errors = {}

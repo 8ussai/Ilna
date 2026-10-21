@@ -51,6 +51,7 @@ export function AiRail({ onUse }: { onUse?: (feature: AiFeature) => void }) {
   )
 }
 
+// one AI tool button; tools not live yet show "Soon"
 function RailButton({
   feature,
   live,

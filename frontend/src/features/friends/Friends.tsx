@@ -38,6 +38,7 @@ export function FriendButton({ profile }: { profile: PublicProfile }) {
 
   if (readOnly) return null
 
+  // adds or removes the friend
   async function toggle() {
     setBusy(true)
     setError('')

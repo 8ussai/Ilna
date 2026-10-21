@@ -28,6 +28,7 @@ export function ActivityPage({ me, catalog, onOpenPost }: ActivityPageProps) {
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
 
+  // loads the first page of the student's posts and replies
   const load = useCallback(() => {
     fetchActivity()
       .then((page) => {
@@ -40,11 +41,13 @@ export function ActivityPage({ me, catalog, onOpenPost }: ActivityPageProps) {
 
   useEffect(load, [load])
 
+  // tries loading again
   function retry() {
     setStatus('loading')
     load()
   }
 
+  // adds the next page
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -60,6 +63,7 @@ export function ActivityPage({ me, catalog, onOpenPost }: ActivityPageProps) {
 
   // own posts are always in the user's own groups, so their names come from the user's catalog entries
   const names = catalogNames(catalog, me, i18n.language)
+  // the blog's name: General, or the student's university, college or major
   const blogName = (scope: ActivityItem['scope']) =>
     scope === 'general' ? t('tabs.general') : (names[scope] ?? t(`tabs.${scope}`))
 

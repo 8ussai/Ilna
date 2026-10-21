@@ -26,6 +26,7 @@ export function CourseDetailsForm({ initial, submitLabel, onSubmit, onCancel }: 
   const [errors, setErrors] = useState<{ title?: string; form?: string }>({})
   const [busy, setBusy] = useState(false)
 
+  // checks the title and saves
   async function submit(e: FormEvent) {
     e.preventDefault()
     const next: typeof errors = {}

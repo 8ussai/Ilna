@@ -17,6 +17,7 @@ export function useAdminMaintenance(enabled: boolean): AdminMaintenanceState {
   const [status, setStatusState] = useState<MaintenanceStatus | null>(null)
   const offset = useRef(0)
 
+  // keeps the status and the gap between the server's clock and this one
   const setStatus = useCallback((next: MaintenanceStatus) => {
     offset.current = parseServerDate(next.server_now).getTime() - Date.now()
     setStatusState(next)
@@ -24,12 +25,14 @@ export function useAdminMaintenance(enabled: boolean): AdminMaintenanceState {
 
   useEffect(() => {
     if (!enabled) return
+    // fetches the status
     const load = () => fetchMaintenance().then(setStatus).catch(() => {})
     load()
     const timer = setInterval(load, POLL_MS)
     return () => clearInterval(timer)
   }, [enabled, setStatus])
 
+  // the server's clock, for the countdown
   const serverNow = useCallback(() => Date.now() + offset.current, [])
   return { status, serverNow, setStatus }
 }

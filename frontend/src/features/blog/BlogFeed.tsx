@@ -51,12 +51,14 @@ export function BlogFeed({
     }
   }, [scope, sort, reloadKey])
 
+  // loads the blog again from the top, optionally sorted another way
   function reload(nextSort = sort) {
     setStatus('loading')
     setSort(nextSort)
     setReloadKey((k) => k + 1)
   }
 
+  // adds the next page of posts
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -71,6 +73,7 @@ export function BlogFeed({
     }
   }
 
+  // updates one post on screen
   function patchPost(id: number, changes: Partial<Post>) {
     setPosts((current) => current.map((p) => (p.id === id ? { ...p, ...changes } : p)))
   }
@@ -87,6 +90,7 @@ export function BlogFeed({
     }
   }
 
+  // deletes a post and takes it off the list
   async function remove(id: number) {
     try {
       await deletePost(id)

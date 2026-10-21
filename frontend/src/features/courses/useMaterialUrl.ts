@@ -31,6 +31,7 @@ export function useMaterialUrl(courseId: number, materialId: number, enabled: bo
     }
   }, [courseId, materialId, enabled, request])
 
+  // fetches the file again
   const retry = () => setAttempt((n) => n + 1)
   if (!enabled) return { status: 'idle', url: null, retry }
   if (result.request !== request) return { status: 'loading', url: null, retry }

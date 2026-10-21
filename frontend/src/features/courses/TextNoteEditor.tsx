@@ -11,6 +11,7 @@ import { smallSecondaryButton } from '../../components/styles'
 
 type Draft = { title: string; content: string }
 
+// whether two drafts have the same title and text
 const sameDraft = (a: Draft, b: Draft) => a.title === b.title && a.content === b.content
 
 type TextNoteEditorProps = {
@@ -22,6 +23,7 @@ type TextNoteEditorProps = {
   onClose: () => void
 }
 
+// the typed note editor; it saves by itself as you type
 export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: TextNoteEditorProps) {
   const { t } = useTranslation()
   const [draft, setDraft] = useState<Draft>({ title: note?.title ?? '', content: note?.content ?? '' })
@@ -59,11 +61,13 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
     }
   }, [isNew])
 
+  // saves anything left, then closes
   async function close() {
     if (await flush()) onClose()
     else setConfirmLeave(true)
   }
 
+  // deletes the note
   async function remove() {
     const id = noteIdRef.current
     if (id === null) {
@@ -154,6 +158,7 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
   )
 }
 
+// "Saving…", "Saved" or a retry button
 function SaveStatus({ status, onRetry }: { status: AutosaveStatus; onRetry: () => void }) {
   const { t } = useTranslation()
 

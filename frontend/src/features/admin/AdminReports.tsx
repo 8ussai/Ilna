@@ -29,6 +29,7 @@ export function AdminReports({ catalog, onChanged }: { catalog: Catalog | null; 
   const [notice, setNotice] = useState('')
   const [reloadKey, setReloadKey] = useState(0)
 
+  // loads the open reports
   const load = useCallback(() => {
     fetchAdminReports()
       .then((list) => (setGroups(list), setStatus('ready')))
@@ -36,12 +37,14 @@ export function AdminReports({ catalog, onChanged }: { catalog: Catalog | null; 
   }, [])
   useEffect(load, [load, reloadKey])
 
+  // shows a notice and reloads the list and counts
   function refresh(text: string) {
     setNotice(text)
     setReloadKey((k) => k + 1)
     onChanged()
   }
 
+  // closes the reports and leaves the content up
   async function dismiss(group: AdminReportGroup) {
     setNotice('')
     try {
@@ -52,6 +55,7 @@ export function AdminReports({ catalog, onChanged }: { catalog: Catalog | null; 
     }
   }
 
+  // removes the reported content with the given reason
   async function confirmRemove(reason: string) {
     if (!removing) return
     if (removing.kind === 'post') await removePost(removing.id, reason)
@@ -108,8 +112,10 @@ export function AdminReports({ catalog, onChanged }: { catalog: Catalog | null; 
   )
 }
 
+// the #P or #R id of the reported content
 const refOf = (group: AdminReportGroup) => `${group.target_type === 'post' ? 'P' : 'R'}${group.target_id}`
 
+// one reported post or reply with its reports
 function ReportRow({
   group,
   catalog,

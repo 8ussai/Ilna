@@ -9,6 +9,7 @@ const VIEW_MARGIN = 120
 
 // A strip of a drawn note's page, starting just above its first stroke, drawn from the note's JSON.
 export function DrawingThumbnail({ content }: { content: string }) {
+  // the note's strokes, parsed once
   const drawing = useMemo(() => parseDrawing(content), [content])
   const boxRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -24,6 +25,7 @@ export function DrawingThumbnail({ content }: { content: string }) {
     return () => observer.disconnect()
   }, [])
 
+  // where the strip starts: just above the first stroke
   const offsetY = useMemo(() => {
     let top = Infinity
     for (const stroke of drawing.strokes) for (const [, y] of stroke.points) top = Math.min(top, y)

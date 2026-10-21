@@ -24,15 +24,18 @@ const QUICK_ENDS = [
 
 // for <input type="datetime-local">, which works in the admin's own time zone
 function toLocalInput(date: Date) {
+  // a number as two digits
   const pad = (n: number) => String(n).padStart(2, '0')
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`
 }
 
+// a datetime-local value as a Date, or null if it isn't one
 function fromLocalInput(value: string): Date | null {
   const date = new Date(value)
   return value && !Number.isNaN(date.getTime()) ? date : null
 }
 
+// the Maintenance section: close the site for a while, or open it again
 export function AdminMaintenance({ maintenance }: { maintenance: AdminMaintenanceState }) {
   const { t, i18n } = useTranslation()
   const { status, serverNow, setStatus } = maintenance
@@ -79,8 +82,10 @@ export function AdminMaintenance({ maintenance }: { maintenance: AdminMaintenanc
     start: !isOn && !startNow && !start ? t('errors.required') : undefined,
     end: !end ? t('errors.required') : start && end.getTime() <= start.getTime() ? t('admin.maintenance.errorOrder') : undefined,
   }
+  // a field's error, once the form has been submitted
   const show = (field: keyof typeof errors) => (submitted ? errors[field] : undefined)
 
+  // schedules the maintenance window
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -108,6 +113,7 @@ export function AdminMaintenance({ maintenance }: { maintenance: AdminMaintenanc
     }
   }
 
+  // opens the site again now
   async function onEnd() {
     setBusy(true)
     setError('')
@@ -125,6 +131,7 @@ export function AdminMaintenance({ maintenance }: { maintenance: AdminMaintenanc
     }
   }
 
+  // sets the end a quick amount after the start
   function quickEnd(ms: number) {
     const base = start ?? new Date(serverNow())
     setEndAt(toLocalInput(new Date(base.getTime() + ms)))
@@ -315,6 +322,7 @@ function TestUserEntry({ enabled }: { enabled: boolean }) {
       .catch(() => setUsers([]))
   }, [])
 
+  // opens the site as a test user, past maintenance
   async function open(user: AdminUser) {
     setError('')
     try {

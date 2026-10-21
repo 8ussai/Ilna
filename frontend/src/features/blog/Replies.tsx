@@ -52,10 +52,12 @@ function withoutReply(list: Reply[], target: Reply): Reply[] {
   return next
 }
 
+// how many replies are under a reply, at any depth
 function countDescendants(id: number, childrenOf: Map<number | null, Reply[]>): number {
   return (childrenOf.get(id) ?? []).reduce((sum, child) => sum + 1 + countDescendants(child.id, childrenOf), 0)
 }
 
+// one reply with its actions and the replies under it
 function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; actions: Actions }) {
   const { t, i18n } = useTranslation()
   const readOnly = useReadOnly()
@@ -68,6 +70,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
   const created = parseServerDate(reply.created_at)
   const { author } = reply
 
+  // votes on the reply
   async function vote(dir: 1 | -1) {
     setVoting(true)
     setError('')
@@ -80,6 +83,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
     }
   }
 
+  // the author's one switch between anonymous and named
   async function switchAnonymity() {
     setError('')
     try {
@@ -89,6 +93,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
     }
   }
 
+  // deletes the reply
   async function remove() {
     setError('')
     try {
@@ -215,6 +220,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
   )
 }
 
+// a list of replies at one depth
 function ReplyList({ replies, depth, actions, className }: { replies: Reply[]; depth: number; actions: Actions; className?: string }) {
   return (
     <ul className={`space-y-4 ${className ?? ''}`}>
@@ -275,10 +281,12 @@ export function RepliesSection({
     childrenOf.set(reply.parent_id, siblings)
   }
 
+  // updates one reply on screen
   function patchReply(id: number, changes: Partial<Reply>) {
     setReplies((current) => current.map((r) => (r.id === id ? { ...r, ...changes } : r)))
   }
 
+  // posts a reply and adds it to the thread
   async function add(parentId: number | null, content: string, isAnonymous: boolean) {
     const reply = await createReply(postId, content, parentId, isAnonymous)
     setReplies((current) => [...current, reply])

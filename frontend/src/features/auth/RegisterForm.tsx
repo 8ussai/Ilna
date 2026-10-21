@@ -43,10 +43,13 @@ const USERNAME_RE = /^[a-z0-9_]{3,30}$/
 // same as RESERVED_USERNAME_WORDS in backend/config.py: anonymous posts show as "Anonymous N" and "Author"
 const RESERVED_USERNAME_WORDS = ['anonymous', 'author']
 
+// signing up, in two steps: the person, then their university, college and major
 export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t, i18n } = useTranslation()
   const isAr = i18n.language === 'ar'
+  // a catalog entry's name in the page's language
   const nameOf = (n: Named) => (isAr ? n.name_ar : n.name_en)
+  // catalog entries as select options
   const toOptions = (items: Named[]) => items.map((n) => ({ value: n.id, label: nameOf(n) }))
 
   const [catalog, setCatalog] = useState<Catalog | null>(null)
@@ -77,6 +80,7 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
 
   // Each dropdown depends on the previous one; changing it clears everything after it.
   const chain: (keyof Values)[] = ['country', 'university', 'college', 'major']
+  // picks a country, university, college or major, clearing the choices under it
   function setChoice(field: keyof Values, value: string) {
     setValues((v) => {
       const next = { ...v, [field]: value }
@@ -85,6 +89,7 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
     })
   }
 
+  // sets a text field
   function setText(field: keyof Values, value: string) {
     setValues((v) => ({ ...v, [field]: value }))
     setServerErrors((e) => ({ ...e, [field]: undefined }))
@@ -120,8 +125,10 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
     return e
   })()
 
+  // a field's error: the form's own once submitted, or the server's
   const show = (f: keyof Values) => (submitted ? (errors[f] ?? serverErrors[f]) : serverErrors[f])
 
+  // goes on to the second step if the first is filled in right
   function goNext(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -130,6 +137,7 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
     setStep(1)
   }
 
+  // signs up, then shows the email code step
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

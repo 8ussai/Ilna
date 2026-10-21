@@ -56,6 +56,7 @@ export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () =>
 
 // the whole drawn page, scaled to the column's width
 function DrawingPage({ content, label }: { content: string; label: string }) {
+  // the note's strokes, parsed once
   const drawing = useMemo(() => parseDrawing(content), [content])
   const boxRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)

@@ -27,7 +27,9 @@ function buildAudience(target: MessageTarget, university: string, college: strin
 // sending, and the server refuses to send if that number changed in the meantime.
 export function AdminMessages({ catalog }: { catalog: Catalog | null }) {
   const { t, i18n } = useTranslation()
+  // a catalog entry's name in the panel's language
   const nameOf = (n: Named) => (i18n.language === 'ar' ? n.name_ar : n.name_en)
+  // catalog entries as select options
   const toOptions = (items: Named[]) => items.map((n) => ({ value: n.id, label: nameOf(n) }))
 
   const [target, setTarget] = useState<MessageTarget>('everyone')
@@ -68,12 +70,14 @@ export function AdminMessages({ catalog }: { catalog: Catalog | null }) {
     }
   }, [target, university, college, major, userId, t])
 
+  // picks who the message goes to
   function chooseTarget(next: MessageTarget) {
     setTarget(next)
     setNotice('')
     setError('')
   }
 
+  // checks how many it reaches, then sends once confirmed
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setNotice('')

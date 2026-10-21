@@ -26,7 +26,9 @@ export function AdminPostComposer({
   onCancel: () => void
 }) {
   const { t, i18n } = useTranslation()
+  // a catalog entry's name in the panel's language
   const nameOf = (n: Named) => (i18n.language === 'ar' ? n.name_ar : n.name_en)
+  // catalog entries as select options
   const toOptions = (items: Named[]) => items.map((n) => ({ value: n.id, label: nameOf(n) }))
 
   const [scope, setScope] = useState<PostScope>('general')
@@ -52,6 +54,7 @@ export function AdminPostComposer({
     pin: pin && !(Number.isInteger(hours) && hours >= 1 && hours <= MAX_PIN_HOURS) ? t('admin.adminPosts.pinRange', { max: MAX_PIN_HOURS }) : undefined,
   }
 
+  // posts as Ilna Admin
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

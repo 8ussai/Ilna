@@ -39,6 +39,7 @@ const SEARCH_DELAY_MS = 300
 // "P42", "#p42", "R17", "# R 17"
 const ID_RE = /^#?\s*([pr])\s*(\d+)$/i
 
+// the Posts section: every blog's posts, threads, removals and the admin's own posts
 export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
   const { t } = useTranslation()
   const [scope, setScope] = useState<PostScope | ''>('')
@@ -74,6 +75,7 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
     }
   }, [scope, query, adminOnly, reloadKey])
 
+  // adds the next page of posts
   async function loadMore() {
     setLoadingMore(true)
     try {
@@ -87,6 +89,7 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
     }
   }
 
+  // removes the post or reply with the given reason
   async function confirmRemove(reason: string) {
     if (!removing) return
     if (removing.kind === 'post') {
@@ -233,12 +236,14 @@ export function AdminPosts({ catalog }: { catalog: Catalog | null }) {
   )
 }
 
+// opens a post or reply by its #P or #R id
 function JumpToId({ onFound }: { onFound: (target: { postId: number; replyId: number | null }) => void }) {
   const { t } = useTranslation()
   const [value, setValue] = useState('')
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
 
+  // finds the post (or the reply's post) and opens it
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
@@ -285,6 +290,7 @@ function JumpToId({ onFound }: { onFound: (target: { postId: number; replyId: nu
   )
 }
 
+// the blog a post is in, and where its author was
 function useOriginText(post: AdminPost, catalog: Catalog | null) {
   const { i18n } = useTranslation()
   const names = postOriginNames(catalog, post, i18n.language)
@@ -298,6 +304,7 @@ function useOriginText(post: AdminPost, catalog: Catalog | null) {
   return parts.filter(Boolean).join(' · ')
 }
 
+// a post's author, place and time
 function PostHeader({ post, catalog }: { post: AdminPost; catalog: Catalog | null }) {
   const { t, i18n } = useTranslation()
   const originText = useOriginText(post, catalog)
@@ -330,6 +337,7 @@ function PostHeader({ post, catalog }: { post: AdminPost; catalog: Catalog | nul
   )
 }
 
+// one post in the list, opening to its thread
 function PostRow({
   post,
   catalog,
@@ -422,9 +430,11 @@ export function PostThread({
   )
 }
 
+// loads a post with its whole thread
 function useThread(postId: number) {
   const [data, setData] = useState<{ post: AdminPost; replies: AdminReply[] } | null>(null)
   const [status, setStatus] = useState<Status | 'gone'>('loading')
+  // fetches the thread
   const load = useCallback(() => {
     fetchAdminPost(postId)
       .then((d) => (setData(d), setStatus('ready')))
@@ -434,12 +444,14 @@ function useThread(postId: number) {
   return { data, status }
 }
 
+// loading, failed or gone, in place of a thread
 function ThreadStatus({ status }: { status: Status | 'gone' }) {
   const { t } = useTranslation()
   if (status === 'loading') return <p className="py-4 text-sm text-muted">{t('feed.loading')}</p>
   return <p className="py-4 text-sm text-muted">{t(status === 'gone' ? 'admin.posts.gone' : 'errors.generic')}</p>
 }
 
+// a post opened on its own, with its thread
 function Thread({
   postId,
   highlightReplyId,
@@ -454,6 +466,7 @@ function Thread({
   return <ReplyTree replies={data.replies} highlightReplyId={highlightReplyId} onRemoveReply={onRemoveReply} />
 }
 
+// a thread's replies as a tree
 function ReplyTree({
   replies,
   highlightReplyId,
@@ -469,6 +482,7 @@ function ReplyTree({
   const childrenOf = new Map<number | null, AdminReply[]>()
   for (const reply of replies) childrenOf.set(reply.parent_id, [...(childrenOf.get(reply.parent_id) ?? []), reply])
 
+  // the replies under one parent, at one depth
   const branch = (parentId: number | null, depth: number) => (
     <ul className={depth === 0 ? 'mt-4 space-y-3 border-t border-line pt-4' : 'mt-3 space-y-3 border-s-2 border-line ps-4'}>
       {(childrenOf.get(parentId) ?? []).map((reply) => (
@@ -482,6 +496,7 @@ function ReplyTree({
   return branch(null, 0)
 }
 
+// one reply in a thread, with its Remove button
 function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highlighted: boolean; onRemove: () => void }) {
   const { t, i18n } = useTranslation()
   useEffect(() => {
@@ -529,6 +544,7 @@ function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highli
   )
 }
 
+// pins or unpins one of the admin's posts
 function PinControls({ post, onChanged }: { post: AdminPost; onChanged: (post: AdminPost) => void }) {
   const { t, i18n } = useTranslation()
   const [hours, setHours] = useState('24')
@@ -539,6 +555,7 @@ function PinControls({ post, onChanged }: { post: AdminPost; onChanged: (post: A
   const value = Number(hours)
   const valid = Number.isInteger(value) && value >= 1 && value <= MAX_PIN_HOURS
 
+  // pins for some hours, or unpins (null)
   async function pin(pinHours: number | null) {
     setBusy(true)
     setError('')

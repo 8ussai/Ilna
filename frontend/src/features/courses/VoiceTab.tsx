@@ -26,6 +26,7 @@ type VoiceTabProps = {
   onDeleted: (materialId: number) => void
 }
 
+// the Recordings tab: record or upload, and the list of recordings
 export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }: VoiceTabProps) {
   const { t, i18n } = useTranslation()
   const [recording, setRecording] = useState(false)
@@ -42,6 +43,7 @@ export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }
   const recordButtonRef = useRef<HTMLButtonElement>(null)
   const canEdit = useCourseCanEdit()
 
+  // closes the recorder and puts focus back on its button
   function closeRecorder() {
     setRecording(false)
     recordButtonRef.current?.focus()
@@ -104,6 +106,7 @@ export function VoiceTab({ courseId, recordings, onAdded, onChanged, onDeleted }
   )
 }
 
+// one recording: player, transcript, rename and delete
 function RecordingCard({
   courseId,
   material,
@@ -125,6 +128,7 @@ function RecordingCard({
   const [error, setError] = useState('')
   const panelId = useId()
 
+  // deletes the recording
   async function remove() {
     setError('')
     try {
@@ -212,6 +216,7 @@ function RecordingCard({
   )
 }
 
+// the transcript's state, next to a recording's name
 function TranscriptBadge({ material }: { material: CourseMaterial }) {
   const { t } = useTranslation()
   const transcript = material.transcript
@@ -249,6 +254,7 @@ function RecordingPanel({
   const [currentTime, setCurrentTime] = useState(0)
   const status = material.transcript?.status
 
+  // jumps the audio to a transcript line and plays
   function seek(seconds: number) {
     const audio = audioRef.current
     // the file may still be loading; play from there once it can
@@ -311,6 +317,7 @@ function RecordingPanel({
   )
 }
 
+// how far the transcription is
 function TranscriptProgress({ material }: { material: CourseMaterial }) {
   const { t } = useTranslation()
   const progress = material.transcript?.progress ?? 0
@@ -335,6 +342,7 @@ function TranscriptProgress({ material }: { material: CourseMaterial }) {
   )
 }
 
+// the transcript, with the line being played highlighted
 function TranscriptView({
   courseId,
   material,
@@ -464,6 +472,7 @@ function RetryTranscript({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  // transcribes the recording again
   async function submit() {
     setBusy(true)
     setError('')

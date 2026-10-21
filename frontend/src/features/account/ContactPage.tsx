@@ -25,6 +25,7 @@ export function ContactPage({ email }: { email: string }) {
   const subjectError = submitted && !subject.trim() ? required : undefined
   const messageError = submitted && !message.trim() ? required : undefined
 
+  // sends the message
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -46,6 +47,7 @@ export function ContactPage({ email }: { email: string }) {
     }
   }
 
+  // clears the form for a new message
   function writeAnother() {
     setSubject('')
     setMessage('')

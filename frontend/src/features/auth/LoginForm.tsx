@@ -9,6 +9,7 @@ import { ForgotPasswordForm } from './ForgotPasswordForm'
 import { primaryButton } from '../../components/styles'
 import { VerifyEmailForm } from './VerifyEmailForm'
 
+// logging in with email or username and password
 export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
   const { t } = useTranslation()
   const [identifier, setIdentifier] = useState('')
@@ -20,6 +21,7 @@ export function LoginForm({ onAuthenticated }: { onAuthenticated: (token: string
   const [verifyEmail, setVerifyEmail] = useState<string | null>(null)
   const [forgot, setForgot] = useState(false)
 
+  // logs in; an unverified account goes on to the code step
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

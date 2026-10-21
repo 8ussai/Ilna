@@ -17,10 +17,12 @@ const RECORDING_TYPES: [mime: string, extension: string][] = [
 // a recording this big stops and saves itself, leaving room under the upload limit (hours of audio in practice)
 const RECORDING_STOP_BYTES = MAX_UPLOAD_BYTES - 2 * 1024 ** 2
 
+// the current time in milliseconds, for the recording timer
 function clock() {
   return performance.now()
 }
 
+// the audio format this browser records in, if it can record
 function pickRecordingType() {
   if (typeof MediaRecorder === 'undefined') return null
   return RECORDING_TYPES.find(([mime]) => MediaRecorder.isTypeSupported(mime)) ?? null
@@ -35,6 +37,7 @@ type VoiceRecorderProps = {
   onCancel: () => void
 }
 
+// records a lecture in the browser, with pause, a timer and a level meter
 export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
   const { t, i18n } = useTranslation()
   const [phase, setPhase] = useState<Phase>('idle')
@@ -54,6 +57,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
 
   const active = phase === 'recording' || phase === 'paused'
 
+  // stops the microphone and the level meter
   function release() {
     streamRef.current?.getTracks().forEach((track) => track.stop())
     streamRef.current = null
@@ -73,6 +77,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
   // leaving the page would lose the recording
   useEffect(() => {
     if (!active) return
+    // warns before leaving the page while recording
     const warn = (e: BeforeUnloadEvent) => e.preventDefault()
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
@@ -87,6 +92,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     return () => clearInterval(timer)
   }, [phase])
 
+  // asks for the microphone and starts recording
   async function start() {
     const type = pickRecordingType()
     if (!type) {
@@ -137,6 +143,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     setAnnouncement(t('courses.voice.started'))
   }
 
+  // starts the level meter for the microphone
   function startLevelMeter(stream: MediaStream) {
     try {
       const context = new AudioContext()
@@ -145,6 +152,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
       context.createMediaStreamSource(stream).connect(analyser)
       audioContextRef.current = context
       const samples = new Uint8Array(analyser.fftSize)
+      // draws the current level, every frame
       const draw = () => {
         if (audioContextRef.current !== context) return
         analyser.getByteTimeDomainData(samples)
@@ -161,6 +169,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     }
   }
 
+  // pauses the recording
   function pause() {
     recorderRef.current?.pause()
     const { before, since } = clockRef.current
@@ -170,6 +179,7 @@ export function VoiceRecorder({ onRecorded, onCancel }: VoiceRecorderProps) {
     setAnnouncement(t('courses.voice.pausedNote'))
   }
 
+  // goes on recording
   function resume() {
     recorderRef.current?.resume()
     clockRef.current = { ...clockRef.current, since: clock() }

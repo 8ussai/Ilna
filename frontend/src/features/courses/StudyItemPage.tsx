@@ -74,10 +74,12 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
   }, [item.id, loaded])
 
   const content = (full?.summary ?? full?.quiz ?? {}) as Partial<Record<StudyLanguage, { title: string }>>
+  // whether this language's version is ready
   const isReady = (language: StudyLanguage | null): language is StudyLanguage => language !== null && content[language] !== undefined
   const language = [picked, studyLanguage(item), item.main_language].find(isReady) ?? null
   const title = item.title ?? (language ? content[language]?.title : undefined) ?? t(`courses.study.newTitle.${item.kind}`)
 
+  // switches the reading language (remembered for the owner)
   function choose(next: StudyLanguage) {
     setPicked(next)
     // the owner's choice is remembered for next time; someone who added the course just switches
@@ -87,6 +89,7 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
       .catch(() => {})
   }
 
+  // tries the translation again
   async function retryTranslation() {
     setRetrying(true)
     setError('')
@@ -99,6 +102,7 @@ export function StudyItemPage({ courseId, item, onChanged, onDeleted, onBack }: 
     }
   }
 
+  // deletes the summary or quiz
   async function remove() {
     try {
       await deleteStudyItem(courseId, item.id)
@@ -290,6 +294,7 @@ function LanguageSwitch({
   )
 }
 
+// the files, recordings and notes it was made from
 function Sources({ sources }: { sources: StudySource[] }) {
   const { t } = useTranslation()
   return (
@@ -310,6 +315,7 @@ function Sources({ sources }: { sources: StudySource[] }) {
   )
 }
 
+// a source's icon
 function SourceIcon({ kind }: { kind: StudySource['kind'] }) {
   return (
     <svg viewBox="0 0 24 24" className="size-3.5 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -323,10 +329,12 @@ function SourceIcon({ kind }: { kind: StudySource['kind'] }) {
 // a long summary gets a list of its sections at the top
 const CONTENTS_FROM_SECTIONS = 4
 
+// a summary: overview, sections with their points, and key terms
 function SummaryBody({ itemId, content, language }: { itemId: number; content: SummaryContent; language: StudyLanguage }) {
   const { i18n } = useTranslation()
   // its own headings are in its language, not the page's
   const t = i18n.getFixedT(language)
+  // a section's id, for the contents links at the top
   const sectionId = (i: number) => `summary-${itemId}-section-${i}`
 
   return (
@@ -387,6 +395,7 @@ function SummaryBody({ itemId, content, language }: { itemId: number; content: S
   )
 }
 
+// one titled part of the summary
 function Section({ id, heading, children }: { id: string; heading: ReactNode; children: ReactNode }) {
   return (
     <section aria-labelledby={`${id}-heading`} id={id} className="scroll-mt-32 space-y-3">
@@ -398,6 +407,7 @@ function Section({ id, heading, children }: { id: string; heading: ReactNode; ch
   )
 }
 
+// the summary or quiz icon
 export function KindIcon({ kind }: { kind: StudyKind }) {
   return (
     <svg viewBox="0 0 24 24" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

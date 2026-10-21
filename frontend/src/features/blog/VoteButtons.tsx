@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import type { VoteDir } from '../../api/posts'
 import { useReadOnly } from '../../lib/readOnly'
 
+// the up or down arrow icon
 function Arrow({ up }: { up: boolean }) {
   return (
     <svg viewBox="0 0 24 24" className="size-5" fill="currentColor" aria-hidden="true">
@@ -11,6 +12,7 @@ function Arrow({ up }: { up: boolean }) {
   )
 }
 
+// upvote and downvote buttons with the score between them
 export function VoteButtons({
   count,
   myVote,
@@ -26,6 +28,7 @@ export function VoteButtons({
   // a test account sees the score but can't vote
   const readOnly = useReadOnly()
 
+  // one vote button, pressed when it's the reader's vote
   const button = (dir: 1 | -1) => {
     const active = myVote === dir
     const label = dir === 1 ? t('feed.upvote') : t('feed.downvote')

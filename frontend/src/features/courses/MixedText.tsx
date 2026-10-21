@@ -2,6 +2,7 @@
 // letters is isolated, so a line break inside it doesn't scatter its words and brackets across the line ends
 const LATIN_IN_BRACKETS = /(\([^()]*[A-Za-z][^()]*\))/
 
+// text with English in brackets kept left-to-right inside Arabic
 export function MixedText({ text }: { text: string }) {
   const parts = text.split(LATIN_IN_BRACKETS)
   if (parts.length === 1) return text

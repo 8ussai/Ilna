@@ -68,6 +68,7 @@ export function SharedWithYou({ reloadKey, onAdded }: { reloadKey: number; onAdd
     }
   }, [reloadKey])
 
+  // adds or ignores a shared course
   async function answer(course: CoursePreview, add: boolean) {
     setBusyId(course.id)
     setError(null)
@@ -126,6 +127,7 @@ export function AddByIdDialog({ onClose, onAdded }: { onClose: () => void; onAdd
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
+  // finds the course for the typed ID
   async function find(e: FormEvent) {
     e.preventDefault()
     if (!code.trim()) return
@@ -141,6 +143,7 @@ export function AddByIdDialog({ onClose, onAdded }: { onClose: () => void; onAdd
     }
   }
 
+  // adds the found course
   async function add(course: CoursePreview) {
     setBusy(true)
     setError('')

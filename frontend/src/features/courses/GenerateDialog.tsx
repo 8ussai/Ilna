@@ -62,6 +62,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
   const usedUp = usage !== null && usage.used >= usage.limit
 
   const newestFirst = [...materials].sort((a, b) => b.id - a.id)
+  // a file or recording as a choice, with whether it's ready for the AI
   const materialChoice = (m: CourseMaterial): Choice => ({
     key: `material-${m.id}`,
     type: 'material',
@@ -103,6 +104,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
   const available = groups.flatMap((g) => g.choices).filter((c) => !c.unavailable)
   const tooMany = selected.size > STUDY_MAX_SOURCES
 
+  // picks or unpicks sources
   function toggle(keys: string[], on: boolean) {
     setSelected((current) => {
       const next = new Set(current)
@@ -114,6 +116,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
     })
   }
 
+  // starts writing the summary or quiz
   async function submit(e: FormEvent) {
     e.preventDefault()
     if (selected.size === 0 || tooMany || usedUp) return
@@ -260,6 +263,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
   )
 }
 
+// one group of sources (files, recordings or notes) with a box to pick them all
 function SourceGroup({
   label,
   choices,

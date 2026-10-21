@@ -24,6 +24,7 @@ type NotesTabProps = {
 // which note the editor has open; `key` keeps the editor mounted when a new note gets its id
 type Editing = { key: number; note: CourseNote | null; kind: CourseNote['kind'] }
 
+// the Notes tab: typed and drawn notes, opened in their editor (or read-only viewer)
 export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps) {
   const { t } = useTranslation()
   const [editing, setEditing] = useState<Editing | null>(null)
@@ -36,6 +37,7 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
   // in a course someone else owns, notes open read-only
   const canEdit = useCourseCanEdit()
 
+  // opens a note, or a new one of a kind
   function open(note: CourseNote | null, kind: CourseNote['kind'] = note?.kind ?? 'text') {
     returnFocusRef.current = note?.id ?? 'new'
     setChoosing(false)
@@ -139,6 +141,7 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
   )
 }
 
+// one note's card with a preview
 function NoteCard({
   courseId,
   note,
@@ -159,6 +162,7 @@ function NoteCard({
   const title = note.title || lines[0] || (isDrawing ? t('courses.notes.untitledDrawing') : t('courses.notes.untitled'))
   const preview = (note.title ? lines : lines.slice(1)).slice(0, 3)
 
+  // deletes the note
   async function remove() {
     setError('')
     try {
@@ -224,6 +228,7 @@ function NoteCard({
   )
 }
 
+// the typed or drawn note icon
 function NoteIcon({ drawing }: { drawing: boolean }) {
   return (
     <svg viewBox="0 0 24 24" className="size-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

@@ -59,6 +59,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     return () => observer.disconnect()
   }, [])
 
+  // sets the strokes, keeping the old ones for undo
   function changeStrokes(next: Stroke[]) {
     setPast((p) => [...p.slice(-(HISTORY_LIMIT - 1)), strokes])
     setFuture([])
@@ -67,6 +68,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     setJustSaved(false)
   }
 
+  // undoes the last change
   function undo() {
     if (past.length === 0) return
     setFuture((f) => [strokes, ...f])
@@ -75,6 +77,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     setDirty(true)
   }
 
+  // redoes the last undone change
   function redo() {
     if (future.length === 0) return
     setPast((p) => [...p, strokes])
@@ -83,6 +86,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     setDirty(true)
   }
 
+  // saves the drawing; true when it worked
   async function save(): Promise<boolean> {
     const content = serializeDrawing({ ...emptyDrawing(background), strokes })
     if (new Blob([content]).size > MAX_DRAWING_BYTES) {
@@ -111,6 +115,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     }
   }
 
+  // deletes the note
   async function remove() {
     const id = noteIdRef.current
     if (id === null) {
@@ -125,6 +130,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     onDeleted(id)
   }
 
+  // closes, asking first if there are unsaved changes
   function requestClose() {
     if (dirty) setLeaving(true)
     else onClose()
@@ -136,6 +142,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     actions.current = { undo, redo, save }
   })
   useEffect(() => {
+    // Ctrl+Z undoes, Ctrl+Y or Ctrl+Shift+Z redoes, Ctrl+S saves
     function onKey(e: KeyboardEvent) {
       if (!(e.ctrlKey || e.metaKey)) return
       // typing in the title keeps the browser's own text undo
@@ -160,6 +167,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   // closing or reloading the tab with unsaved strokes asks first
   useEffect(() => {
     if (!dirty) return
+    // warns before leaving the page with unsaved changes
     const warn = (e: BeforeUnloadEvent) => e.preventDefault()
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
@@ -340,6 +348,7 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   )
 }
 
+// a labeled group of toolbar buttons
 function ToolGroup({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div role="group" aria-label={label} className="flex items-center gap-1">
@@ -348,6 +357,7 @@ function ToolGroup({ label, children }: { label: string; children: ReactNode }) 
   )
 }
 
+// one toolbar button
 function ToolButton({
   pressed,
   label,
@@ -376,6 +386,7 @@ function ToolButton({
   )
 }
 
+// a tool's icon
 function ToolIcon({ tool }: { tool: CanvasTool }) {
   return (
     <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

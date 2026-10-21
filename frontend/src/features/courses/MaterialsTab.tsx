@@ -23,6 +23,7 @@ type MaterialsTabProps = {
   onDeleted: (materialId: number) => void
 }
 
+// the Files tab: slides and documents, uploads, and the PDF viewer
 export function MaterialsTab({ courseId, materials, onAdded, onChanged, onDeleted }: MaterialsTabProps) {
   const { t, i18n } = useTranslation()
   const { uploads, addFiles, retry, dismiss } = useUploadQueue({ courseId, onUploaded: onAdded, keepDone: false })
@@ -69,6 +70,7 @@ export function MaterialsTab({ courseId, materials, onAdded, onChanged, onDelete
   )
 }
 
+// one file, with open, download, rename and delete
 function MaterialRow({
   courseId,
   material,
@@ -92,6 +94,7 @@ function MaterialRow({
   const extension = (material.mime_type === 'application/pdf' ? 'pdf' : fileExtension(downloadName(material))) || 'file'
   const isPdf = material.mime_type === 'application/pdf'
 
+  // saves the file to the computer
   async function download() {
     setDownloading(true)
     setError('')
@@ -104,6 +107,7 @@ function MaterialRow({
     }
   }
 
+  // deletes the file
   async function remove() {
     setError('')
     try {

@@ -49,6 +49,7 @@ export function Composer({
   }, [picked])
   useEffect(() => () => pickedRef.current.forEach((p) => URL.revokeObjectURL(p.url)), [])
 
+  // adds picked or pasted pictures, refusing wrong types, ones too big, and past the limit
   function addImages(files: File[]) {
     const room = MAX_POST_IMAGES - picked.length
     const accepted: Picked[] = []
@@ -63,6 +64,7 @@ export function Composer({
     if (accepted.length) setPicked((current) => [...current, ...accepted])
   }
 
+  // removes a picked picture
   function removeImage(index: number) {
     setPicked((current) => {
       URL.revokeObjectURL(current[index].url)
@@ -74,6 +76,7 @@ export function Composer({
   const trimmed = content.trim()
   const tooLong = trimmed.length > MAX_LENGTH
 
+  // posts the text (and pictures), then clears the box
   async function submit(e?: FormEvent) {
     e?.preventDefault()
     if (!trimmed || tooLong || busy) return

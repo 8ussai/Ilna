@@ -11,6 +11,7 @@ export type LandingNotice = 'passwordChanged' | 'suspended' | 'testOff'
 
 type LandingProps = { notice: LandingNotice | null; onAuthenticated: (token: string) => void }
 
+// the page for visitors who aren't logged in: what Ilna is, and the sign-in card
 export function Landing({ notice, onAuthenticated }: LandingProps) {
   const { t } = useTranslation()
 

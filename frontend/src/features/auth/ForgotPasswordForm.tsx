@@ -31,6 +31,7 @@ export function ForgotPasswordForm({
   const [busy, setBusy] = useState(false)
   const [formError, setFormError] = useState('')
 
+  // emails a reset code to the account's address
   async function onRequest(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -91,6 +92,7 @@ export function ForgotPasswordForm({
   )
 }
 
+// the second step: the emailed code and a new password
 function ResetStep({
   identifier,
   onAuthenticated,
@@ -122,8 +124,10 @@ function ResetStep({
     password: !password ? required : !isStrongPassword(password) ? t('errors.passwordWeak') : undefined,
     confirm: !confirm ? required : confirm !== password ? t('errors.passwordMismatch') : undefined,
   }
+  // a field's error, once the form has been submitted
   const show = (field: keyof typeof errors) => (submitted ? errors[field] : undefined)
 
+  // sets the new password with the code, then logs in
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)
@@ -146,6 +150,7 @@ function ResetStep({
     }
   }
 
+  // emails another reset code
   async function onResend() {
     setFormError('')
     setNotice('')

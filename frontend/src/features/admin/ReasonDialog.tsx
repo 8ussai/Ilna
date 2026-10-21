@@ -34,6 +34,7 @@ export function ReasonDialog({
       ? t('admin.reasonTooLong')
       : undefined
 
+  // checks the reason and runs the action
   async function onSubmit(e: FormEvent) {
     e.preventDefault()
     setSubmitted(true)

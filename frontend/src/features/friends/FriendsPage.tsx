@@ -12,6 +12,7 @@ import { useReadOnly } from '../../lib/readOnly'
 // waits for typing to pause before searching
 const SEARCH_DELAY_MS = 300
 
+// one person in search results or the friends list
 function PersonRow({ profile, catalog }: { profile: PublicProfile; catalog: Catalog | null }) {
   return (
     <li className="flex items-center gap-3 px-4 py-3">
