@@ -1,4 +1,4 @@
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, PrimaryKeyConstraint
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from backend.database import Base
@@ -61,3 +61,14 @@ class User(Base):
     voted_posts = relationship("PostVote", back_populates="voter")
 
     courses = relationship("Course", back_populates="owner", cascade="all, delete-orphan")
+
+
+class Friend(Base):
+    """user_id added friend_id to their friends list. One-way: friend_id isn't asked, told, or shown who added them."""
+    __tablename__ = "friends"
+
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    friend_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    created_at = Column(DateTime(timezone=True), default=func.now())
+
+    __table_args__ = (PrimaryKeyConstraint("user_id", "friend_id"),)

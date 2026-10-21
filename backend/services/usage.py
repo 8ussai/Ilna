@@ -6,6 +6,8 @@ from sqlalchemy.orm import Session
 from backend.database import utc_now
 from backend.backendConfig import (
     COURSE_LIMIT,
+    FRIEND_LIMIT,
+    PREMIUM_FRIEND_LIMIT,
     PREMIUM_STORAGE_LIMIT_BYTES,
     PREMIUM_STUDY_DAILY_LIMITS,
     STORAGE_LIMIT_BYTES,
@@ -39,6 +41,10 @@ def study_limit(user: User, kind: str) -> int:
 
 def storage_limit(user: User) -> int:
     return PREMIUM_STORAGE_LIMIT_BYTES if user.is_premium else STORAGE_LIMIT_BYTES
+
+
+def friend_limit(user: User) -> int:
+    return PREMIUM_FRIEND_LIMIT if user.is_premium else FRIEND_LIMIT
 
 
 def course_limit(user: User) -> int | None:

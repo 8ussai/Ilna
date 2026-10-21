@@ -97,6 +97,10 @@ export function AccountDrawer({ open, me, unreadCount, onClose, onOpenPage, onOp
               <DrawerLink page="notifications" onOpen={onOpenPage} label={t('settings.notifications.title')} badge={unreadCount}>
                 <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9M10.3 21a1.9 1.9 0 0 0 3.4 0" />
               </DrawerLink>
+              <DrawerLink page="friends" onOpen={onOpenPage} label={t('friends.title')}>
+                <circle cx="9" cy="8" r="3.5" />
+                <path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6M16 4.5a3.5 3.5 0 0 1 0 7M18 14c2.2.6 3.5 2.8 3.5 6" />
+              </DrawerLink>
               <li>
                 <button
                   type="button"

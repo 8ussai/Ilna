@@ -8,6 +8,7 @@ import { postOriginNames } from '../catalog'
 import { formatDateTime, parseServerDate } from '../dates'
 import { AnonymitySwitchButton, AuthorAvatar, AuthorName, OwnAnonymousTag } from './Anonymous'
 import { DeleteButton } from './DeleteButton'
+import { ProfileLink } from './Friends'
 import { LinkifiedText } from './LinkifiedText'
 import { PostImages } from './PostImages'
 import { RepliesSection } from './Replies'
@@ -72,6 +73,8 @@ export function PostCard({
   }
 
   const { author } = post
+  // anonymous authors and the admin account have no profile card
+  const hasProfile = !post.is_anonymous && !post.is_admin_post
   const created = parseServerDate(post.created_at)
   // a blog's readers already share its university/college/major, so show only what can differ
   const origin = postOriginNames(catalog, post, i18n.language)
@@ -82,10 +85,14 @@ export function PostCard({
   return (
     <article className="rounded-2xl border border-line bg-card p-4 sm:p-5">
       <header className="flex items-start gap-3">
-        <AuthorAvatar author={author} size={40} />
+        <ProfileLink username={author.username} enabled={hasProfile} tabStop={false} className="shrink-0">
+          <AuthorAvatar author={author} size={40} />
+        </ProfileLink>
         <div className="min-w-0 flex-1">
           <p className="truncate font-medium">
-            <AuthorName author={author} />
+            <ProfileLink username={author.username} enabled={hasProfile}>
+              <AuthorName author={author} />
+            </ProfileLink>
             {!post.is_anonymous && (
               <span className={`ms-2 text-sm font-normal ${author.is_premium ? goldClass : 'text-muted'}`}>@{author.username}</span>
             )}

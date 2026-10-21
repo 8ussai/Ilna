@@ -3,6 +3,7 @@ import type { TFunction } from 'i18next'
 import { useTranslation } from 'react-i18next'
 
 import type { Author } from '../api/posts'
+import { FriendStar } from './Friends'
 import { UserName } from './Premium'
 import { UserAvatar } from './UserAvatar'
 
@@ -37,7 +38,12 @@ export function AuthorName({ author, className = '' }: { author: Author; classNa
   if (isAnonymousAuthor(author)) {
     return <span className={className}>{anonymousName(t, author)}</span>
   }
-  return <UserName user={author} className={className} />
+  return (
+    <>
+      <UserName user={author} className={className} />
+      <FriendStar userId={author.id} />
+    </>
+  )
 }
 
 export function anonymousName(t: TFunction, author: Author) {

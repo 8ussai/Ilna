@@ -82,6 +82,11 @@ UPLOAD_CHUNK_BYTES = 1024 * 1024
 
 # courses one user can have; premium has no limit
 COURSE_LIMIT = 5
+# people one user can have on their friends list (one-way, like Codeforces; nobody is asked or told)
+FRIEND_LIMIT = 100
+PREMIUM_FRIEND_LIMIT = 500
+# people found by one search
+USER_SEARCH_LIMIT = 20
 
 # course material is embedded with this model
 EMBEDDING_MODEL = "Qwen/Qwen3-Embedding-0.6B"

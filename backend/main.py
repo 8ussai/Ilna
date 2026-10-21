@@ -9,7 +9,7 @@ from backend.database import SessionLocal, utc_now
 from backend.migrations.runner import run_migrations
 # imported so every model is registered with Base; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
-from backend.routes import admin, admin_maintenance, auth, contact, me, posts, replies, reports, courses, meta, study
+from backend.routes import admin, admin_maintenance, auth, contact, friends, me, posts, replies, reports, courses, meta, study
 
 from backend.models.course import CourseMaterial, MaterialTranscript
 from backend.services import jobs, study_generator
@@ -134,6 +134,7 @@ app.include_router(reports.router, tags=["Reports"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses & Study Workspace"])
 app.include_router(study.router, prefix="/courses", tags=["Summaries & Quizzes"])
 app.include_router(contact.router, prefix="/contact", tags=["Contact"])
+app.include_router(friends.router, tags=["Friends"])
 app.include_router(admin_maintenance.router, prefix="/admin/maintenance", tags=["Admin"])
 app.include_router(admin.router, prefix="/admin", tags=["Admin"])
 

@@ -7,7 +7,7 @@ from backend.models.course import Course
 from backend.models.notification import Notification
 from backend.models.post import Post, PostVote, Reply, ReplyVote, ThreadAnonNumber
 from backend.models.study import StudyGeneration
-from backend.models.user import User
+from backend.models.user import Friend, User
 from backend.services.admin_account import get_admin_account
 from backend.services.embeddings import delete_course_vectors
 from backend.services.post_images import remove_image_files
@@ -56,6 +56,8 @@ def delete_account(db: Session, user: User) -> dict:
 
     db.query(PostVote).filter(PostVote.user_id == user_id).delete(synchronize_session=False)
     db.query(ReplyVote).filter(ReplyVote.user_id == user_id).delete(synchronize_session=False)
+    # their friends list, and their place on everyone else's
+    db.query(Friend).filter(or_(Friend.user_id == user_id, Friend.friend_id == user_id)).delete(synchronize_session=False)
     # their numbers in other threads; each post's counter keeps the numbers from being handed out again
     db.query(ThreadAnonNumber).filter(ThreadAnonNumber.user_id == user_id).delete(synchronize_session=False)
     db.query(Notification).filter(

@@ -6,7 +6,7 @@ const SETTINGS_PAGES = ['home', 'account', 'activity', 'appearance', 'storage', 
 export type SettingsPage = (typeof SETTINGS_PAGES)[number]
 
 // pages linked from the account drawer, each at /<page>
-const DRAWER_PAGES = ['notifications', 'contact'] as const
+const DRAWER_PAGES = ['notifications', 'friends', 'contact'] as const
 export type DrawerPage = (typeof DRAWER_PAGES)[number]
 
 // the tabs inside a course page, kept in the URL hash (/course/<id>#recordings)

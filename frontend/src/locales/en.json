@@ -550,6 +550,25 @@
     "show_other": "Show {{count}} replies",
     "removedByAdmin": "[removed by admin]"
   },
+  "friends": {
+    "title": "Friends",
+    "description": "Add people to your list to spot them easily: their names get a ★ in posts. Nobody is told when you add them.",
+    "search": "Search people",
+    "searchPlaceholder": "Search by name or @username",
+    "searchFailed": "Couldn't search. Please try again.",
+    "noResults": "No one found.",
+    "yourList": "Your friends",
+    "counter": "{{count}} / {{limit}}",
+    "empty": "You haven't added anyone yet. Search above, or click a name on a post.",
+    "testAccount": "Test accounts can't add friends.",
+    "add": "Add friend",
+    "remove": "Remove",
+    "full": "Your friends list is full ({{limit}}).",
+    "star": "Friend",
+    "profile": "Profile",
+    "notFound": "This profile isn't available.",
+    "openProfile": "Open profile"
+  },
   "composer": {
     "addPhotos": "Photos",
     "removePhoto": "Remove picture {{number}}",

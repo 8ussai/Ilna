@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { applyAccent } from '../accent'
 import { fetchMe } from '../api/auth'
+import { addFriend, fetchFriends, removeFriend } from '../api/friends'
+import type { FriendList } from '../api/friends'
 import type { Me } from '../api/auth'
 import { fetchCatalog } from '../api/meta'
 import type { Catalog } from '../api/meta'
@@ -11,17 +13,21 @@ import { catalogNames } from '../catalog'
 import { AccountDrawer } from '../components/AccountDrawer'
 import { BlogFeed } from '../components/BlogFeed'
 import { CountBadge } from '../components/CountBadge'
+import { ProfileDialog } from '../components/Friends'
 import { Header } from '../components/Header'
 import { secondaryButton } from '../components/styles'
 import { TabBar } from '../components/TabBar'
 import { UserAvatar } from '../components/UserAvatar'
 import { useUnreadCount } from '../hooks/useUnreadCount'
+import { FriendsContext } from '../friends'
+import type { Friends } from '../friends'
 import { ReadOnlyContext } from '../readOnly'
 import { currentPath, routeFromPath, routePath } from '../tabs'
 import type { CourseSection, Route } from '../tabs'
 import { ContactPage } from './ContactPage'
 import { CoursePage } from './CoursePage'
 import { CoursesPage } from './CoursesPage'
+import { FriendsPage } from './FriendsPage'
 import { NotificationsPage } from './NotificationsPage'
 import { PostPage } from './PostPage'
 import { Settings } from './Settings'
@@ -35,6 +41,44 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
   const [drawerOpen, setDrawerOpen] = useState(false)
   const accountButtonRef = useRef<HTMLButtonElement>(null)
   const { count: unreadCount, setCount: setUnreadCount } = useUnreadCount()
+  const [friendList, setFriendList] = useState<FriendList | null>(null)
+  // the author whose profile card is open
+  const [profileOf, setProfileOf] = useState<string | null>(null)
+
+  useEffect(() => {
+    // without the list there's just no ★; the Friends page shows it as loading
+    fetchFriends()
+      .then(setFriendList)
+      .catch(() => {})
+  }, [])
+
+  const friends = useMemo<Friends>(() => {
+    const ids = new Set(friendList?.friends.map((f) => f.id))
+    return {
+      list: friendList?.friends ?? [],
+      count: friendList?.count ?? 0,
+      limit: friendList?.limit ?? 0,
+      loaded: friendList !== null,
+      isFriend: (userId) => ids.has(userId),
+      async add(profile) {
+        await addFriend(profile.id)
+        setFriendList((current) =>
+          current && !current.friends.some((f) => f.id === profile.id)
+            ? { ...current, friends: [{ ...profile, is_friend: true }, ...current.friends], count: current.count + 1 }
+            : current,
+        )
+      },
+      async remove(userId) {
+        await removeFriend(userId)
+        setFriendList((current) =>
+          current && current.friends.some((f) => f.id === userId)
+            ? { ...current, friends: current.friends.filter((f) => f.id !== userId), count: current.count - 1 }
+            : current,
+        )
+      },
+      openProfile: setProfileOf,
+    }
+  }, [friendList])
 
   // stable, since the notifications page reloads whenever this changes
   const onMarkedRead = useCallback(
@@ -153,6 +197,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
     }
 
     if (route.kind === 'drawer') {
+      if (route.page === 'friends') return <FriendsPage catalog={catalog} />
       return route.page === 'notifications' ? (
         <NotificationsPage onOpenPost={openPost} onMarkedRead={onMarkedRead} />
       ) : me.is_test ? (
@@ -214,7 +259,12 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
 
       {/* the courses grid needs room for three columns; everything else reads better narrow */}
       <main className={`mx-auto w-full flex-1 px-5 py-8 sm:px-8 ${isCoursesArea ? 'max-w-6xl' : 'max-w-3xl'}`}>
-        <ReadOnlyContext.Provider value={!!me?.is_test}>{renderContent()}</ReadOnlyContext.Provider>
+        <ReadOnlyContext.Provider value={!!me?.is_test}>
+          <FriendsContext.Provider value={friends}>
+            {renderContent()}
+            {profileOf && <ProfileDialog key={profileOf} username={profileOf} catalog={catalog} onClose={() => setProfileOf(null)} />}
+          </FriendsContext.Provider>
+        </ReadOnlyContext.Provider>
       </main>
 
       <AccountDrawer

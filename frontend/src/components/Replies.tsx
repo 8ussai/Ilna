@@ -10,6 +10,7 @@ import { applyVote } from '../votes'
 import { anonymousName, AnonymitySwitchButton, AuthorAvatar, AuthorName, isAnonymousAuthor, OwnAnonymousTag } from './Anonymous'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
+import { ProfileLink } from './Friends'
 import { LinkifiedText } from './LinkifiedText'
 import { goldClass } from './Premium'
 import { ReportButton } from './ReportButton'
@@ -104,8 +105,12 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
         <div className="flex items-center gap-2 text-sm">
           {author ? (
             <>
-              <AuthorAvatar author={author} size={28} />
-              <AuthorName author={author} className="truncate font-medium" />
+              <ProfileLink username={author.username} enabled={!reply.is_anonymous} tabStop={false} className="shrink-0">
+                <AuthorAvatar author={author} size={28} />
+              </ProfileLink>
+              <ProfileLink username={author.username} enabled={!reply.is_anonymous} className="truncate">
+                <AuthorName author={author} className="truncate font-medium" />
+              </ProfileLink>
               {reply.is_anonymous ? (
                 reply.is_mine && <OwnAnonymousTag />
               ) : (
