@@ -1,12 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dismissReports, fetchAdminReports, removePost, removeReply } from '../../api/admin'
+import { dismissReports, fetchAdminPostImage, fetchAdminReports, removePost, removeReply } from '../../api/admin'
 import type { AdminReportGroup } from '../../api/admin'
 import { ApiError } from '../../api/client'
 import type { Catalog } from '../../api/meta'
 import { postOriginNames } from '../../catalog'
 import { AnonymousBadge } from '../../components/Anonymous'
+import { LinkifiedText } from '../../components/LinkifiedText'
+import { PostImages } from '../../components/PostImages'
 import { smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
 import { formatDateTime, parseServerDate } from '../../dates'
@@ -161,8 +163,9 @@ function ReportRow({
             <span className="text-muted">· {formatDateTime(parseServerDate(group.created_at), i18n.language)}</span>
           </p>
           <p dir="auto" className="mt-1 line-clamp-4 whitespace-pre-wrap break-words">
-            {group.content}
+            <LinkifiedText text={group.content} />
           </p>
+          <PostImages images={group.images} fetchImage={(image) => fetchAdminPostImage(group.post_id, image.id)} />
         </div>
       </div>
 

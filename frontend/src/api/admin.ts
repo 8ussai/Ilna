@@ -1,6 +1,6 @@
-import { ApiError, request } from './client'
+import { ApiError, blobRequest, request } from './client'
 import type { MaintenanceStatus } from './meta'
-import type { Author, PostScope } from './posts'
+import type { Author, PostImage, PostScope } from './posts'
 
 // sessionStorage, so the admin login ends when the tab is closed; kept apart from the student login
 const ADMIN_TOKEN_KEY = 'ilna-admin-token'
@@ -39,6 +39,10 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
     if (err instanceof ApiError && err.status === 401) onAdminUnauthorized?.()
     throw err
   }
+}
+
+export function fetchAdminPostImage(postId: number, imageId: number) {
+  return blobRequest(`/admin/posts/${postId}/images/${imageId}`, getAdminToken(), false)
 }
 
 const json = (body: unknown): RequestInit => ({
@@ -180,6 +184,7 @@ export type AdminPost = {
   replies_count: number
   // posted anonymously: what everyone else sees in place of the author
   shown_as: Author | null
+  images: PostImage[]
 }
 
 export type AdminReply = {
@@ -238,6 +243,8 @@ export type AdminReportGroup = {
   latest_at: string
   // the post or reply is anonymous: what everyone else sees in place of the author
   shown_as: Author | null
+  // a reported post's pictures; empty for a reply
+  images: PostImage[]
   reports: { reason: string; note: string | null; reporter: AdminPost['author']; created_at: string }[]
 }
 

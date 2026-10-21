@@ -2,12 +2,14 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import type { Catalog } from '../api/meta'
-import { setPostAnonymity } from '../api/posts'
+import { fetchPostImage, setPostAnonymity } from '../api/posts'
 import type { Post } from '../api/posts'
 import { postOriginNames } from '../catalog'
 import { formatDateTime, parseServerDate } from '../dates'
 import { AnonymitySwitchButton, AuthorAvatar, AuthorName, OwnAnonymousTag } from './Anonymous'
 import { DeleteButton } from './DeleteButton'
+import { LinkifiedText } from './LinkifiedText'
+import { PostImages } from './PostImages'
 import { RepliesSection } from './Replies'
 import { ReportButton } from './ReportButton'
 import { goldClass } from './Premium'
@@ -114,8 +116,9 @@ export function PostCard({
       </header>
 
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
-        {post.content}
+        <LinkifiedText text={post.content} />
       </p>
+      <PostImages images={post.images} fetchImage={(image) => fetchPostImage(post.id, image.id)} />
 
       <div className="-ms-1.5 mt-3 flex items-center gap-2">
         <VoteButtons count={post.votes_count} myVote={post.my_vote} disabled={voting} onVote={vote} />

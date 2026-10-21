@@ -10,6 +10,7 @@ from backend.models.study import StudyGeneration
 from backend.models.user import User
 from backend.services.admin_account import get_admin_account
 from backend.services.embeddings import delete_course_vectors
+from backend.services.post_images import remove_image_files
 from backend.services.reply_removal import remove_reply
 
 
@@ -26,6 +27,7 @@ def delete_account(db: Session, user: User) -> dict:
 
     own_posts = db.query(Post).filter(Post.user_id == user_id).all()
     own_post_ids = {post.id for post in own_posts}
+    image_paths = [image.file_path for post in own_posts for image in post.images]
 
     # replies on other people's posts follow the placeholder rule, newest first so answers go before what they answer
     other_replies = (
@@ -84,6 +86,7 @@ def delete_account(db: Session, user: User) -> dict:
     # after the commit, so a failed file or vector delete never leaves rows pointing at missing data
     from backend.routes.courses import _remove_files, _remove_vectors
     _remove_files(file_paths)
+    remove_image_files(image_paths)
     for course_id in course_ids:
         _remove_vectors(delete_course_vectors, course_id)
 

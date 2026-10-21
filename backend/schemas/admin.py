@@ -4,7 +4,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, field_validator, model_validator
 
 from backend.backendConfig import MAX_PIN_HOURS
-from backend.schemas.post import PostAuthor, PostScope
+from backend.schemas.post import PostAuthor, PostImageOut, PostScope
 from backend.services.catalog import validate_selection
 
 
@@ -105,6 +105,8 @@ class AdminPostOut(BaseModel):
     replies_count: int
     # posted anonymously: what everyone else sees in place of the author; the admin sees both
     shown_as: Optional[PostAuthor] = None
+    # fetched from /admin/posts/{id}/images/{image id}
+    images: list[PostImageOut] = []
 
 
 class AdminPostPage(BaseModel):
@@ -164,6 +166,8 @@ class AdminReportGroup(BaseModel):
     reports: list[AdminReportEntry]
     # the post or reply is anonymous: what everyone else sees in place of the author
     shown_as: Optional[PostAuthor] = None
+    # a reported post's pictures; empty for a reply
+    images: list[PostImageOut] = []
 
 
 class ReportTarget(BaseModel):

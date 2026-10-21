@@ -55,6 +55,16 @@ class PostAuthor(BaseModel):
     model_config = {"from_attributes": True}
 
 
+class PostImageOut(BaseModel):
+    """Fetched from /posts/{post_id}/images/{id}; the size lets the page keep the space while it loads."""
+    id: int
+    width: int
+    height: int
+    is_animated: bool
+
+    model_config = {"from_attributes": True}
+
+
 class PostOut(PostBase):
     id: int
     # null when the post is anonymous
@@ -82,6 +92,7 @@ class PostOut(PostBase):
     is_mine: bool = False
     # the author already used their one switch between anonymous and named
     anonymity_switched: bool = False
+    images: list[PostImageOut] = []
 
     model_config = {"from_attributes": True}
 

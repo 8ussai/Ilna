@@ -111,8 +111,9 @@ export function BlogFeed({
           placeholder={t('feed.placeholder', { name: title })}
           submitLabel={t('feed.post')}
           anonymousLabel={t('anonymous.postAnonymously')}
-          onSubmit={async (content, isAnonymous) => {
-            const post = await createPost(scope, content, isAnonymous)
+          allowImages
+          onSubmit={async (content, isAnonymous, images) => {
+            const post = await createPost(scope, content, isAnonymous, images)
             setPosts((current) => [post, ...current])
           }}
         />

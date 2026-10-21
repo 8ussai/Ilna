@@ -6,6 +6,7 @@ import {
   ADMIN_POSTS_PAGE,
   deleteAdminPost,
   fetchAdminPost,
+  fetchAdminPostImage,
   fetchAdminPosts,
   findAdminReply,
   MAX_PIN_HOURS,
@@ -20,6 +21,8 @@ import type { PostScope } from '../../api/posts'
 import { postOriginNames } from '../../catalog'
 import { AnonymousBadge } from '../../components/Anonymous'
 import { DeleteButton } from '../../components/DeleteButton'
+import { LinkifiedText } from '../../components/LinkifiedText'
+import { PostImages } from '../../components/PostImages'
 import { Field } from '../../components/Field'
 import { Select } from '../../components/Select'
 import { secondaryButtonInline, smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
@@ -351,8 +354,9 @@ function PostRow({
     <article className="rounded-2xl border border-line bg-card p-4">
       <PostHeader post={post} catalog={catalog} />
       <p dir="auto" className="mt-3 line-clamp-4 whitespace-pre-wrap break-words">
-        {post.content}
+        <LinkifiedText text={post.content} />
       </p>
+      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image.id)} />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="me-2 text-sm text-muted">
           {t('admin.posts.score', { count: post.votes_count })} · {t('replies.count', { count: post.replies_count })}
@@ -402,8 +406,9 @@ export function PostThread({
     <article className="rounded-2xl border border-line bg-card p-4">
       <PostHeader post={post} catalog={catalog} />
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
-        {post.content}
+        <LinkifiedText text={post.content} />
       </p>
+      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image.id)} />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="me-2 text-sm text-muted">
           {t('admin.posts.score', { count: post.votes_count })} · {t('replies.count', { count: post.replies_count })}
@@ -513,7 +518,7 @@ function ReplyItem({ reply, highlighted, onRemove }: { reply: AdminReply; highli
       ) : (
         <>
           <p dir="auto" className="mt-1 whitespace-pre-wrap break-words">
-            {reply.content}
+            <LinkifiedText text={reply.content} />
           </p>
           <button type="button" onClick={onRemove} className={`${smallSecondaryButton} mt-2 text-danger`}>
             {t('admin.posts.removeReply')}

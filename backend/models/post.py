@@ -38,6 +38,27 @@ class Post(Base):
     replies = relationship("Reply", back_populates="post", cascade="all, delete-orphan")
     notifications = relationship("Notification", back_populates="post", cascade="all, delete-orphan")
     anon_numbers = relationship("ThreadAnonNumber", cascade="all, delete-orphan")
+    images = relationship("PostImage", cascade="all, delete-orphan", order_by="PostImage.position")
+
+
+class PostImage(Base):
+    """A picture in a post, shrunk and saved as WebP with its photo details (EXIF, GPS) removed."""
+    __tablename__ = "post_images"
+
+    id = Column(Integer, primary_key=True, index=True)
+    post_id = Column(Integer, ForeignKey("posts.id", ondelete="CASCADE"), nullable=False, index=True)
+    # the uploader, so the pictures count toward their storage
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    # 0-based order in the post
+    position = Column(Integer, nullable=False)
+    # a random name under POST_IMAGE_DIR; nothing in it points back to the user
+    file_path = Column(String, nullable=False)
+    width = Column(Integer, nullable=False)
+    height = Column(Integer, nullable=False)
+    size_bytes = Column(Integer, nullable=False)
+    # an animated GIF (or WebP/PNG), kept animated
+    is_animated = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), default=func.now())
 
 
 class ThreadAnonNumber(Base):

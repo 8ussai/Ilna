@@ -6,6 +6,7 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi.responses import FileResponse
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session, joinedload
 
@@ -24,7 +25,7 @@ from backend.models.admin import AdminCode, AdminLog, Report
 from backend.models.contact import ContactMessage
 from backend.models.course import Course, CourseMaterial
 from backend.models.notification import Notification
-from backend.models.post import Post, PostVote, Reply, ReplyVote, ThreadAnonNumber
+from backend.models.post import Post, PostImage, PostVote, Reply, ReplyVote, ThreadAnonNumber
 from backend.models.user import User
 from backend.routes.auth import _send_code as send_code
 from backend.schemas.post import PostAuthor, PostScope
@@ -64,6 +65,7 @@ from backend.schemas.admin import (
 from backend.services.admin_account import get_admin_account
 from backend.services.anonymity import anonymous_author, anonymous_reply_author
 from backend.services.notifications import NotificationType, notify_removal
+from backend.services.post_images import remove_image_files
 from backend.services.reply_removal import remove_reply
 from backend.services.account_deletion import delete_account
 from backend.services.catalog import locate
@@ -477,6 +479,7 @@ def _post_out(db: Session, post: Post, votes_count: int, replies_count: int) -> 
         votes_count=votes_count,
         replies_count=replies_count,
         shown_as=_shown_as(db, post),
+        images=post.images,
     )
 
 
@@ -560,6 +563,14 @@ def get_post_detail(post_id: int, db: Session = Depends(get_db)):
     )
 
 
+@router.get("/posts/{post_id}/images/{image_id}", response_class=FileResponse, dependencies=[Depends(get_admin)])
+def get_post_image_as_admin(post_id: int, image_id: int, db: Session = Depends(get_db)):
+    image = db.query(PostImage).filter(PostImage.id == image_id, PostImage.post_id == post_id).first()
+    if not image:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Picture not found")
+    return FileResponse(image.file_path, media_type="image/webp", headers={"Cache-Control": "private, max-age=86400"})
+
+
 @router.get("/replies/{reply_id}", response_model=ReplyLookup, dependencies=[Depends(get_admin)])
 def find_reply(reply_id: int, db: Session = Depends(get_db)):
     """For jumping to #R17: which post it's on."""
@@ -601,9 +612,11 @@ def remove_post(post_id: int, data: ReasonRequest, db: Session = Depends(get_db)
         reason=data.reason,
         content=post.content,
     )
-    # its replies, votes and notifications go with it (the ORM cascade)
+    # its replies, votes, notifications and pictures go with it (the ORM cascade); the picture files after the commit
+    image_paths = [image.file_path for image in post.images]
     db.delete(post)
     db.commit()
+    remove_image_files(image_paths)
 
 
 @router.post("/replies/{reply_id}/remove", status_code=status.HTTP_204_NO_CONTENT, dependencies=[Depends(get_admin)])
@@ -678,6 +691,7 @@ def list_reports(db: Session = Depends(get_db)):
                 latest_at=report.created_at,
                 reports=[entry],
                 shown_as=_shown_as(db, item),
+                images=item.images if key[0] == "post" else [],
             )
         else:
             group.reports_count += 1

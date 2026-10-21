@@ -10,6 +10,7 @@ import { applyVote } from '../votes'
 import { anonymousName, AnonymitySwitchButton, AuthorAvatar, AuthorName, isAnonymousAuthor, OwnAnonymousTag } from './Anonymous'
 import { Composer } from './Composer'
 import { DeleteButton } from './DeleteButton'
+import { LinkifiedText } from './LinkifiedText'
 import { goldClass } from './Premium'
 import { ReportButton } from './ReportButton'
 import { VoteButtons } from './VoteButtons'
@@ -129,7 +130,7 @@ function ReplyItem({ reply, depth, actions }: { reply: Reply; depth: number; act
           <p className="mt-1.5 text-muted italic">{t(reply.removed_by_admin ? 'replies.removedByAdmin' : 'replies.deleted')}</p>
         ) : (
           <p dir="auto" className="mt-1.5 whitespace-pre-wrap break-words">
-            {reply.content}
+            <LinkifiedText text={reply.content} />
           </p>
         )}
 

@@ -29,6 +29,19 @@ admin_oauth2_scheme = OAuth2PasswordBearer(tokenUrl="admin/verify-code", scheme_
 UPLOAD_DIR = "uploads/courses"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+# pictures in blog posts, saved as WebP under random names (services/post_images.py)
+POST_IMAGE_DIR = "uploads/posts"
+os.makedirs(POST_IMAGE_DIR, exist_ok=True)
+MAX_POST_IMAGES = 4
+# per picture, as uploaded; matches frontend/src/components/Composer.tsx
+MAX_POST_IMAGE_BYTES = 10 * 1024 ** 2
+# the longest side after shrinking
+POST_IMAGE_MAX_SIDE = 2048
+# guards against "image bombs": small files that unpack to huge pictures or endless animations
+POST_IMAGE_MAX_PIXELS = 50_000_000
+POST_IMAGE_MAX_FRAMES = 300
+POST_IMAGE_MAX_TOTAL_PIXELS = 400_000_000
+
 CHROMA_DB_DIR = "chroma_db"
 os.makedirs(CHROMA_DB_DIR, exist_ok=True)
 

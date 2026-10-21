@@ -550,6 +550,23 @@
     "show_other": "Show {{count}} replies",
     "removedByAdmin": "[removed by admin]"
   },
+  "composer": {
+    "addPhotos": "Photos",
+    "removePhoto": "Remove picture {{number}}",
+    "photoType": "Pictures must be JPG, PNG, WebP or GIF.",
+    "photoTooBig": "Pictures can be up to {{mb}} MB each.",
+    "photoLimit": "A post can have up to {{count}} pictures.",
+    "photoRejected": "One of the pictures couldn't be used. Try another one.",
+    "storageFull": "These pictures would go over your storage limit."
+  },
+  "images": {
+    "open": "Open picture {{number}} of {{count}}",
+    "alt": "Picture {{number}} of {{count}}",
+    "loadFailed": "Couldn't load picture",
+    "close": "Close",
+    "previous": "Previous picture",
+    "next": "Next picture"
+  },
   "anonymous": {
     "label": "Anonymous",
     "name": "Anonymous {{number}}",
@@ -635,7 +652,7 @@
     "storage": {
       "title": "Storage",
       "summary": "Space used by your uploaded files",
-      "description": "All the files you upload to your courses count toward this limit.",
+      "description": "All the files you upload to your courses, and the pictures in your posts, count toward this limit.",
       "usedOf": "{{used}} of {{limit}} used",
       "left": "{{left}} left",
       "full": "Your storage is full. You can't upload more files.",

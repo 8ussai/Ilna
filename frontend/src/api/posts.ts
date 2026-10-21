@@ -1,4 +1,4 @@
-import { authRequest } from './client'
+import { authBlob, authRequest } from './client'
 
 export type PostScope = 'general' | 'university' | 'college' | 'major'
 export type PostSort = 'hot' | 'new' | 'top'
@@ -16,6 +16,14 @@ export type Author = {
   anon_number?: number | null
   is_thread_author?: boolean
 }
+
+// shown from /posts/{post id}/images/{id}; the size keeps the space while it loads
+export type PostImage = { id: number; width: number; height: number; is_animated: boolean }
+
+// matches backend/backendConfig.py
+export const MAX_POST_IMAGES = 4
+export const MAX_POST_IMAGE_BYTES = 10 * 1024 * 1024
+export const POST_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
 
 export type Post = {
   id: number
@@ -41,6 +49,7 @@ export type Post = {
   is_mine: boolean
   // the author already used their one switch between anonymous and named
   anonymity_switched: boolean
+  images: PostImage[]
 }
 
 export const PAGE_SIZE = 20
@@ -54,12 +63,18 @@ export function fetchPost(id: number) {
   return authRequest<Post>(`/posts/${id}`)
 }
 
-export function createPost(scope: PostScope, content: string, isAnonymous: boolean) {
-  return authRequest<Post>('/posts/', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ scope, content, is_anonymous: isAnonymous }),
-  })
+// a form, so the pictures go up with the text in one request
+export function createPost(scope: PostScope, content: string, isAnonymous: boolean, images: File[] = []) {
+  const form = new FormData()
+  form.append('scope', scope)
+  form.append('content', content)
+  form.append('is_anonymous', String(isAnonymous))
+  for (const image of images) form.append('images', image)
+  return authRequest<Post>('/posts/', { method: 'POST', body: form })
+}
+
+export function fetchPostImage(postId: number, imageId: number) {
+  return authBlob(`/posts/${postId}/images/${imageId}`)
 }
 
 // allowed once per post, by its author

@@ -72,9 +72,14 @@ export function authRequest<T>(path: string, init: RequestInit = {}): Promise<T>
 }
 
 // a file the API only serves to its owner, so it can't be a plain <a href> or <img src>
-export async function authBlob(path: string): Promise<Blob> {
+export function authBlob(path: string): Promise<Blob> {
+  return blobRequest(path, authToken, true)
+}
+
+// notifySession is false for the admin panel, whose 401 mustn't log the student out
+export async function blobRequest(path: string, token: string | null, notifySession: boolean): Promise<Blob> {
   const headers = new Headers()
-  if (authToken) headers.set('Authorization', `Bearer ${authToken}`)
+  if (token) headers.set('Authorization', `Bearer ${token}`)
   let response: Response
   try {
     response = await fetch(`${BASE_URL}${path}`, { headers })
@@ -83,7 +88,7 @@ export async function authBlob(path: string): Promise<Blob> {
   }
   if (!response.ok) {
     const body = await response.json().catch(() => null)
-    checkSession(response.status, body?.detail)
+    if (notifySession) checkSession(response.status, body?.detail)
     throw new ApiError(response.status, body?.detail)
   }
   return response.blob()
