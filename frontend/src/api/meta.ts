@@ -7,13 +7,14 @@ type University = Named & { domain: string; colleges: College[] }
 type Country = Named & { universities: University[] }
 export type Catalog = { countries: Country[] }
 
+// the universities, colleges and majors offered at sign-up
 export function fetchCatalog() {
   return request<Catalog>('/meta/universities')
 }
 
 type MaintenanceState = 'off' | 'scheduled' | 'on'
 
-// backend/schemas/maintenance.py; times are UTC strings
+// backend/maintenance/schemas.py; times are UTC strings
 export type MaintenanceStatus = {
   state: MaintenanceState
   message: string | null

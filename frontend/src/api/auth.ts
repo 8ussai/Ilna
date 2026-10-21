@@ -19,10 +19,12 @@ export type Me = {
   is_test: boolean
 }
 
+// the logged-in student's own account
 export function fetchMe() {
   return authRequest<Me>('/auth/me')
 }
 
+// changes the password; the server then logs out every session
 export function changePassword(current_password: string, new_password: string) {
   return authRequest<null>('/auth/change-password', {
     method: 'POST',
@@ -31,7 +33,7 @@ export function changePassword(current_password: string, new_password: string) {
   })
 }
 
-export type RegisterPayload = {
+type RegisterPayload = {
   username: string
   first_name: string
   last_name: string
@@ -43,6 +45,7 @@ export type RegisterPayload = {
   major: string
 }
 
+// signs up; a 6-digit code is emailed to verify the address
 export function register(payload: RegisterPayload) {
   return request('/auth/register', {
     method: 'POST',
@@ -61,6 +64,7 @@ export async function verifyOtp(email: string, code: string): Promise<string> {
   return access_token
 }
 
+// emails a new sign-up code
 export function resendOtp(email: string) {
   return request<null>('/auth/resend-otp', {
     method: 'POST',
@@ -108,6 +112,7 @@ export async function login(identifier: string, password: string): Promise<strin
 
 const TOKEN_KEY = 'ilna-token'
 
+// the student login saved in this browser, if any
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY)
@@ -116,6 +121,7 @@ export function getToken(): string | null {
   }
 }
 
+// saves or clears the student login in this browser
 export function setToken(token: string | null) {
   try {
     if (token) localStorage.setItem(TOKEN_KEY, token)

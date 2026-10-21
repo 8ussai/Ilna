@@ -57,7 +57,7 @@ export type StudyItemSummary = {
   updated_at: string
 }
 
-export type StudyCreateInput = {
+type StudyCreateInput = {
   kind: StudyKind
   sources: { type: 'material' | 'note'; id: number }[]
   // the main language; null = the material's own
@@ -68,6 +68,7 @@ export type StudyCreateInput = {
 
 const json = { 'Content-Type': 'application/json' }
 
+// a course's summaries and quizzes, newest first
 export function fetchStudyItems(courseId: number) {
   return authRequest<StudyItemSummary[]>(`/courses/${courseId}/study`)
 }
@@ -82,6 +83,7 @@ export function retryStudyItem(courseId: number, itemId: number) {
   return authRequest<StudyItemSummary>(`/courses/${courseId}/study/${itemId}/retry`, { method: 'POST' })
 }
 
+// deletes a summary or quiz
 export function deleteStudyItem(courseId: number, itemId: number) {
   return authRequest<null>(`/courses/${courseId}/study/${itemId}`, { method: 'DELETE' })
 }
@@ -119,6 +121,7 @@ export type StudyItem = StudyItemSummary & {
   quiz: Partial<Record<StudyLanguage, QuizPublic>> | null
 }
 
+// one summary or quiz with its content
 export function fetchStudyItem(courseId: number, itemId: number) {
   return authRequest<StudyItem>(`/courses/${courseId}/study/${itemId}`)
 }

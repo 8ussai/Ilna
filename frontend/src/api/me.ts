@@ -16,11 +16,13 @@ export type ActivityItem = {
 
 export const ACTIVITY_PAGE_SIZE = 20
 
+// one page of the student's own posts and replies
 export function fetchActivity(offset = 0) {
   const params = new URLSearchParams({ limit: String(ACTIVITY_PAGE_SIZE), offset: String(offset) })
   return authRequest<ActivityItem[]>(`/me/activity?${params}`)
 }
 
+// saves the site's theme color on the account
 export function setAccentColor(accent_color: string | null) {
   return authRequest<Me>('/me/accent-color', {
     method: 'PUT',
@@ -31,6 +33,7 @@ export function setAccentColor(accent_color: string | null) {
 
 export type Storage = { used_bytes: number; limit_bytes: number }
 
+// how much storage the student uses
 export function fetchStorage() {
   return authRequest<Storage>('/me/storage')
 }
@@ -40,8 +43,9 @@ export function fetchStorage() {
 export type DailyUsage = { used: number; limit: number; frees_at: string | null }
 // premium shows as unlimited summaries and quizzes; its limits are only a hidden cap.
 // course_limit is null for premium, which can have any number of courses
-export type Usage = { premium: boolean; storage: Storage; summary: DailyUsage; quiz: DailyUsage; course_limit: number | null }
+type Usage = { premium: boolean; storage: Storage; summary: DailyUsage; quiz: DailyUsage; course_limit: number | null }
 
+// storage, AI and course limits and how much of them is used
 export function fetchUsage() {
   return authRequest<Usage>('/me/usage')
 }
@@ -87,15 +91,18 @@ export type AppNotification = {
 
 export const NOTIFICATIONS_PAGE_SIZE = 20
 
+// one page of notifications, newest first
 export function fetchNotifications(offset = 0) {
   const params = new URLSearchParams({ limit: String(NOTIFICATIONS_PAGE_SIZE), offset: String(offset) })
   return authRequest<AppNotification[]>(`/me/notifications?${params}`)
 }
 
+// how many notifications are unread
 export function fetchUnreadCount() {
   return authRequest<{ count: number }>('/me/notifications/unread-count')
 }
 
+// marks these notifications read
 export function markNotificationsRead(ids: number[]) {
   return authRequest<null>('/me/notifications/read', {
     method: 'POST',
@@ -104,6 +111,7 @@ export function markNotificationsRead(ids: number[]) {
   })
 }
 
+// sends a Contact us message
 export function sendContactMessage(subject: string, message: string) {
   return authRequest<null>('/contact/', {
     method: 'POST',

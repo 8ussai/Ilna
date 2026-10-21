@@ -9,6 +9,7 @@ const POLL_MS = 60_000
 export function useUnreadCount() {
   const [count, setCount] = useState(0)
 
+  // fetches the unread count again
   const refresh = useCallback(() => {
     fetchUnreadCount()
       .then((result) => setCount(result.count))
@@ -21,6 +22,7 @@ export function useUnreadCount() {
     const timer = window.setInterval(() => {
       if (document.visibilityState === 'visible') refresh()
     }, POLL_MS)
+    // refreshes when the tab is shown again
     function onVisibility() {
       if (document.visibilityState === 'visible') refresh()
     }

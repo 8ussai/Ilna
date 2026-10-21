@@ -35,6 +35,7 @@ export function useAutosave<T>(value: T, save: (value: T) => Promise<void>, opti
     isEqualRef.current = isEqual
   })
 
+  // whether what's on screen differs from what was last saved
   const isDirty = () => !isEqualRef.current(latestRef.current, savedRef.current)
 
   // true once what's on screen is saved; false if this attempt failed
@@ -78,6 +79,7 @@ export function useAutosave<T>(value: T, save: (value: T) => Promise<void>, opti
   }, [value, delay, isEqual, flush])
 
   useEffect(() => {
+    // saves as soon as the connection is back
     const onOnline = () => {
       if (isDirty()) flush()
     }
@@ -85,6 +87,7 @@ export function useAutosave<T>(value: T, save: (value: T) => Promise<void>, opti
     const onHidden = () => {
       if (document.visibilityState === 'hidden' && isDirty()) flush()
     }
+    // warns before leaving the page with unsaved changes
     const onBeforeUnload = (e: BeforeUnloadEvent) => {
       if (isDirty() || inFlightRef.current) e.preventDefault()
     }

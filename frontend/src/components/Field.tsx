@@ -11,6 +11,7 @@ type FieldProps = {
   hint?: string
 } & Omit<InputHTMLAttributes<HTMLInputElement>, 'id'>
 
+// a labeled text input with its hint or error
 export function Field({ label, error, hint, className, ...input }: FieldProps) {
   const id = useId()
   const describedBy = error ? `${id}-err` : hint ? `${id}-hint` : undefined
@@ -32,6 +33,7 @@ export function Field({ label, error, hint, className, ...input }: FieldProps) {
   )
 }
 
+// the error or hint under a field
 export function FieldMessage({ id, error, hint }: { id: string; error?: string; hint?: string }) {
   if (error) {
     return (

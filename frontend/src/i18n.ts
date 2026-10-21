@@ -6,6 +6,7 @@ import ar from './locales/ar.json'
 
 export type Lang = 'en' | 'ar'
 
+// sets the page's language and direction, and remembers it
 export function applyLang(lang: Lang) {
   const root = document.documentElement
   root.setAttribute('lang', lang)

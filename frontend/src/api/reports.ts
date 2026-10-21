@@ -1,6 +1,6 @@
 import { authRequest } from './client'
 
-// matches ReportReason in backend/schemas/report.py
+// matches ReportReason in backend/blog/schemas.py
 export const REPORT_REASONS = ['spam', 'harassment', 'inappropriate', 'other'] as const
 export type ReportReason = (typeof REPORT_REASONS)[number]
 

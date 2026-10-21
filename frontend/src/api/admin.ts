@@ -5,6 +5,7 @@ import type { Author, PostImage, PostScope } from './posts'
 // sessionStorage, so the admin login ends when the tab is closed; kept apart from the student login
 const ADMIN_TOKEN_KEY = 'ilna-admin-token'
 
+// the admin login saved for this browser tab, if any
 export function getAdminToken(): string | null {
   try {
     return sessionStorage.getItem(ADMIN_TOKEN_KEY)
@@ -13,6 +14,7 @@ export function getAdminToken(): string | null {
   }
 }
 
+// saves or clears the admin login for this browser tab
 export function setAdminToken(token: string | null) {
   try {
     if (token) sessionStorage.setItem(ADMIN_TOKEN_KEY, token)
@@ -29,6 +31,7 @@ export function setAdminUnauthorizedHandler(handler: (() => void) | null) {
   onAdminUnauthorized = handler
 }
 
+// a request to /admin with the admin login; a 401 sends the panel back to its login screen
 async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   const token = getAdminToken()
@@ -41,20 +44,24 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
   }
 }
 
+// a post's picture, fetched with the admin login
 export function fetchAdminPostImage(postId: number, imageId: number) {
   return blobRequest(`/admin/posts/${postId}/images/${imageId}`, getAdminToken(), false)
 }
 
+// a POST with a JSON body
 const json = (body: unknown): RequestInit => ({
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify(body),
 })
 
+// emails a login code if this is the admin's address
 export function requestAdminCode(email: string) {
   return request<{ detail: string }>('/admin/request-code', json({ email }), false)
 }
 
+// logs in with the emailed code and saves the admin login
 export async function verifyAdminCode(email: string, code: string) {
   const { access_token } = await request<{ access_token: string; expires_at: string }>(
     '/admin/verify-code',
@@ -64,6 +71,7 @@ export async function verifyAdminCode(email: string, code: string) {
   return access_token
 }
 
+// checks the saved admin login still works
 export function fetchAdminSession() {
   return adminRequest<{ email: string }>('/session')
 }
@@ -96,8 +104,9 @@ export type AdminUser = {
 
 export const ADMIN_USERS_PAGE = 25
 
-export type AdminUserFilters = { premium?: boolean; test?: boolean }
+type AdminUserFilters = { premium?: boolean; test?: boolean }
 
+// one page of the Users list
 export function fetchAdminUsers(q: string, offset = 0, filters: AdminUserFilters = {}) {
   const params = new URLSearchParams({ q, limit: String(ADMIN_USERS_PAGE), offset: String(offset) })
   if (filters.premium) params.set('premium', 'true')
@@ -105,10 +114,12 @@ export function fetchAdminUsers(q: string, offset = 0, filters: AdminUserFilters
   return adminRequest<{ items: AdminUser[]; total: number }>(`/users?${params}`)
 }
 
+// bans a student; they're logged out and emailed the reason
 export function banUser(id: number, reason: string) {
   return adminRequest<AdminUser>(`/users/${id}/ban`, json({ reason }))
 }
 
+// lifts a ban
 export function unbanUser(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/unban`, { method: 'POST' })
 }
@@ -137,6 +148,7 @@ export function newTestPassword(id: number) {
   return adminRequest<{ password: string }>(`/users/${id}/test-password`, { method: 'POST' })
 }
 
+// turns a test account back on
 export function activateTestUser(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/activate`, { method: 'POST' })
 }
@@ -151,18 +163,22 @@ export function grantPremium(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/premium`, { method: 'POST' })
 }
 
+// turns premium off
 export function removePremium(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/unpremium`, { method: 'POST' })
 }
 
+// verifies a student who never got their sign-up code
 export function verifyUser(id: number) {
   return adminRequest<AdminUser>(`/users/${id}/verify`, { method: 'POST' })
 }
 
+// emails an unverified student a new sign-up code
 export function resendUserCode(id: number) {
   return adminRequest<null>(`/users/${id}/resend-code`, { method: 'POST' })
 }
 
+// deletes a student's account for good; the username must be typed to confirm
 export function deleteUser(id: number, confirmUsername: string) {
   return adminRequest<null>(`/users/${id}/delete`, json({ confirm_username: confirmUsername }))
 }
@@ -211,18 +227,22 @@ export function fetchAdminPosts(scope: PostScope | '', q: string, offset = 0, ad
   return adminRequest<{ items: AdminPost[]; total: number }>(`/posts?${params}`)
 }
 
+// a post with its whole thread
 export function fetchAdminPost(id: number) {
   return adminRequest<{ post: AdminPost; replies: AdminReply[] }>(`/posts/${id}`)
 }
 
+// which post a reply is on, for opening #R17
 export function findAdminReply(id: number) {
   return adminRequest<{ reply_id: number; post_id: number }>(`/replies/${id}`)
 }
 
+// removes a student's post and tells them why
 export function removePost(id: number, reason: string) {
   return adminRequest<null>(`/posts/${id}/remove`, json({ reason }))
 }
 
+// removes a student's reply and tells them why
 export function removeReply(id: number, reason: string) {
   return adminRequest<null>(`/replies/${id}/remove`, json({ reason }))
 }
@@ -248,14 +268,17 @@ export type AdminReportGroup = {
   reports: { reason: string; note: string | null; reporter: AdminPost['author']; created_at: string }[]
 }
 
+// open reports, grouped by post or reply
 export function fetchAdminReports() {
   return adminRequest<AdminReportGroup[]>('/reports')
 }
 
+// how many posts and replies have open reports, for the tab's badge
 export function fetchOpenReportCount() {
   return adminRequest<{ count: number }>('/reports/count')
 }
 
+// closes the reports on one post or reply and leaves it up
 export function dismissReports(targetType: 'post' | 'reply', targetId: number) {
   return adminRequest<null>('/reports/dismiss', json({ target_type: targetType, target_id: targetId }))
 }
@@ -264,6 +287,7 @@ export type MessageTarget = 'user' | 'everyone' | 'university' | 'college' | 'ma
 // value is the university, college or major id from the catalog
 export type MessageAudience = { target: MessageTarget; user_id?: number; value?: string }
 
+// how many students a message would reach
 export function previewMessage(audience: MessageAudience) {
   return adminRequest<{ count: number }>('/messages/preview', json(audience))
 }
@@ -273,7 +297,7 @@ export function sendMessage(audience: MessageAudience, message: string, confirmC
   return adminRequest<{ count: number }>('/messages', json({ ...audience, message, confirm_count: confirmCount }))
 }
 
-// matches MAX_PIN_HOURS in backend/backendConfig.py
+// matches MAX_PIN_HOURS in backend/config.py
 export const MAX_PIN_HOURS = 168
 
 // value is the university, college or major id for a scoped blog; pinHours null means not pinned
@@ -286,6 +310,7 @@ export function pinAdminPost(id: number, pinHours: number | null) {
   return adminRequest<AdminPost>(`/posts/${id}/pin`, json({ pin_hours: pinHours }))
 }
 
+// deletes one of the admin's own posts
 export function deleteAdminPost(id: number) {
   return adminRequest<null>(`/posts/${id}`, { method: 'DELETE' })
 }
@@ -303,15 +328,18 @@ export type AdminContactMessage = {
 
 export const ADMIN_CONTACT_PAGE = 20
 
+// one page of the contact inbox
 export function fetchAdminContact(status: ContactFilter, offset = 0) {
   const params = new URLSearchParams({ status, limit: String(ADMIN_CONTACT_PAGE), offset: String(offset) })
   return adminRequest<{ items: AdminContactMessage[]; total: number }>(`/contact?${params}`)
 }
 
+// how many contact messages are open, for the tab's badge
 export function fetchOpenContactCount() {
   return adminRequest<{ count: number }>('/contact/count')
 }
 
+// marks a contact message handled, or open again
 export function markContactHandled(id: number, handled: boolean) {
   return adminRequest<AdminContactMessage>(`/contact/${id}/handled`, json({ handled }))
 }
@@ -328,11 +356,13 @@ export type AdminLogEntry = {
 
 export const ADMIN_LOG_PAGE = 30
 
+// one page of the admin log, optionally one action only
 export function fetchAdminLog(action: string, offset = 0) {
   const params = new URLSearchParams({ action, limit: String(ADMIN_LOG_PAGE), offset: String(offset) })
   return adminRequest<{ items: AdminLogEntry[]; total: number; actions: string[] }>(`/log?${params}`)
 }
 
+// the current maintenance window
 export function fetchMaintenance() {
   return adminRequest<MaintenanceStatus>('/maintenance')
 }
@@ -378,15 +408,18 @@ export type AdminCourseDetail = {
 
 export const ADMIN_COURSES_PAGE = 20
 
+// one page of public courses
 export function fetchAdminCourses(q: string, offset = 0) {
   const params = new URLSearchParams({ q, offset: String(offset) })
   return adminRequest<{ items: AdminCourse[]; total: number }>(`/courses?${params}`)
 }
 
+// a public course's files, links and notes
 export function fetchAdminCourse(id: number) {
   return adminRequest<AdminCourseDetail>(`/courses/${id}`)
 }
 
+// a public course's file, fetched with the admin login
 export function fetchAdminCourseFile(courseId: number, materialId: number) {
   return blobRequest(`/admin/courses/${courseId}/materials/${materialId}/file`, getAdminToken(), false)
 }

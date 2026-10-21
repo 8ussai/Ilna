@@ -30,6 +30,7 @@ export function Dialog({ title, onClose, children, size = 'sm' }: DialogProps) {
     const first = panel?.querySelector<HTMLElement>('input, textarea, select') ?? panel?.querySelector<HTMLElement>(FOCUSABLE)
     first?.focus()
 
+    // Esc closes; Tab stays inside the dialog
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') {
         e.stopPropagation()

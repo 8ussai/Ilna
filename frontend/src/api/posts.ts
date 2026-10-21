@@ -20,7 +20,7 @@ export type Author = {
 // shown from /posts/{post id}/images/{id}; the size keeps the space while it loads
 export type PostImage = { id: number; width: number; height: number; is_animated: boolean }
 
-// matches backend/backendConfig.py
+// matches backend/config.py
 export const MAX_POST_IMAGES = 4
 export const MAX_POST_IMAGE_BYTES = 10 * 1024 * 1024
 export const POST_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -54,11 +54,13 @@ export type Post = {
 
 export const PAGE_SIZE = 20
 
+// one page of a blog
 export function fetchPosts(scope: PostScope, sort: PostSort, offset = 0) {
   const params = new URLSearchParams({ scope, sort, limit: String(PAGE_SIZE), offset: String(offset) })
   return authRequest<Post[]>(`/posts/?${params}`)
 }
 
+// one post
 export function fetchPost(id: number) {
   return authRequest<Post>(`/posts/${id}`)
 }
@@ -73,6 +75,7 @@ export function createPost(scope: PostScope, content: string, isAnonymous: boole
   return authRequest<Post>('/posts/', { method: 'POST', body: form })
 }
 
+// a post's picture, fetched with the login
 export function fetchPostImage(postId: number, imageId: number) {
   return authBlob(`/posts/${postId}/images/${imageId}`)
 }
@@ -95,6 +98,7 @@ export function votePost(id: number, dir: 1 | -1) {
   })
 }
 
+// deletes the student's own post
 export function deletePost(id: number) {
   return authRequest<null>(`/posts/${id}`, { method: 'DELETE' })
 }

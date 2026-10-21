@@ -7,6 +7,7 @@ export function DeleteButton({ question, onConfirm, label }: { question: string;
   const [confirming, setConfirming] = useState(false)
   const [busy, setBusy] = useState(false)
 
+  // runs the delete once confirmed
   async function confirm() {
     setBusy(true)
     try {

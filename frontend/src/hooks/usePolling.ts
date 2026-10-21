@@ -20,6 +20,7 @@ export function usePolling(active: boolean, tick: () => Promise<void>, restartKe
     const startedAt = Date.now()
     let stopped = false
 
+    // runs one tick, then schedules the next
     const run = async () => {
       try {
         await tickRef.current()

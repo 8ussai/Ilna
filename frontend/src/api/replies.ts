@@ -28,6 +28,7 @@ export function fetchReplies(postId: number) {
   return authRequest<Reply[]>(`/posts/${postId}/replies`)
 }
 
+// replies to a post, or to a reply when parentId is set
 export function createReply(postId: number, content: string, parentId: number | null, isAnonymous: boolean) {
   return authRequest<Reply>(`/posts/${postId}/replies`, {
     method: 'POST',
@@ -45,10 +46,12 @@ export function setReplyAnonymity(id: number, isAnonymous: boolean) {
   })
 }
 
+// deletes the student's own reply
 export function deleteReply(id: number) {
   return authRequest<null>(`/replies/${id}`, { method: 'DELETE' })
 }
 
+// votes on a reply; the same vote again takes it back
 export function voteReply(id: number, dir: 1 | -1) {
   return authRequest<{ vote_dir: VoteDir; votes_count: number }>(`/replies/${id}/vote`, {
     method: 'POST',

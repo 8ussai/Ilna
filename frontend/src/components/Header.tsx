@@ -8,6 +8,7 @@ import type { Lang } from '../i18n'
 
 type Theme = 'light' | 'dark'
 
+// switches light/dark mode and remembers it
 function applyTheme(theme: Theme) {
   document.documentElement.setAttribute('data-theme', theme)
   try {
@@ -25,6 +26,7 @@ type HeaderProps = {
   onLogoClick?: (e: MouseEvent<HTMLAnchorElement>) => void
 }
 
+// the top bar: logo, language and theme switches, and extra controls
 export function Header({ children, onLogoClick }: HeaderProps) {
   const { t, i18n } = useTranslation()
   const [theme, setTheme] = useState<Theme>(
@@ -32,11 +34,13 @@ export function Header({ children, onLogoClick }: HeaderProps) {
   )
   const lang: Lang = i18n.language === 'ar' ? 'ar' : 'en'
 
+  // switches the site's language
   function changeLang(next: Lang) {
     applyLang(next)
     i18n.changeLanguage(next)
   }
 
+  // flips between light and dark mode
   function toggleTheme() {
     const next: Theme = theme === 'dark' ? 'light' : 'dark'
     applyTheme(next)

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { controlClass, FieldMessage } from './Field'
 
-export type Option = { value: string; label: string }
+type Option = { value: string; label: string }
 
 type SelectProps = {
   label: string
@@ -27,6 +27,7 @@ export function Select({ label, value, options, onChange, disabled, error }: Sel
   const [query, setQuery] = useState('')
   const [active, setActive] = useState(0)
 
+  // the options matching what's typed
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
     return q ? options.filter((o) => o.label.toLowerCase().includes(q)) : options
@@ -36,6 +37,7 @@ export function Select({ label, value, options, onChange, disabled, error }: Sel
 
   useEffect(() => {
     if (!open) return
+    // closes the list on a click outside it
     const onDown = (e: MouseEvent) => {
       if (!root.current?.contains(e.target as Node)) setOpen(false)
     }
@@ -51,18 +53,21 @@ export function Select({ label, value, options, onChange, disabled, error }: Sel
     if (open) document.getElementById(`${id}-opt-${active}`)?.scrollIntoView({ block: 'nearest' })
   }, [open, active, id])
 
+  // opens the list at the chosen option
   function openList() {
     setQuery('')
     setActive(Math.max(0, options.findIndex((o) => o.value === value)))
     setOpen(true)
   }
 
+  // picks an option and closes the list
   function choose(option: Option) {
     onChange(option.value)
     setOpen(false)
     button.current?.focus()
   }
 
+  // arrow keys move, Enter picks, Esc closes
   function onSearchKeyDown(e: KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'ArrowDown') {
       e.preventDefault()

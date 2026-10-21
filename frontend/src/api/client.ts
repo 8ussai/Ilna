@@ -30,7 +30,7 @@ export async function request<T>(path: string, init?: RequestInit, notifyUnautho
 }
 
 let authToken: string | null = null
-// matches ACCOUNT_SUSPENDED in backend/core/apiDependencies.py
+// matches ACCOUNT_SUSPENDED in backend/core/dependencies.py
 export const ACCOUNT_SUSPENDED = 'Account suspended'
 // matches TEST_ACCOUNT_OFF: the admin turned this test account off
 export const TEST_ACCOUNT_OFF = 'Test account turned off'
@@ -43,15 +43,17 @@ let onUnauthorized: ((reason: LogoutReason) => void) | null = null
 // told when a request is refused because the site is closed for maintenance; the session stays
 let onMaintenance: (() => void) | null = null
 
+// called when the site closes for maintenance mid-session
 export function setMaintenanceHandler(handler: (() => void) | null) {
   onMaintenance = handler
 }
 
-// the 503 detail while the site is closed (backend/services/maintenance.py closed_detail)
+// the 503 detail while the site is closed (backend/maintenance/service.py closed_detail)
 function isMaintenanceDetail(detail: unknown) {
   return !!detail && typeof detail === 'object' && 'code' in detail && detail.code === 'maintenance'
 }
 
+// reacts to an answer that ends the session or means the site is closed
 function checkSession(status: number, detail: unknown) {
   if (status === 401) onUnauthorized?.('expired')
   else if (status === 403 && detail === ACCOUNT_SUSPENDED) onUnauthorized?.('suspended')
@@ -65,6 +67,7 @@ export function setAuth(token: string | null, handleUnauthorized: ((reason: Logo
   onUnauthorized = handleUnauthorized
 }
 
+// a request with the student login
 export function authRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
   const headers = new Headers(init.headers)
   if (authToken) headers.set('Authorization', `Bearer ${authToken}`)

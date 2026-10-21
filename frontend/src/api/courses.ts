@@ -7,10 +7,10 @@ export type CourseColor = (typeof COURSE_COLORS)[number]
 export const COURSE_TITLE_MAX = 100
 export const COURSE_DESCRIPTION_MAX = 500
 
-// what the backend accepts, by extension (backendConfig.DOCUMENT_EXTENSIONS / AUDIO_EXTENSIONS)
+// what the backend accepts, by extension (config.DOCUMENT_EXTENSIONS / AUDIO_EXTENSIONS)
 export const DOCUMENT_EXTENSIONS = ['pdf', 'ppt', 'pptx']
 export const AUDIO_EXTENSIONS = ['mp3', 'm4a', 'wav', 'webm', 'ogg']
-// largest single file or recording (backendConfig.MAX_UPLOAD_BYTES)
+// largest single file or recording (config.MAX_UPLOAD_BYTES)
 export const MAX_UPLOAD_BYTES = 95 * 1024 ** 2
 
 export type Course = {
@@ -91,6 +91,7 @@ export type CourseInput = {
 
 const json = { 'Content-Type': 'application/json' }
 
+// the courses grid: own courses and added ones
 export function fetchCourses() {
   return authRequest<CourseSummary[]>('/courses/')
 }
@@ -100,6 +101,7 @@ export function fetchCourse(id: number) {
   return authRequest<CourseDetail>(`/courses/${id}`)
 }
 
+// makes a new course
 export function createCourse(input: CourseInput) {
   return authRequest<Course>('/courses/', { method: 'POST', headers: json, body: JSON.stringify(input) })
 }
@@ -109,10 +111,12 @@ export function updateCourse(id: number, changes: Partial<CourseInput>) {
   return authRequest<Course>(`/courses/${id}`, { method: 'PATCH', headers: json, body: JSON.stringify(changes) })
 }
 
+// deletes a course with everything in it
 export function deleteCourse(id: number) {
   return authRequest<null>(`/courses/${id}`, { method: 'DELETE' })
 }
 
+// adds a link to a course
 export function addCourseLink(courseId: number, title: string, url: string) {
   return authRequest<CourseLink>(`/courses/${courseId}/links`, {
     method: 'POST',
@@ -121,6 +125,7 @@ export function addCourseLink(courseId: number, title: string, url: string) {
   })
 }
 
+// uploads a file or recording with progress; audio can carry its length and language
 export function uploadCourseMaterial(
   courseId: number,
   file: File,
@@ -132,6 +137,7 @@ export function uploadCourseMaterial(
   return authUpload<CourseMaterial>(`/courses/${courseId}/upload`, form, options.onProgress, options.signal)
 }
 
+// a course file, fetched with the login so it can be shown or saved
 export function fetchMaterialFile(courseId: number, materialId: number) {
   return authBlob(`/courses/${courseId}/materials/${materialId}/file`)
 }
@@ -141,6 +147,7 @@ export function fetchMaterials(courseId: number) {
   return authRequest<CourseMaterial[]>(`/courses/${courseId}/materials`)
 }
 
+// renames a course file
 export function renameMaterial(courseId: number, materialId: number, fileName: string) {
   return authRequest<CourseMaterial>(`/courses/${courseId}/materials/${materialId}`, {
     method: 'PATCH',
@@ -149,6 +156,7 @@ export function renameMaterial(courseId: number, materialId: number, fileName: s
   })
 }
 
+// deletes a course file
 export function deleteMaterial(courseId: number, materialId: number) {
   return authRequest<null>(`/courses/${courseId}/materials/${materialId}`, { method: 'DELETE' })
 }
@@ -157,6 +165,7 @@ export type TranscriptLanguage = 'ar' | 'en'
 export type TranscriptSegment = { start: number; end: number; text: string }
 export type Transcript = NonNullable<CourseMaterial['transcript']> & { segments: TranscriptSegment[] | null }
 
+// a recording's transcript with its timed lines
 export function fetchTranscript(courseId: number, materialId: number) {
   return authRequest<Transcript>(`/courses/${courseId}/materials/${materialId}/transcript`)
 }
@@ -170,6 +179,7 @@ export function retryTranscript(courseId: number, materialId: number, language: 
   })
 }
 
+// changes a link's title or address
 export function updateCourseLink(courseId: number, linkId: number, changes: { title?: string; url?: string }) {
   return authRequest<CourseLink>(`/courses/${courseId}/links/${linkId}`, {
     method: 'PATCH',
@@ -178,6 +188,7 @@ export function updateCourseLink(courseId: number, linkId: number, changes: { ti
   })
 }
 
+// deletes a link
 export function deleteCourseLink(courseId: number, linkId: number) {
   return authRequest<null>(`/courses/${courseId}/links/${linkId}`, { method: 'DELETE' })
 }
@@ -186,6 +197,7 @@ export function deleteCourseLink(courseId: number, linkId: number) {
 export const NOTE_CONTENT_MAX = 100_000
 export const NOTE_TITLE_MAX = 200
 
+// saves a new typed or drawn note
 export function createNote(courseId: number, note: { title: string | null; content: string; kind?: CourseNote['kind'] }) {
   return authRequest<CourseNote>(`/courses/${courseId}/notes`, { method: 'POST', headers: json, body: JSON.stringify(note) })
 }
@@ -199,6 +211,7 @@ export function updateNote(courseId: number, noteId: number, changes: { title?: 
   })
 }
 
+// deletes a note
 export function deleteNote(courseId: number, noteId: number) {
   return authRequest<null>(`/courses/${courseId}/notes/${noteId}`, { method: 'DELETE' })
 }
@@ -215,16 +228,19 @@ const MIME_EXTENSIONS: Record<string, string> = {
   'audio/ogg': 'ogg',
 }
 
+// the name to save a file as, with the right extension
 export function downloadName(material: CourseMaterial) {
   const extension = material.mime_type ? MIME_EXTENSIONS[material.mime_type] : undefined
   if (!extension || fileExtension(material.file_name) === extension) return material.file_name
   return `${material.file_name}.${extension}`
 }
 
+// whether a file name is one of the audio types
 export function isAudio(name: string) {
   return AUDIO_EXTENSIONS.includes(fileExtension(name))
 }
 
+// a file name's extension, lower-case, without the dot
 export function fileExtension(name: string) {
   const dot = name.lastIndexOf('.')
   return dot === -1 ? '' : name.slice(dot + 1).toLowerCase()
