@@ -5,11 +5,15 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 from cryptography.fernet import Fernet, InvalidToken
-
 from jose import jwt
 from passlib.context import CryptContext
 
-from backend.backendConfig import SECRET_KEY, ALGORITHM, ACCESS_TOKEN_EXPIRE_MINUTES, ADMIN_SESSION_MINUTES
+from backend.config import (
+    ACCESS_TOKEN_EXPIRE_MINUTES,
+    ADMIN_SESSION_MINUTES,
+    ALGORITHM,
+    SECRET_KEY,
+)
 
 # the claim that marks an admin login; student tokens never have it
 ADMIN_SCOPE = "admin"
@@ -18,12 +22,15 @@ ADMIN_SCOPE = "admin"
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
+# a bcrypt hash of a password or code
 def get_password_hash(password: str) -> str:
     return pwd_context.hash(password)
 
 
+# whether a password or code matches its bcrypt hash
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
+
 
 # same rules as frontend/src/password.ts
 PASSWORD_RULES = [
@@ -51,12 +58,14 @@ def generate_password(length: int = 12) -> str:
     return "".join(chars)
 
 
+# the key test-account passwords are encrypted with, made from SECRET_KEY
 def _fernet() -> Fernet:
     # a key of its own, made from SECRET_KEY; changing SECRET_KEY means stored test passwords can't be read back
     digest = hashlib.sha256(b"ilna-test-password:" + SECRET_KEY.encode()).digest()
     return Fernet(base64.urlsafe_b64encode(digest))
 
 
+# encrypts a test account's password so the admin panel can show it again
 def encrypt_secret(value: str) -> str:
     return _fernet().encrypt(value.encode()).decode()
 
@@ -69,12 +78,14 @@ def decrypt_secret(token: str) -> str | None:
         return None
 
 
+# raises a ValueError listing the PASSWORD_RULES a password misses
 def check_password_strength(password: str) -> None:
     missing = [label for test, label in PASSWORD_RULES if not test(password)]
     if missing:
         raise ValueError("Password needs " + ", ".join(missing) + ".")
 
 
+# a student login token; iat lets a password change end older logins
 def create_access_token(data: dict) -> str:
     payload = data.copy()
 
@@ -99,6 +110,7 @@ def create_maintenance_bypass_token(user_id: int, expires_at: datetime) -> str:
     )
 
 
+# whether a token is a test user's maintenance-bypass login
 def is_maintenance_bypass(token: str) -> bool:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])

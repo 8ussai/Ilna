@@ -1,10 +1,10 @@
 from alembic import context
 
-from backend.database import Base, engine
 # every model module, so autogenerate sees all the tables
-from backend.models import admin, contact, course, notification, post, study, user  # noqa: F401
+from backend.database import Base, engine
 
 
+# runs migrations on the runner's connection, or opens one for the alembic command line
 def run_migrations_online():
     # the runner passes its own connection; the alembic command line opens one here
     connection = context.config.attributes.get("connection")
@@ -15,6 +15,7 @@ def run_migrations_online():
         _run(connection)
 
 
+# runs the migrations on a connection, in batch mode for SQLite
 def _run(connection):
     context.configure(
         connection=connection,

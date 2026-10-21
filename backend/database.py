@@ -2,10 +2,9 @@ import math
 from datetime import datetime, timezone
 
 from sqlalchemy import create_engine, event
-from sqlalchemy.orm import declarative_base
-from sqlalchemy.orm import sessionmaker
-from backend.backendConfig import SQLALCHEMY_DATABASE_URL
+from sqlalchemy.orm import declarative_base, sessionmaker
 
+from backend.config import SQLALCHEMY_DATABASE_URL
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -29,6 +28,7 @@ def utc_now() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
 
+# a database session for one request, closed afterwards
 def get_db():
     db = SessionLocal()
     try:

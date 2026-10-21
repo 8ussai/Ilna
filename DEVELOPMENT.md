@@ -76,7 +76,7 @@ Open http://localhost:5173.
 
 ## Configuration
 
-Limits and other settings live in [`backend/backendConfig.py`](backend/backendConfig.py). The main ones:
+Limits and other settings live in [`backend/config.py`](backend/config.py). The main ones:
 
 | Setting | Default |
 | --- | --- |
@@ -93,16 +93,25 @@ A few of these are mirrored in the frontend, for example `MAX_UPLOAD_BYTES` in `
 ## Project structure
 
 ```
-backend/
-  main.py            app setup, maintenance gate, routers
-  backendConfig.py   settings and limits
-  database.py        SQLite engine and session
-  models/            SQLAlchemy tables
-  migrations/        Alembic database migrations, run on startup
-  schemas/           Pydantic request and response models
-  routes/            API endpoints
-  services/          AI indexing, transcription, Gemini, email, jobs
-  data/              university, college and major catalog
+backend/                 one folder per feature: models.py (tables), schemas.py (request and
+                         response shapes), *routes.py (API endpoints) and the logic they use
+  main.py                app setup, maintenance gate, routers
+  config.py              settings and limits
+  database.py            SQLite engine and session
+  core/                  logins and tokens, request dependencies, email, background jobs,
+                         file removal, the university catalog
+  accounts/              users, sign-up and login, /me, usage limits, storage, account deletion
+  blog/                  posts, replies, votes, reports, anonymous posts, post pictures
+  notifications/         notifications and who gets them
+  friends/               friends lists and user search
+  courses/               courses, files, recordings, notes, links, sharing, AI indexing, transcription
+  study/                 AI summaries and quizzes (Gemini)
+  contact/               the Contact us form
+  admin/                 the admin panel's API: login, users, posts, reports, messages, courses, log
+  maintenance/           closing the site for a while
+  meta/                  the catalog and site status
+  migrations/            Alembic database migrations, run on startup
+  data/                  university, college and major catalog
 frontend/
   src/api/           typed API client
   src/pages/         app pages, and admin/ for the admin panel

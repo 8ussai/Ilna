@@ -1,0 +1,8 @@
+# Code style for the backend: `venv\Scripts\ruff.exe check backend` and `venv\Scripts\ruff.exe format backend`
+[tool.ruff]
+line-length = 120
+extend-exclude = ["backend/migrations/versions"]
+
+[tool.ruff.lint]
+# pyflakes (unused or undefined names) and sorted imports
+select = ["F", "I"]
