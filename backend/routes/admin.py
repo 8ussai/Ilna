@@ -421,6 +421,9 @@ def remove_premium(user_id: int, db: Session = Depends(get_db)):
                                        ensure_ascii=False)))
     user.is_premium = False
     user.premium_since = None
+    # a custom theme color is premium-only; presets are kept
+    if user.accent_color and user.accent_color.startswith("#"):
+        user.accent_color = None
     db.commit()
     db.refresh(user)
     return _with_counts(db, [user])[0]

@@ -75,6 +75,12 @@ uvicorn backend.main:app --reload --port 8000
 
 On the first start the backend creates the database (`ilna.db`), the upload and index folders, and the admin account. The API docs are at http://localhost:8000/docs.
 
+The database is managed with Alembic migrations (`backend/migrations`), which the backend runs on every start. After changing a model, make a migration from the project root and read the generated file before committing it:
+
+```
+venvScriptsalembic.exe revision --autogenerate -m "what changed"
+```
+
 ### 2. Frontend
 
 ```bash
@@ -115,6 +121,7 @@ backend/
   backendConfig.py   settings and limits
   database.py        SQLite engine and session
   models/            SQLAlchemy tables
+  migrations/        Alembic database migrations, run on startup
   schemas/           Pydantic request and response models
   routes/            API endpoints
   services/          AI indexing, transcription, Gemini, email, jobs

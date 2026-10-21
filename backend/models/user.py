@@ -42,6 +42,8 @@ class User(Base):
     # turned on from the admin panel, and stays until turned off there: more summaries, quizzes and storage, and a gold name
     is_premium = Column(Boolean, nullable=False, default=False)
     premium_since = Column(DateTime)
+    # the site's theme color: a preset name (ACCENT_PRESETS), or for premium a custom "#rrggbb"; empty is the default orange
+    accent_color = Column(String)
     # made by the admin, named testuser{id}, with no real email: can use everything but the blogs' posting,
     # replying and voting, and Contact us. The admin can turn it off, and can always see its password.
     is_test = Column(Boolean, nullable=False, default=False)

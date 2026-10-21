@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, ConfigDict, field_validator, model_validator
 from datetime import datetime
 
-from backend.backendConfig import TEST_USERNAME_PREFIX
+from backend.backendConfig import ACCENT_PRESETS, TEST_USERNAME_PREFIX
 from backend.core.security import check_password_strength
 from backend.services.catalog import validate_selection, email_matches_domain
 
@@ -89,9 +89,28 @@ class UsageOut(BaseModel):
     course_limit: Optional[int]
 
 
+HEX_COLOR_RE = re.compile(r"^#[0-9a-f]{6}$")
+
+
+class AccentColorUpdate(BaseModel):
+    # a preset name, a "#rrggbb" (premium only, checked by the route), or null for the default
+    accent_color: Optional[str]
+
+    @field_validator("accent_color")
+    @classmethod
+    def check_accent_color(cls, value: Optional[str]) -> Optional[str]:
+        if value is None:
+            return None
+        value = value.strip().lower()
+        if value not in ACCENT_PRESETS and not HEX_COLOR_RE.fullmatch(value):
+            raise ValueError("Unknown theme color.")
+        return value
+
+
 class UserOut(UserBase):
     id: int
     is_premium: bool = False
+    accent_color: Optional[str] = None
     # made by the admin; its email is a stand-in that's never shown or emailed
     is_test: bool = False
     created_at: datetime

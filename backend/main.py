@@ -5,8 +5,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from backend.database import Base, SessionLocal, engine, utc_now
-# imported so their tables exist before create_all; contact_model is aliased to not clash with routes.contact
+from backend.database import SessionLocal, utc_now
+from backend.migrations.runner import run_migrations
+# imported so every model is registered with Base; contact_model is aliased to not clash with routes.contact
 from backend.models import user, post, course, notification, study as study_model, contact as contact_model, admin as admin_model
 from backend.routes import admin, admin_maintenance, auth, contact, me, posts, replies, reports, courses, meta, study
 
@@ -116,7 +117,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Base.metadata.create_all(bind=engine)
+run_migrations()
 
 with SessionLocal() as _db:
     get_admin_account(_db)

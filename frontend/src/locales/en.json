@@ -596,6 +596,26 @@
       "submit": "Change password",
       "logoutNote": "You'll be logged out on every device and asked to sign in with your new password."
     },
+    "appearance": {
+      "title": "Appearance",
+      "summary": "The site's theme color",
+      "description": "Pick the color used for buttons, links and highlights. It follows your account to every device.",
+      "presets": "Theme color",
+      "colors": {
+        "orange": "Orange (default)",
+        "blue": "Blue",
+        "green": "Green",
+        "purple": "Purple",
+        "teal": "Teal",
+        "rose": "Rose"
+      },
+      "custom": "Custom color",
+      "customHint": "Pick any color. It's adjusted a little where needed so text stays easy to read in light and dark mode.",
+      "customLocked": "Any color you like comes with Premium.",
+      "useCustom": "Use this color",
+      "saved": "Saved",
+      "saveFailed": "Couldn't save your color. Please try again."
+    },
     "storage": {
       "title": "Storage",
       "summary": "Space used by your uploaded files",
@@ -1007,7 +1027,8 @@
     "perks": {
       "study": "Unlimited AI summaries and quizzes",
       "storage": "5 GB of storage instead of 1 GB",
-      "name": "Your name and username in gold, with a crown"
+      "name": "Your name and username in gold, with a crown",
+      "color": "Any theme color you like"
     },
     "ok": "OK"
   },

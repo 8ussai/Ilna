@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { applyAccent } from '../accent'
 import { fetchMe } from '../api/auth'
 import type { Me } from '../api/auth'
 import { fetchCatalog } from '../api/meta'
@@ -46,6 +47,11 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
       .then(setMe)
       .catch(() => setMeFailed(true))
   }, [])
+
+  // the theme color follows the account; the copy in localStorage keeps it from flashing orange on the next load
+  useEffect(() => {
+    if (me) applyAccent(me.accent_color, me.is_premium)
+  }, [me])
 
   function retryMe() {
     setMeFailed(false)
@@ -141,6 +147,7 @@ export function Home({ onLogout, onPasswordChanged }: { onLogout: () => void; on
           onNavigate={(page) => navigate({ kind: 'settings', page })}
           onPasswordChanged={onPasswordChanged}
           onOpenPost={openPost}
+          onMeChange={setMe}
         />
       )
     }

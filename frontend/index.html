@@ -15,11 +15,19 @@
     <script>
       // Apply saved theme/language before first paint so there is no flash.
       (function () {
-        var theme, lang;
+        var theme, lang, accentCss;
         try {
           theme = localStorage.getItem('ilna-theme');
           lang = localStorage.getItem('ilna-lang');
+          // the logged-in user's theme color, written by src/accent.ts
+          accentCss = localStorage.getItem('ilna-accent-css');
         } catch (e) {}
+        if (accentCss) {
+          var style = document.createElement('style');
+          style.id = 'ilna-accent';
+          style.textContent = accentCss;
+          document.head.appendChild(style);
+        }
         if (theme !== 'dark' && theme !== 'light') {
           theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }

@@ -1,6 +1,6 @@
 import json
 
-from fastapi import APIRouter, Depends, Query, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, literal, select, union_all
 from sqlalchemy.orm import Session, joinedload
 
@@ -11,7 +11,7 @@ from backend.models.notification import Notification
 from backend.models.post import Post, Reply
 from backend.models.user import User
 from backend.schemas.post import ActivityItem, MarkRead, NotificationOut, UnreadCount
-from backend.schemas.user import DailyUsageOut, StorageOut, UsageOut
+from backend.schemas.user import AccentColorUpdate, DailyUsageOut, StorageOut, UsageOut, UserOut
 from backend.services.notifications import NotificationType
 from backend.services.storage import storage_used
 from backend.services.usage import course_limit, storage_limit, study_limit, study_usage
@@ -44,6 +44,21 @@ def get_usage(
         quiz=daily("quiz"),
         course_limit=course_limit(current_user),
     )
+
+
+@router.put("/accent-color", response_model=UserOut)
+def set_accent_color(
+    body: AccentColorUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """The site's theme color: a preset for everyone, or any color for premium."""
+    if body.accent_color and body.accent_color.startswith("#") and not current_user.is_premium:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Custom colors are a Premium feature.")
+    current_user.accent_color = body.accent_color
+    db.commit()
+    db.refresh(current_user)
+    return current_user
 
 
 @router.get("/activity", response_model=list[ActivityItem])

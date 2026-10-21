@@ -92,6 +92,10 @@ GEMINI_MODEL = "gemini-2.5-flash"
 STUDY_DAILY_LIMITS = {"summary": 2, "quiz": 2}
 # premium is shown as unlimited; this hidden cap only guards the Gemini quota
 PREMIUM_STUDY_DAILY_LIMITS = {"summary": 50, "quiz": 50}
+
+# theme colors anyone can pick in Settings > Appearance (the colors are in frontend/src/accent.ts);
+# premium can also pick any "#rrggbb"
+ACCENT_PRESETS = ("orange", "blue", "green", "purple", "teal", "rose")
 # sources one summary or quiz can be made from
 STUDY_MAX_SOURCES = 50
 # the daily limits count what was started in the last this-long, rather than resetting at midnight

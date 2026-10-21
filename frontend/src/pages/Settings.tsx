@@ -1,16 +1,17 @@
-import { useCallback, useEffect, useState } from 'react'
-import type { ReactNode } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { DEFAULT_ACCENT, PRESET_NAMES, accentColors, applyAccent, isCustomAccent } from '../accent'
 import type { Me } from '../api/auth'
-import { fetchStorage } from '../api/me'
+import { fetchStorage, setAccentColor } from '../api/me'
 import type { Storage } from '../api/me'
 import type { Catalog } from '../api/meta'
 import { formatBytes } from '../bytes'
 import { catalogNames } from '../catalog'
 import { ChangePasswordForm } from '../components/ChangePasswordForm'
-import { secondaryButton } from '../components/styles'
-import { goldClass, UserName } from '../components/Premium'
+import { secondaryButton, smallPrimaryButton } from '../components/styles'
+import { goldClass, PremiumCrown, UserName } from '../components/Premium'
 import { UserAvatar } from '../components/UserAvatar'
 import { formatDate, parseServerDate } from '../dates'
 import { inAppClick } from '../links'
@@ -25,6 +26,7 @@ type SettingsProps = {
   onNavigate: (page: SettingsPage) => void
   onPasswordChanged: () => void
   onOpenPost: (postId: number, replyId: number | null) => void
+  onMeChange: (me: Me) => void
 }
 
 const chevron = (
@@ -41,7 +43,7 @@ function PageLink({ page, onNavigate, className, children }: { page: SettingsPag
   )
 }
 
-export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost }: SettingsProps) {
+export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onOpenPost, onMeChange }: SettingsProps) {
   const { t } = useTranslation()
 
   if (page === 'home') {
@@ -67,6 +69,15 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
             'activity',
             <RowIcon>
               <path d="M3 12h4l3-8 4 16 3-8h4" />
+            </RowIcon>,
+          )}
+          {row(
+            'appearance',
+            <RowIcon>
+              <path d="M12 3a9 9 0 1 0 0 18c1.1 0 1.7-.9 1.4-1.9-.3-1 .4-2.1 1.5-2.1H17a4 4 0 0 0 4-4c0-5-4-10-9-10z" />
+              <circle cx="7.5" cy="11" r="1" />
+              <circle cx="10" cy="7" r="1" />
+              <circle cx="15" cy="7.5" r="1" />
             </RowIcon>,
           )}
           {row(
@@ -98,8 +109,130 @@ export function Settings({ page, me, catalog, onNavigate, onPasswordChanged, onO
       </PageLink>
       {page === 'account' && <AccountPage me={me} catalog={catalog} onPasswordChanged={onPasswordChanged} />}
       {page === 'activity' && <ActivityPage me={me} catalog={catalog} onOpenPost={onOpenPost} />}
+      {page === 'appearance' && <AppearancePage me={me} onMeChange={onMeChange} />}
       {page === 'storage' && <StoragePage />}
       {page === 'policy' && <PolicyPage />}
+    </>
+  )
+}
+
+function AppearancePage({ me, onMeChange }: { me: Me; onMeChange: (me: Me) => void }) {
+  const { t } = useTranslation()
+  const current = me.accent_color ?? DEFAULT_ACCENT
+  const [custom, setCustom] = useState(isCustomAccent(me.accent_color) ? me.accent_color : accentColors(current).light.accent)
+  const [saving, setSaving] = useState(false)
+  const [status, setStatus] = useState<'saved' | 'failed' | null>(null)
+
+  // the picker previews before saving; leaving the page puts the saved color back
+  const meRef = useRef(me)
+  useEffect(() => {
+    meRef.current = me
+  }, [me])
+  useEffect(() => () => applyAccent(meRef.current.accent_color, meRef.current.is_premium), [])
+
+  function save(value: string) {
+    setSaving(true)
+    setStatus(null)
+    applyAccent(value, me.is_premium)
+    setAccentColor(value === DEFAULT_ACCENT ? null : value)
+      .then((updated) => {
+        onMeChange(updated)
+        setStatus('saved')
+      })
+      .catch(() => {
+        applyAccent(me.accent_color, me.is_premium)
+        setStatus('failed')
+      })
+      .finally(() => setSaving(false))
+  }
+
+  function preview(value: string) {
+    setCustom(value)
+    setStatus(null)
+    applyAccent(value, true)
+  }
+
+  return (
+    <>
+      <h1 className="mt-3 font-serif text-3xl font-semibold">{t('settings.appearance.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('settings.appearance.description')}</p>
+
+      <section className="mt-6 rounded-xl border border-line bg-card p-5">
+        <h2 id="accent-presets" className="font-medium">
+          {t('settings.appearance.presets')}
+        </h2>
+        <div role="radiogroup" aria-labelledby="accent-presets" className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-6">
+          {PRESET_NAMES.map((name) => {
+            const { light, dark } = accentColors(name)
+            const selected = current === name
+            return (
+              <button
+                key={name}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                disabled={saving}
+                onClick={() => !selected && save(name)}
+                className="flex flex-col items-center gap-2 rounded-lg p-2 text-sm hover:bg-surface disabled:cursor-wait"
+              >
+                {/* each swatch shows the shade the current light/dark theme will use */}
+                <span
+                  style={{ '--sw-l': light.accent, '--sw-d': dark.accent } as CSSProperties}
+                  className={`grid size-10 place-items-center rounded-full bg-(--sw-l) [[data-theme=dark]_&]:bg-(--sw-d) ${
+                    selected ? 'ring-2 ring-fg ring-offset-2 ring-offset-card' : ''
+                  }`}
+                >
+                  {selected && (
+                    <svg viewBox="0 0 24 24" className="size-5 text-white [[data-theme=dark]_&]:text-[#141413]" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d="M5 12l5 5 9-10" />
+                    </svg>
+                  )}
+                </span>
+                <span className="text-center leading-tight">{t(`settings.appearance.colors.${name}`)}</span>
+              </button>
+            )
+          })}
+        </div>
+      </section>
+
+      <section className="mt-6 rounded-xl border border-line bg-card p-5">
+        <h2 className="flex items-center gap-2 font-medium">
+          {t('settings.appearance.custom')}
+          <PremiumCrown />
+        </h2>
+        {me.is_premium ? (
+          <>
+            <p className="mt-1 text-sm text-muted">{t('settings.appearance.customHint')}</p>
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <input
+                type="color"
+                value={custom}
+                onChange={(e) => preview(e.target.value)}
+                aria-label={t('settings.appearance.custom')}
+                className="h-11 w-16 cursor-pointer rounded-lg border border-line bg-card p-1"
+              />
+              <span dir="ltr" className="font-mono text-sm text-muted">
+                {custom}
+              </span>
+              <button
+                type="button"
+                onClick={() => save(custom)}
+                disabled={saving || custom === me.accent_color}
+                className={smallPrimaryButton}
+              >
+                {t('settings.appearance.useCustom')}
+              </button>
+            </div>
+          </>
+        ) : (
+          <p className="mt-1 text-sm text-muted">{t('settings.appearance.customLocked')}</p>
+        )}
+      </section>
+
+      <p role="status" className={`mt-3 min-h-5 text-sm ${status === 'failed' ? 'text-danger' : 'text-muted'}`}>
+        {status === 'saved' && t('settings.appearance.saved')}
+        {status === 'failed' && t('settings.appearance.saveFailed')}
+      </p>
     </>
   )
 }

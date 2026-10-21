@@ -1,3 +1,4 @@
+import type { Me } from './auth'
 import { authRequest } from './client'
 import type { PostScope } from './posts'
 
@@ -17,6 +18,14 @@ export const ACTIVITY_PAGE_SIZE = 20
 export function fetchActivity(offset = 0) {
   const params = new URLSearchParams({ limit: String(ACTIVITY_PAGE_SIZE), offset: String(offset) })
   return authRequest<ActivityItem[]>(`/me/activity?${params}`)
+}
+
+export function setAccentColor(accent_color: string | null) {
+  return authRequest<Me>('/me/accent-color', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ accent_color }),
+  })
 }
 
 export type Storage = { used_bytes: number; limit_bytes: number }

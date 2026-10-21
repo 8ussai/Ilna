@@ -1,5 +1,6 @@
 import { useState } from 'react'
 
+import { clearAccent } from './accent'
 import { getToken, setToken } from './api/auth'
 import { setAuth } from './api/client'
 import type { LogoutReason } from './api/client'
@@ -26,6 +27,7 @@ function Site() {
   function updateToken(next: string | null) {
     setToken(next)
     setTokenState(next)
+    if (next === null) clearAccent()
     setNotice(null)
   }
 
