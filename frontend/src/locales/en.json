@@ -6,13 +6,21 @@
   },
   "intro": {
     "title": "Your university life, in one place.",
-    "body": "Ilna brings your courses, study materials and campus community together. Upload your slides, practice with quizzes generated from them, and connect with students in your university, college and major.",
-    "workspaceTitle": "Study workspace",
-    "workspaceBody": "Keep your courses, notes, links, PDFs and PowerPoints organised in one place.",
-    "quizTitle": "AI quizzes",
-    "quizBody": "Turn your lecture slides into multiple-choice questions with explanations.",
-    "feedTitle": "Campus feed",
-    "feedBody": "Share and vote on posts within your university, college or major."
+    "body": "Ilna is a free study platform for university students. Keep every course’s slides, recordings and notes together, let AI turn them into summaries and quizzes, share courses with classmates, and talk with students at your university, college and major.",
+    "workspaceTitle": "A course for every subject",
+    "workspaceBody": "Keep slides (PDF and PowerPoint), links and notes, typed or drawn by hand, organised by course.",
+    "voiceTitle": "Lecture recordings",
+    "voiceBody": "Record a lecture in the browser or upload audio. It’s transcribed in Arabic or English, and tapping a line jumps to that moment.",
+    "quizTitle": "AI summaries and quizzes",
+    "quizBody": "Turn your material into brief or detailed summaries and multiple-choice quizzes with explanations, in Arabic or English.",
+    "shareTitle": "Share courses",
+    "shareBody": "Give classmates a course ID, or share privately with your university, college, major, friends or chosen people.",
+    "feedTitle": "Campus blogs",
+    "feedBody": "Post, reply and vote with everyone, your university, your college or your major. Add pictures and links, or post anonymously.",
+    "friendsTitle": "Friends",
+    "friendsBody": "Add classmates to your friends list and spot their posts by the ★ next to their names.",
+    "free": "Ilna is free to use.",
+    "support": "Questions or feedback? Email us at"
   },
   "auth": {
     "login": "Log in",
@@ -181,7 +189,7 @@
       "alreadyAdded": "Already in your courses.",
       "limit": "You've reached your course limit. Remove a course or get Premium for unlimited courses.",
       "gone": "This course isn't available anymore.",
-    "storageFull": "This course's files would go over your storage limit. Added courses count toward your storage."
+      "storageFull": "This course's files would go over your storage limit. Added courses count toward your storage."
     },
     "loadFailed": "Couldn't load your courses.",
     "loadOneFailed": "Couldn't load this course.",
@@ -691,7 +699,7 @@
       "showLess": "Show less",
       "courseShared": "{{name}} shared a course with you",
       "courseRemoved": "The admin removed your public course {{ref}}",
-      "premiumGranted": "{{name}} upgraded your account to Premium: unlimited summaries and quizzes, 5 GB of storage, and a gold name."
+      "premiumGranted": "{{name}} upgraded your account to Premium: unlimited summaries, quizzes and courses, 5 GB of storage, up to 500 friends, any theme color, and a gold name."
     },
     "password": {
       "title": "Change password",
@@ -771,65 +779,105 @@
   },
   "policy": {
     "title": "Policy",
-    "updated": "Last updated: October 13, 2026",
+    "updated": "Last updated: October 22, 2026",
     "intro": "This policy explains the rules for using Ilna and how we handle your information. By using Ilna you agree to it.",
     "sections": [
       {
         "title": "Who Ilna is for",
         "body": [
-          "Ilna is a study platform for university students. You need a university email address to create an account, and each person may have only one account."
+          "Ilna is a study platform for university students. You need a university email address to create an account, and each person may have only one account.",
+          "Ilna is free to use. Premium is currently given by the Ilna team; there is nothing to pay."
         ]
       },
       {
         "title": "Your account",
         "body": [
-          "Your name, username, email, university, college and major are set when you sign up and can't be changed later. Make sure they are correct.",
-          "You can change your password at any time from Settings. Keep it private; you are responsible for activity on your account."
+          "Your name, username, email, university, college and major are set when you sign up and can’t be changed later. Make sure they are correct.",
+          "Usernames use lowercase letters, numbers and underscores, need at least one letter, and can’t contain “anonymous” or “author”.",
+          "Keep your password private; you are responsible for activity on your account. A login lasts 7 days, and changing your password logs you out on every device.",
+          "To delete your account, contact us (see the last section). Deleting it removes your posts, replies, pictures, courses, files, friends list and everything else that is yours."
         ]
       },
       {
         "title": "Community rules",
         "body": [
-          "Be respectful. Harassment, hate speech, threats, sharing other people's personal information, spam and illegal content are not allowed.",
-          "Respect academic integrity. Don't use Ilna to share exam answers or help others cheat.",
-          "Posts in the university, college and major blogs are visible to other students in that group. Posts in General are visible to all Ilna users."
+          "Be respectful. Harassment, hate speech, threats, sharing other people’s personal information, spam and illegal content are not allowed. This applies to text, pictures, course files and anonymous posts alike.",
+          "Respect academic integrity. Don’t use Ilna to share exam answers or help others cheat.",
+          "Posts in the university, college and major blogs are visible to other students in that group. Posts in General are visible to all Ilna users.",
+          "Anyone can report a post or reply that breaks these rules."
         ]
       },
       {
-        "title": "Your posts and replies",
+        "title": "Posts, replies and pictures",
         "body": [
-          "You own what you write. By posting, you allow Ilna to display your content to the users who can see that blog.",
-          "You can delete your own posts and replies. A deleted reply that others have answered stays as a \"[deleted]\" placeholder so the conversation still makes sense."
+          "You own what you write. By posting, you allow Ilna to show your content to the users who can see that blog.",
+          "A post can have up to 4 pictures (JPG, PNG, WebP or GIF, up to 10 MB each). Before a picture is saved, hidden photo details such as GPS location and camera information are removed, and it’s resized. Pictures count toward your storage.",
+          "Web addresses in posts and replies become links that open in a new tab. Ilna doesn’t check the sites they lead to.",
+          "You can delete your own posts and replies. A deleted reply that others have answered stays as a “[deleted]” placeholder so the conversation still makes sense."
         ]
       },
       {
-        "title": "Uploaded files",
+        "title": "Anonymous posts",
+        "body": [
+          "You can post or reply anonymously. Other users then see “Anonymous” instead of your name, username and avatar. In each thread, every anonymous person gets their own number (“Anonymous 1”, “Anonymous 2”), and the author of an anonymous post shows as “Author” in its replies.",
+          "You can switch a post or reply between anonymous and named once.",
+          "Anonymous isn’t hidden from the Ilna team: the admin can see who wrote anything, so rule-breaking anonymous content is handled like any other."
+        ]
+      },
+      {
+        "title": "Friends",
+        "body": [
+          "Adding someone as a friend puts them on your own list. They aren’t asked or notified, and nobody can see who added them. Your friends get a ★ next to their names, for you only.",
+          "Free accounts can have up to 100 friends, and Premium accounts up to 500.",
+          "Other students can find you by name or username to add you. Your email is never searchable."
+        ]
+      },
+      {
+        "title": "Courses and files",
         "body": [
           "Only upload files you have the right to share, such as your own notes or materials your course allows you to use.",
-          "Each account has a storage limit of 1 GB.",
-          "Summaries and quizzes are written from your files, recordings and notes by an AI service provided by Google (Gemini). You can make up to 2 summaries and 2 quizzes in any 24 hours. AI-generated content can contain mistakes, so always check it against your course materials."
+          "You can upload PDF and PowerPoint files and audio recordings, up to 95 MB each. Each account has 1 GB of storage and up to 5 courses (Premium: 5 GB and unlimited courses). Courses you add from others count toward both.",
+          "Recordings are transcribed on Ilna’s own server; they aren’t sent to an outside service for this."
+        ]
+      },
+      {
+        "title": "Sharing courses",
+        "body": [
+          "Courses are private unless you make them public. Anyone with a public course’s ID can add it. A private course can only be added by the people you share it with: your university, college or major, your friends, or people you choose.",
+          "People who add your course can see everything in it (files, recordings, transcripts, links, notes, summaries and quizzes) but can’t change anything. Their quiz results are their own.",
+          "If you make the course private, stop sharing it with them, or delete it, they lose it. Before that happens, you’re told how many people it affects.",
+          "The admin can see public courses and may remove ones that break this policy. You’ll be told why."
+        ]
+      },
+      {
+        "title": "AI summaries and quizzes",
+        "body": [
+          "Summaries and quizzes are written by Google’s Gemini AI from the files, recordings and notes you choose. The text of those sources is sent to Google to do this.",
+          "You can make up to 2 summaries and 2 quizzes in any 24 hours (Premium: unlimited). AI-generated content can contain mistakes, so always check it against your course materials."
         ]
       },
       {
         "title": "Your information",
         "body": [
-          "We store the details you give at sign-up, the content you post and the files you upload.",
-          "Other users can see your name, username, avatar, posts and replies. Your email address is not shown to other users.",
-          "When you post or reply anonymously, other users see \"Anonymous\" with a number instead of your name, username and avatar. The admin can still see who wrote it, to keep the community safe.",
-          "We don't sell your personal information."
+          "We store the details you give at sign-up, the content you post, and the files you upload.",
+          "Other users can see your name, username, avatar, university, college and major, your posts and replies, and the courses you share. Your email address is not shown to other users.",
+          "To run Ilna we use Google Gemini (summaries and quizzes), an email service (sign-up codes and messages) and Cloudflare (which carries traffic to our server).",
+          "Your browser keeps your login, language, light or dark mode, and theme color. Ilna has no ads and no tracking cookies.",
+          "We don’t sell your personal information."
         ]
       },
       {
         "title": "Enforcement",
         "body": [
-          "We may remove content or suspend accounts that break this policy."
+          "We may remove posts, replies, pictures or courses, and suspend accounts, that break this policy. You’ll be told why by notification or email.",
+          "Ilna may sometimes close for maintenance. A countdown is shown before it does."
         ]
       },
       {
         "title": "Changes and contact",
         "body": [
-          "We may update this policy. When we do, we'll change the date at the top of this page.",
-          "Questions? Use Contact us in Settings."
+          "We may update this policy. When we do, we’ll change the date at the top of this page.",
+          "Questions, or want your account deleted? Use Contact us in the account menu, or email support@ilna-academic.com."
         ]
       }
     ]
@@ -1149,9 +1197,11 @@
     "activeIntro": "Your account has Premium:",
     "perks": {
       "study": "Unlimited AI summaries and quizzes",
+      "courses": "Unlimited courses instead of 5",
       "storage": "5 GB of storage instead of 1 GB",
-      "name": "Your name and username in gold, with a crown",
-      "color": "Any theme color you like"
+      "friends": "Up to 500 friends instead of 100",
+      "color": "Any theme color you like",
+      "name": "Your name and username in gold, with a crown"
     },
     "ok": "OK"
   },

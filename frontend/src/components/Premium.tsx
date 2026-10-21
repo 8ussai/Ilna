@@ -40,7 +40,7 @@ export function UserName({
 // What premium includes. Nobody can buy it yet; the admin turns it on.
 export function PremiumDialog({ isPremium, onClose }: { isPremium: boolean; onClose: () => void }) {
   const { t } = useTranslation()
-  const perks = [t('premium.perks.study'), t('premium.perks.storage'), t('premium.perks.name'), t('premium.perks.color')]
+  const perks = (['study', 'courses', 'storage', 'friends', 'color', 'name'] as const).map((key) => t(`premium.perks.${key}`))
 
   return (
     <Dialog title={isPremium ? t('premium.youArePremium') : t('premium.upgrade')} onClose={onClose}>

@@ -2,7 +2,7 @@ import { useTranslation } from 'react-i18next'
 
 import { AuthCard } from '../components/AuthCard'
 import { Header } from '../components/Header'
-import { Intro } from '../components/Intro'
+import { Intro, SUPPORT_EMAIL } from '../components/Intro'
 
 const YEAR = new Date().getFullYear()
 
@@ -28,8 +28,11 @@ export function Landing({ notice, onAuthenticated }: LandingProps) {
           <AuthCard onAuthenticated={onAuthenticated} />
         </div>
       </main>
-      <footer className="mx-auto w-full max-w-6xl px-5 py-6 text-sm text-muted sm:px-8">
-        {t('footer', { year: YEAR })}
+      <footer className="mx-auto flex w-full max-w-6xl flex-wrap justify-between gap-2 px-5 py-6 text-sm text-muted sm:px-8">
+        <span>{t('footer', { year: YEAR })}</span>
+        <a href={`mailto:${SUPPORT_EMAIL}`} dir="ltr" className="hover:text-fg hover:underline">
+          {SUPPORT_EMAIL}
+        </a>
       </footer>
     </div>
   )
