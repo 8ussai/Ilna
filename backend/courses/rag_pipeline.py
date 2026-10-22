@@ -1,5 +1,5 @@
 from langchain_community.document_loaders import (
-    PyMuPDFLoader,
+    PyPDFLoader,
     UnstructuredPowerPointLoader,
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
@@ -21,7 +21,7 @@ def get_document_loader(file_path: str):
     file_extension = file_path.split(".")[-1].lower()
 
     if file_extension == "pdf":
-        return PyMuPDFLoader(file_path)
+        return PyPDFLoader(file_path)
     elif file_extension in ["pptx", "ppt"]:
         return UnstructuredPowerPointLoader(file_path)
     else:

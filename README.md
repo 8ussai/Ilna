@@ -94,7 +94,7 @@ Ilna is built on open-source work. Thank you to the people behind it, including:
 
 - **Avatars:** [Blobatar](https://github.com/Alain00/blobatar) by Alain (MIT)
 - **Website:** [React](https://github.com/facebook/react), [i18next](https://github.com/i18next/i18next), [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) and [perfect-freehand](https://github.com/steveruizok/perfect-freehand) (MIT)
-- **Server:** [FastAPI](https://github.com/fastapi/fastapi), [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy), [LangChain](https://github.com/langchain-ai/langchain), [Chroma](https://github.com/chroma-core/chroma), [PyTorch](https://github.com/pytorch/pytorch), [faster-whisper](https://github.com/SYSTRAN/faster-whisper), [PyMuPDF](https://github.com/pymupdf/PyMuPDF) and more
+- **Server:** [FastAPI](https://github.com/fastapi/fastapi), [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy), [LangChain](https://github.com/langchain-ai/langchain), [Chroma](https://github.com/chroma-core/chroma), [PyTorch](https://github.com/pytorch/pytorch), [faster-whisper](https://github.com/SYSTRAN/faster-whisper), [pypdf](https://github.com/py-pdf/pypdf) and more
 - **Fonts:** Inter, IBM Plex Sans Arabic, Source Serif 4 and Noto Naskh Arabic (SIL Open Font License)
 - **AI models:** [Qwen3-Embedding](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) (Apache-2.0), [Whisper](https://github.com/openai/whisper) by OpenAI (MIT), and Google Gemini
 

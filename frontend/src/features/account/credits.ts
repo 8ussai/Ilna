@@ -41,7 +41,7 @@ export const CREDITS: CreditGroup[] = [
       { name: 'Transformers', by: 'Copyright 2018- The Hugging Face team', license: 'Apache-2.0', url: 'https://github.com/huggingface/transformers' },
       { name: 'PyTorch', by: 'Copyright (c) 2016- Facebook, Inc. and the PyTorch contributors', license: 'BSD-3-Clause', url: 'https://github.com/pytorch/pytorch' },
       { name: 'faster-whisper', by: 'Copyright (c) 2023 SYSTRAN', license: 'MIT', url: 'https://github.com/SYSTRAN/faster-whisper' },
-      { name: 'PyMuPDF', by: 'Artifex Software, Inc.', license: 'AGPL-3.0', url: 'https://github.com/pymupdf/PyMuPDF' },
+      { name: 'pypdf', by: 'Copyright (c) 2006-2008, Mathieu Fenniak and contributors', license: 'BSD-3-Clause', url: 'https://github.com/py-pdf/pypdf' },
       { name: 'Unstructured', by: 'Copyright 2022 Unstructured Technologies, Inc.', license: 'Apache-2.0', url: 'https://github.com/Unstructured-IO/unstructured' },
       { name: 'python-pptx', by: 'Copyright (c) 2013 Steve Canny', license: 'MIT', url: 'https://github.com/scanny/python-pptx' },
       { name: 'Pillow', by: 'Copyright (c) 1997-2011 Secret Labs AB, (c) 2010 Jeffrey A. Clark and contributors', license: 'MIT-CMU', url: 'https://github.com/python-pillow/Pillow' },

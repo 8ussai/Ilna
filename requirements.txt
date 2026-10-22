@@ -17,7 +17,7 @@ chromadb
 # Qwen3-Embedding needs these versions or newer
 sentence-transformers>=2.7
 transformers>=4.51
-pymupdf
+pypdf
 pillow
 unstructured
 python-pptx
