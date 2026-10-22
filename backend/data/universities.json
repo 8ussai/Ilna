@@ -6,11 +6,429 @@
       "name_ar": "الأردن",
       "universities": [
         {
+          "id": "aabu",
+          "name_en": "Al Al Bayt University",
+          "name_ar": "جامعة آل البيت",
+          "domain": "aabu.edu.jo",
+          "colleges": [
+            {
+              "id": "aabu-lit",
+              "name_en": "Literature and Humanities",
+              "name_ar": "الاداب والعلوم الانسانية",
+              "majors": [
+                {
+                  "id": "aabu-lit-his",
+                  "name_en": "History and Archaeology",
+                  "name_ar": "التاريخ والحضارة"
+                },
+                {
+                  "id": "aabu-lit-geo",
+                  "name_en": "Applied Geography",
+                  "name_ar": "جغرافيا تطبيقية"
+                },
+                {
+                  "id": "aabu-lit-ar",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
+                }
+              ]
+            },
+            {
+              "id": "aabu-bus",
+              "name_en": "Busines",
+              "name_ar": "الاعمال",
+              "majors": [
+                {
+                  "id": "aabu-bus-bm",
+                  "name_en": "Business Management",
+                  "name_ar": "ادارة الاعمال"
+                },
+                {
+                  "id": "aabu-bus-log",
+                  "name_en": "Logistics Management",
+                  "name_ar": "الادارة اللوجستية"
+                },
+                {
+                  "id": "aabu-bus-de",
+                  "name_en": "Digital Economy",
+                  "name_ar": "الاقتصاد الرقمي"
+                },
+                {
+                  "id": "aabu-bus-irm",
+                  "name_en": "Insurance and Risk Management",
+                  "name_ar": "التأمين وإدارة المخاطر"
+                },
+                {
+                  "id": "aabu-bus-iaa",
+                  "name_en": "International Auditing and Accounting",
+                  "name_ar": "التدقيق والمحاسبة الدولية"
+                },
+                {
+                  "id": "aabu-bus-dmrk",
+                  "name_en": "Digital Marketing",
+                  "name_ar": "التسويق الرقمي"
+                },
+                {
+                  "id": "aabu-bus-fin",
+                  "name_en": "Fintech",
+                  "name_ar": "تكنولوجيا مالية"
+                },
+                {
+                  "id": "aabu-bus-fb",
+                  "name_en": "Finance and Banking",
+                  "name_ar": "التمويل والمصارف"
+                },
+                {
+                  "id": "aabu-bus-bi",
+                  "name_en": "Business Intelligence",
+                  "name_ar": "ذكاء الاعمال"
+                },
+                {
+                  "id": "aabu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "aabu-bus-maba",
+                  "name_en": "Management Accounting and Business Analysis",
+                  "name_ar": "المحاسبة الادارية وتحليل الاعمال"
+                },
+                {
+                  "id": "aabu-bus-abl",
+                  "name_en": "Accounting and Business Law",
+                  "name_ar": "محاسبة وقانون الاعمال"
+                },
+                {
+                  "id": "aabu-bus-asba",
+                  "name_en": "Accounting Systems and Business Analysis",
+                  "name_ar": "النظم المحاسبية وتحليل الاعمال"
+                }
+              ]
+            },
+            {
+              "id": "aabu-it",
+              "name_en": "Prince Al-Hussein Bin Abdullah II for Information Technology",
+              "name_ar": "الامير حسين بن عبدالله لتكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "aabu-it-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "aabu-it-ad",
+                  "name_en": "Smart Device Application Development",
+                  "name_ar": "تطوير تطبيقات الاجهزة الذكية"
+                },
+                {
+                  "id": "aabu-it-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الاعمال"
+                },
+                {
+                  "id": "aabu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence",
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "aabu-it-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "aabu-it-mis",
+                  "name_en": "Management Information Systems",
+                  "name_ar": "نظم المعلومات الإدارية"
+                },
+                {
+                  "id": "aabu-it-cis",
+                  "name_en": "Computer Information Systems",
+                  "name_ar": "نظم المعلومات الحاسوبية"
+                },
+                {
+                  "id": "aabu-it-his",
+                  "name_en": "Health Information Systems",
+                  "name_ar": "نظم المعلومات الصحية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-nur",
+              "name_en": "Princess Salma bint Abdullah for Nursing",
+              "name_ar": "الاميرة سلمى بنت عبد الله للتمريض",
+              "majors": [
+                {
+                  "id": "aabu-nur-nur",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            },
+            {
+              "id": "aabu-pol",
+              "name_en": "Beit Al-Hikma for Political Science and International Studies",
+              "name_ar": "بيت الحكمة للعلوم السياسية والدراسات الدولية",
+              "majors": [
+                {
+                  "id": "aabu-pol-ps",
+                  "name_en": "Political Science",
+                  "name_ar": "العلوم السياسة"
+                }
+              ]
+            },
+            {
+              "id": "aabu-ss",
+              "name_en": "Physical Education and Sports Sciences",
+              "name_ar": "التربية البدنية وعلوم الرياضة",
+              "majors": [
+                {
+                  "id": "aabu-ss-pe",
+                  "name_en": "physical education",
+                  "name_ar": "التربية البدنية"
+                },
+                {
+                  "id": "aabu-ss-amss",
+                  "name_en": "Applied Movement and Sports Sciences",
+                  "name_ar": "علوم الحركة والرياضة التطبيقية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-law",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "aabu-law-law",
+                  "name_en": "Law",
+                  "name_ar": "الحقوق"
+                }
+              ]
+            },
+            {
+              "id": "aabu-sh",
+              "name_en": "Sharia",
+              "name_ar": "الشريعة",
+              "majors": [
+                {
+                  "id": "aabu-sh-fr",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "أصول الدين"
+                },
+                {
+                  "id": "aabu-sh-sr",
+                  "name_en": "Studies in Religions",
+                  "name_ar": "دراسات في الاديان"
+                },
+                {
+                  "id": "aabu-sh-fiqh",
+                  "name_en": "Jurisprudence and its Principles",
+                  "name_ar": "الفقه واصوله"
+                }
+              ]
+            },
+            {
+              "id": "aabu-sci",
+              "name_en": "Sciences",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "aabu-sci-Bio",
+                  "name_en": "Biotechnologies",
+                  "name_ar": "التقنيات الحيوية"
+                },
+                {
+                  "id": "aabu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "aabu-sci-ph",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "aabu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "aabu-eas",
+              "name_en": "Earth and Environmental Sciences",
+              "name_ar": "علوم الارض والبيئة",
+              "majors": [
+                {
+                  "id": "aabu-eas-aeas",
+                  "name_en": "Applied Earth and Environmental Sciences",
+                  "name_ar": "علوم الارض والبيئة التطبيقية"
+                },
+                {
+                  "id": "aabu-eas-gsen",
+                  "name_en": "Geological Surveying and Exploration for Natural Resources",
+                  "name_ar": "المسح الجيولوجي والتنقيب عن الثروات الطبيعية"
+                },
+                {
+                  "id": "aabu-eas-gis",
+                  "name_en": "Geographic Information Systems and Remote Sensing",
+                  "name_ar": "نظم المعلومات الجغرافية والاستشعار عن بعد"
+                }
+              ]
+            },
+            {
+              "id": "aabu-es",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "aabu-es-se",
+                  "name_en": "Special Education",
+                  "name_ar": "التربية الخاصة"
+                },
+                {
+                  "id": "aabu-es-cteach",
+                  "name_en": "Classroom Teacher",
+                  "name_ar": "معلم صف"
+                }
+              ]
+            },
+            {
+              "id": "aabu-ams",
+              "name_en": "Applied Medical Sciences",
+              "name_ar": "العلوم الطبية التطبيقية ",
+              "majors": [
+                {
+                  "id": "aabu-ams-cnd",
+                  "name_en": "Clinical Nutrition and Dietetics",
+                  "name_ar": "التغذية السريرية والحميات"
+                },
+                {
+                  "id": "aabu-ams-mit",
+                  "name_en": "Medical Imaging Technology",
+                  "name_ar": "تقنيات الاشعة الطبية"
+                },
+                {
+                  "id": "aabu-ams-rt",
+                  "name_en": "Respiratory Therapy",
+                  "name_ar": "العلاج التنفسي"
+                },
+                {
+                  "id": "aabu-ams-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "aabu-ams-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "aabu-ams-hss",
+                  "name_en": "Hearing and Speech Sciences",
+                  "name_ar": "علوم السمع والنطق"
+                },
+                {
+                  "id": "aabu-ams-lms",
+                  "name_en": "Laboratory Medical Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                }
+              ]
+            },
+            {
+              "id": "aabu-fl",
+              "name_en": "Foreign Languages",
+              "name_ar": "اللغات الأجنبية",
+              "majors": [
+                {
+                  "id": "aabu-fl-span",
+                  "name_en": "The Spanish and English languages",
+                  "name_ar": "اللغتين الإسبانية والإنجليزية"
+                },
+                {
+                  "id": "aabu-fl-ita",
+                  "name_en": "The Italian and English languages",
+                  "name_ar": "اللغتين الإيطالية والإنجليزية"
+                },
+                {
+                  "id": "aabu-fl-fre",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                },
+                {
+                  "id": "aabu-fl-enl",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                }
+              ]
+            },
+            {
+              "id": "aabu-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "aabu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "ألهندسة الصناعية"
+                },
+                {
+                  "id": "aabu-eng-ren",
+                  "name_en": "Renewable and Sustainable Energy Engineering",
+                  "name_ar": "هندسة الطاقة المتجددة والمستدامة"
+                },
+                {
+                  "id": "aabu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "aabu-eng-civ",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "ju",
           "name_en": "University of Jordan",
           "name_ar": "الجامعة الأردنية",
           "domain": "ju.edu.jo",
           "colleges": [
+            {
+              "id": "ju-at",
+              "name_en": "Archaeology and Tourism",
+              "name_ar": "الآثار والسياحة",
+              "majors": [
+                {
+                  "id": "ju-at-arch",
+                  "name_en": "Archaeology",
+                  "name_ar": "الآثار"
+                },
+                {
+                  "id": "ju-at-tm",
+                  "name_en": "Tourism Management",
+                  "name_ar": "الإدارة السياحية"
+                },
+                {
+                  "id": "ju-at-hm",
+                  "name_en": "Hospitality Management",
+                  "name_ar": "إدارة الضيافة"
+                },
+                {
+                  "id": "ju-at-evm",
+                  "name_en": "Event Management",
+                  "name_ar": "إدارة الفعاليات"
+                },
+                {
+                  "id": "ju-at-mchr",
+                  "name_en": "Management and Conservation of Heritage Resources",
+                  "name_ar": "ادارة المصادر التراثية وصيانتها"
+                }
+              ]
+            },
             {
               "id": "ju-lit",
               "name_en": "Literatures",
@@ -27,6 +445,16 @@
                   "name_ar": "الجغرافيا"
                 },
                 {
+                  "id": "ju-lit-soci",
+                  "name_en": "Sociology",
+                  "name_ar": "علم الاجتماع"
+                },
+                {
+                  "id": "ju-lit-psych",
+                  "name_en": "Psychology",
+                  "name_ar": "علم النفس"
+                },
+                {
                   "id": "ju-lit-sw",
                   "name_en": "Social Work",
                   "name_ar": "العمل الاجتماعي"
@@ -40,16 +468,6 @@
                   "id": "ju-lit-arab",
                   "name_en": "Arabic Language and Literature",
                   "name_ar": "اللغة العربية وآدابها"
-                },
-                {
-                  "id": "ju-lit-soci",
-                  "name_en": "Sociology",
-                  "name_ar": "علم الاجتماع"
-                },
-                {
-                  "id": "ju-lit-psych",
-                  "name_en": "Psychology",
-                  "name_ar": "علم النفس"
                 }
               ]
             },
@@ -64,14 +482,14 @@
                   "name_ar": "إدارة الأعمال"
                 },
                 {
-                  "id": "ju-bus-be",
-                  "name_en": "Business Economics",
-                  "name_ar": "اقتصاد الأعمال"
-                },
-                {
                   "id": "ju-bus-ga",
                   "name_en": "General Administration",
                   "name_ar": "الإدارة العامة"
+                },
+                {
+                  "id": "ju-bus-be",
+                  "name_en": "Business Economics",
+                  "name_ar": "اقتصاد الأعمال"
                 },
                 {
                   "id": "ju-bus-mkt",
@@ -84,19 +502,95 @@
                   "name_ar": "التسويق الرقمي"
                 },
                 {
-                  "id": "ju-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
                   "id": "ju-bus-fin",
                   "name_en": "Financing",
                   "name_ar": "التمويل"
                 },
                 {
+                  "id": "ju-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
                   "id": "ju-bus-mis",
                   "name_en": "Management Information Systems",
                   "name_ar": "نظم المعلومات الإدارية"
+                }
+              ]
+            },
+            {
+              "id": "ju-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "ju-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            },
+            {
+              "id": "ju-low",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "ju-low-low",
+                  "name_en": "Low",
+                  "name_ar": "القانون"
+                }
+              ]
+            },
+            {
+              "id": "ju-agri",
+              "name_en": "Agriculture",
+              "name_ar": "الزراعة",
+              "majors": [
+                {
+                  "id": "ju-agri-lwe",
+                  "name_en": "Land, Water, and Environment",
+                  "name_ar": "الأراضي والمياه والبيئة"
+                },
+                {
+                  "id": "ju-agri-ae",
+                  "name_en": "Agricultural Economics and Agribusiness Management",
+                  "name_ar": "الإقتصاد الزراعي وادارة الاعمال الزراعية"
+                },
+                {
+                  "id": "ju-agri-ap",
+                  "name_en": "Animal Production",
+                  "name_ar": "الإنتاج الحيواني"
+                },
+                {
+                  "id": "ju-agri-apr",
+                  "name_en": "Agricultural Production",
+                  "name_ar": "الإنتاج الزراعي"
+                },
+                {
+                  "id": "ju-agri-hort",
+                  "name_en": "Horticulture and Crops",
+                  "name_ar": "البستنة والمحاصيل"
+                },
+                {
+                  "id": "ju-agri-ldl",
+                  "name_en": "Locations Design and Layout",
+                  "name_ar": "تصميم وتنسيق المواقع"
+                },
+                {
+                  "id": "ju-agri-hn",
+                  "name_en": "Human Nutrition and Diets",
+                  "name_ar": "تغذية الإنسان والحميات"
+                },
+                {
+                  "id": "ju-agri-fs",
+                  "name_en": "Food Science and Technology",
+                  "name_ar": "علوم وتكنولوجيا الغذاء"
+                },
+                {
+                  "id": "ju-agri-pp",
+                  "name_en": "Plant Protection",
+                  "name_ar": "وقاية النبات"
                 }
               ]
             },
@@ -123,25 +617,125 @@
               ]
             },
             {
+              "id": "ju-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "ju-pharm-dpharm",
+                  "name_en": "Doctor of Pharmacy",
+                  "name_ar": "دكتور في الصيدلة"
+                },
+                {
+                  "id": "ju-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "ju-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "ju-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "الطب البشري"
+                }
+              ]
+            },
+            {
+              "id": "ju-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "ju-dent-dent",
+                  "name_en": "Dentistry",
+                  "name_ar": "طب الأسنان"
+                }
+              ]
+            },
+            {
+              "id": "ju-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "ju-sci-stats",
+                  "name_en": "Statistics and Data Science",
+                  "name_ar": "الإحصاء وعلم البيانات"
+                },
+                {
+                  "id": "ju-sci-geo",
+                  "name_en": "geology",
+                  "name_ar": "جيولوجيا"
+                },
+                {
+                  "id": "ju-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "ju-sci-labms",
+                  "name_en": "Laboratory Medical Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                },
+                {
+                  "id": "ju-sci-bio",
+                  "name_en": "Biology",
+                  "name_ar": "علوم حياتية"
+                },
+                {
+                  "id": "ju-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "ju-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                },
+                {
+                  "id": "ju-sci-ichem",
+                  "name_en": "Industrial Chemistry",
+                  "name_ar": "الكيمياء الصناعية"
+                }
+              ]
+            },
+            {
+              "id": "ju-rh",
+              "name_en": "Rehabilitation Sciences",
+              "name_ar": "علوم التأهيل",
+              "majors": [
+                {
+                  "id": "ju-rh-ort",
+                  "name_en": "Prosthetics and Assistive Devices",
+                  "name_ar": "الأطراف الإصطناعية والأجهزة المساعدة"
+                },
+                {
+                  "id": "ju-rh-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "ju-rh-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "ju-rh-sls",
+                  "name_en": "Speech and Language Science",
+                  "name_ar": "علوم السمع والنطق"
+                }
+              ]
+            },
+            {
               "id": "ju-es",
               "name_en": "Educational Sciences",
               "name_ar": "العلوم التربوية",
               "majors": [
-                {
-                  "id": "ju-es-child",
-                  "name_en": "Child-rearing",
-                  "name_ar": "تربية الطفل"
-                },
-                {
-                  "id": "ju-es-cteach",
-                  "name_en": "Classroom Teacher",
-                  "name_ar": "معلم صف"
-                },
-                {
-                  "id": "ju-es-early",
-                  "name_en": "Early Childhood",
-                  "name_ar": "الطفولة المبكرة"
-                },
                 {
                   "id": "ju-es-cmh",
                   "name_en": "Counseling and Mental Health",
@@ -153,21 +747,24 @@
                   "name_ar": "التربية الخاصة"
                 },
                 {
+                  "id": "ju-es-child",
+                  "name_en": "Child-rearing",
+                  "name_ar": "تربية الطفل"
+                },
+                {
+                  "id": "ju-es-early",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                },
+                {
                   "id": "ju-es-lis",
                   "name_en": "Library and Information Science",
-                  "name_ar":  "علم المكتبات والمعلومات"
-                }
-              ]
-            },
-            {
-              "id": "ju-low",
-              "name_en": "Law",
-              "name_ar": "الحقوق",
-              "majors": [
+                  "name_ar": "علم المكتبات والمعلومات"
+                },
                 {
-                  "id": "ju-low-low",
-                  "name_en": "Low",
-                  "name_ar": "القانون"
+                  "id": "ju-es-cteach",
+                  "name_en": "Classroom Teacher",
+                  "name_ar": "معلم صف"
                 }
               ]
             },
@@ -194,14 +791,14 @@
               "name_ar": "الفنون والتصميم",
               "majors": [
                 {
-                  "id": "ju-art-id",
-                  "name_en": "Interior Design",
-                  "name_ar": "التصميم داخلي"
-                },
-                {
                   "id": "ju-art-gd",
                   "name_en": "Graphic Design and Multimedia",
                   "name_ar": "تصميم الجرافيك والوسائط المتعددة"
+                },
+                {
+                  "id": "ju-art-id",
+                  "name_en": "Interior Design",
+                  "name_ar": "التصميم داخلي"
                 },
                 {
                   "id": "ju-art-va",
@@ -233,30 +830,47 @@
               ]
             },
             {
+              "id": "ju-it",
+              "name_en": "King Abdullah II School for Information Technology",
+              "name_ar": "كلية الملك عبدالله الثاني لتكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "ju-it-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "ju-it-cis",
+                  "name_en": "Information Systems",
+                  "name_ar": "أنظمة المعلومات الحاسوبية"
+                },
+                {
+                  "id": "ju-it-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },
+                {
+                  "id": "ju-it-ai",
+                  "name_en": "Artificial Intelligence",
+                  "name_ar": "الذكاء الاصطناعي"
+                },
+                {
+                  "id": "ju-it-ds",
+                  "name_en": "Data Science",
+                  "name_ar": "علم البيانات"
+                },
+                {
+                  "id": "ju-it-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                }
+              ]
+            },
+            {
               "id": "ju-fl",
               "name_en": "Foreign Languages",
               "name_ar": "اللغات الأجنبية",
               "majors": [
-                {
-                  "id": "ju-fl-tur",
-                  "name_en": "The Turkish and English languages",
-                  "name_ar": "اللغتين التركية والإنجليزية"
-                },
-                {
-                  "id": "ju-fl-kor",
-                  "name_en": "The Korean and English languages",
-                  "name_ar": "اللغتين الكورية والإنجليزية"
-                },
-                {
-                  "id": "ju-fl-rus",
-                  "name_en": "The Russian and English languages",
-                  "name_ar": "اللغتين الروسية والإنجليزية"
-                },
-                {
-                  "id": "ju-fl-chi",
-                  "name_en": "The Chinese and English languages",
-                  "name_ar": "اللغتين الصينية والإنجليزية"
-                },
                 {
                   "id": "ju-fl-span",
                   "name_en": "The Spanish and English languages",
@@ -273,6 +887,31 @@
                   "name_ar": "اللغتين الإيطالية والإنجليزية"
                 },
                 {
+                  "id": "ju-fl-tur",
+                  "name_en": "The Turkish and English languages",
+                  "name_ar": "اللغتين التركية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-rus",
+                  "name_en": "The Russian and English languages",
+                  "name_ar": "اللغتين الروسية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-chi",
+                  "name_en": "The Chinese and English languages",
+                  "name_ar": "اللغتين الصينية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-fre",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                },
+                {
+                  "id": "ju-fl-kor",
+                  "name_en": "The Korean and English languages",
+                  "name_ar": "اللغتين الكورية والإنجليزية"
+                },
+                {
                   "id": "ju-fl-ae",
                   "name_en": "Applied English",
                   "name_ar": "اللغة الإنجليزية التطبيقية"
@@ -286,259 +925,6 @@
                   "id": "ju-fl-frl",
                   "name_en": "French Language and Literature",
                   "name_ar": "اللغة الفرنسية وآدابها"
-                },
-                {
-                  "id": "ju-fl-fre",
-                  "name_en": "The French and English languages",
-                  "name_ar": "اللغتين الفرنسية والإنجليزية"
-                }
-              ]
-            },
-            {
-              "id": "ju-at",
-              "name_en": "Archaeology and Tourism",
-              "name_ar": "الآثار والسياحة",
-              "majors": [
-                {
-                  "id": "ju-at-mchr",
-                  "name_en": "Management and Conservation of Heritage Resources",
-                  "name_ar": "ادارة المصادر التراثية وصيانتها"
-                },
-                {
-                  "id": "ju-at-evm",
-                  "name_en": "Event Management",
-                  "name_ar": "إدارة الفعاليات"
-                },
-                {
-                  "id": "ju-at-hm",
-                  "name_en": "Hospitality Management",
-                  "name_ar": "إدارة الضيافة"
-                },
-                {
-                  "id": "ju-at-tm",
-                  "name_en": "Tourism Management",
-                  "name_ar": "الإدارة السياحية"
-                },
-                {
-                  "id": "ju-at-arch",
-                  "name_en": "Archaeology",
-                  "name_ar": "الآثار"
-                }
-              ]
-            },
-            {
-              "id": "ju-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "ju-sci-geo",
-                  "name_en": "geology",
-                  "name_ar": "جيولوجيا"
-                },
-                {
-                  "id": "ju-sci-stats",
-                  "name_en": "Statistics and Data Science",
-                  "name_ar": "الإحصاء وعلم البيانات"
-                },
-                {
-                  "id": "ju-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "ju-sci-bio",
-                  "name_en": "Biology",
-                  "name_ar": "علوم حياتية"
-                },
-                {
-                  "id": "ju-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                },
-                {
-                  "id": "ju-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "ju-sci-labms",
-                  "name_en": "Laboratory Medical Sciences",
-                  "name_ar": "العلوم الطبية المخبرية"
-                },
-                {
-                  "id": "ju-sci-ichem",
-                  "name_en": "Industrial Chemistry",
-                  "name_ar": "الكيمياء الصناعية"
-                }
-              ]
-            },
-            {
-              "id": "ju-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
-              "majors": [
-                {
-                  "id": "ju-med-med",
-                  "name_en": "Medicine",
-                  "name_ar": "الطب البشري"
-                }
-              ]
-            },
-            {
-              "id": "ju-nurs",
-              "name_en": "Nursing",
-              "name_ar": "التمريض",
-              "majors": [
-                {
-                  "id": "ju-nurs-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "التمريض"
-                }
-              ]
-            },
-            {
-              "id": "ju-pharm",
-              "name_en": "Pharmacy",
-              "name_ar": "الصيدلة",
-              "majors": [
-                {
-                  "id": "ju-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
-                },
-                {
-                  "id": "ju-pharm-dpharm",
-                  "name_en": "Doctor of Pharmacy",
-                  "name_ar": "دكتور في الصيدلة"
-                }
-              ]
-            },
-            {
-              "id": "ju-dent",
-              "name_en": "Dentistry",
-              "name_ar": "طب الأسنان",
-              "majors": [
-                {
-                  "id": "ju-dent-dent",
-                  "name_en": "Dentistry",
-                  "name_ar": "طب الأسنان"
-                }
-              ]
-            },
-            {
-              "id": "ju-rh",
-              "name_en": "Rehabilitation Sciences",
-              "name_ar": "علوم التأهيل",
-              "majors": [
-                {
-                  "id": "ju-rh-pt",
-                  "name_en": "Physical Therapy",
-                  "name_ar": "العلاج الطبيعي"
-                },
-                {
-                  "id": "ju-rh-ot",
-                  "name_en": "Occupational Therapy",
-                  "name_ar": "العلاج الوظيفي"
-                },
-                {
-                  "id": "ju-rh-sls",
-                  "name_en": "Speech and Language Science",
-                  "name_ar": "علوم السمع والنطق"
-                },
-                {
-                  "id": "ju-rh-ort",
-                  "name_en": "Prosthetics and Assistive Devices",
-                  "name_ar": "الأطراف الإصطناعية والأجهزة المساعدة"
-                }
-              ]
-            },
-            {
-              "id": "ju-agri",
-              "name_en": "Agriculture",
-              "name_ar": "الزراعة",
-              "majors": [
-                {
-                  "id": "ju-agri-hort",
-                  "name_en": "Horticulture and Crops",
-                  "name_ar": "البستنة والمحاصيل"
-                },
-                {
-                  "id": "ju-agri-ldl",
-                  "name_en": "Locations Design and Layout",
-                  "name_ar": "تصميم وتنسيق المواقع"
-                },
-                {
-                  "id": "ju-agri-lwe",
-                  "name_en": "Land, Water, and Environment",
-                  "name_ar": "الأراضي والمياه والبيئة"
-                },
-                {
-                  "id": "ju-agri-ap",
-                  "name_en": "Animal Production",
-                  "name_ar": "الإنتاج الحيواني"
-                },
-                {
-                  "id": "ju-agri-apr",
-                  "name_en": "Agricultural Production",
-                  "name_ar": "الإنتاج الزراعي"
-                },
-                {
-                  "id": "ju-agri-ae",
-                  "name_en": "Agricultural Economics and Agribusiness Management",
-                  "name_ar": "الإقتصاد الزراعي وادارة الاعمال الزراعية"
-                },
-                {
-                  "id": "ju-agri-hn",
-                  "name_en": "Human Nutrition and Diets",
-                  "name_ar": "تغذية الإنسان والحميات"
-                },
-                {
-                  "id": "ju-agri-fs",
-                  "name_en": "Food Science and Technology",
-                  "name_ar": "علوم وتكنولوجيا الغذاء"
-                },
-                {
-                  "id": "ju-agri-pp",
-                  "name_en": "Plant Protection",
-                  "name_ar": "وقاية النبات"
-                }
-              ]
-            },
-            {
-              "id": "ju-it",
-              "name_en": "King Abdullah II School for Information Technology",
-              "name_ar":  "كلية الملك عبدالله الثاني لتكنولوجيا المعلومات",
-              "majors": [
-                {
-                  "id": "ju-it-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
-                },
-                {
-                  "id": "ju-it-cis",
-                  "name_en": "Information Systems",
-                  "name_ar": "أنظمة المعلومات الحاسوبية"
-                },
-                {
-                  "id": "ju-it-cy",
-                  "name_en": "Cyber Security",
-                  "name_ar": "الأمن السيبراني"
-                },
-                {
-                  "id": "ju-it-bit",
-                  "name_en": "Business Information Technology",
-                  "name_ar": "تكنولوجيا معلومات الأعمال"
-                },  
-                {
-                  "id": "ju-it-ai",
-                  "name_en": "Artificial Intelligence",
-                  "name_ar": "الذكاء الاصطناعي"
-                },
-                {
-                  "id": "ju-it-ds",
-                  "name_en": "Data Science",
-                  "name_ar": "علم البيانات"
                 }
               ]
             },
@@ -546,36 +932,21 @@
               "id": "ju-eng",
               "name_en": "Engineering",
               "name_ar": "الهندسة",
-              "majors": [    
-                {
-                  "id": "ju-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "ju-eng-ee",
-                  "name_en": "Electrical Engineering",
-                  "name_ar": "الهندسة الكهربائية"
-                },
-                {
-                  "id": "ju-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                },
-                {
-                  "id": "ju-eng-ie",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "الهندسة الصناعية"
-                },
+              "majors": [
                 {
                   "id": "ju-eng-se",
                   "name_en": "Semiconductor Engineering",
                   "name_ar": "هندسة أشباه الموصلات"
                 },
                 {
-                  "id": "ju-eng-me",
-                  "name_en": "Mechanical Engineering",
-                  "name_ar": "الهندسة الميكانيكية"
+                  "id": "ju-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "ju-eng-ie",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
                 },
                 {
                   "id": "ju-eng-ae",
@@ -587,15 +958,434 @@
                   "name_en": "Architecture Engineering",
                   "name_ar": "هندسة العمارة"
                 },
-                {                  
-                  "id": "ju-eng-mech",
-                  "name_en": "Mechatronics Engineering",
-                  "name_ar": "هندسة الميكاترونيكس" 
+                {
+                  "id": "ju-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
                 },
                 {
                   "id": "ju-eng-chem",
                   "name_en": "Chemical Engineering",
                   "name_ar": "الهندسة الكيميائية"
+                },
+                {
+                  "id": "ju-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "ju-eng-mech",
+                  "name_en": "Mechatronics Engineering",
+                  "name_ar": "هندسة الميكاترونيكس"
+                },
+                {
+                  "id": "ju-eng-me",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "psut",
+          "name_en": "Princess Sumaya University for Technology",
+          "name_ar": "جامعة الأميرة سمية للتكنولوجيا",
+          "domain": "psut.edu.jo",
+          "colleges": [
+            {
+              "id": "psut-cs",
+              "name_en": "King Hussein School of Computing Sciences",
+              "name_ar": "كلية الملك الحسين لعلوم الحوسبة",
+              "majors": [
+                {
+                  "id": "psut-cs-cyber",
+                  "name_en": "Cybersecurity",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "psut-cs-dsai",
+                  "name_en": "Data Science and Artificial Intelligence",
+                  "name_ar": "علم البيانات والذكاء الإصطناعي"
+                },
+                {
+                  "id": "psut-cs-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "psut-cs-cg",
+                  "name_en": "Computer Graphics",
+                  "name_ar": "علم الرسم الحاسوبي"
+                },
+                {
+                  "id": "psut-cs-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
+                }
+              ]
+            },
+            {
+              "id": "psut-bus",
+              "name_en": "King Talal School of Business Technology",
+              "name_ar": "كلية الملك طلال لتكنولوجيا الأعمال",
+              "majors": [
+                {
+                  "id": "psut-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                },
+                {
+                  "id": "psut-bus-emkt",
+                  "name_en": "E-Marketing and Social Media",
+                  "name_ar": "التسويق الإلكتروني والتواصل الاجتماعي"
+                },
+                {
+                  "id": "psut-bus-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },
+                {
+                  "id": "psut-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                }
+              ]
+            },
+            {
+              "id": "psut-eng",
+              "name_en": "King Abdullah II School of Engineering",
+              "name_ar": "كلية الملك عبدالله الثاني للهندسة",
+              "majors": [
+                {
+                  "id": "psut-eng-comm",
+                  "name_en": "Communications Engineering / Internet of Things",
+                  "name_ar": "هندسة الاتصالات/إنترنت الأشياء"
+                },
+                {
+                  "id": "psut-eng-ee",
+                  "name_en": "Electronics Engineering",
+                  "name_ar": "الهندسة الإلكترونية"
+                },
+                {
+                  "id": "psut-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "psut-eng-power",
+                  "name_en": "Electrical Power and Energy Engineering",
+                  "name_ar": "هندسة القدرة والطاقة الكهربائية"
+                },
+                {
+                  "id": "psut-eng-nis",
+                  "name_en": "Network and Information Security Engineering",
+                  "name_ar": "هندسة أمن الشبكات والمعلومات"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "asu",
+          "name_en": "Applied Science Private University",
+          "name_ar": "جامعة العلوم التطبيقية الخاصة",
+          "domain": "asu.edu.jo",
+          "colleges": [
+            {
+              "id": "asu-arts",
+              "name_en": "Arts and Humanities",
+              "name_ar": "الآداب والعلوم الإنسانية",
+              "majors": [
+                {
+                  "id": "asu-arts-dmedia",
+                  "name_en": "Digital (Electronic) Media",
+                  "name_ar": "الإعلام الرقمي (الإلكتروني)"
+                },
+                {
+                  "id": "asu-arts-pe",
+                  "name_en": "Physical Education",
+                  "name_ar": "التربية الرياضية"
+                },
+                {
+                  "id": "asu-arts-pol",
+                  "name_en": "Political Science",
+                  "name_ar": "العلوم السياسية"
+                },
+                {
+                  "id": "asu-arts-cheng",
+                  "name_en": "Chinese and English Languages",
+                  "name_ar": "اللغتين الصينية والإنجليزية"
+                },
+                {
+                  "id": "asu-arts-trans",
+                  "name_en": "English Language / Translation",
+                  "name_ar": "اللغة الإنجليزية / ترجمة"
+                },
+                {
+                  "id": "asu-arts-aeng",
+                  "name_en": "Applied English",
+                  "name_ar": "اللغة الإنجليزية التطبيقي"
+                },
+                {
+                  "id": "asu-arts-eng",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                }
+              ]
+            },
+            {
+              "id": "asu-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "asu-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                },
+                {
+                  "id": "asu-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "asu-bus-dm",
+                  "name_en": "Digital Marketing",
+                  "name_ar": "التسويق الرقمي"
+                },
+                {
+                  "id": "asu-bus-ftrm",
+                  "name_en": "Financial Technology and Risk Management",
+                  "name_ar": "التكنولوجيا المالية وإدارة المخاطر"
+                },
+                {
+                  "id": "asu-bus-aiacc",
+                  "name_en": "Artificial Intelligence in Accounting and Auditing",
+                  "name_ar": "الذكاء الاصطناعي في المحاسبة والتدقيق"
+                },
+                {
+                  "id": "asu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "asu-bus-mis",
+                  "name_en": "Management Information Systems",
+                  "name_ar": "نظم المعلومات الإدارية"
+                }
+              ]
+            },
+            {
+              "id": "asu-it",
+              "name_en": "Information Technology",
+              "name_ar": "تكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "asu-it-cyber",
+                  "name_en": "Cybersecurity and Cloud Computing",
+                  "name_ar": "الأمن السيبراني والحوسبة السحابية"
+                },
+                {
+                  "id": "asu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence",
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "asu-it-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "asu-it-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
+                },
+                {
+                  "id": "asu-it-vrgd",
+                  "name_en": "Virtual Reality and Game Development",
+                  "name_ar": "الواقع الرقمي وتطوير الألعاب"
+                }
+              ]
+            },
+            {
+              "id": "asu-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "asu-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            },
+            {
+              "id": "asu-law",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "asu-law-law",
+                  "name_en": "Law",
+                  "name_ar": "الحقوق"
+                }
+              ]
+            },
+            {
+              "id": "asu-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "asu-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "asu-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "asu-dent-dtech",
+                  "name_en": "Dental Technology",
+                  "name_ar": "تكنولوجيا صناعة الأسنان"
+                },
+                {
+                  "id": "asu-dent-dds",
+                  "name_en": "Doctor of Dental Surgery",
+                  "name_ar": "دكتور في طب الأسنان"
+                }
+              ]
+            },
+            {
+              "id": "asu-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "asu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "asu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "asu-ams",
+              "name_en": "Allied Medical Sciences",
+              "name_ar": "العلوم الطبية المساندة",
+              "majors": [
+                {
+                  "id": "asu-ams-cnd",
+                  "name_en": "Clinical Nutrition and Dietetics",
+                  "name_ar": "التغذية السريرية والحميات"
+                },
+                {
+                  "id": "asu-ams-mlt",
+                  "name_en": "Medical and Clinical Laboratory Technology",
+                  "name_ar": "تكنولوجيا المختبرات الطبية والسريرية"
+                },
+                {
+                  "id": "asu-ams-asp",
+                  "name_en": "Audiology and Speech Pathology",
+                  "name_ar": "السمع والنطق"
+                },
+                {
+                  "id": "asu-ams-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "asu-ams-cos",
+                  "name_en": "Cosmetic Science",
+                  "name_ar": "علم التجميل"
+                }
+              ]
+            },
+            {
+              "id": "asu-art",
+              "name_en": "Arts and Design",
+              "name_ar": "الفنون والتصميم",
+              "majors": [
+                {
+                  "id": "asu-art-fash",
+                  "name_en": "Fashion and Accessories Design",
+                  "name_ar": "تصميم الأزياء والإكسسوارات"
+                },
+                {
+                  "id": "asu-art-gd",
+                  "name_en": "Graphic Design",
+                  "name_ar": "تصميم الجرافيك"
+                },
+                {
+                  "id": "asu-art-id",
+                  "name_en": "Interior Design",
+                  "name_ar": "التصميم الداخلي"
+                },
+                {
+                  "id": "asu-art-dmd",
+                  "name_en": "Digital Media Design",
+                  "name_ar": "التصميم للوسائط الرقمية"
+                }
+              ]
+            },
+            {
+              "id": "asu-eng",
+              "name_en": "Engineering and Technology",
+              "name_ar": "الهندسة والتكنولوجيا",
+              "majors": [
+                {
+                  "id": "asu-eng-ret",
+                  "name_en": "Renewable Energy Technology",
+                  "name_ar": "تكنولوجيا الطاقة المتجددة"
+                },
+                {
+                  "id": "asu-eng-hev",
+                  "name_en": "Applied Engineering / Hybrid and Electric Vehicles",
+                  "name_ar": "الهندسة التطبيقية / المركبات الهجينة والكهربائية"
+                },
+                {
+                  "id": "asu-eng-rai",
+                  "name_en": "Robotics and Artificial Intelligence Engineering",
+                  "name_ar": "هندسة الروبوتات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "asu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
+                },
+                {
+                  "id": "asu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "asu-eng-pre",
+                  "name_en": "Power and Renewable Energy Engineering",
+                  "name_ar": "هندسة القوى والطاقة المتجددة"
+                },
+                {
+                  "id": "asu-eng-ecce",
+                  "name_en": "Electrical / Communications and Computer Engineering",
+                  "name_ar": "الهندسة الكهربائية / الاتصالات وهندسة الحاسوب"
+                },
+                {
+                  "id": "asu-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "asu-eng-mech",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
                 }
               ]
             }
@@ -608,135 +1398,84 @@
           "domain": "just.edu.jo",
           "colleges": [
             {
-              "id": "just-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
+              "id": "just-cit",
+              "name_en": "Computer and Information Technology",
+              "name_ar": "تكنولوجيا الحاسوب والمعلومات",
               "majors": [
                 {
-                  "id": "just-eng-ind",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "الهندسة الصناعية"
+                  "id": "just-cit-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
                 },
                 {
-                  "id": "just-eng-bme",
-                  "name_en": "Biomedical Engineering",
-                  "name_ar": "الهندسة الطبية الحيوية"
+                  "id": "just-cit-iot",
+                  "name_en": "Internet of Things",
+                  "name_ar": "إنترنت الأشياء"
                 },
                 {
-                  "id": "just-eng-ee",
-                  "name_en": "Electrical Engineering",
-                  "name_ar": "الهندسة الكهربائية"
+                  "id": "just-cit-gdev",
+                  "name_en": "Computer Games Design and Development",
+                  "name_ar": "تصميم وتطوير ألعاب الحاسوب"
                 },
                 {
-                  "id": "just-eng-chem",
-                  "name_en": "Chemical Engineering",
-                  "name_ar": "الهندسة الكيميائية"
+                  "id": "just-cit-cc",
+                  "name_en": "Cloud Computing",
+                  "name_ar": "الحوسبة السحابية"
                 },
                 {
-                  "id": "just-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
+                  "id": "just-cit-qc",
+                  "name_en": "Quantum Computing",
+                  "name_ar": "الحوسبة الكمية"
                 },
                 {
-                  "id": "just-eng-mech",
-                  "name_en": "Mechanical Engineering",
-                  "name_ar": "الهندسة الميكانيكية"
+                  "id": "just-cit-ai",
+                  "name_en": "Artificial Intelligence",
+                  "name_ar": "الذكاء الاصطناعي"
                 },
                 {
-                  "id": "just-eng-nuc",
-                  "name_en": "Nuclear Engineering",
-                  "name_ar": "الهندسة النووية"
+                  "id": "just-cit-ds",
+                  "name_en": "Data Science",
+                  "name_ar": "علم البيانات"
                 },
                 {
-                  "id": "just-eng-set",
-                  "name_en": "Smart Electrical Systems Technology",
-                  "name_ar": "تكنولوجيا الأنظمة الكهربائية الذكية"
+                  "id": "just-cit-rob",
+                  "name_en": "Robotics Science",
+                  "name_ar": "علم الروبوتات"
                 },
                 {
-                  "id": "just-eng-hect",
-                  "name_en": "Hybrid and Electric Car Technology",
-                  "name_ar": "تكنولوجيا السيارات الهجينة والكهربائية"
+                  "id": "just-cit-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علوم الحاسوب"
                 },
                 {
-                  "id": "just-eng-drone",
-                  "name_en": "Drone Technology",
-                  "name_ar": "تكنولوجيا الطائرات المسيرة"
+                  "id": "just-cit-cis",
+                  "name_en": "Computer Information Systems",
+                  "name_ar": "نظم المعلومات الحاسوبية"
                 },
                 {
-                  "id": "just-eng-aircraft",
-                  "name_en": "Aircraft Maintenance Technology",
-                  "name_ar": "تكنولوجيا صيانة الطائرات"
+                  "id": "just-cit-his",
+                  "name_en": "Health Information Systems",
+                  "name_ar": "نظم المعلومات الصحية"
                 },
                 {
-                  "id": "just-eng-semicon",
-                  "name_en": "Semiconductor Engineering",
-                  "name_ar": "هندسة أشباه الموصلات"
+                  "id": "just-cit-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
                 },
                 {
-                  "id": "just-eng-aero",
-                  "name_en": "Aviation Engineering",
-                  "name_ar": "هندسة الطيران"
+                  "id": "just-cit-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
                 },
                 {
-                  "id": "just-eng-pdde",
-                  "name_en": "Product Design and Development Engineering",
-                  "name_ar": "هندسة تصميم وتطوير المنتج"
-                }
-              ]
-            },
-            {
-              "id": "just-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
-              "majors": [
-                {
-                  "id": "just-med-med",
-                  "name_en": "Medicine",
-                  "name_ar": "دتور في الطب "
+                  "id": "just-cit-cns",
+                  "name_en": "Computer Networks and Security Engineering",
+                  "name_ar": "هندسة وأمن شبكات الحاسوب"
                 },
                 {
-                  "id": "just-med-hap",
-                  "name_en": "Health Administration and Policy",
-                  "name_ar": "الإدارة والسياسات الصحية"
-                }
-              ]
-            },
-            {
-              "id": "just-dent",
-              "name_en": "Dentistry",
-              "name_ar": "طب الأسنان",
-              "majors": [
-                {
-                  "id": "just-dent-dent",
-                  "name_en": "Dentistry",
-                  "name_ar": "دكتور في طب الأسنان"
-                }
-              ]
-            },
-            {
-              "id": "just-pharm",
-              "name_en": "Pharmacy",
-              "name_ar": "الصيدلة",
-              "majors": [
-                {
-                  "id": "just-pharm-dpharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "دكتور في الصيدلة"
-                },
-                {
-                  "id": "just-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
-                },
-                {
-                  "id": "just-pharm-bp",
-                  "name_en": "Biopharmaceutical Manufacturing",
-                  "name_ar": "التصنيع الدوائي والبيولوجي"
-                },
-                {
-                  "id": "just-pharm-acs",
-                  "name_en": "Applied Cosmetic Science",
-                  "name_ar": "علم التجميل التطبيقي"
+                  "id": "just-cit-vr",
+                  "name_en": "Virtual Reality and Simulation Technology",
+                  "name_ar": "الواقع الافتراضي وتكنولوجيا المحاكاة"
                 }
               ]
             },
@@ -788,11 +1527,6 @@
                   "name_ar": "التغذية وتكنولوجيا الغذاء"
                 },
                 {
-                  "id": "just-agri-dagr",
-                  "name_en": "Digital Agriculture",
-                  "name_ar": "الزراعة الرقمية"
-                },
-                {
                   "id": "just-agri-asc",
                   "name_en": "Animal Technology and Science",
                   "name_ar": "تكنولوجيا وعلوم الحيوان"
@@ -801,6 +1535,67 @@
                   "id": "just-agri-psc",
                   "name_en": "Plant Technology and Science",
                   "name_ar": "تكنولوجيا وعلوم النبات"
+                },
+                {
+                  "id": "just-agri-dagr",
+                  "name_en": "Digital Agriculture",
+                  "name_ar": "الزراعة الرقمية"
+                }
+              ]
+            },
+            {
+              "id": "just-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "just-pharm-bp",
+                  "name_en": "Biopharmaceutical Manufacturing",
+                  "name_ar": "التصنيع الدوائي والبيولوجي"
+                },
+                {
+                  "id": "just-pharm-dpharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "دكتور في الصيدلة"
+                },
+                {
+                  "id": "just-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                },
+                {
+                  "id": "just-pharm-acs",
+                  "name_en": "Applied Cosmetic Science",
+                  "name_ar": "علم التجميل التطبيقي"
+                }
+              ]
+            },
+            {
+              "id": "just-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "just-med-hap",
+                  "name_en": "Health Administration and Policy",
+                  "name_ar": "الإدارة والسياسات الصحية"
+                },
+                {
+                  "id": "just-med-med",
+                  "name_en": "Medicine",
+                  "name_ar": "دتور في الطب "
+                }
+              ]
+            },
+            {
+              "id": "just-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "just-dent-dent",
+                  "name_en": "Dentistry",
+                  "name_ar": "دكتور في طب الأسنان"
                 }
               ]
             },
@@ -810,14 +1605,91 @@
               "name_ar": "الطب البيطري",
               "majors": [
                 {
-                  "id": "just-vet-dvet",
-                  "name_en": "Veterinary Medicine",
-                  "name_ar": "دكتور في الطب البيطري"
-                },
-                {
                   "id": "just-vet-vn",
                   "name_en": "Veterinary Nursing",
                   "name_ar": "التمريض والرعاية البيطرية"
+                },
+                {
+                  "id": "just-vet-dvet",
+                  "name_en": "Veterinary Medicine",
+                  "name_ar": "دكتور في الطب البيطري"
+                }
+              ]
+            },
+            {
+              "id": "just-ams",
+              "name_en": "Applied Medical Sciences",
+              "name_ar": "العلوم الطبية التطبيقية",
+              "majors": [
+                {
+                  "id": "just-ams-em",
+                  "name_en": "Paramedics and Emergency",
+                  "name_ar": "الإسعاف والطوارئ"
+                },
+                {
+                  "id": "just-ams-opt",
+                  "name_en": "Optometry",
+                  "name_ar": "البصريات"
+                },
+                {
+                  "id": "just-ams-rad",
+                  "name_en": "Radiologic Technology",
+                  "name_ar": "تكنولوجيا الأشعة"
+                },
+                {
+                  "id": "just-ams-anes",
+                  "name_en": "Anesthesia Technology",
+                  "name_ar": "تكنولوجيا التخدير"
+                },
+                {
+                  "id": "just-ams-rdtech",
+                  "name_en": "Digital Dental Technology",
+                  "name_ar": "التكنولوجيا الرقمية في صناعة الأسنان"
+                },
+                {
+                  "id": "just-ams-dt",
+                  "name_en": "Dental Technology",
+                  "name_ar": "تكنولوجيا صناعة الأسنان"
+                },
+                {
+                  "id": "just-ams-sls",
+                  "name_en": "Speech and Language Science",
+                  "name_ar": "السمع والنطق"
+                },
+                {
+                  "id": "just-ams-rt",
+                  "name_en": "Respiratory Therapy",
+                  "name_ar": "العلاج التنفسي"
+                },
+                {
+                  "id": "just-ams-pt",
+                  "name_en": "Physical Therapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "just-ams-ot",
+                  "name_en": "Occupational Therapy",
+                  "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "just-ams-cpsych",
+                  "name_en": "Clinical Psychology",
+                  "name_ar": "علم النفس السريري"
+                },
+                {
+                  "id": "just-ams-mls",
+                  "name_en": "Medical Laboratory Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
+                },
+                {
+                  "id": "just-ams-dhs",
+                  "name_en": "Dental Hygiene Sciences",
+                  "name_ar": "علوم طب الأسنان المساندة"
+                },
+                {
+                  "id": "just-ams-dh",
+                  "name_en": "Dental Hygiene and Oral Health",
+                  "name_ar": "فني صحة الفم والأسنان"
                 }
               ]
             },
@@ -874,179 +1746,10 @@
               ]
             },
             {
-              "id": "just-cit",
-              "name_en": "Computer and Information Technology",
-              "name_ar": "تكنولوجيا الحاسوب والمعلومات",
-              "majors": [
-                {
-                  "id": "just-cit-iot",
-                  "name_en": "Internet of Things",
-                  "name_ar": "إنترنت الأشياء"
-                },
-                {
-                  "id": "just-cit-cy",
-                  "name_en": "Cyber Security",
-                  "name_ar": "الأمن السيبراني"
-                },
-                {
-                  "id": "just-cit-cc",
-                  "name_en": "Cloud Computing",
-                  "name_ar": "الحوسبة السحابية"
-                },
-                {
-                  "id": "just-cit-qc",
-                  "name_en": "Quantum Computing",
-                  "name_ar": "الحوسبة الكمية"
-                },
-                {
-                  "id": "just-cit-ai",
-                  "name_en": "Artificial Intelligence",
-                  "name_ar": "الذكاء الاصطناعي"
-                },
-                {
-                  "id": "just-cit-vr",
-                  "name_en": "Virtual Reality and Simulation Technology",
-                  "name_ar": "الواقع الافتراضي وتكنولوجيا المحاكاة"
-                },
-                {
-                  "id": "just-cit-gdev",
-                  "name_en": "Computer Games Design and Development",
-                  "name_ar": "تصميم وتطوير ألعاب الحاسوب"
-                },
-                {
-                  "id": "just-cit-ds",
-                  "name_en": "Data Science",
-                  "name_ar": "علم البيانات"
-                },
-                {
-                  "id": "just-cit-rob",
-                  "name_en": "Robotics Science",
-                  "name_ar": "علم الروبوتات"
-                },
-                {
-                  "id": "just-cit-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علوم الحاسوب"
-                },
-                {
-                  "id": "just-cit-cis",
-                  "name_en": "Computer Information Systems",
-                  "name_ar": "نظم المعلومات الحاسوبية"
-                },
-                {
-                  "id": "just-cit-his",
-                  "name_en": "Health Information Systems",
-                  "name_ar": "نظم المعلومات الصحية"
-                },
-                {
-                  "id": "just-cit-se",
-                  "name_en": "Software Engineering",
-                  "name_ar": "هندسة البرمجيات"
-                },
-                {
-                  "id": "just-cit-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "just-cit-cns",
-                  "name_en": "Computer Networks and Security Engineering",
-                  "name_ar": "هندسة وأمن شبكات الحاسوب"
-                }
-              ] 
-            },
-            {
-              "id": "just-ams",
-              "name_en": "Applied Medical Sciences",
-              "name_ar": "العلوم الطبية التطبيقية",
-              "majors": [
-                {
-                  "id": "just-ams-em",
-                  "name_en": "Paramedics and Emergency",
-                  "name_ar": "الإسعاف والطوارئ"
-                },
-                {
-                  "id": "just-ams-opt",
-                  "name_en": "Optometry",
-                  "name_ar": "البصريات"
-                },
-                {
-                  "id": "just-ams-rdtech",
-                  "name_en": "Digital Dental Technology",
-                  "name_ar": "التكنولوجيا الرقمية في صناعة الأسنان"
-                },
-                {
-                  "id": "just-ams-sls",
-                  "name_en": "Speech and Language Science",
-                  "name_ar": "السمع والنطق"
-                },
-                {
-                  "id": "just-ams-rt",
-                  "name_en": "Respiratory Therapy",
-                  "name_ar": "العلاج التنفسي"
-                },
-                {
-                  "id": "just-ams-pt",
-                  "name_en": "Physical Therapy",
-                  "name_ar": "العلاج الطبيعي"
-                },
-                {
-                  "id": "just-ams-ot",
-                  "name_en": "Occupational Therapy",
-                  "name_ar": "العلاج الوظيفي"
-                },
-                {
-                  "id": "just-ams-mls",
-                  "name_en": "Medical Laboratory Sciences",
-                  "name_ar": "العلوم الطبية المخبرية"
-                },
-                {
-                  "id": "just-ams-rad",
-                  "name_en": "Radiologic Technology",
-                  "name_ar": "تكنولوجيا الأشعة"
-                },
-                {
-                  "id": "just-ams-anes",
-                  "name_en": "Anesthesia Technology",
-                  "name_ar": "تكنولوجيا التخدير"
-                },
-                {
-                  "id": "just-ams-dt",
-                  "name_en": "Dental Technology",
-                  "name_ar": "تكنولوجيا صناعة الأسنان"
-                },
-                {
-                  "id": "just-ams-cpsych",
-                  "name_en": "Clinical Psychology",
-                  "name_ar": "علم النفس السريري"
-                },
-                {
-                  "id": "just-ams-dhs",
-                  "name_en": "Dental Hygiene Sciences",
-                  "name_ar": "علوم طب الأسنان المساندة"
-                },
-                {
-                  "id": "just-ams-dh",
-                  "name_en": "Dental Hygiene and Oral Health",
-                  "name_ar": "فني صحة الفم والأسنان"
-                }
-              ]
-            },
-            {
               "id": "just-ad",
               "name_en": "Architecture and Design",
               "name_ar": "العمارة والتصميم",
               "majors": [
-                {
-                  "id": "just-ad-vc",
-                  "name_en": "Visual Communication and Design",
-                  "name_ar": "التصميم والتواصل البصري"
-                },
-                {
-                  "id": "just-ad-arch",
-                  "name_en": "Architecture",
-                  "name_ar": "العمارة"
-                },
                 {
                   "id": "just-ad-upd",
                   "name_en": "Urban Planning and Design",
@@ -1058,9 +1761,19 @@
                   "name_ar": "تصميم الرسوم المتحركة والألعاب"
                 },
                 {
+                  "id": "just-ad-vc",
+                  "name_en": "Visual Communication and Design",
+                  "name_ar": "التصميم والتواصل البصري"
+                },
+                {
                   "id": "just-ad-fm",
                   "name_en": "Film and Multimedia Technology",
                   "name_ar": "تكنولوجيا الأفلام و الوسائط المتعددة"
+                },
+                {
+                  "id": "just-ad-arch",
+                  "name_en": "Architecture",
+                  "name_ar": "العمارة"
                 },
                 {
                   "id": "just-ad-envp",
@@ -1068,390 +1781,479 @@
                   "name_ar": "هندسة التخطيط الحضري والبيئي"
                 }
               ]
-            }
-          ]
-        },
-        {
-          "id": "aabu",
-          "name_en": "Al Al Bayt University",
-          "name_ar": "جامعة آل البيت",
-          "domain": "aabu.edu.jo",
-          "colleges": [
-            {
-              "id": "aabu-sh",
-              "name_en": "Sharia",
-              "name_ar": "الشريعة",
-              "majors": [
-                {
-                  "id": "aabu-sh-fiqh",
-                  "name_en": "Jurisprudence and its Principles",
-                  "name_ar": "الفقه واصوله"
-                },
-                {
-                  "id": "aabu-sh-fr",
-                  "name_en": "Fundamentals of Religion",
-                  "name_ar": "أصول الدين"
-                },
-                {
-                  "id": "aabu-sh-sr",
-                  "name_en": "Studies in Religions",
-                  "name_ar": "دراسات في الاديان"
-                }
-              ]
             },
             {
-              "id": "aabu-law",
-              "name_en": "Law",
-              "name_ar": "الحقوق",
-              "majors": [
-                {
-                  "id": "aabu-law-law",
-                  "name_en": "Law",
-                  "name_ar": "الحقوق"
-                }
-              ]
-            },
-            {
-              "id": "aabu-lit",
-              "name_en": "Literature and Humanities",
-              "name_ar": "الاداب والعلوم الانسانية",
-              "majors": [
-                {
-                  "id": "aabu-lit-ar",
-                  "name_en": "Arabic Language and Literature",
-                  "name_ar": "اللغة العربية وآدابها"
-                },
-                {
-                  "id": "aabu-lit-his",
-                  "name_en": "History and Archaeology",
-                  "name_ar": "التاريخ والحضارة"
-                },
-                {
-                  "id": "aabu-lit-geo",
-                  "name_en": "Applied Geography" ,
-                  "name_ar": "جغرافيا تطبيقية"
-                }
-              ]
-            },
-            {
-              "id": "aabu-sci",
-              "name_en": "Sciences",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "aabu-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "aabu-sci-ph",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "aabu-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                },
-                {
-                  "id": "aabu-sci-Bio",
-                  "name_en": "Biotechnologies",
-                  "name_ar": "التقنيات الحيوية"
-                }              
-              ]
-            },
-            {
-              "id": "aabu-bus",
-              "name_en": "Busines",
-              "name_ar": "الاعمال",
-              "majors": [
-                {
-                  "id": "aabu-bus-bm",
-                  "name_en": "Business Management",
-                  "name_ar": "ادارة الاعمال"
-                },
-                {
-                  "id": "aabu-bus-fb",
-                  "name_en": "Finance and Banking",
-                  "name_ar": "التمويل والمصارف"
-                },
-                {
-                  "id": "aabu-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "aabu-bus-asba",
-                  "name_en": "Accounting Systems and Business Analysis",
-                  "name_ar": "النظم المحاسبية وتحليل الاعمال"
-                },
-                {
-                  "id": "aabu-bus-log",
-                  "name_en": "Logistics Management",
-                  "name_ar": "الادارة اللوجستية"
-                },
-                {
-                  "id": "aabu-bus-iaa",
-                  "name_en": "International Auditing and Accounting",
-                  "name_ar": "التدقيق والمحاسبة الدولية"
-                },
-                {
-                  "id": "aabu-bus-de",
-                  "name_en": "Digital Economy",
-                  "name_ar": "الاقتصاد الرقمي"
-                },
-                {
-                  "id": "aabu-bus-abl",
-                  "name_en": "Accounting and Business Law",
-                  "name_ar": "محاسبة وقانون الاعمال"
-                },
-                {
-                  "id": "aabu-bus-fin",
-                  "name_en": "Fintech",
-                  "name_ar": "تكنولوجيا مالية"
-                },
-                {
-                  "id": "aabu-bus-dmrk",
-                  "name_en": "Digital Marketing",
-                  "name_ar": "التسويق الرقمي"
-                },
-                {
-                  "id": "aabu-bus-maba",
-                  "name_en": "Management Accounting and Business Analysis",
-                  "name_ar": "المحاسبة الادارية وتحليل الاعمال"
-                },
-                {
-                  "id": "aabu-bus-irm",
-                  "name_en": "Insurance and Risk Management",
-                  "name_ar": "التأمين وإدارة المخاطر"
-                },
-                {
-                  "id": "aabu-bus-bi",
-                  "name_en": "Business Intelligence" ,
-                  "name_ar": "ذكاء الاعمال"
-                }
-              ]            
-            },
-            {
-              "id": "aabu-pol",
-              "name_en": "Beit Al-Hikma for Political Science and International Studies",
-              "name_ar": "بيت الحكمة للعلوم السياسية والدراسات الدولية",
-              "majors": [
-                {
-                  "id": "aabu-pol-ps",
-                  "name_en": "Political Science" ,
-                  "name_ar": "العلوم السياسة"
-                }              
-              ]
-            },
-            {
-              "id": "aabu-eng",
+              "id": "just-eng",
               "name_en": "Engineering",
               "name_ar": "الهندسة",
               "majors": [
                 {
-                  "id": "aabu-eng-arch",
-                  "name_en": "Architecture Engineering" ,
-                  "name_ar": "هندسة العمارة"
+                  "id": "just-eng-set",
+                  "name_en": "Smart Electrical Systems Technology",
+                  "name_ar": "تكنولوجيا الأنظمة الكهربائية الذكية"
                 },
                 {
-                  "id": "aabu-eng-civ",
-                  "name_en": "Civil Engineering" ,
+                  "id": "just-eng-hect",
+                  "name_en": "Hybrid and Electric Car Technology",
+                  "name_ar": "تكنولوجيا السيارات الهجينة والكهربائية"
+                },
+                {
+                  "id": "just-eng-drone",
+                  "name_en": "Drone Technology",
+                  "name_ar": "تكنولوجيا الطائرات المسيرة"
+                },
+                {
+                  "id": "just-eng-aircraft",
+                  "name_en": "Aircraft Maintenance Technology",
+                  "name_ar": "تكنولوجيا صيانة الطائرات"
+                },
+                {
+                  "id": "just-eng-semicon",
+                  "name_en": "Semiconductor Engineering",
+                  "name_ar": "هندسة أشباه الموصلات"
+                },
+                {
+                  "id": "just-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
+                },
+                {
+                  "id": "just-eng-bme",
+                  "name_en": "Biomedical Engineering",
+                  "name_ar": "الهندسة الطبية الحيوية"
+                },
+                {
+                  "id": "just-eng-aero",
+                  "name_en": "Aviation Engineering",
+                  "name_ar": "هندسة الطيران"
+                },
+                {
+                  "id": "just-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "just-eng-chem",
+                  "name_en": "Chemical Engineering",
+                  "name_ar": "الهندسة الكيميائية"
+                },
+                {
+                  "id": "just-eng-civil",
+                  "name_en": "Civil Engineering",
                   "name_ar": "الهندسة المدنية"
                 },
                 {
-                  "id": "aabu-eng-ren",
-                  "name_en": "Renewable and Sustainable Energy Engineering" ,
-                  "name_ar": "هندسة الطاقة المتجددة والمستدامة"
+                  "id": "just-eng-mech",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
                 },
                 {
-                  "id": "aabu-eng-ind",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "ألهندسة الصناعية"
+                  "id": "just-eng-nuc",
+                  "name_en": "Nuclear Engineering",
+                  "name_ar": "الهندسة النووية"
+                },
+                {
+                  "id": "just-eng-pdde",
+                  "name_en": "Product Design and Development Engineering",
+                  "name_ar": "هندسة تصميم وتطوير المنتج"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "hu",
+          "name_en": "The Hashemite University",
+          "name_ar": "الجامعة الهاشمية",
+          "domain": "hu.edu.jo",
+          "colleges": [
+            {
+              "id": "hu-arts",
+              "name_en": "Arts",
+              "name_ar": "الآداب",
+              "majors": [
+                {
+                  "id": "hu-arts-lcs",
+                  "name_en": "Literature and Cultural Studies in English",
+                  "name_ar": "الأدب والدراسات الثقافية باللغة الإنجليزية"
+                },
+                {
+                  "id": "hu-arts-irss",
+                  "name_en": "International Relations and Strategic Studies",
+                  "name_ar": "العلاقات الدولية والدراسات الإستراتيجية"
+                },
+                {
+                  "id": "hu-arts-eng",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                },
+                {
+                  "id": "hu-arts-arab",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
                 }
               ]
             },
             {
-              "id": "aabu-eas",
-              "name_en": "Earth and Environmental Sciences",
-              "name_ar": "علوم الارض والبيئة",
+              "id": "hu-econ",
+              "name_en": "Economics and Administrative Sciences",
+              "name_ar": "الاقتصاد والعلوم الإدارية",
               "majors": [
                 {
-                  "id": "aabu-eas-aeas",
-                  "name_en": "Applied Earth and Environmental Sciences" ,
-                  "name_ar": "علوم الارض والبيئة التطبيقية"
+                  "id": "hu-econ-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
                 },
                 {
-                  "id": "aabu-eas-gsen",
-                  "name_en": "Geological Surveying and Exploration for Natural Resources" ,
-                  "name_ar": "المسح الجيولوجي والتنقيب عن الثروات الطبيعية"
+                  "id": "hu-econ-hotel",
+                  "name_en": "Hotel Management",
+                  "name_ar": "إدارة الفنادق"
                 },
                 {
-                  "id": "aabu-eas-gis",
-                  "name_en": "Geographic Information Systems and Remote Sensing" ,
-                  "name_ar": "نظم المعلومات الجغرافية والاستشعار عن بعد"
-                }
-              ]
-            },
-            {
-              "id": "aabu-it",
-              "name_en": "Prince Al-Hussein Bin Abdullah II for Information Technology",
-              "name_ar": "الامير حسين بن عبدالله لتكنولوجيا المعلومات",
-              "majors": [
-                {
-                  "id": "aabu-it-cs",
-                  "name_en": "Computer Science" ,
-                  "name_ar": "علم الحاسوب"
+                  "id": "hu-econ-rmi",
+                  "name_en": "Risk Management and Insurance",
+                  "name_ar": "إدارة المخاطر والتأمين"
                 },
                 {
-                  "id": "aabu-it-cis",
-                  "name_en": "Computer Information Systems" ,
-                  "name_ar": "نظم المعلومات الحاسوبية"
+                  "id": "hu-econ-econ",
+                  "name_en": "Economics",
+                  "name_ar": "الاقتصاد"
                 },
                 {
-                  "id": "aabu-it-cy",
-                  "name_en": "Cyber Security" ,
-                  "name_ar": "الأمن السيبراني"
+                  "id": "hu-econ-fe",
+                  "name_en": "Financial Economics",
+                  "name_ar": "الاقتصاد المالي"
                 },
                 {
-                  "id": "aabu-it-dsai",
-                  "name_en": "Data Science and Artificial Intelligence" ,
-                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                  "id": "hu-econ-dm",
+                  "name_en": "Digital Marketing",
+                  "name_ar": "التسويق الرقمي"
                 },
                 {
-                  "id": "aabu-it-ad",
-                  "name_en": "Smart Device Application Development" ,
-                  "name_ar": "تطوير تطبيقات الاجهزة الذكية"
+                  "id": "hu-econ-fin",
+                  "name_en": "Finance and Banking",
+                  "name_ar": "العلوم المالية والمصرفية"
                 },
                 {
-                  "id": "aabu-it-his",
-                  "name_en": "Health Information Systems" ,
-                  "name_ar": "نظم المعلومات الصحية"
+                  "id": "hu-econ-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
                 },
                 {
-                  "id": "aabu-it-bit",
-                  "name_en": "Business Information Technology" ,
-                  "name_ar": "تكنولوجيا معلومات الاعمال"
+                  "id": "hu-econ-acl",
+                  "name_en": "Accounting and Business Law",
+                  "name_ar": "المحاسبة والقانون التجاري"
                 },
                 {
-                  "id": "aabu-it-mis",
+                  "id": "hu-econ-mis",
                   "name_en": "Management Information Systems",
                   "name_ar": "نظم المعلومات الإدارية"
                 }
               ]
             },
             {
-              "id": "aabu-nur",
-              "name_en": "Princess Salma bint Abdullah for Nursing",
-              "name_ar": "الاميرة سلمى بنت عبد الله للتمريض",
+              "id": "hu-pe",
+              "name_en": "Physical Education and Sport Sciences",
+              "name_ar": "التربية البدنية وعلوم الرياضة",
               "majors": [
                 {
-                  "id": "aabu-nur-nur",
-                  "name_en": "Nursing" ,
-                  "name_ar": "التمريض"
-                }              
+                  "id": "hu-pe-smc",
+                  "name_en": "Sports Management and Coaching",
+                  "name_ar": "الإدارة والتدريب الرياضي"
+                },
+                {
+                  "id": "hu-pe-sr",
+                  "name_en": "Sports Rehabilitation",
+                  "name_ar": "التأهيل الرياضي"
+                },
+                {
+                  "id": "hu-pe-pess",
+                  "name_en": "Physical Education and Sport Sciences",
+                  "name_ar": "التربية البدنية وعلوم الرياضة"
+                }
               ]
             },
             {
-              "id": "aabu-es",
+              "id": "hu-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "hu-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "علم التمريض"
+                }
+              ]
+            },
+            {
+              "id": "hu-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الأسنان",
+              "majors": [
+                {
+                  "id": "hu-dent-dent",
+                  "name_en": "Doctor of Dental Surgery",
+                  "name_ar": "دكتور في طب وجراحة الفم والأسنان"
+                }
+              ]
+            },
+            {
+              "id": "hu-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب البشري",
+              "majors": [
+                {
+                  "id": "hu-med-med",
+                  "name_en": "Doctor of Medicine",
+                  "name_ar": "دكتور في الطب"
+                }
+              ]
+            },
+            {
+              "id": "hu-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "hu-sci-biotech",
+                  "name_en": "Biotechnology",
+                  "name_ar": "التكنولوجيا الحيوية"
+                },
+                {
+                  "id": "hu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "hu-sci-bio",
+                  "name_en": "Biological Sciences",
+                  "name_ar": "العلوم الحياتية"
+                },
+                {
+                  "id": "hu-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "hu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "hu-edu",
               "name_en": "Educational Sciences",
               "name_ar": "العلوم التربوية",
               "majors": [
                 {
-                  "id": "aabu-es-cteach",
-                  "name_en": "Classroom Teacher" ,
+                  "id": "hu-edu-pc",
+                  "name_en": "Psychological Counseling",
+                  "name_ar": "الإرشاد النفسي"
+                },
+                {
+                  "id": "hu-edu-art",
+                  "name_en": "Art Education Teacher",
+                  "name_ar": "معلم تربية فنية"
+                },
+                {
+                  "id": "hu-edu-ct",
+                  "name_en": "Class Teacher",
                   "name_ar": "معلم صف"
-                },
-                {
-                  "id": "aabu-es-se",
-                  "name_en": "Special Education" ,
-                  "name_ar": "التربية الخاصة"
                 }
               ]
             },
             {
-              "id": "aabu-fl",
-              "name_en": "Foreign Languages",
-              "name_ar": "اللغات الأجنبية",
+              "id": "hu-pharm",
+              "name_en": "Pharmaceutical Sciences",
+              "name_ar": "العلوم الصيدلانية",
               "majors": [
                 {
-                  "id": "aabu-fl-span",
-                  "name_en": "The Spanish and English languages",
-                  "name_ar": "اللغتين الإسبانية والإنجليزية"
-                },
-                {
-                  "id": "aabu-fl-ita",
-                  "name_en": "The Italian and English languages",
-                  "name_ar": "اللغتين الإيطالية والإنجليزية"
-                },
-                {
-                  "id": "aabu-fl-enl",
-                  "name_en": "English Language and Literature",
-                  "name_ar": "اللغة الإنجليزية وآدابها"
-                },
-                {
-                  "id": "aabu-fl-fre",
-                  "name_en": "The French and English languages",
-                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                  "id": "hu-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "صيدلة"
                 }
               ]
             },
             {
-              "id": "aabu-ams",
+              "id": "hu-ams",
               "name_en": "Applied Medical Sciences",
-              "name_ar": "العلوم الطبية التطبيقية ",
+              "name_ar": "العلوم الطبية المساندة",
               "majors": [
                 {
-                  "id": "aabu-ams-lms",
-                  "name_en": "Laboratory Medical Sciences",
-                  "name_ar": "العلوم الطبية المخبرية"
+                  "id": "hu-ams-mi",
+                  "name_en": "Medical Imaging and Radiography",
+                  "name_ar": "التصوير الطبي والإشعاعي"
                 },
                 {
-                  "id": "aabu-ams-mit",
-                  "name_en": "Medical Imaging Technology",
-                  "name_ar": "تقنيات الاشعة الطبية"
-                },
-                {
-                  "id": "aabu-ams-cnd",
+                  "id": "hu-ams-cnd",
                   "name_en": "Clinical Nutrition and Dietetics",
                   "name_ar": "التغذية السريرية والحميات"
                 },
                 {
-                  "id": "aabu-ams-hss",
-                  "name_en": "Hearing and Speech Sciences",
-                  "name_ar": "علوم السمع والنطق"
-                },
-                {
-                  "id": "aabu-ams-rt",
-                  "name_en": "Respiratory Therapy",
-                  "name_ar": "العلاج التنفسي"
-                },
-                {
-                  "id": "aabu-ams-pt",
+                  "id": "hu-ams-pt",
                   "name_en": "Physical Therapy",
                   "name_ar": "العلاج الطبيعي"
                 },
                 {
-                  "id": "aabu-ams-ot",
+                  "id": "hu-ams-ot",
                   "name_en": "Occupational Therapy",
                   "name_ar": "العلاج الوظيفي"
+                },
+                {
+                  "id": "hu-ams-mls",
+                  "name_en": "Medical Laboratory Sciences",
+                  "name_ar": "العلوم الطبية المخبرية"
                 }
               ]
             },
             {
-              "id": "aabu-ss",
-              "name_en": "Physical Education and Sports Sciences",
-              "name_ar": "التربية البدنية وعلوم الرياضة",
+              "id": "hu-nre",
+              "name_en": "Prince Al-Hassan bin Talal Faculty for Natural Resources and Environment",
+              "name_ar": "كلية الأمير الحسن بن طلال للموارد الطبيعية والبيئة",
               "majors": [
                 {
-                  "id": "aabu-ss-pe",
-                  "name_en": "physical education",
-                  "name_ar": "التربية البدنية"
+                  "id": "hu-nre-lwm",
+                  "name_en": "Land and Water Management",
+                  "name_ar": "إدارة الأراضي والمياه"
                 },
                 {
-                  "id": "aabu-ss-amss",
-                  "name_en": "Applied Movement and Sports Sciences",
-                  "name_ar": "علوم الحركة والرياضة التطبيقية"
+                  "id": "hu-nre-wem",
+                  "name_en": "Water and Environment Management",
+                  "name_ar": "إدارة المياه والبيئة"
+                },
+                {
+                  "id": "hu-nre-geo",
+                  "name_en": "Geology and Environment",
+                  "name_ar": "الجيولوجيا والبيئة"
+                },
+                {
+                  "id": "hu-nre-drylands",
+                  "name_en": "Natural Resources in Drylands",
+                  "name_ar": "الموارد الطبيعية في الأراضي الجافة"
+                }
+              ]
+            },
+            {
+              "id": "hu-it",
+              "name_en": "Prince Al-Hussein bin Abdullah II Faculty of Information Technology",
+              "name_ar": "كلية الأمير الحسين بن عبدالله الثاني لتكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "hu-it-cyber",
+                  "name_en": "Cybersecurity",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "hu-it-cis",
+                  "name_en": "Computer Information Systems",
+                  "name_ar": "أنظمة المعلومات الحاسوبية"
+                },
+                {
+                  "id": "hu-it-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },
+                {
+                  "id": "hu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence",
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "hu-it-cs",
+                  "name_en": "Computer Science and Applications",
+                  "name_ar": "علم الحاسوب وتطبيقاته"
+                },
+                {
+                  "id": "hu-it-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
+                }
+              ]
+            },
+            {
+              "id": "hu-tour",
+              "name_en": "Queen Rania Faculty of Tourism and Heritage",
+              "name_ar": "كلية الملكة رانيا للسياحة والتراث",
+              "majors": [
+                {
+                  "id": "hu-tour-tm",
+                  "name_en": "Tourism Management",
+                  "name_ar": "الإدارة السياحية"
+                },
+                {
+                  "id": "hu-tour-hrm",
+                  "name_en": "Heritage Resources Management and Museums",
+                  "name_ar": "إدارة الموارد التراثية والمتاحف"
+                },
+                {
+                  "id": "hu-tour-cons",
+                  "name_en": "Conservation Science",
+                  "name_ar": "علم المحافظة على الآثار"
+                }
+              ]
+            },
+            {
+              "id": "hu-child",
+              "name_en": "Queen Rania Faculty for Childhood",
+              "name_ar": "كلية الملكة رانيا للطفولة",
+              "majors": [
+                {
+                  "id": "hu-child-sped",
+                  "name_en": "Special Education",
+                  "name_ar": "التربية الخاصة"
+                },
+                {
+                  "id": "hu-child-ece",
+                  "name_en": "Early Childhood Education",
+                  "name_ar": "تربية الطفولة المبكرة"
+                }
+              ]
+            },
+            {
+              "id": "hu-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "hu-eng-ce",
+                  "name_en": "Computer Engineering",
+                  "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "hu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
+                },
+                {
+                  "id": "hu-eng-bme",
+                  "name_en": "Biomedical Engineering",
+                  "name_ar": "الهندسة الطبية"
+                },
+                {
+                  "id": "hu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "hu-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "الهندسة الكهربائية"
+                },
+                {
+                  "id": "hu-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "hu-eng-mecha",
+                  "name_en": "Mechatronics Engineering",
+                  "name_ar": "هندسة الميكاترونكس"
+                },
+                {
+                  "id": "hu-eng-mech",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
                 }
               ]
             }
@@ -1460,30 +2262,233 @@
         {
           "id": "yu",
           "name_en": "Yarmouk University",
-          "name_ar": "جامعة اليرموك ",
+          "name_ar": "جامعة اليرموك",
           "domain": "yu.edu.jo",
           "colleges": [
             {
-              "id": "yu-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب",
+              "id": "yu-aa",
+              "name_en": "Archaeology and Anthropology",
+              "name_ar": "الآثار والأنثروبولوجيا",
               "majors": [
                 {
-                  "id": "yu-med-med",
-                  "name_en": "Doctor of Medicine",
-                  "name_ar": "دكتور في الطب"
+                  "id": "yu-aa-a1",
+                  "name_en": "Archaeology",
+                  "name_ar": "الآثار"
+                },
+                {
+                  "id": "yu-aa-a2",
+                  "name_en": "Anthropology",
+                  "name_ar": "الأنثروبولوجيا"
+                },
+                {
+                  "id": "yu-aa-pmhr",
+                  "name_en": "Preservation and Management of Heritage Resources",
+                  "name_ar": "صيانة المصادر التراثية وإدارتها"
                 }
               ]
             },
             {
-              "id": "yu-pharm",
-              "name_en": "Pharmacy",
-              "name_ar": "الصيدلة",
+              "id": "yu-lit",
+              "name_en": "Literatures",
+              "name_ar": "الآداب",
               "majors": [
                 {
-                  "id": "yu-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
+                  "id": "yu-lit-his",
+                  "name_en": "History and Civilization",
+                  "name_ar": "التاريخ والحضارة"
+                },
+                {
+                  "id": "yu-lit-wot",
+                  "name_en": "Written and Oral Translation",
+                  "name_ar": "الترجمة التحريرية والشفوية"
+                },
+                {
+                  "id": "yu-lit-gio",
+                  "name_en": "Geography",
+                  "name_ar": "الجغرافيا"
+                },
+                {
+                  "id": "yu-lit-heb",
+                  "name_en": "Hebrew",
+                  "name_ar": "عبري"
+                },
+                {
+                  "id": "yu-lit-socw",
+                  "name_en": "Sociology and Social Work",
+                  "name_ar": "علم الاجتماع والعمل الاجتماعي"
+                },
+                {
+                  "id": "yu-lit-pol",
+                  "name_en": "Political Science",
+                  "name_ar": "العلوم السياسة"
+                },
+                {
+                  "id": "yu-lit-geren",
+                  "name_en": "The German and English languages",
+                  "name_ar": "اللغتين الألمانية والإنجليزية"
+                },
+                {
+                  "id": "yu-lit-teren",
+                  "name_en": "The Turkish and English languages",
+                  "name_ar": "اللغتين التركية والإنجليزية"
+                },
+                {
+                  "id": "yu-lit-fren",
+                  "name_en": "The French and English languages",
+                  "name_ar": "اللغتين الفرنسية والإنجليزية"
+                },
+                {
+                  "id": "yu-lit-ael",
+                  "name_en": "Applied English Language",
+                  "name_ar": "اللغة الإنجليزية التطبيقية"
+                },
+                {
+                  "id": "yu-lit-el",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الإنجليزية وآدابها"
+                },
+                {
+                  "id": "yu-lit-aar",
+                  "name_en": "Applied Arabic Language",
+                  "name_ar": "اللغة العربية التطبيقية"
+                },
+                {
+                  "id": "yu-lit-arab",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وآدابها"
+                },
+                {
+                  "id": "yu-lit-afren",
+                  "name_en": "Applied French Language",
+                  "name_ar": "اللغة الفرنسية التطبيقية"
+                }
+              ]
+            },
+            {
+              "id": "yu-media",
+              "name_en": "Media",
+              "name_ar": "الإعلام",
+              "majors": [
+                {
+                  "id": "yu-media-rat",
+                  "name_en": "Radio and Television",
+                  "name_ar": "إذاعة وتلفزيون"
+                },
+                {
+                  "id": "yu-media-jou",
+                  "name_en": "Journalism and Digital Media",
+                  "name_ar": "الصحافة والإعلام الرقمي"
+                },
+                {
+                  "id": "yu-media-prm",
+                  "name_en": "Public Relations and Media",
+                  "name_ar": "علاقات عامة وإعلام"
+                }
+              ]
+            },
+            {
+              "id": "yu-bus",
+              "name_en": "Business",
+              "name_ar": "الأعمال",
+              "majors": [
+                {
+                  "id": "yu-bus-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "إدارة الأعمال"
+                },
+                {
+                  "id": "yu-bus-ga",
+                  "name_en": "General Administration",
+                  "name_ar": "الإدارة العامة"
+                },
+                {
+                  "id": "yu-bus-scml",
+                  "name_en": "Supply Chain Management and Logistics",
+                  "name_ar": "إدارة سلاسل التوريد والعلوم اللوجستية"
+                },
+                {
+                  "id": "yu-bus-econ",
+                  "name_en": "Economy",
+                  "name_ar": "الإقتصاد"
+                },
+                {
+                  "id": "yu-bus-mbe",
+                  "name_en": "Money and Business Economics",
+                  "name_ar": "اقتصاد المال والأعمال"
+                },
+                {
+                  "id": "yu-bus-mkt",
+                  "name_en": "Marketing",
+                  "name_ar": "التسويق"
+                },
+                {
+                  "id": "yu-bus-ft",
+                  "name_en": "Financial Technology",
+                  "name_ar": "التكنولوجيا المالية"
+                },
+                {
+                  "id": "yu-bus-fab",
+                  "name_en": "Finance and Banking",
+                  "name_ar": "العلوم المالية والمصرفية"
+                },
+                {
+                  "id": "yu-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                }
+              ]
+            },
+            {
+              "id": "yu-ss",
+              "name_en": "Physical Education and Sports Sciences",
+              "name_ar": "التربية البدنية وعلوم الرياضة",
+              "majors": [
+                {
+                  "id": "yu-ss-pe",
+                  "name_en": "physical education",
+                  "name_ar": "التربية البدنية"
+                },
+                {
+                  "id": "yu-ss-ss",
+                  "name_en": "Sports Sciences",
+                  "name_ar": "علوم الرياضة "
+                }
+              ]
+            },
+            {
+              "id": "yu-it",
+              "name_en": "Information Technology",
+              "name_ar": "تكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "yu-it-cy",
+                  "name_en": "Cyber Security",
+                  "name_ar": "الأمن السيبراني"
+                },
+                {
+                  "id": "yu-it-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الأعمال"
+                },
+                {
+                  "id": "yu-it-dsai",
+                  "name_en": "Data Science and Artificial Intelligence",
+                  "name_ar": "علم البيانات والذكاء الاصطناعي"
+                },
+                {
+                  "id": "yu-it-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علوم الحاسوب"
+                },
+                {
+                  "id": "yu-it-cis",
+                  "name_en": "Computer Information Systems",
+                  "name_ar": "نظم المعلومات الحاسوبية"
+                },
+                {
+                  "id": "yu-it-drgd",
+                  "name_en": "Digital Reality and Game Development",
+                  "name_ar": "الواقع الرقمي وتطوير الألعاب"
                 }
               ]
             },
@@ -1510,19 +2515,9 @@
               "name_ar": "الحجاوي للهندسة التكنولوجية",
               "majors": [
                 {
-                  "id": "yu-eng-ce",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                },
-                {
-                  "id": "yu-eng-arch",
-                  "name_en": "Architecture Engineering",
-                  "name_ar": "هندسة العمارة"
-                },
-                {
-                  "id": "yu-eng-ind",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "الهندسة الصناعية"
+                  "id": "yu-eng-tel",
+                  "name_en": "Telecommunications Engineering",
+                  "name_ar": "هندسة الاتصالات"
                 },
                 {
                   "id": "yu-eng-ere",
@@ -1530,14 +2525,24 @@
                   "name_ar": "هندسة الإللكترونيات والروبوتات"
                 },
                 {
-                  "id": "yu-eng-tel",
-                  "name_en": "Telecommunications Engineering",
-                  "name_ar": "هندسة الاتصالات"
-                },
-                {
                   "id": "yu-eng-com",
                   "name_en": "Computer Engineering",
                   "name_ar": "هندسة الحاسوب"
+                },
+                {
+                  "id": "yu-eng-comiot",
+                  "name_en": "Computer Engineering - IoT",
+                  "name_ar": "هندسة الحاسوب - إنترنت الاشياء"
+                },
+                {
+                  "id": "yu-eng-ind",
+                  "name_en": "Industrial Engineering",
+                  "name_ar": "الهندسة الصناعية"
+                },
+                {
+                  "id": "yu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
                 },
                 {
                   "id": "yu-eng-epe",
@@ -1545,9 +2550,14 @@
                   "name_ar": "هندسة القوى الكهربائية"
                 },
                 {
-                  "id": "yu-eng-biose",
-                  "name_en": "Biomedical Systems Engineering",
-                  "name_ar": "هندسة النظم الطبية الحيوية"
+                  "id": "yu-eng-ssce",
+                  "name_en": "Smart and Sustainable City Engineering",
+                  "name_ar": "هندسة المدن الذكية والمستدامه"
+                },
+                {
+                  "id": "yu-eng-ce",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
                 },
                 {
                   "id": "yu-eng-bioie",
@@ -1555,359 +2565,14 @@
                   "name_ar": "هندسة المعلوماتية الطبية الحيوية"
                 },
                 {
-                  "id": "yu-eng-ssce",
-                  "name_en": "Smart and Sustainable City Engineering",
-                  "name_ar": "هندسة المدن الذكية والمستدامه"
-                },
-                {
                   "id": "yu-eng-mec",
                   "name_en": "Mechanical Engineering",
                   "name_ar": "الهندسة الميكانيكية"
                 },
                 {
-                  "id": "yu-eng-comiot",
-                  "name_en": "Computer Engineering - IoT",
-                  "name_ar": "هندسة الحاسوب - إنترنت الاشياء"
-                }
-              ]
-            },
-            {
-              "id": "yu-sci",
-              "name_en": "Sciences",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "yu-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "yu-sci-ph",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "yu-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                },
-                {
-                  "id": "yu-sci-Bio",
-                  "name_en": "Biology",
-                  "name_ar": "العلوم الحياتية"
-                },
-                {
-                  "id": "yu-sci-agio",
-                  "name_en": "Applied Geology",
-                  "name_ar": "الجيولوجيا التطبيقية"
-                },
-                {
-                  "id": "yu-sci-stat",
-                  "name_en": "Statistics",
-                  "name_ar": "الإحصاء"
-                },
-                {
-                  "id": "yu-sci-Biop",
-                  "name_en": "Biomedical Physics",
-                  "name_ar": "الفيزياء الطبية الحيوية"
-                }
-              ]
-            },
-            {
-              "id": "yu-it",
-              "name_en": "Information Technology",
-              "name_ar": "تكنولوجيا المعلومات",
-              "majors": [
-                {
-                  "id": "yu-it-cs",
-                  "name_en": "Computer Science" ,
-                  "name_ar": "علوم الحاسوب"
-                },
-                {
-                  "id": "yu-it-cis",
-                  "name_en": "Computer Information Systems" ,
-                  "name_ar": "نظم المعلومات الحاسوبية"
-                },
-                {
-                  "id": "yu-it-cy",
-                  "name_en": "Cyber Security" ,
-                  "name_ar": "الأمن السيبراني"
-                },
-                {
-                  "id": "yu-it-dsai",
-                  "name_en": "Data Science and Artificial Intelligence" ,
-                  "name_ar": "علم البيانات والذكاء الاصطناعي"
-                },
-                {
-                  "id": "yu-it-bit",
-                  "name_en": "Business Information Technology" ,
-                  "name_ar": "تكنولوجيا معلومات الأعمال"
-                },
-                {
-                  "id": "yu-it-drgd",
-                  "name_en": "Digital Reality and Game Development" ,
-                  "name_ar": "الواقع الرقمي وتطوير الألعاب"
-                }
-              ]
-            },
-            {
-              "id": "yu-media",
-              "name_en": "Media",
-              "name_ar": "الإعلام",
-              "majors": [
-                {
-                  "id": "yu-media-prm",
-                  "name_en": "Public Relations and Media",
-                  "name_ar": "علاقات عامة وإعلام"
-                },
-                {
-                  "id": "yu-media-rat",
-                  "name_en": "Radio and Television",
-                  "name_ar": "إذاعة وتلفزيون"
-                },
-                {
-                  "id": "yu-media-jou",
-                  "name_en": "Journalism and Digital Media",
-                  "name_ar": "الصحافة والإعلام الرقمي"
-                }
-              ]
-            },
-            {
-              "id": "yu-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "yu-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                },
-                {
-                  "id": "yu-bus-mbe",
-                  "name_en": "Money and Business Economics",
-                  "name_ar": "اقتصاد المال والأعمال"
-                },
-                {
-                  "id": "yu-bus-ga",
-                  "name_en": "General Administration",
-                  "name_ar": "الإدارة العامة"
-                },
-                {
-                  "id": "yu-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
-                },
-                {
-                  "id": "yu-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "yu-bus-econ",
-                  "name_en": "Economy",
-                  "name_ar": "الإقتصاد"
-                },
-                {
-                  "id": "yu-bus-fab",
-                  "name_en": "Finance and Banking",
-                  "name_ar": "العلوم المالية والمصرفية"
-                },
-                {
-                  "id": "yu-bus-scml",
-                  "name_en": "Supply Chain Management and Logistics",
-                  "name_ar": "إدارة سلاسل التوريد والعلوم اللوجستية"
-                },
-                {
-                  "id": "yu-bus-ft",
-                  "name_en": "Financial Technology",
-                  "name_ar": "التكنولوجيا المالية"
-                }
-              ]
-            },
-            {
-              "id": "yu-lit",
-              "name_en": "Literatures",
-              "name_ar": "الآداب",
-              "majors": [
-                {
-                  "id": "yu-lit-arab",
-                  "name_en": "Arabic Language and Literature",
-                  "name_ar": "اللغة العربية وآدابها"
-                },
-                {
-                  "id": "yu-lit-pol",
-                  "name_en": "Political Science",
-                  "name_ar": "العلوم السياسة"
-                },
-                {
-                  "id": "yu-lit-el",
-                  "name_en": "English Language and Literature",
-                  "name_ar": "اللغة الإنجليزية وآدابها"
-                },
-                {
-                  "id": "yu-lit-ael",
-                  "name_en": "Applied English Language",
-                  "name_ar": "اللغة الإنجليزية التطبيقية"
-                },
-                {
-                  "id": "yu-lit-aar",
-                  "name_en": "Applied Arabic Language",
-                  "name_ar": "اللغة العربية التطبيقية"
-                },
-                {
-                  "id": "yu-lit-gio",
-                  "name_en": "Geography",
-                  "name_ar": "الجغرافيا"
-                },
-                {
-                  "id": "yu-lit-his",
-                  "name_en": "History and Civilization",
-                  "name_ar": "التاريخ والحضارة"
-                },
-                {
-                  "id": "yu-lit-wot",
-                  "name_en": "Written and Oral Translation",
-                  "name_ar": "الترجمة التحريرية والشفوية"
-                },
-                {
-                  "id": "yu-lit-socw",
-                  "name_en": "Sociology and Social Work",
-                  "name_ar": "علم الاجتماع والعمل الاجتماعي"
-                },
-                {
-                  "id": "yu-lit-afren",
-                  "name_en": "Applied French Language",
-                  "name_ar": "اللغة الفرنسية التطبيقية"
-                },
-                {
-                  "id": "yu-lit-geren",
-                  "name_en": "The German and English languages",
-                  "name_ar": "اللغتين الألمانية والإنجليزية"
-                },
-                {
-                  "id": "yu-lit-fren",
-                  "name_en": "The French and English languages",
-                  "name_ar": "اللغتين الفرنسية والإنجليزية"
-                },
-                {
-                  "id": "yu-lit-heb",
-                  "name_en": "Hebrew",
-                  "name_ar": "عبري"
-                },
-                {
-                  "id": "yu-lit-teren",
-                  "name_en": "The Turkish and English languages",
-                  "name_ar": "اللغتين التركية والإنجليزية"
-                }
-              ]
-            },
-            {
-              "id": "yu-low",
-              "name_en": "Law",
-              "name_ar": "القانون",
-              "majors": [
-                {
-                  "id": "yu-low-low",
-                  "name_en": "Low",
-                  "name_ar": "القانون"
-                }
-              ]
-            },
-            {
-              "id": "yu-ss",
-              "name_en": "Physical Education and Sports Sciences",
-              "name_ar": "التربية البدنية وعلوم الرياضة",
-              "majors": [
-                {
-                  "id": "yu-ss-pe",
-                  "name_en": "physical education",
-                  "name_ar": "التربية البدنية"
-                },
-                {
-                  "id": "yu-ss-ss",
-                  "name_en": "Sports Sciences",
-                  "name_ar": "علوم الرياضة "
-                }
-              ]
-            },
-            {
-              "id": "yu-es",
-              "name_en": "Educational Sciences",
-              "name_ar": "العلوم التربوية",
-              "majors": [
-                {
-                  "id": "yu-es-psych",
-                  "name_en": "Psychology",
-                  "name_ar": "علم النفس"
-                },
-                {
-                  "id": "yu-es-cteach",
-                  "name_en": "Classroom Teacher",
-                  "name_ar": "معلم صف"
-                },
-                {
-                  "id": "yu-es-early",
-                  "name_en": "Early Childhood",
-                  "name_ar": "الطفولة المبكرة"
-                }
-              ]
-            },
-            {
-              "id": "yu-sis",
-              "name_en": "Sharia and Islamic Studies",
-              "name_ar": "الشريعة والدراسات الإسلامية",
-              "majors": [
-                {
-                  "id": "yu-sis-jp",
-                  "name_en": "Jurisprudence and Its Principles",
-                  "name_ar": "الفقه وأصوله"
-                },
-                {
-                  "id": "yu-sis-fs",
-                  "name_en": "Family Studies",
-                  "name_ar": "دراسات اسرية"
-                },
-                {
-                  "id": "yu-sis-fr",
-                  "name_en": "Fundamentals of Religion",
-                  "name_ar": "أصول الدين"
-                },
-                {
-                  "id": "yu-sis-is",
-                  "name_en": "Islamic Education",
-                  "name_ar": "تربية اسلامية"
-                },
-                {
-                  "id": "yu-sis-iom",
-                  "name_en": "Islamic Outreach and Media",
-                  "name_ar": "دعوة وإعلام إسلامي"
-                },
-                {
-                  "id": "yu-sis-ieb",
-                  "name_en": "Islamic Economics and Banking",
-                  "name_ar": "الاقتصاد والمصارف الإسلامية"
-                }
-              ]
-            },
-            {
-              "id": "yu-aa",
-              "name_en": "Archaeology and Anthropology",
-              "name_ar": "الآثار والأنثروبولوجيا",
-              "majors": [
-                {
-                  "id": "yu-aa-a1",
-                  "name_en": "Archaeology",
-                  "name_ar": "الآثار"
-                },
-                {
-                  "id": "yu-aa-a2",
-                  "name_en": "Anthropology",
-                  "name_ar": "الأنثروبولوجيا"
-                },
-                {
-                  "id": "yu-aa-pmhr",
-                  "name_en": "Preservation and Management of Heritage Resources",
-                  "name_ar": "صيانة المصادر التراثية وإدارتها"
+                  "id": "yu-eng-biose",
+                  "name_en": "Biomedical Systems Engineering",
+                  "name_ar": "هندسة النظم الطبية الحيوية"
                 }
               ]
             },
@@ -1934,14 +2599,139 @@
               ]
             },
             {
+              "id": "yu-sis",
+              "name_en": "Sharia and Islamic Studies",
+              "name_ar": "الشريعة والدراسات الإسلامية",
+              "majors": [
+                {
+                  "id": "yu-sis-fr",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "أصول الدين"
+                },
+                {
+                  "id": "yu-sis-ieb",
+                  "name_en": "Islamic Economics and Banking",
+                  "name_ar": "الاقتصاد والمصارف الإسلامية"
+                },
+                {
+                  "id": "yu-sis-is",
+                  "name_en": "Islamic Education",
+                  "name_ar": "تربية اسلامية"
+                },
+                {
+                  "id": "yu-sis-fs",
+                  "name_en": "Family Studies",
+                  "name_ar": "دراسات اسرية"
+                },
+                {
+                  "id": "yu-sis-iom",
+                  "name_en": "Islamic Outreach and Media",
+                  "name_ar": "دعوة وإعلام إسلامي"
+                },
+                {
+                  "id": "yu-sis-jp",
+                  "name_en": "Jurisprudence and Its Principles",
+                  "name_ar": "الفقه وأصوله"
+                }
+              ]
+            },
+            {
+              "id": "yu-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "yu-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "yu-med",
+              "name_en": "Medicine",
+              "name_ar": "الطب",
+              "majors": [
+                {
+                  "id": "yu-med-med",
+                  "name_en": "Doctor of Medicine",
+                  "name_ar": "دكتور في الطب"
+                }
+              ]
+            },
+            {
+              "id": "yu-sci",
+              "name_en": "Sciences",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "yu-sci-stat",
+                  "name_en": "Statistics",
+                  "name_ar": "الإحصاء"
+                },
+                {
+                  "id": "yu-sci-agio",
+                  "name_en": "Applied Geology",
+                  "name_ar": "الجيولوجيا التطبيقية"
+                },
+                {
+                  "id": "yu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "yu-sci-Bio",
+                  "name_en": "Biology",
+                  "name_ar": "العلوم الحياتية"
+                },
+                {
+                  "id": "yu-sci-ph",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                },
+                {
+                  "id": "yu-sci-Biop",
+                  "name_en": "Biomedical Physics",
+                  "name_ar": "الفيزياء الطبية الحيوية"
+                },
+                {
+                  "id": "yu-sci-chem",
+                  "name_en": "Chemistry",
+                  "name_ar": "الكيمياء"
+                }
+              ]
+            },
+            {
+              "id": "yu-es",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "yu-es-early",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                },
+                {
+                  "id": "yu-es-psych",
+                  "name_en": "Psychology",
+                  "name_ar": "علم النفس"
+                },
+                {
+                  "id": "yu-es-cteach",
+                  "name_en": "Classroom Teacher",
+                  "name_ar": "معلم صف"
+                }
+              ]
+            },
+            {
               "id": "yu-art",
               "name_en": "Fine Arts",
               "name_ar": "الفنون الجميلة",
               "majors": [
                 {
-                  "id": "yu-art-music",
-                  "name_en": "Music",
-                  "name_ar": "الموسيقى"
+                  "id": "yu-art-ae",
+                  "name_en": "Art Education",
+                  "name_ar": "التربية الفنية"
                 },
                 {
                   "id": "yu-art-daa",
@@ -1949,14 +2739,14 @@
                   "name_ar": "التصميم والفنون التطبيقية"
                 },
                 {
-                  "id": "yu-art-va",
-                  "name_en": "Visual Arts",
-                  "name_ar": "الفنون التشكيلية"
-                },
-                {
                   "id": "yu-art-drama",
                   "name_en": "Drama",
                   "name_ar": "الدراما"
+                },
+                {
+                  "id": "yu-art-va",
+                  "name_en": "Visual Arts",
+                  "name_ar": "الفنون التشكيلية"
                 },
                 {
                   "id": "yu-art-da",
@@ -1964,811 +2754,21 @@
                   "name_ar": "الفنون الرقمية"
                 },
                 {
-                  "id": "yu-art-ae",
-                  "name_en": "Art Education",
-                  "name_ar": "التربية الفنية"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "psut",
-          "name_en": "Princess Sumaya University for Technology",
-          "name_ar": "جامعة الأميرة سمية للتكنولوجيا",
-          "domain": "psut.edu.jo",
-          "colleges": [
-            {
-              "id": "psut-cs",
-              "name_en": "King Hussein School of Computing Sciences",
-              "name_ar": "كلية الملك الحسين لعلوم الحوسبة",
-              "majors": [
-                {
-                  "id": "psut-cs-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
-                },
-                {
-                  "id": "psut-cs-cg",
-                  "name_en": "Computer Graphics",
-                  "name_ar": "علم الرسم الحاسوبي"
-                },
-                {
-                  "id": "psut-cs-se",
-                  "name_en": "Software Engineering",
-                  "name_ar": "هندسة البرمجيات"
-                },
-                {
-                  "id": "psut-cs-dsai",
-                  "name_en": "Data Science and Artificial Intelligence",
-                  "name_ar": "علم البيانات والذكاء الإصطناعي"
-                },
-                {
-                  "id": "psut-cs-cyber",
-                  "name_en": "Cybersecurity",
-                  "name_ar": "الأمن السيبراني"
+                  "id": "yu-art-music",
+                  "name_en": "Music",
+                  "name_ar": "الموسيقى"
                 }
               ]
             },
             {
-              "id": "psut-eng",
-              "name_en": "King Abdullah II School of Engineering",
-              "name_ar": "كلية الملك عبدالله الثاني للهندسة",
-              "majors": [
-                {
-                  "id": "psut-eng-ee",
-                  "name_en": "Electronics Engineering",
-                  "name_ar": "الهندسة الإلكترونية"
-                },
-                {
-                  "id": "psut-eng-comm",
-                  "name_en": "Communications Engineering / Internet of Things",
-                  "name_ar": "هندسة الاتصالات/إنترنت الأشياء"
-                },
-                {
-                  "id": "psut-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "psut-eng-power",
-                  "name_en": "Electrical Power and Energy Engineering",
-                  "name_ar": "هندسة القدرة والطاقة الكهربائية"
-                },
-                {
-                  "id": "psut-eng-nis",
-                  "name_en": "Network and Information Security Engineering",
-                  "name_ar": "هندسة أمن الشبكات والمعلومات"
-                }
-              ]
-            },
-            {
-              "id": "psut-bus",
-              "name_en": "King Talal School of Business Technology",
-              "name_ar": "كلية الملك طلال لتكنولوجيا الأعمال",
-              "majors": [
-                {
-                  "id": "psut-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "psut-bus-emkt",
-                  "name_en": "E-Marketing and Social Media",
-                  "name_ar": "التسويق الإلكتروني والتواصل الاجتماعي"
-                },
-                {
-                  "id": "psut-bus-bit",
-                  "name_en": "Business Information Technology",
-                  "name_ar": "تكنولوجيا معلومات الأعمال"
-                },
-                {
-                  "id": "psut-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "hu",
-          "name_en": "The Hashemite University",
-          "name_ar": "الجامعة الهاشمية",
-          "domain": "hu.edu.jo",
-          "colleges": [
-            {
-              "id": "hu-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "hu-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                },
-                {
-                  "id": "hu-sci-phys",
-                  "name_en": "Physics",
-                  "name_ar": "الفيزياء"
-                },
-                {
-                  "id": "hu-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                },
-                {
-                  "id": "hu-sci-bio",
-                  "name_en": "Biological Sciences",
-                  "name_ar": "العلوم الحياتية"
-                },
-                {
-                  "id": "hu-sci-biotech",
-                  "name_en": "Biotechnology",
-                  "name_ar": "التكنولوجيا الحيوية"
-                }
-              ]
-            },
-            {
-              "id": "hu-arts",
-              "name_en": "Arts",
-              "name_ar": "الآداب",
-              "majors": [
-                {
-                  "id": "hu-arts-arab",
-                  "name_en": "Arabic Language and Literature",
-                  "name_ar": "اللغة العربية وآدابها"
-                },
-                {
-                  "id": "hu-arts-eng",
-                  "name_en": "English Language and Literature",
-                  "name_ar": "اللغة الإنجليزية وآدابها"
-                },
-                {
-                  "id": "hu-arts-lcs",
-                  "name_en": "Literature and Cultural Studies in English",
-                  "name_ar": "الأدب والدراسات الثقافية باللغة الإنجليزية"
-                },
-                {
-                  "id": "hu-arts-irss",
-                  "name_en": "International Relations and Strategic Studies",
-                  "name_ar": "العلاقات الدولية والدراسات الإستراتيجية"
-                }
-              ]
-            },
-            {
-              "id": "hu-econ",
-              "name_en": "Economics and Administrative Sciences",
-              "name_ar": "الاقتصاد والعلوم الإدارية",
-              "majors": [
-                {
-                  "id": "hu-econ-econ",
-                  "name_en": "Economics",
-                  "name_ar": "الاقتصاد"
-                },
-                {
-                  "id": "hu-econ-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "hu-econ-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                },
-                {
-                  "id": "hu-econ-fin",
-                  "name_en": "Finance and Banking",
-                  "name_ar": "العلوم المالية والمصرفية"
-                },
-                {
-                  "id": "hu-econ-fe",
-                  "name_en": "Financial Economics",
-                  "name_ar": "الاقتصاد المالي"
-                },
-                {
-                  "id": "hu-econ-rmi",
-                  "name_en": "Risk Management and Insurance",
-                  "name_ar": "إدارة المخاطر والتأمين"
-                },
-                {
-                  "id": "hu-econ-mis",
-                  "name_en": "Management Information Systems",
-                  "name_ar": "نظم المعلومات الإدارية"
-                },
-                {
-                  "id": "hu-econ-hotel",
-                  "name_en": "Hotel Management",
-                  "name_ar": "إدارة الفنادق"
-                },
-                {
-                  "id": "hu-econ-acl",
-                  "name_en": "Accounting and Business Law",
-                  "name_ar": "المحاسبة والقانون التجاري"
-                },
-                {
-                  "id": "hu-econ-dm",
-                  "name_en": "Digital Marketing",
-                  "name_ar": "التسويق الرقمي"
-                }
-              ]
-            },
-            {
-              "id": "hu-edu",
-              "name_en": "Educational Sciences",
-              "name_ar": "العلوم التربوية",
-              "majors": [
-                {
-                  "id": "hu-edu-ct",
-                  "name_en": "Class Teacher",
-                  "name_ar": "معلم صف"
-                },
-                {
-                  "id": "hu-edu-pc",
-                  "name_en": "Psychological Counseling",
-                  "name_ar": "الإرشاد النفسي"
-                },
-                {
-                  "id": "hu-edu-art",
-                  "name_en": "Art Education Teacher",
-                  "name_ar": "معلم تربية فنية"
-                }
-              ]
-            },
-            {
-              "id": "hu-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
-              "majors": [
-                {
-                  "id": "hu-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                },
-                {
-                  "id": "hu-eng-mech",
-                  "name_en": "Mechanical Engineering",
-                  "name_ar": "الهندسة الميكانيكية"
-                },
-                {
-                  "id": "hu-eng-ind",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "الهندسة الصناعية"
-                },
-                {
-                  "id": "hu-eng-ee",
-                  "name_en": "Electrical Engineering",
-                  "name_ar": "الهندسة الكهربائية"
-                },
-                {
-                  "id": "hu-eng-mecha",
-                  "name_en": "Mechatronics Engineering",
-                  "name_ar": "هندسة الميكاترونكس"
-                },
-                {
-                  "id": "hu-eng-bme",
-                  "name_en": "Biomedical Engineering",
-                  "name_ar": "الهندسة الطبية"
-                },
-                {
-                  "id": "hu-eng-ce",
-                  "name_en": "Computer Engineering",
-                  "name_ar": "هندسة الحاسوب"
-                },
-                {
-                  "id": "hu-eng-arch",
-                  "name_en": "Architecture Engineering",
-                  "name_ar": "هندسة العمارة"
-                }
-              ]
-            },
-            {
-              "id": "hu-ams",
-              "name_en": "Applied Medical Sciences",
-              "name_ar": "العلوم الطبية المساندة",
-              "majors": [
-                {
-                  "id": "hu-ams-mls",
-                  "name_en": "Medical Laboratory Sciences",
-                  "name_ar": "العلوم الطبية المخبرية"
-                },
-                {
-                  "id": "hu-ams-cnd",
-                  "name_en": "Clinical Nutrition and Dietetics",
-                  "name_ar": "التغذية السريرية والحميات"
-                },
-                {
-                  "id": "hu-ams-ot",
-                  "name_en": "Occupational Therapy",
-                  "name_ar": "العلاج الوظيفي"
-                },
-                {
-                  "id": "hu-ams-pt",
-                  "name_en": "Physical Therapy",
-                  "name_ar": "العلاج الطبيعي"
-                },
-                {
-                  "id": "hu-ams-mi",
-                  "name_en": "Medical Imaging and Radiography",
-                  "name_ar": "التصوير الطبي والإشعاعي"
-                }
-              ]
-            },
-            {
-              "id": "hu-pe",
-              "name_en": "Physical Education and Sport Sciences",
-              "name_ar": "التربية البدنية وعلوم الرياضة",
-              "majors": [
-                {
-                  "id": "hu-pe-sr",
-                  "name_en": "Sports Rehabilitation",
-                  "name_ar": "التأهيل الرياضي"
-                },
-                {
-                  "id": "hu-pe-pess",
-                  "name_en": "Physical Education and Sport Sciences",
-                  "name_ar": "التربية البدنية وعلوم الرياضة"
-                },
-                {
-                  "id": "hu-pe-smc",
-                  "name_en": "Sports Management and Coaching",
-                  "name_ar": "الإدارة والتدريب الرياضي"
-                }
-              ]
-            },
-            {
-              "id": "hu-tour",
-              "name_en": "Queen Rania Faculty of Tourism and Heritage",
-              "name_ar": "كلية الملكة رانيا للسياحة والتراث",
-              "majors": [
-                {
-                  "id": "hu-tour-tm",
-                  "name_en": "Tourism Management",
-                  "name_ar": "الإدارة السياحية"
-                },
-                {
-                  "id": "hu-tour-cons",
-                  "name_en": "Conservation Science",
-                  "name_ar": "علم المحافظة على الآثار"
-                },
-                {
-                  "id": "hu-tour-hrm",
-                  "name_en": "Heritage Resources Management and Museums",
-                  "name_ar": "إدارة الموارد التراثية والمتاحف"
-                }
-              ]
-            },
-            {
-              "id": "hu-it",
-              "name_en": "Prince Al-Hussein bin Abdullah II Faculty of Information Technology",
-              "name_ar": "كلية الأمير الحسين بن عبدالله الثاني لتكنولوجيا المعلومات",
-              "majors": [
-                {
-                  "id": "hu-it-cs",
-                  "name_en": "Computer Science and Applications",
-                  "name_ar": "علم الحاسوب وتطبيقاته"
-                },
-                {
-                  "id": "hu-it-cis",
-                  "name_en": "Computer Information Systems",
-                  "name_ar": "أنظمة المعلومات الحاسوبية"
-                },
-                {
-                  "id": "hu-it-se",
-                  "name_en": "Software Engineering",
-                  "name_ar": "هندسة البرمجيات"
-                },
-                {
-                  "id": "hu-it-bit",
-                  "name_en": "Business Information Technology",
-                  "name_ar": "تكنولوجيا معلومات الأعمال"
-                },
-                {
-                  "id": "hu-it-cyber",
-                  "name_en": "Cybersecurity",
-                  "name_ar": "الأمن السيبراني"
-                },
-                {
-                  "id": "hu-it-dsai",
-                  "name_en": "Data Science and Artificial Intelligence",
-                  "name_ar": "علم البيانات والذكاء الاصطناعي"
-                }
-              ]
-            },
-            {
-              "id": "hu-child",
-              "name_en": "Queen Rania Faculty for Childhood",
-              "name_ar": "كلية الملكة رانيا للطفولة",
-              "majors": [
-                {
-                  "id": "hu-child-ece",
-                  "name_en": "Early Childhood Education",
-                  "name_ar": "تربية الطفولة المبكرة"
-                },
-                {
-                  "id": "hu-child-sped",
-                  "name_en": "Special Education",
-                  "name_ar": "التربية الخاصة"
-                }
-              ]
-            },
-            {
-              "id": "hu-nre",
-              "name_en": "Prince Al-Hassan bin Talal Faculty for Natural Resources and Environment",
-              "name_ar": "كلية الأمير الحسن بن طلال للموارد الطبيعية والبيئة",
-              "majors": [
-                {
-                  "id": "hu-nre-geo",
-                  "name_en": "Geology and Environment",
-                  "name_ar": "الجيولوجيا والبيئة"
-                },
-                {
-                  "id": "hu-nre-lwm",
-                  "name_en": "Land and Water Management",
-                  "name_ar": "إدارة الأراضي والمياه"
-                },
-                {
-                  "id": "hu-nre-wem",
-                  "name_en": "Water and Environment Management",
-                  "name_ar": "إدارة المياه والبيئة"
-                },
-                {
-                  "id": "hu-nre-drylands",
-                  "name_en": "Natural Resources in Drylands",
-                  "name_ar": "الموارد الطبيعية في الأراضي الجافة"
-                }
-              ]
-            },
-            {
-              "id": "hu-nurs",
-              "name_en": "Nursing",
-              "name_ar": "التمريض",
-              "majors": [
-                {
-                  "id": "hu-nurs-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "علم التمريض"
-                }
-              ]
-            },
-            {
-              "id": "hu-med",
-              "name_en": "Medicine",
-              "name_ar": "الطب البشري",
-              "majors": [
-                {
-                  "id": "hu-med-med",
-                  "name_en": "Doctor of Medicine",
-                  "name_ar": "دكتور في الطب"
-                }
-              ]
-            },
-            {
-              "id": "hu-pharm",
-              "name_en": "Pharmaceutical Sciences",
-              "name_ar": "العلوم الصيدلانية",
-              "majors": [
-                {
-                  "id": "hu-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "صيدلة"
-                }
-              ]
-            },
-            {
-              "id": "hu-dent",
-              "name_en": "Dentistry",
-              "name_ar": "طب الأسنان",
-              "majors": [
-                {
-                  "id": "hu-dent-dent",
-                  "name_en": "Doctor of Dental Surgery",
-                  "name_ar": "دكتور في طب وجراحة الفم والأسنان"
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "id": "asu",
-          "name_en": "Applied Science Private University",
-          "name_ar": "جامعة العلوم التطبيقية الخاصة",
-          "domain": "asu.edu.jo",
-          "colleges": [
-            {
-              "id": "asu-dent",
-              "name_en": "Dentistry",
-              "name_ar": "طب الأسنان",
-              "majors": [
-                {
-                  "id": "asu-dent-dds",
-                  "name_en": "Doctor of Dental Surgery",
-                  "name_ar": "دكتور في طب الأسنان"
-                },
-                {
-                  "id": "asu-dent-dtech",
-                  "name_en": "Dental Technology",
-                  "name_ar": "تكنولوجيا صناعة الأسنان"
-                }
-              ]
-            },
-            {
-              "id": "asu-arts",
-              "name_en": "Arts and Humanities",
-              "name_ar": "الآداب والعلوم الإنسانية",
-              "majors": [
-                {
-                  "id": "asu-arts-eng",
-                  "name_en": "English Language and Literature",
-                  "name_ar": "اللغة الإنجليزية وآدابها"
-                },
-                {
-                  "id": "asu-arts-trans",
-                  "name_en": "English Language / Translation",
-                  "name_ar": "اللغة الإنجليزية / ترجمة"
-                },
-                {
-                  "id": "asu-arts-pol",
-                  "name_en": "Political Science",
-                  "name_ar": "العلوم السياسية"
-                },
-                {
-                  "id": "asu-arts-dmedia",
-                  "name_en": "Digital (Electronic) Media",
-                  "name_ar": "الإعلام الرقمي (الإلكتروني)"
-                },
-                {
-                  "id": "asu-arts-aeng",
-                  "name_en": "Applied English",
-                  "name_ar": "اللغة الإنجليزية التطبيقي"
-                },
-                {
-                  "id": "asu-arts-pe",
-                  "name_en": "Physical Education",
-                  "name_ar": "التربية الرياضية"
-                },
-                {
-                  "id": "asu-arts-cheng",
-                  "name_en": "Chinese and English Languages",
-                  "name_ar": "اللغتين الصينية والإنجليزية"
-                }
-              ]
-            },
-            {
-              "id": "asu-sci",
-              "name_en": "Science",
-              "name_ar": "العلوم",
-              "majors": [
-                {
-                  "id": "asu-sci-chem",
-                  "name_en": "Chemistry",
-                  "name_ar": "الكيمياء"
-                },
-                {
-                  "id": "asu-sci-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                }
-              ]
-            },
-            {
-              "id": "asu-art",
-              "name_en": "Arts and Design",
-              "name_ar": "الفنون والتصميم",
-              "majors": [
-                {
-                  "id": "asu-art-gd",
-                  "name_en": "Graphic Design",
-                  "name_ar": "تصميم الجرافيك"
-                },
-                {
-                  "id": "asu-art-id",
-                  "name_en": "Interior Design",
-                  "name_ar": "التصميم الداخلي"
-                },
-                {
-                  "id": "asu-art-dmd",
-                  "name_en": "Digital Media Design",
-                  "name_ar": "التصميم للوسائط الرقمية"
-                },
-                {
-                  "id": "asu-art-fash",
-                  "name_en": "Fashion and Accessories Design",
-                  "name_ar": "تصميم الأزياء والإكسسوارات"
-                }
-              ]
-            },
-            {
-              "id": "asu-bus",
-              "name_en": "Business",
-              "name_ar": "الأعمال",
-              "majors": [
-                {
-                  "id": "asu-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
-                },
-                {
-                  "id": "asu-bus-ba",
-                  "name_en": "Business Administration",
-                  "name_ar": "إدارة الأعمال"
-                },
-                {
-                  "id": "asu-bus-mkt",
-                  "name_en": "Marketing",
-                  "name_ar": "التسويق"
-                },
-                {
-                  "id": "asu-bus-mis",
-                  "name_en": "Management Information Systems",
-                  "name_ar": "نظم المعلومات الإدارية"
-                },
-                {
-                  "id": "asu-bus-dm",
-                  "name_en": "Digital Marketing",
-                  "name_ar": "التسويق الرقمي"
-                },
-                {
-                  "id": "asu-bus-aiacc",
-                  "name_en": "Artificial Intelligence in Accounting and Auditing",
-                  "name_ar": "الذكاء الاصطناعي في المحاسبة والتدقيق"
-                },
-                {
-                  "id": "asu-bus-ftrm",
-                  "name_en": "Financial Technology and Risk Management",
-                  "name_ar": "التكنولوجيا المالية وإدارة المخاطر"
-                }
-              ]
-            },
-            {
-              "id": "asu-law",
+              "id": "yu-low",
               "name_en": "Law",
-              "name_ar": "الحقوق",
+              "name_ar": "القانون",
               "majors": [
                 {
-                  "id": "asu-law-law",
-                  "name_en": "Law",
-                  "name_ar": "الحقوق"
-                }
-              ]
-            },
-            {
-              "id": "asu-eng",
-              "name_en": "Engineering and Technology",
-              "name_ar": "الهندسة والتكنولوجيا",
-              "majors": [
-                {
-                  "id": "asu-eng-ecce",
-                  "name_en": "Electrical / Communications and Computer Engineering",
-                  "name_ar": "الهندسة الكهربائية / الاتصالات وهندسة الحاسوب"
-                },
-                {
-                  "id": "asu-eng-mech",
-                  "name_en": "Mechanical Engineering",
-                  "name_ar": "الهندسة الميكانيكية"
-                },
-                {
-                  "id": "asu-eng-ind",
-                  "name_en": "Industrial Engineering",
-                  "name_ar": "الهندسة الصناعية"
-                },
-                {
-                  "id": "asu-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                },
-                {
-                  "id": "asu-eng-arch",
-                  "name_en": "Architecture Engineering",
-                  "name_ar": "هندسة العمارة"
-                },
-                {
-                  "id": "asu-eng-pre",
-                  "name_en": "Power and Renewable Energy Engineering",
-                  "name_ar": "هندسة القوى والطاقة المتجددة"
-                },
-                {
-                  "id": "asu-eng-ret",
-                  "name_en": "Renewable Energy Technology",
-                  "name_ar": "تكنولوجيا الطاقة المتجددة"
-                },
-                {
-                  "id": "asu-eng-rai",
-                  "name_en": "Robotics and Artificial Intelligence Engineering",
-                  "name_ar": "هندسة الروبوتات والذكاء الاصطناعي"
-                },
-                {
-                  "id": "asu-eng-hev",
-                  "name_en": "Applied Engineering / Hybrid and Electric Vehicles",
-                  "name_ar": "الهندسة التطبيقية / المركبات الهجينة والكهربائية"
-                }
-              ]
-            },
-            {
-              "id": "asu-pharm",
-              "name_en": "Pharmacy",
-              "name_ar": "الصيدلة",
-              "majors": [
-                {
-                  "id": "asu-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
-                }
-              ]
-            },
-            {
-              "id": "asu-ams",
-              "name_en": "Allied Medical Sciences",
-              "name_ar": "العلوم الطبية المساندة",
-              "majors": [
-                {
-                  "id": "asu-ams-cnd",
-                  "name_en": "Clinical Nutrition and Dietetics",
-                  "name_ar": "التغذية السريرية والحميات"
-                },
-                {
-                  "id": "asu-ams-pt",
-                  "name_en": "Physical Therapy",
-                  "name_ar": "العلاج الطبيعي"
-                },
-                {
-                  "id": "asu-ams-mlt",
-                  "name_en": "Medical and Clinical Laboratory Technology",
-                  "name_ar": "تكنولوجيا المختبرات الطبية والسريرية"
-                },
-                {
-                  "id": "asu-ams-cos",
-                  "name_en": "Cosmetic Science",
-                  "name_ar": "علم التجميل"
-                },
-                {
-                  "id": "asu-ams-asp",
-                  "name_en": "Audiology and Speech Pathology",
-                  "name_ar": "السمع والنطق"
-                }
-              ]
-            },
-            {
-              "id": "asu-nurs",
-              "name_en": "Nursing",
-              "name_ar": "التمريض",
-              "majors": [
-                {
-                  "id": "asu-nurs-nurs",
-                  "name_en": "Nursing",
-                  "name_ar": "التمريض"
-                }
-              ]
-            },
-            {
-              "id": "asu-it",
-              "name_en": "Information Technology",
-              "name_ar": "تكنولوجيا المعلومات",
-              "majors": [
-                {
-                  "id": "asu-it-cs",
-                  "name_en": "Computer Science",
-                  "name_ar": "علم الحاسوب"
-                },
-                {
-                  "id": "asu-it-se",
-                  "name_en": "Software Engineering",
-                  "name_ar": "هندسة البرمجيات"
-                },
-                {
-                  "id": "asu-it-cyber",
-                  "name_en": "Cybersecurity and Cloud Computing",
-                  "name_ar": "الأمن السيبراني والحوسبة السحابية"
-                },
-                {
-                  "id": "asu-it-dsai",
-                  "name_en": "Data Science and Artificial Intelligence",
-                  "name_ar": "علم البيانات والذكاء الاصطناعي"
-                },
-                {
-                  "id": "asu-it-vrgd",
-                  "name_en": "Virtual Reality and Game Development",
-                  "name_ar": "الواقع الرقمي وتطوير الألعاب"
+                  "id": "yu-low-low",
+                  "name_en": "Low",
+                  "name_ar": "القانون"
                 }
               ]
             }
@@ -2781,6 +2781,23 @@
           "domain": "aau.edu.jo",
           "colleges": [
             {
+              "id": "aau-as",
+              "name_en": "Arts and Sciences",
+              "name_ar": "الآداب والعلوم",
+              "majors": [
+                {
+                  "id": "aau-as-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "aau-as-engt",
+                  "name_en": "English Language and Translation",
+                  "name_ar": "اللغة الإنجليزية والترجمة"
+                }
+              ]
+            },
+            {
               "id": "aau-bus",
               "name_en": "Business",
               "name_ar": "الأعمال",
@@ -2791,14 +2808,29 @@
                   "name_ar": "إدارة الأعمال"
                 },
                 {
-                  "id": "aau-bus-acc",
-                  "name_en": "Accounting",
-                  "name_ar": "المحاسبة"
+                  "id": "aau-bus-hrm",
+                  "name_en": "Human Resource Management",
+                  "name_ar": "إدارة الموارد البشرية"
                 },
                 {
                   "id": "aau-bus-dm",
                   "name_en": "Digital Marketing",
                   "name_ar": "التسويق الرقمي"
+                },
+                {
+                  "id": "aau-bus-fin",
+                  "name_en": "Finance and Financial Technology",
+                  "name_ar": "التمويل والتكنولوجيا المالية"
+                },
+                {
+                  "id": "aau-bus-scm",
+                  "name_en": "Logistics and Supply Chain Management",
+                  "name_ar": "العلوم اللوجستية وإدارة سلاسل التزويد"
+                },
+                {
+                  "id": "aau-bus-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
                 },
                 {
                   "id": "aau-bus-abl",
@@ -2809,38 +2841,6 @@
                   "id": "aau-bus-mis",
                   "name_en": "Management Information Systems",
                   "name_ar": "نظم المعلومات الإدارية"
-                },
-                {
-                  "id": "aau-bus-hrm",
-                  "name_en": "Human Resource Management",
-                  "name_ar": "إدارة الموارد البشرية"
-                },
-                {
-                  "id": "aau-bus-scm",
-                  "name_en": "Logistics and Supply Chain Management",
-                  "name_ar": "العلوم اللوجستية وإدارة سلاسل التزويد"
-                },
-                {
-                  "id": "aau-bus-fin",
-                  "name_en": "Finance and Financial Technology",
-                  "name_ar": "التمويل والتكنولوجيا المالية"
-                }
-              ]
-            },
-            {
-              "id": "aau-edu",
-              "name_en": "Educational and Psychological Sciences",
-              "name_ar": "العلوم التربوية والنفسية",
-              "majors": [
-                {
-                  "id": "aau-edu-sped",
-                  "name_en": "Special Education",
-                  "name_ar": "التربية الخاصة"
-                },
-                {
-                  "id": "aau-edu-ece",
-                  "name_en": "Early Childhood",
-                  "name_ar": "الطفولة المبكرة"
                 }
               ]
             },
@@ -2849,11 +2849,6 @@
               "name_en": "Information Technology",
               "name_ar": "تكنولوجيا المعلومات",
               "majors": [
-                {
-                  "id": "aau-it-se",
-                  "name_en": "Software Engineering",
-                  "name_ar": "هندسة البرمجيات"
-                },
                 {
                   "id": "aau-it-cyber",
                   "name_en": "Cybersecurity",
@@ -2868,79 +2863,11 @@
                   "id": "aau-it-cs",
                   "name_en": "Computer Science",
                   "name_ar": "علم الحاسوب"
-                }
-              ]
-            },
-            {
-              "id": "aau-as",
-              "name_en": "Arts and Sciences",
-              "name_ar": "الآداب والعلوم",
-              "majors": [
-                {
-                  "id": "aau-as-engt",
-                  "name_en": "English Language and Translation",
-                  "name_ar": "اللغة الإنجليزية والترجمة"
                 },
                 {
-                  "id": "aau-as-math",
-                  "name_en": "Mathematics",
-                  "name_ar": "الرياضيات"
-                }
-              ]
-            },
-            {
-              "id": "aau-avi",
-              "name_en": "Aviation Sciences",
-              "name_ar": "علوم الطيران",
-              "majors": [
-                {
-                  "id": "aau-avi-amx",
-                  "name_en": "Aircraft Maintenance",
-                  "name_ar": "صيانة الطائرات"
-                },
-                {
-                  "id": "aau-avi-avion",
-                  "name_en": "Avionics Sciences",
-                  "name_ar": "علوم إلكترونيات الطيران"
-                },
-                {
-                  "id": "aau-avi-am",
-                  "name_en": "Aviation Management",
-                  "name_ar": "إدارة الطيران"
-                }
-              ]
-            },
-            {
-              "id": "aau-eng",
-              "name_en": "Engineering",
-              "name_ar": "الهندسة",
-              "majors": [
-                {
-                  "id": "aau-eng-civil",
-                  "name_en": "Civil Engineering",
-                  "name_ar": "الهندسة المدنية"
-                },
-                {
-                  "id": "aau-eng-arch",
-                  "name_en": "Architecture Engineering",
-                  "name_ar": "هندسة العمارة"
-                },
-                {
-                  "id": "aau-eng-re",
-                  "name_en": "Renewable Energy Engineering",
-                  "name_ar": "هندسة الطاقة المتجددة"
-                }
-              ]
-            },
-            {
-              "id": "aau-pharm",
-              "name_en": "Pharmacy",
-              "name_ar": "الصيدلة",
-              "majors": [
-                {
-                  "id": "aau-pharm-pharm",
-                  "name_en": "Pharmacy",
-                  "name_ar": "الصيدلة"
+                  "id": "aau-it-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
                 }
               ]
             },
@@ -2969,10 +2896,44 @@
               ]
             },
             {
+              "id": "aau-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "aau-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "aau-edu",
+              "name_en": "Educational and Psychological Sciences",
+              "name_ar": "العلوم التربوية والنفسية",
+              "majors": [
+                {
+                  "id": "aau-edu-sped",
+                  "name_en": "Special Education",
+                  "name_ar": "التربية الخاصة"
+                },
+                {
+                  "id": "aau-edu-ece",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                }
+              ]
+            },
+            {
               "id": "aau-ams",
               "name_en": "Applied Medical Sciences",
               "name_ar": "العلوم الطبية التطبيقية",
               "majors": [
+                {
+                  "id": "aau-ams-tnd",
+                  "name_en": "Therapeutic Nutrition and Dietetics",
+                  "name_ar": "التغذية العلاجية والحميات"
+                },
                 {
                   "id": "aau-ams-mls",
                   "name_en": "Medical Laboratory Sciences",
@@ -2987,11 +2948,28 @@
                   "id": "aau-ams-him",
                   "name_en": "Health Informatics and Information Management",
                   "name_ar": "المعلوماتية الصحية وإدارة المعلومات"
+                }
+              ]
+            },
+            {
+              "id": "aau-avi",
+              "name_en": "Aviation Sciences",
+              "name_ar": "علوم الطيران",
+              "majors": [
+                {
+                  "id": "aau-avi-am",
+                  "name_en": "Aviation Management",
+                  "name_ar": "إدارة الطيران"
                 },
                 {
-                  "id": "aau-ams-tnd",
-                  "name_en": "Therapeutic Nutrition and Dietetics",
-                  "name_ar": "التغذية العلاجية والحميات"
+                  "id": "aau-avi-amx",
+                  "name_en": "Aircraft Maintenance",
+                  "name_ar": "صيانة الطائرات"
+                },
+                {
+                  "id": "aau-avi-avion",
+                  "name_en": "Avionics Sciences",
+                  "name_ar": "علوم إلكترونيات الطيران"
                 }
               ]
             },
@@ -3004,6 +2982,28 @@
                   "id": "aau-tech-idt",
                   "name_en": "Interior Design and Decoration Technology",
                   "name_ar": "تكنولوجيا التصميم الداخلي والديكور"
+                }
+              ]
+            },
+            {
+              "id": "aau-eng",
+              "name_en": "Engineering",
+              "name_ar": "الهندسة",
+              "majors": [
+                {
+                  "id": "aau-eng-re",
+                  "name_en": "Renewable Energy Engineering",
+                  "name_ar": "هندسة الطاقة المتجددة"
+                },
+                {
+                  "id": "aau-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "aau-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
                 }
               ]
             }

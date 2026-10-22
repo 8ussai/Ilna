@@ -111,7 +111,7 @@ backend/                 one folder per feature: models.py (tables), schemas.py 
   maintenance/           closing the site for a while
   meta/                  the catalog and site status
   migrations/            Alembic database migrations, run on startup
-  data/                  university, college and major catalog
+  data/                  university, college and major catalog, and the C++ script that sorts it
 frontend/src/
   main.tsx, App.tsx      start-up: the admin panel at /admin, the student site everywhere else
   api/                   typed API client, one file per backend area
@@ -131,6 +131,32 @@ frontend/src/
   locales/               English and Arabic text
 start-demo.ps1       builds and runs the public demo on Windows
 ```
+
+## Sorting the university catalog
+
+`backend/data/sort_universities.cpp` sorts `universities.json` in Arabic alphabetical order and overwrites the file. Run it after adding universities, colleges or majors. It's a one-off tool, not part of the app.
+
+Every list with a `name_ar` field is sorted by that name: countries, universities, colleges and majors. Items stay under the same parent and their `id`s don't change, so existing users' choices still work.
+
+Names are compared like a dictionary:
+
+- a leading "ال" is ignored, so التاريخ sorts under ت
+- أ إ آ ٱ count as ا, ة as ه, ى and ئ as ي, ؤ as و
+- harakat and tatweel ـ are ignored
+- names that compare equal keep their current order
+
+Build, run and remove the program from `backend/data` (needs `g++`, for example from MSYS2):
+
+```bash
+cd backend/data
+g++ -std=c++17 -o sort_universities sort_universities.cpp && ./sort_universities && rm sort_universities.exe
+```
+
+Some limits to know:
+
+- The script expects valid JSON that holds only objects, lists and strings, which is what the catalog contains. It doesn't check the file first, so check `git diff` afterwards. `git restore backend/data/universities.json` undoes a bad run.
+- The output uses 2-space indentation and Unix line endings.
+- `.exe` files are ignored by git (`*.exe` in `.gitignore`), so the built program is never committed.
 
 ## Deployment
 

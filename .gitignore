@@ -12,3 +12,5 @@ chroma_db/
 uploads/
 
 .env
+
+*.exe
