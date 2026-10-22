@@ -880,7 +880,15 @@
           "Questions, or want your account deleted? Use Contact us in the account menu, or email support@ilna-academic.com."
         ]
       }
-    ]
+    ],
+    "credits": {
+      "title": "Credits",
+      "intro": "Ilna is built on open-source software, fonts and AI models. Thank you to the people who make them. Each one is used under the license shown, which you can read at its link.",
+      "site": "In the website",
+      "server": "On the server",
+      "fonts": "Fonts",
+      "ai": "AI models"
+    }
   },
   "footer": "© {{year}} Ilna",
   "admin": {

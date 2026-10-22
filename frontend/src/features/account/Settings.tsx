@@ -17,6 +17,7 @@ import { formatDate, parseServerDate } from '../../lib/dates'
 import { inAppClick } from '../../lib/links'
 import { settingsPath } from '../../lib/tabs'
 import { ActivityPage } from './ActivityPage'
+import { CREDITS } from './credits'
 import type { SettingsPage } from '../../lib/tabs'
 
 type SettingsProps = {
@@ -358,7 +359,36 @@ function PolicyPage() {
           ))}
         </section>
       ))}
+      <Credits />
     </article>
+  )
+}
+
+// the open-source software, fonts and AI models Ilna is built on (credits.ts)
+function Credits() {
+  const { t } = useTranslation()
+  return (
+    <section className="mt-12 border-t border-line pt-8">
+      <h2 className="font-serif text-xl font-semibold">{t('policy.credits.title')}</h2>
+      <p className="mt-3 leading-relaxed text-fg/90">{t('policy.credits.intro')}</p>
+      {CREDITS.map((group) => (
+        <div key={group.key} className="mt-6">
+          <h3 className="font-semibold">{t(`policy.credits.${group.key}`)}</h3>
+          <ul className="mt-2 space-y-1.5 text-sm">
+            {group.items.map((credit) => (
+              <li key={credit.name} dir="ltr" className="text-start">
+                <a href={credit.url} target="_blank" rel="noopener noreferrer" className="font-medium text-accent hover:underline">
+                  {credit.name}
+                </a>{' '}
+                <span className="text-muted">
+                  · {credit.by} · {credit.license}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </section>
   )
 }
 
