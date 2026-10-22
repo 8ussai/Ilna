@@ -1,8 +1,8 @@
-"""baseline
+"""all tables
 
 Revision ID: 0001_baseline
 Revises: 
-Create Date: 2026-10-21 22:06:12.711967
+Create Date: 2026-10-22 03:01:50.056327
 """
 from alembic import op
 import sqlalchemy as sa
@@ -73,6 +73,7 @@ def upgrade():
     sa.Column('banned_at', sa.DateTime(), nullable=True),
     sa.Column('is_premium', sa.Boolean(), nullable=False),
     sa.Column('premium_since', sa.DateTime(), nullable=True),
+    sa.Column('accent_color', sa.String(), nullable=True),
     sa.Column('is_test', sa.Boolean(), nullable=False),
     sa.Column('is_active', sa.Boolean(), nullable=False),
     sa.Column('test_password_enc', sa.String(), nullable=True),
@@ -107,6 +108,8 @@ def upgrade():
     sa.Column('description', sa.String(), nullable=True),
     sa.Column('color', sa.String(), nullable=True),
     sa.Column('last_opened_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('share_code', sa.String(), nullable=False),
+    sa.Column('is_public', sa.Boolean(), server_default='0', nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
@@ -114,7 +117,19 @@ def upgrade():
     )
     with op.batch_alter_table('courses', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_courses_id'), ['id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_courses_share_code'), ['share_code'], unique=True)
         batch_op.create_index(batch_op.f('ix_courses_user_id'), ['user_id'], unique=False)
+
+    op.create_table('friends',
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('friend_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['friend_id'], ['users.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('user_id', 'friend_id')
+    )
+    with op.batch_alter_table('friends', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_friends_friend_id'), ['friend_id'], unique=False)
 
     op.create_table('posts',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -125,6 +140,9 @@ def upgrade():
     sa.Column('college', sa.String(), nullable=False),
     sa.Column('major', sa.String(), nullable=False),
     sa.Column('pinned_until', sa.DateTime(), nullable=True),
+    sa.Column('is_anonymous', sa.Boolean(), server_default='0', nullable=False),
+    sa.Column('anonymity_switched', sa.Boolean(), server_default='0', nullable=False),
+    sa.Column('anon_counter', sa.Integer(), server_default='0', nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
@@ -183,6 +201,18 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_course_materials_course_id'), ['course_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_course_materials_id'), ['id'], unique=False)
 
+    op.create_table('course_members',
+    sa.Column('course_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('last_opened_at', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('course_id', 'user_id')
+    )
+    with op.batch_alter_table('course_members', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_course_members_user_id'), ['user_id'], unique=False)
+
     op.create_table('course_notes',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('course_id', sa.Integer(), nullable=False),
@@ -198,6 +228,51 @@ def upgrade():
     with op.batch_alter_table('course_notes', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_course_notes_course_id'), ['course_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_course_notes_id'), ['id'], unique=False)
+
+    op.create_table('course_share_responses',
+    sa.Column('course_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('course_id', 'user_id')
+    )
+    with op.batch_alter_table('course_share_responses', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_course_share_responses_user_id'), ['user_id'], unique=False)
+
+    op.create_table('course_shares',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('course_id', sa.Integer(), nullable=False),
+    sa.Column('target_type', sa.String(), nullable=False),
+    sa.Column('target', sa.String(), server_default='', nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['course_id'], ['courses.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('course_id', 'target_type', 'target')
+    )
+    with op.batch_alter_table('course_shares', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_course_shares_course_id'), ['course_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_course_shares_id'), ['id'], unique=False)
+
+    op.create_table('post_images',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('post_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('position', sa.Integer(), nullable=False),
+    sa.Column('file_path', sa.String(), nullable=False),
+    sa.Column('width', sa.Integer(), nullable=False),
+    sa.Column('height', sa.Integer(), nullable=False),
+    sa.Column('size_bytes', sa.Integer(), nullable=False),
+    sa.Column('is_animated', sa.Boolean(), nullable=False),
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('id')
+    )
+    with op.batch_alter_table('post_images', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_post_images_id'), ['id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_post_images_post_id'), ['post_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_post_images_user_id'), ['user_id'], unique=False)
 
     op.create_table('post_votes',
     sa.Column('post_id', sa.Integer(), nullable=False),
@@ -215,6 +290,8 @@ def upgrade():
     sa.Column('content', sa.Text(), nullable=False),
     sa.Column('is_deleted', sa.Boolean(), nullable=False),
     sa.Column('removed_by_admin', sa.Boolean(), nullable=False),
+    sa.Column('is_anonymous', sa.Boolean(), server_default='0', nullable=False),
+    sa.Column('anonymity_switched', sa.Boolean(), server_default='0', nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['parent_id'], ['replies.id'], ondelete='CASCADE'),
@@ -252,6 +329,15 @@ def upgrade():
         batch_op.create_index(batch_op.f('ix_study_items_course_id'), ['course_id'], unique=False)
         batch_op.create_index(batch_op.f('ix_study_items_id'), ['id'], unique=False)
 
+    op.create_table('thread_anon_numbers',
+    sa.Column('post_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('number', sa.Integer(), nullable=False),
+    sa.ForeignKeyConstraint(['post_id'], ['posts.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
+    sa.PrimaryKeyConstraint('post_id', 'user_id'),
+    sa.UniqueConstraint('post_id', 'number')
+    )
     op.create_table('material_transcripts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('material_id', sa.Integer(), nullable=False),
@@ -293,16 +379,19 @@ def upgrade():
     op.create_table('quiz_attempts',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('item_id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('answers', sa.Text(), nullable=False),
     sa.Column('score', sa.Integer(), nullable=False),
     sa.Column('total', sa.Integer(), nullable=False),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.ForeignKeyConstraint(['item_id'], ['study_items.id'], ondelete='CASCADE'),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ondelete='CASCADE'),
     sa.PrimaryKeyConstraint('id')
     )
     with op.batch_alter_table('quiz_attempts', schema=None) as batch_op:
         batch_op.create_index(batch_op.f('ix_quiz_attempts_id'), ['id'], unique=False)
         batch_op.create_index(batch_op.f('ix_quiz_attempts_item_id'), ['item_id'], unique=False)
+        batch_op.create_index(batch_op.f('ix_quiz_attempts_user_id'), ['user_id'], unique=False)
 
     op.create_table('reply_votes',
     sa.Column('reply_id', sa.Integer(), nullable=False),
@@ -349,6 +438,7 @@ def downgrade():
     op.drop_table('reports')
     op.drop_table('reply_votes')
     with op.batch_alter_table('quiz_attempts', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_quiz_attempts_user_id'))
         batch_op.drop_index(batch_op.f('ix_quiz_attempts_item_id'))
         batch_op.drop_index(batch_op.f('ix_quiz_attempts_id'))
 
@@ -363,6 +453,7 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_material_transcripts_id'))
 
     op.drop_table('material_transcripts')
+    op.drop_table('thread_anon_numbers')
     with op.batch_alter_table('study_items', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_study_items_id'))
         batch_op.drop_index(batch_op.f('ix_study_items_course_id'))
@@ -376,11 +467,30 @@ def downgrade():
 
     op.drop_table('replies')
     op.drop_table('post_votes')
+    with op.batch_alter_table('post_images', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_post_images_user_id'))
+        batch_op.drop_index(batch_op.f('ix_post_images_post_id'))
+        batch_op.drop_index(batch_op.f('ix_post_images_id'))
+
+    op.drop_table('post_images')
+    with op.batch_alter_table('course_shares', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_course_shares_id'))
+        batch_op.drop_index(batch_op.f('ix_course_shares_course_id'))
+
+    op.drop_table('course_shares')
+    with op.batch_alter_table('course_share_responses', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_course_share_responses_user_id'))
+
+    op.drop_table('course_share_responses')
     with op.batch_alter_table('course_notes', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_course_notes_id'))
         batch_op.drop_index(batch_op.f('ix_course_notes_course_id'))
 
     op.drop_table('course_notes')
+    with op.batch_alter_table('course_members', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_course_members_user_id'))
+
+    op.drop_table('course_members')
     with op.batch_alter_table('course_materials', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_course_materials_id'))
         batch_op.drop_index(batch_op.f('ix_course_materials_course_id'))
@@ -405,8 +515,13 @@ def downgrade():
         batch_op.drop_index(batch_op.f('ix_posts_college'))
 
     op.drop_table('posts')
+    with op.batch_alter_table('friends', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_friends_friend_id'))
+
+    op.drop_table('friends')
     with op.batch_alter_table('courses', schema=None) as batch_op:
         batch_op.drop_index(batch_op.f('ix_courses_user_id'))
+        batch_op.drop_index(batch_op.f('ix_courses_share_code'))
         batch_op.drop_index(batch_op.f('ix_courses_id'))
 
     op.drop_table('courses')

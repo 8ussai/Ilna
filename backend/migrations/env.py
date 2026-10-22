@@ -1,7 +1,17 @@
 from alembic import context
 
-# every model module, so autogenerate sees all the tables
+import backend.accounts.models  # noqa: F401
+import backend.admin.models  # noqa: F401
+import backend.blog.models  # noqa: F401
+import backend.contact.models  # noqa: F401
+import backend.courses.models  # noqa: F401
+import backend.friends.models  # noqa: F401
+import backend.maintenance.models  # noqa: F401
+import backend.notifications.models  # noqa: F401
+import backend.study.models  # noqa: F401
 from backend.database import Base, engine
+
+# the model imports above register every table on Base, so autogenerate compares all of them
 
 
 # runs migrations on the runner's connection, or opens one for the alembic command line
