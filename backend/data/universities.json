@@ -9,7 +9,7 @@
           "id": "aabu",
           "name_en": "Al Al Bayt University",
           "name_ar": "جامعة آل البيت",
-          "domain": "aabu.edu.jo",
+          "domain": "st.aabu.edu.jo",
           "colleges": [
             {
               "id": "aabu-lit",
@@ -991,7 +991,7 @@
           "id": "psut",
           "name_en": "Princess Sumaya University for Technology",
           "name_ar": "جامعة الأميرة سمية للتكنولوجيا",
-          "domain": "psut.edu.jo",
+          "domain": "std.psut.edu.jo",
           "colleges": [
             {
               "id": "psut-cs",
@@ -1090,7 +1090,7 @@
           "id": "asu",
           "name_en": "Applied Science Private University",
           "name_ar": "جامعة العلوم التطبيقية الخاصة",
-          "domain": "asu.edu.jo",
+          "domain": "students.asu.edu.jo",
           "colleges": [
             {
               "id": "asu-arts",
@@ -1865,7 +1865,7 @@
           "id": "hu",
           "name_en": "The Hashemite University",
           "name_ar": "الجامعة الهاشمية",
-          "domain": "hu.edu.jo",
+          "domain": "std.hu.edu.jo",
           "colleges": [
             {
               "id": "hu-arts",
@@ -2263,7 +2263,7 @@
           "id": "yu",
           "name_en": "Yarmouk University",
           "name_ar": "جامعة اليرموك",
-          "domain": "yu.edu.jo",
+          "domain": "ses.yu.edu.jo",
           "colleges": [
             {
               "id": "yu-aa",

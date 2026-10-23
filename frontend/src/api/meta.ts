@@ -3,7 +3,8 @@ import { authRequest, request } from './client'
 export type Named = { id: string; name_en: string; name_ar: string }
 type Major = Named
 type College = Named & { majors: Major[] }
-type University = Named & { domain: string; colleges: College[] }
+// domain: the students' email domain; addresses at it or its subdomains can sign up
+export type University = Named & { domain: string; colleges: College[] }
 type Country = Named & { universities: University[] }
 export type Catalog = { countries: Country[] }
 

@@ -140,13 +140,13 @@ All in Jordan (country id `jordan`):
 
 | id | University | Email domain | Colleges | Majors |
 | --- | --- | --- | --- | --- |
-| `aabu` | Al Al Bayt University | `aabu.edu.jo` | 14 | 56 |
+| `aabu` | Al Al Bayt University | `st.aabu.edu.jo` | 14 | 56 |
 | `ju` | University of Jordan | `ju.edu.jo` | 19 | 91 |
-| `psut` | Princess Sumaya University for Technology | `psut.edu.jo` | 3 | 14 |
-| `asu` | Applied Science Private University | `asu.edu.jo` | 11 | 44 |
+| `psut` | Princess Sumaya University for Technology | `std.psut.edu.jo` | 3 | 14 |
+| `asu` | Applied Science Private University | `students.asu.edu.jo` | 11 | 44 |
 | `just` | Jordan University of Science and Technology | `just.edu.jo` | 11 | 77 |
-| `hu` | The Hashemite University | `hu.edu.jo` | 15 | 57 |
-| `yu` | Yarmouk University | `yu.edu.jo` | 16 | 79 |
+| `hu` | The Hashemite University | `std.hu.edu.jo` | 15 | 57 |
+| `yu` | Yarmouk University | `ses.yu.edu.jo` | 16 | 79 |
 | `aau` | Amman Arab University | `aau.edu.jo` | 11 | 30 |
 
 Keep this table and the one in the [README](README.md#supported-universities) up to date when the catalog changes.
@@ -181,13 +181,13 @@ The file nests like this:
 }
 ```
 
-- `domain` is the university's email domain. Sign-up only accepts addresses at that domain or one of its subdomains, so `ju.edu.jo` also allows `std.ju.edu.jo`.
+- `domain` is the university's **student** email domain (students' addresses are `ID@domain`). Sign-up accepts that domain or any of its subdomains, so `just.edu.jo` also allows `eng.just.edu.jo`. The check is `is_student_email` in `backend/core/catalog.py`, mirrored in `RegisterForm.tsx`. Changing a domain doesn't affect accounts that already exist.
 - Users and posts store these `id`s, and the blogs for each university, college and major are keyed by them.
 
 ### Adding a university, college or major
 
 1. Add the entry to `backend/data/universities.json` under its parent: a university under its country, a college under its university, a major under its college. A new country goes in `countries` with its own `universities` list.
-2. Give it an `id`, `name_en` and `name_ar`, and for a university its `domain`. Follow the pattern: a short university id (`ju`), then `<university>-<college>` (`ju-eng`), then `<university>-<college>-<major>` (`ju-eng-ce`). College and major ids must be unique across the whole catalog, not just within their parent.
+2. Give it an `id`, `name_en` and `name_ar`, and for a university its student email `domain`. Follow the pattern: a short university id (`ju`), then `<university>-<college>` (`ju-eng`), then `<university>-<college>-<major>` (`ju-eng-ce`). College and major ids must be unique across the whole catalog, not just within their parent.
 3. Don't change or remove an existing `id`. Users who already picked it would no longer match the catalog. Fixing a typo in a name is fine.
 4. Sort the file (see below) and check `git diff`.
 5. Restart the backend so it reads the new file.

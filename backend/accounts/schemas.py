@@ -5,7 +5,7 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict, EmailStr, field_validator, model_validator
 
 from backend.config import ACCENT_PRESETS, RESERVED_USERNAME_WORDS, TEST_USERNAME_PREFIX
-from backend.core.catalog import email_matches_domain, validate_selection
+from backend.core.catalog import is_student_email, validate_selection
 from backend.core.security import check_password_strength
 
 
@@ -60,8 +60,11 @@ class UserCreate(UserBase):
     def check_catalog_and_email(self):
         university = validate_selection(self.country, self.university, self.college, self.major)
 
-        if not email_matches_domain(self.email, university["domain"]):
-            raise ValueError(f"Please register with your university email (e.g. name@{university['domain']}).")
+        if not is_student_email(self.email, university):
+            raise ValueError(
+                f"Please register with your student email (ID@{university['domain']}). "
+                "Staff addresses can't sign up."
+            )
 
         return self
 

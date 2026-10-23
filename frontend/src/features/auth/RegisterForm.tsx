@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { register } from '../../api/auth'
 import { ApiError } from '../../api/client'
 import { fetchCatalog } from '../../api/meta'
-import type { Catalog, Named } from '../../api/meta'
+import type { Catalog, Named, University } from '../../api/meta'
 import { isStrongPassword } from '../../lib/password'
 import { Field } from '../../components/Field'
 import { PasswordChecklist } from './PasswordChecklist'
@@ -42,6 +42,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const USERNAME_RE = /^[a-z0-9_]{3,30}$/
 // same as RESERVED_USERNAME_WORDS in backend/config.py: anonymous posts show as "Anonymous N" and "Author"
 const RESERVED_USERNAME_WORDS = ['anonymous', 'author']
+
+// same rule as is_student_email in backend/core/catalog.py: the student domain or one of its subdomains
+function isStudentEmail(email: string, university: University) {
+  const domain = email.slice(email.lastIndexOf('@') + 1).toLowerCase()
+  return domain === university.domain || domain.endsWith('.' + university.domain)
+}
 
 // signing up, in two steps: the person, then their university, college and major
 export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: string) => void }) {
@@ -112,10 +118,9 @@ export function RegisterForm({ onAuthenticated }: { onAuthenticated: (token: str
       if (reserved) e.username = t('errors.usernameReserved', { word: reserved })
     }
 
-    const emailDomain = values.email.trim().split('@')[1]?.toLowerCase() ?? ''
     if (!values.email.trim()) e.email = required
     else if (!EMAIL_RE.test(values.email.trim())) e.email = t('errors.emailInvalid')
-    else if (university && emailDomain !== university.domain && !emailDomain.endsWith('.' + university.domain)) {
+    else if (university && !isStudentEmail(values.email.trim(), university)) {
       e.email = t('errors.emailDomain', { university: nameOf(university), domain: university.domain })
     }
 

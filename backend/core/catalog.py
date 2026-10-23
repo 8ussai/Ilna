@@ -32,11 +32,11 @@ def validate_selection(country_id: str, university_id: str, college_id: str, maj
     return university
 
 
-# whether an email is at the university's domain or one of its subdomains
-def email_matches_domain(email: str, domain: str) -> bool:
-    email_domain = email.rsplit("@", 1)[-1].lower()
-    # the university domain itself or one of its subdomains (e.g. std.ksu.edu.sa)
-    return email_domain == domain or email_domain.endswith("." + domain)
+def is_student_email(email: str, university: dict) -> bool:
+    """Whether an email is at the university's student domain or one of its subdomains.
+    Same rule as isStudentEmail in frontend/src/features/auth/RegisterForm.tsx."""
+    domain = email.rsplit("@", 1)[-1].lower()
+    return domain == university["domain"] or domain.endswith("." + university["domain"])
 
 
 def locate(kind: str, item_id: str) -> Optional[dict]:
