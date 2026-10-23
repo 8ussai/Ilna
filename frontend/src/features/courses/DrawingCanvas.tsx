@@ -2,12 +2,15 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
 import { drawPage, drawStroke, PAGE_HEIGHT, PAGE_WIDTH, strokeHit } from './drawing'
-import type { Drawing, Point, Stroke, StrokeTool } from './drawing'
+import type { Background, Point, Stroke, StrokeTool } from './drawing'
+import { useNearScreen } from './useNearScreen'
 
 export type CanvasTool = StrokeTool | 'eraser'
 
 type DrawingCanvasProps = {
-  drawing: Drawing
+  // one page of the drawing
+  background: Background
+  strokes: Stroke[]
   tool: CanvasTool
   color: string
   size: number
@@ -20,10 +23,12 @@ type DrawingCanvasProps = {
 // page units the eraser reaches around the pointer
 const ERASER_RADIUS = 14
 
-// The page, scaled to the available width. Finished strokes are painted on the main canvas;
+// One page, scaled to the available width. Finished strokes are painted on the main canvas;
 // the stroke being drawn goes on an overlay, so each pointer move repaints one stroke, not the page.
-export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onErase }: DrawingCanvasProps) {
+// The canvases exist only while the page is near the screen, so long drawings don't fill memory.
+export function DrawingCanvas({ background, strokes, tool, color, size, label, onStroke, onErase }: DrawingCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const near = useNearScreen(wrapperRef)
   const mainRef = useRef<HTMLCanvasElement>(null)
   const overlayRef = useRef<HTMLCanvasElement>(null)
   const [cssWidth, setCssWidth] = useState(0)
@@ -69,7 +74,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     const ctx = prepare(mainRef.current)
     if (!ctx) return
     const hidden = erasingRef.current?.hit
-    drawPage(ctx, { background: drawing.background, strokes: hidden?.size ? drawing.strokes.filter((s) => !hidden.has(s)) : drawing.strokes })
+    drawPage(ctx, { background, strokes: hidden?.size ? strokes.filter((s) => !hidden.has(s)) : strokes })
   }
 
   // draws the stroke being made, on its own layer
@@ -89,9 +94,18 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
   useEffect(() => {
     paintRef.current.paintMain()
     paintRef.current.paintOverlay()
-  }, [drawing, cssWidth])
+  }, [background, strokes, cssWidth, near])
 
   useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
+
+  // a page that scrolls far away loses its canvases, and with them the pointer-up of any gesture
+  // still on it; forget that gesture so the next one can start
+  useEffect(() => {
+    if (near) return
+    liveRef.current = null
+    erasingRef.current = null
+    touchesRef.current.clear()
+  }, [near])
 
   // a screen point in page coordinates
   function toPage(e: { clientX: number; clientY: number }): [number, number] {
@@ -112,7 +126,7 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
     if (!erasing) return
     const [x, y] = toPage(e)
     let changed = false
-    for (const stroke of drawing.strokes) {
+    for (const stroke of strokes) {
       if (!erasing.hit.has(stroke) && strokeHit(stroke, x, y, ERASER_RADIUS)) {
         erasing.hit.add(stroke)
         changed = true
@@ -209,23 +223,28 @@ export function DrawingCanvas({ drawing, tool, color, size, label, onStroke, onE
 
   // once the parent removed the erased strokes, forget them
   useEffect(() => {
-    if (erasingRef.current && !drawing.strokes.some((s) => erasingRef.current!.hit.has(s))) erasingRef.current = null
-  }, [drawing])
+    if (erasingRef.current && !strokes.some((s) => erasingRef.current!.hit.has(s))) erasingRef.current = null
+  }, [strokes])
 
   return (
     <div ref={wrapperRef} role="img" aria-label={label} className="relative w-full overflow-hidden rounded-lg shadow-sm ring-1 ring-line">
-      <div style={{ height: cssHeight }} />
-      <canvas ref={mainRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
-      <canvas
-        ref={overlayRef}
-        aria-hidden="true"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={(e) => onPointerEnd(e, false)}
-        onPointerCancel={(e) => onPointerEnd(e, true)}
-        onContextMenu={(e) => e.preventDefault()}
-        className={`absolute inset-0 h-full w-full touch-none select-none ${tool === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'}`}
-      />
+      {/* white while the page is far away; its canvases are made when it comes near */}
+      <div style={{ height: cssHeight }} className="bg-white" />
+      {near && (
+        <>
+          <canvas ref={mainRef} aria-hidden="true" className="absolute inset-0 h-full w-full" />
+          <canvas
+            ref={overlayRef}
+            aria-hidden="true"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={(e) => onPointerEnd(e, false)}
+            onPointerCancel={(e) => onPointerEnd(e, true)}
+            onContextMenu={(e) => e.preventDefault()}
+            className={`absolute inset-0 h-full w-full touch-none select-none ${tool === 'eraser' ? 'cursor-cell' : 'cursor-crosshair'}`}
+          />
+        </>
+      )}
     </div>
   )
 }

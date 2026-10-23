@@ -65,8 +65,9 @@ AUDIO_EXTENSIONS = {
 }
 ALLOWED_EXTENSIONS = DOCUMENT_EXTENSIONS.keys() | AUDIO_EXTENSIONS.keys()
 
-# a drawn note's stroke JSON; text notes are much smaller
-MAX_DRAWING_BYTES = 1_000_000
+# a drawn note's stroke JSON (all its pages); text notes are much smaller
+MAX_DRAWING_BYTES = 5_000_000
+MAX_DRAWING_PAGES = 20
 MAX_TEXT_NOTE_CHARS = 100_000
 # a typed note waits this long after its last edit before it's indexed for the AI
 NOTE_INDEX_DELAY_SEC = 30

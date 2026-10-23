@@ -6,7 +6,7 @@ from urllib.parse import urlparse
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
-from backend.config import MAX_DRAWING_BYTES, MAX_TEXT_NOTE_CHARS
+from backend.config import MAX_DRAWING_BYTES, MAX_DRAWING_PAGES, MAX_TEXT_NOTE_CHARS
 
 
 # preset names, not hex values, so the frontend can pick a shade that works in light and dark themes
@@ -85,8 +85,21 @@ def check_note_content(kind: NoteKind, content: str) -> str:
         drawing = json.loads(content)
     except ValueError:
         raise ValueError("Drawing must be JSON.")
-    if not isinstance(drawing, dict) or not isinstance(drawing.get("strokes"), list):
-        raise ValueError("Drawing must be an object with a list of strokes.")
+    if not isinstance(drawing, dict):
+        raise ValueError("Drawing must be an object.")
+    # version 2: a list of pages, each with its strokes
+    if "pages" in drawing:
+        pages = drawing["pages"]
+        if not isinstance(pages, list) or not pages:
+            raise ValueError("Drawing must have at least one page.")
+        if len(pages) > MAX_DRAWING_PAGES:
+            raise ValueError(f"Drawing has too many pages (max {MAX_DRAWING_PAGES}).")
+        if not all(isinstance(page, dict) and isinstance(page.get("strokes"), list) for page in pages):
+            raise ValueError("Each drawing page must have a list of strokes.")
+        return content
+    # version 1: one page of strokes
+    if not isinstance(drawing.get("strokes"), list):
+        raise ValueError("Drawing must have pages or a list of strokes.")
     return content
 
 

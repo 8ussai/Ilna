@@ -1,4 +1,4 @@
-import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -9,7 +9,7 @@ import { DeleteButton } from '../../components/DeleteButton'
 import { primaryButtonInline, smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
 import { DrawingCanvas } from './DrawingCanvas'
 import type { CanvasTool } from './DrawingCanvas'
-import { BACKGROUNDS, emptyDrawing, INK_COLORS, MAX_DRAWING_BYTES, parseDrawing, serializeDrawing, SIZES } from './drawing'
+import { BACKGROUNDS, emptyDrawing, INK_COLORS, MAX_DRAWING_BYTES, MAX_DRAWING_PAGES, parseDrawing, serializeDrawing, SIZES } from './drawing'
 import type { Background, Stroke } from './drawing'
 
 // undo steps kept; older ones are dropped
@@ -32,10 +32,11 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   const [initial] = useState(() => (note ? parseDrawing(note.content) : emptyDrawing()))
   const [title, setTitle] = useState(note?.title ?? '')
   const [background, setBackground] = useState<Background>(initial.background)
-  const [strokes, setStrokes] = useState<Stroke[]>(initial.strokes)
-  // earlier and undone stroke lists, for undo/redo
-  const [past, setPast] = useState<Stroke[][]>([])
-  const [future, setFuture] = useState<Stroke[][]>([])
+  // each page's strokes; a page that didn't change keeps the same array, so its canvas doesn't repaint
+  const [pages, setPages] = useState<Stroke[][]>(() => initial.pages.map((page) => page.strokes))
+  // earlier and undone versions of all the pages, for undo/redo (adding or deleting a page is undoable too)
+  const [past, setPast] = useState<Stroke[][][]>([])
+  const [future, setFuture] = useState<Stroke[][][]>([])
   const [tool, setTool] = useState<CanvasTool>('pen')
   const [color, setColor] = useState<string>(INK_COLORS[0])
   const [size, setSize] = useState<number>(SIZES[1])
@@ -49,6 +50,9 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   const noteIdRef = useRef(noteId)
   const [headerHeight, setHeaderHeight] = useState(0)
   const backgroundId = useId()
+  const pageRefs = useRef<(HTMLElement | null)[]>([])
+  // a page just added, scrolled to once it's rendered
+  const scrollToPageRef = useRef<number | null>(null)
 
   // the toolbar sticks just under the app's own sticky header while the page scrolls
   useLayoutEffect(() => {
@@ -59,20 +63,46 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     return () => observer.disconnect()
   }, [])
 
-  // sets the strokes, keeping the old ones for undo
-  function changeStrokes(next: Stroke[]) {
-    setPast((p) => [...p.slice(-(HISTORY_LIMIT - 1)), strokes])
+  // sets the pages, keeping the old ones for undo
+  function changePages(next: Stroke[][]) {
+    setPast((p) => [...p.slice(-(HISTORY_LIMIT - 1)), pages])
     setFuture([])
-    setStrokes(next)
+    setPages(next)
     setDirty(true)
     setJustSaved(false)
   }
 
+  // sets one page's strokes
+  function changePage(index: number, strokes: Stroke[]) {
+    changePages(pages.map((page, i) => (i === index ? strokes : page)))
+  }
+
+  // adds an empty page at the end and scrolls to it
+  function addPage() {
+    if (pages.length >= MAX_DRAWING_PAGES) return
+    changePages([...pages, []])
+    scrollToPageRef.current = pages.length
+  }
+
+  // removes a page; the last one left can only be cleared
+  function deletePage(index: number) {
+    if (pages.length <= 1) return
+    changePages(pages.filter((_, i) => i !== index))
+  }
+
+  // scrolls to a newly added page once it's on the page
+  useEffect(() => {
+    const index = scrollToPageRef.current
+    if (index === null) return
+    scrollToPageRef.current = null
+    pageRefs.current[index]?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [pages])
+
   // undoes the last change
   function undo() {
     if (past.length === 0) return
-    setFuture((f) => [strokes, ...f])
-    setStrokes(past[past.length - 1])
+    setFuture((f) => [pages, ...f])
+    setPages(past[past.length - 1])
     setPast((p) => p.slice(0, -1))
     setDirty(true)
   }
@@ -80,15 +110,15 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   // redoes the last undone change
   function redo() {
     if (future.length === 0) return
-    setPast((p) => [...p, strokes])
-    setStrokes(future[0])
+    setPast((p) => [...p, pages])
+    setPages(future[0])
     setFuture((f) => f.slice(1))
     setDirty(true)
   }
 
   // saves the drawing; true when it worked
   async function save(): Promise<boolean> {
-    const content = serializeDrawing({ ...emptyDrawing(background), strokes })
+    const content = serializeDrawing({ ...emptyDrawing(background), pages: pages.map((strokes) => ({ strokes })) })
     if (new Blob([content]).size > MAX_DRAWING_BYTES) {
       setError(t('courses.drawing.tooLarge'))
       return false
@@ -173,9 +203,8 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
 
-  // the same object until the page changes, so typing a title doesn't repaint the canvas
-  const drawing = useMemo(() => ({ ...initial, background, strokes }), [initial, background, strokes])
-  const isNewAndEmpty = noteId === null && strokes.length === 0 && !title.trim()
+  const cleanTitle = title.trim()
+  const isNewAndEmpty = noteId === null && pages.length === 1 && pages[0].length === 0 && !cleanTitle
 
   return (
     <div className="rounded-2xl border border-line bg-card">
@@ -310,8 +339,6 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
               ))}
             </select>
           </div>
-
-          <ClearButton disabled={strokes.length === 0} onClear={() => changeStrokes([])} />
         </div>
 
         <p className="px-1 text-xs text-muted">
@@ -326,15 +353,70 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
           )}
         </p>
 
-        <DrawingCanvas
-          drawing={drawing}
-          tool={tool}
-          color={color}
-          size={size}
-          label={title.trim() ? t('courses.drawing.canvasLabelNamed', { title: title.trim() }) : t('courses.drawing.canvasLabel')}
-          onStroke={(stroke) => changeStrokes([...strokes, stroke])}
-          onErase={(erased) => changeStrokes(strokes.filter((s) => !erased.includes(s)))}
-        />
+        {pages.map((strokes, index) => {
+          const place = { page: index + 1, count: pages.length }
+          return (
+            // keyed by position: undo restores pages by position, and a canvas only shows the strokes it's given
+            <section
+              key={index}
+              ref={(el) => {
+                pageRefs.current[index] = el
+              }}
+              aria-label={t('courses.drawing.pageOf', place)}
+              style={{ scrollMarginTop: headerHeight + 64 }}
+              className="space-y-2"
+            >
+              <div className="flex min-h-8 flex-wrap items-center gap-x-2 px-1">
+                {pages.length > 1 && <span className="text-sm text-muted">{t('courses.drawing.pageOf', place)}</span>}
+                <div className="ms-auto flex items-center gap-1">
+                  <ConfirmButton
+                    label={t('courses.drawing.clear')}
+                    question={t('courses.drawing.clearQuestion')}
+                    disabled={strokes.length === 0}
+                    onConfirm={() => changePage(index, [])}
+                  />
+                  {pages.length > 1 && (
+                    <ConfirmButton
+                      label={t('courses.drawing.deletePage')}
+                      question={t('courses.drawing.deletePageQuestion')}
+                      // an empty page goes without asking
+                      skipQuestion={strokes.length === 0}
+                      onConfirm={() => deletePage(index)}
+                    />
+                  )}
+                </div>
+              </div>
+              <DrawingCanvas
+                background={background}
+                strokes={strokes}
+                tool={tool}
+                color={color}
+                size={size}
+                label={
+                  cleanTitle
+                    ? t('courses.drawing.canvasLabelNamed', { ...place, title: cleanTitle })
+                    : t('courses.drawing.canvasLabel', place)
+                }
+                onStroke={(stroke) => changePage(index, [...strokes, stroke])}
+                onErase={(erased) => changePage(index, strokes.filter((s) => !erased.includes(s)))}
+              />
+            </section>
+          )
+        })}
+
+        <div className="flex flex-col items-center gap-1 py-2">
+          <button type="button" onClick={addPage} disabled={pages.length >= MAX_DRAWING_PAGES} className={smallSecondaryButton}>
+            <span className="inline-flex items-center gap-1.5">
+              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              {t('courses.drawing.addPage')}
+            </span>
+          </button>
+          {pages.length >= MAX_DRAWING_PAGES && (
+            <p className="text-xs text-muted">{t('courses.drawing.pageLimit', { max: MAX_DRAWING_PAGES })}</p>
+          )}
+        </div>
 
         {dirty && (
           <div className="flex justify-end">
@@ -397,19 +479,32 @@ function ToolIcon({ tool }: { tool: CanvasTool }) {
   )
 }
 
-// "Clear page" asks once before wiping it (still undoable afterwards)
-function ClearButton({ disabled, onClear }: { disabled: boolean; onClear: () => void }) {
+// a page action (clear, delete) that asks once before running; still undoable afterwards.
+// skipQuestion runs it straight away, for when there's nothing to lose
+function ConfirmButton({
+  label,
+  question,
+  disabled,
+  skipQuestion,
+  onConfirm,
+}: {
+  label: string
+  question: string
+  disabled?: boolean
+  skipQuestion?: boolean
+  onConfirm: () => void
+}) {
   const { t } = useTranslation()
   const [confirming, setConfirming] = useState(false)
 
   if (confirming) {
     return (
       <div className="flex items-center gap-1 text-sm">
-        <span className="text-muted">{t('courses.drawing.clearQuestion')}</span>
+        <span className="text-muted">{question}</span>
         <button
           type="button"
           onClick={() => {
-            onClear()
+            onConfirm()
             setConfirming(false)
           }}
           className="rounded-md px-2 py-1 font-medium text-danger hover:bg-surface"
@@ -425,11 +520,11 @@ function ClearButton({ disabled, onClear }: { disabled: boolean; onClear: () => 
   return (
     <button
       type="button"
-      onClick={() => setConfirming(true)}
+      onClick={() => (skipQuestion ? onConfirm() : setConfirming(true))}
       disabled={disabled}
       className="rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-danger disabled:opacity-40"
     >
-      {t('courses.drawing.clear')}
+      {label}
     </button>
   )
 }

@@ -8,7 +8,9 @@ export type Point = [x: number, y: number, pressure: number]
 export type StrokeTool = 'pen' | 'highlighter'
 export type Stroke = { tool: StrokeTool; color: string; size: number; points: Point[] }
 export type Background = 'blank' | 'lined' | 'grid'
-export type Drawing = { version: 1; width: number; height: number; background: Background; strokes: Stroke[] }
+export type Page = { strokes: Stroke[] }
+// version 1 had a single `strokes` list; version 2 has pages (parseDrawing reads both)
+export type Drawing = { version: 2; width: number; height: number; background: Background; pages: Page[] }
 
 export const BACKGROUNDS: Background[] = ['blank', 'lined', 'grid']
 // dark enough to read on the white page in both themes; yellow is mainly for the highlighter
@@ -16,28 +18,38 @@ export const INK_COLORS = ['#1f2937', '#2563eb', '#dc2626', '#16a34a', '#9333ea'
 // pen widths in page units; the highlighter is wider
 export const SIZES = [3, 6, 12] as const
 const HIGHLIGHTER_SCALE = 4
-// the backend's cap (MAX_DRAWING_BYTES)
-export const MAX_DRAWING_BYTES = 1_000_000
+// the backend's caps (MAX_DRAWING_BYTES, MAX_DRAWING_PAGES)
+export const MAX_DRAWING_BYTES = 5_000_000
+export const MAX_DRAWING_PAGES = 20
 
 const LINE_GAP = 64
 const MARGIN_TOP = 160
 
-// a blank page with the given background
+// a one-page drawing with nothing on it yet
 export function emptyDrawing(background: Background = 'lined'): Drawing {
-  return { version: 1, width: PAGE_WIDTH, height: PAGE_HEIGHT, background, strokes: [] }
+  return { version: 2, width: PAGE_WIDTH, height: PAGE_HEIGHT, background, pages: [{ strokes: [] }] }
 }
 
-// a stored note's JSON; anything unreadable opens as an empty page instead of crashing the editor
+// a page's strokes without broken ones (no points)
+function cleanStrokes(strokes: unknown): Stroke[] {
+  if (!Array.isArray(strokes)) return []
+  return strokes.filter((s: Stroke) => Array.isArray(s?.points) && s.points.length > 0)
+}
+
+// a stored note's JSON, old one-page or new multi-page; anything unreadable opens as an empty page instead of crashing the editor
 export function parseDrawing(content: string): Drawing {
   try {
     const data = JSON.parse(content)
-    if (data && Array.isArray(data.strokes)) {
+    if (data && (Array.isArray(data.pages) || Array.isArray(data.strokes))) {
+      const pages: Page[] = Array.isArray(data.pages)
+        ? data.pages.slice(0, MAX_DRAWING_PAGES).map((page: Page) => ({ strokes: cleanStrokes(page?.strokes) }))
+        : [{ strokes: cleanStrokes(data.strokes) }]
       return {
-        version: 1,
+        version: 2,
         width: PAGE_WIDTH,
         height: PAGE_HEIGHT,
         background: BACKGROUNDS.includes(data.background) ? data.background : 'blank',
-        strokes: data.strokes.filter((s: Stroke) => Array.isArray(s?.points) && s.points.length > 0),
+        pages: pages.length > 0 ? pages : [{ strokes: [] }],
       }
     }
   } catch {
@@ -46,13 +58,15 @@ export function parseDrawing(content: string): Drawing {
   return emptyDrawing('blank')
 }
 
-// one decimal is far finer than a pixel and keeps a page of handwriting well under the size cap
+// one decimal is far finer than a pixel and keeps a page of handwriting small
 export function serializeDrawing(drawing: Drawing) {
   // rounds to one decimal, to keep the saved JSON small
   const round = (n: number) => Math.round(n * 10) / 10
   return JSON.stringify({
     ...drawing,
-    strokes: drawing.strokes.map((s) => ({ ...s, points: s.points.map(([x, y, p]) => [round(x), round(y), Math.round(p * 100) / 100]) })),
+    pages: drawing.pages.map((page) => ({
+      strokes: page.strokes.map((s) => ({ ...s, points: s.points.map(([x, y, p]) => [round(x), round(y), Math.round(p * 100) / 100]) })),
+    })),
   })
 }
 
@@ -132,8 +146,8 @@ function drawBackground(ctx: CanvasRenderingContext2D, background: Background) {
   ctx.restore()
 }
 
-// draws a whole page: background, then strokes
-export function drawPage(ctx: CanvasRenderingContext2D, drawing: Pick<Drawing, 'background' | 'strokes'>) {
+// draws one whole page: background, then strokes
+export function drawPage(ctx: CanvasRenderingContext2D, drawing: { background: Background; strokes: Stroke[] }) {
   drawBackground(ctx, drawing.background)
   for (const stroke of drawing.strokes) drawStroke(ctx, stroke)
 }

@@ -5,6 +5,8 @@ import type { CourseNote } from '../../api/courses'
 import { formatRelative, parseServerDate } from '../../lib/dates'
 import { LinkifiedText } from '../blog/LinkifiedText'
 import { drawPage, PAGE_HEIGHT, PAGE_WIDTH, parseDrawing } from './drawing'
+import type { Background, Stroke } from './drawing'
+import { useNearScreen } from './useNearScreen'
 
 // A note in a course someone else owns: read it, no editing.
 export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () => void }) {
@@ -39,7 +41,7 @@ export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () =>
         </p>
       </header>
       {isDrawing ? (
-        <DrawingPage content={note.content} label={title} />
+        <DrawingPages content={note.content} title={title} />
       ) : (
         <div className="rounded-2xl border border-line bg-card p-5">
           {/* each line finds its own direction, as in the editor */}
@@ -54,12 +56,34 @@ export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () =>
   )
 }
 
-// the whole drawn page, scaled to the column's width
-function DrawingPage({ content, label }: { content: string; label: string }) {
-  // the note's strokes, parsed once
+// every page of a drawing, one under another
+function DrawingPages({ content, title }: { content: string; title: string }) {
+  const { t } = useTranslation()
+  // the note's pages, parsed once
   const drawing = useMemo(() => parseDrawing(content), [content])
+  const count = drawing.pages.length
+
+  return (
+    <div className="space-y-4">
+      {drawing.pages.map((page, index) => (
+        <div key={index} className="space-y-1.5">
+          {count > 1 && <p className="text-sm text-muted">{t('courses.drawing.pageOf', { page: index + 1, count })}</p>}
+          <DrawingPage
+            background={drawing.background}
+            strokes={page.strokes}
+            label={t('courses.drawing.canvasLabelNamed', { page: index + 1, count, title })}
+          />
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// one drawn page, scaled to the column's width; drawn only while near the screen
+function DrawingPage({ background, strokes, label }: { background: Background; strokes: Stroke[]; label: string }) {
   const boxRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const near = useNearScreen(boxRef)
   const [width, setWidth] = useState(0)
 
   useLayoutEffect(() => {
@@ -80,12 +104,18 @@ function DrawingPage({ content, label }: { content: string; label: string }) {
     canvas.height = Math.round(((width * PAGE_HEIGHT) / PAGE_WIDTH) * dpr)
     const scale = (width / PAGE_WIDTH) * dpr
     ctx.setTransform(scale, 0, 0, scale, 0, 0)
-    drawPage(ctx, drawing)
-  }, [drawing, width])
+    drawPage(ctx, { background, strokes })
+  }, [background, strokes, width, near])
 
   return (
-    <div ref={boxRef} className="w-full overflow-hidden rounded-2xl ring-1 ring-line" style={{ aspectRatio: `${PAGE_WIDTH} / ${PAGE_HEIGHT}` }}>
-      <canvas ref={canvasRef} role="img" aria-label={label} className="h-full w-full" />
+    <div
+      ref={boxRef}
+      role="img"
+      aria-label={label}
+      className="w-full overflow-hidden rounded-2xl bg-white ring-1 ring-line"
+      style={{ aspectRatio: `${PAGE_WIDTH} / ${PAGE_HEIGHT}` }}
+    >
+      {near && <canvas ref={canvasRef} aria-hidden="true" className="h-full w-full" />}
     </div>
   )
 }
