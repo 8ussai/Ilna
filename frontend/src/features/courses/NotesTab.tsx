@@ -9,8 +9,10 @@ import { DeleteButton } from '../../components/DeleteButton'
 import { primaryButtonInline } from '../../components/styles'
 import { DrawingNoteEditor } from './DrawingNoteEditor'
 import { DrawingThumbnail } from './DrawingThumbnail'
+import { NoteDownloadButton } from './NoteDownloadButton'
+import { downloadNote } from './noteExport'
 import { TextNoteEditor } from './TextNoteEditor'
-import { useCourseCanEdit } from './courseAccess'
+import { useCourseCanDownloadNotes, useCourseCanEdit } from './courseAccess'
 import { NoteViewer } from './NoteViewer'
 
 type NotesTabProps = {
@@ -156,6 +158,7 @@ function NoteCard({
   const { t, i18n } = useTranslation()
   const [error, setError] = useState('')
   const canEdit = useCourseCanEdit()
+  const canDownload = useCourseCanDownloadNotes()
   const isDrawing = note.kind === 'drawing'
   const lines = isDrawing ? [] : note.content.split('\n').filter((line) => line.trim())
   // without a title, the first line stands in for it and the preview starts after it
@@ -213,9 +216,15 @@ function NoteCard({
         <span className="text-xs text-muted">
           {t('courses.notes.updated', { when: formatRelative(parseServerDate(note.updated_at), i18n.language) })}
         </span>
-        {canEdit && (
-          <div className="-me-2">
-            <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />
+        {(canEdit || canDownload) && (
+          <div className="-me-2 flex flex-wrap items-center">
+            {canDownload && (
+              <NoteDownloadButton
+                drawing={isDrawing}
+                onDownload={() => downloadNote(note, { text: t('courses.notes.untitled'), drawing: t('courses.notes.untitledDrawing') })}
+              />
+            )}
+            {canEdit && <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />}
           </div>
         )}
       </div>

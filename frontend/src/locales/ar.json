@@ -423,7 +423,11 @@
       "leaveAnyway": "المغادرة على أي حال",
       "chooseKind": "نوع الملاحظة",
       "type": "كتابة",
-      "draw": "رسم"
+      "draw": "رسم",
+      "downloadPdf": "تنزيل PDF",
+      "downloadTxt": "تنزيل ‎.txt",
+      "preparing": "جارٍ التجهيز…",
+      "downloadFailed": "تعذّر التنزيل. حاول مرة أخرى."
     },
     "drawing": {
       "tools": "أدوات الرسم",

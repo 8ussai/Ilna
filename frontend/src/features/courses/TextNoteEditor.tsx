@@ -8,6 +8,9 @@ import { useAutosave } from '../../hooks/useAutosave'
 import type { AutosaveStatus } from '../../hooks/useAutosave'
 import { DeleteButton } from '../../components/DeleteButton'
 import { smallSecondaryButton } from '../../components/styles'
+import { safeFileName } from '../../lib/saveBlob'
+import { NoteDownloadButton } from './NoteDownloadButton'
+import { downloadTextNote } from './noteExport'
 
 type Draft = { title: string; content: string }
 
@@ -100,7 +103,16 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
         {/* nothing to report for a new note until something is typed */}
         {(noteId !== null || status !== 'saved') && <SaveStatus status={status} onRetry={() => flush()} />}
         {(noteId !== null || draft.title || draft.content) && (
-          <div className="ms-auto">
+          <div className="ms-auto flex flex-wrap items-center gap-1">
+            {(draft.title.trim() || draft.content.trim()) && (
+              <NoteDownloadButton
+                drawing={false}
+                onDownload={() => {
+                  const firstLine = draft.content.split('\n').find((line) => line.trim()) ?? ''
+                  downloadTextNote(draft.title.trim(), draft.content, safeFileName(firstLine, t('courses.notes.untitled')))
+                }}
+              />
+            )}
             <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />
           </div>
         )}

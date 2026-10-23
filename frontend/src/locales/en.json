@@ -391,7 +391,11 @@
       "leaveAnyway": "Leave anyway",
       "chooseKind": "Kind of note",
       "type": "Type",
-      "draw": "Draw"
+      "draw": "Draw",
+      "downloadPdf": "Download PDF",
+      "downloadTxt": "Download .txt",
+      "preparing": "Preparing…",
+      "downloadFailed": "Couldn't download. Please try again."
     },
     "drawing": {
       "tools": "Drawing tools",

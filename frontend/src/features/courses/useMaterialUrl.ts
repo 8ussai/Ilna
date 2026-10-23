@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 import { fetchMaterialFile } from '../../api/courses'
+import { saveBlob } from '../../lib/saveBlob'
 
 type MaterialUrl = { status: 'idle' | 'loading' | 'ready' | 'error'; url: string | null; retry: () => void }
 
@@ -40,14 +41,5 @@ export function useMaterialUrl(courseId: number, materialId: number, enabled: bo
 
 // saves a fetched file under its name (PPT can't be shown in the browser)
 export async function downloadMaterial(courseId: number, materialId: number, fileName: string) {
-  const blob = await fetchMaterialFile(courseId, materialId)
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = fileName
-  document.body.append(a)
-  a.click()
-  a.remove()
-  // give the browser a moment to start the download before the URL goes away
-  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+  saveBlob(await fetchMaterialFile(courseId, materialId), fileName)
 }

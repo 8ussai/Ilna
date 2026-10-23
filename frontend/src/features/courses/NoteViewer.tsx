@@ -4,14 +4,18 @@ import { useTranslation } from 'react-i18next'
 import type { CourseNote } from '../../api/courses'
 import { formatRelative, parseServerDate } from '../../lib/dates'
 import { LinkifiedText } from '../blog/LinkifiedText'
+import { useCourseCanDownloadNotes } from './courseAccess'
 import { drawPage, PAGE_HEIGHT, PAGE_WIDTH, parseDrawing } from './drawing'
 import type { Background, Stroke } from './drawing'
+import { NoteDownloadButton } from './NoteDownloadButton'
+import { downloadNote } from './noteExport'
 import { useNearScreen } from './useNearScreen'
 
 // A note in a course someone else owns: read it, no editing.
 export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () => void }) {
   const { t, i18n } = useTranslation()
   const backRef = useRef<HTMLButtonElement>(null)
+  const canDownload = useCourseCanDownloadNotes()
   const isDrawing = note.kind === 'drawing'
   const title = note.title || (isDrawing ? t('courses.notes.untitledDrawing') : t('courses.notes.untitled'))
 
@@ -39,6 +43,14 @@ export function NoteViewer({ note, onClose }: { note: CourseNote; onClose: () =>
         <p className="mt-1 text-sm text-muted">
           {t('courses.notes.updated', { when: formatRelative(parseServerDate(note.updated_at), i18n.language) })}
         </p>
+        {canDownload && (
+          <div className="-ms-2 mt-2">
+            <NoteDownloadButton
+              drawing={isDrawing}
+              onDownload={() => downloadNote(note, { text: t('courses.notes.untitled'), drawing: t('courses.notes.untitledDrawing') })}
+            />
+          </div>
+        )}
       </header>
       {isDrawing ? (
         <DrawingPages content={note.content} title={title} />

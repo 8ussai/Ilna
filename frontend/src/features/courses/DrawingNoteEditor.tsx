@@ -11,6 +11,8 @@ import { DrawingCanvas } from './DrawingCanvas'
 import type { CanvasTool } from './DrawingCanvas'
 import { BACKGROUNDS, emptyDrawing, INK_COLORS, MAX_DRAWING_BYTES, MAX_DRAWING_PAGES, parseDrawing, serializeDrawing, SIZES } from './drawing'
 import type { Background, Stroke } from './drawing'
+import { NoteDownloadButton } from './NoteDownloadButton'
+import { downloadDrawingPdf } from './noteExport'
 
 // undo steps kept; older ones are dropped
 const HISTORY_LIMIT = 200
@@ -222,7 +224,20 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
         <p className={`text-sm ${error ? 'text-danger' : 'text-muted'}`} role={error ? 'alert' : undefined}>
           {error || (dirty ? t('courses.drawing.unsaved') : justSaved ? t('courses.notes.saved') : '')}
         </p>
-        <div className="ms-auto flex items-center gap-1">
+        <div className="ms-auto flex flex-wrap items-center gap-1">
+          {!isNewAndEmpty && (
+            // the pages as they are on screen, unsaved changes included
+            <NoteDownloadButton
+              drawing
+              onDownload={() =>
+                downloadDrawingPdf(
+                  { ...emptyDrawing(background), pages: pages.map((strokes) => ({ strokes })) },
+                  cleanTitle,
+                  t('courses.notes.untitledDrawing'),
+                )
+              }
+            />
+          )}
           {!isNewAndEmpty && <DeleteButton question={t('courses.notes.confirmDelete')} onConfirm={remove} />}
           <button type="button" onClick={() => void save()} disabled={saving || !dirty} className={smallPrimaryButton}>
             {saving ? t('courses.notes.saving') : t('courses.form.save')}
