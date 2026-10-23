@@ -24,14 +24,17 @@ type TextNoteEditorProps = {
   onSaved: (note: CourseNote) => void
   onDeleted: (noteId: number) => void
   onClose: () => void
+  // switches to read mode; only offered once the note exists
+  onRead: () => void
 }
 
 // the typed note editor; it saves by itself as you type
-export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: TextNoteEditorProps) {
+export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose, onRead }: TextNoteEditorProps) {
   const { t } = useTranslation()
   const [draft, setDraft] = useState<Draft>({ title: note?.title ?? '', content: note?.content ?? '' })
   const [noteId, setNoteId] = useState<number | null>(note?.id ?? null)
-  const [confirmLeave, setConfirmLeave] = useState(false)
+  // where to go if the user leaves anyway after a failed save: the notes list or read mode
+  const [leaveTo, setLeaveTo] = useState<(() => void) | null>(null)
   // fixed when the editor opens, so a new note getting its id doesn't move the cursor
   const [isNew] = useState(note === null)
   // read by the save, which can finish after a re-render
@@ -64,10 +67,20 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
     }
   }, [isNew])
 
+  // saves anything left, then goes on (or asks, if the save failed)
+  async function leave(next: () => void) {
+    if (await flush()) next()
+    else setLeaveTo(() => next)
+  }
+
   // saves anything left, then closes
-  async function close() {
-    if (await flush()) onClose()
-    else setConfirmLeave(true)
+  function close() {
+    void leave(onClose)
+  }
+
+  // saves anything left, then switches to read mode
+  function goRead() {
+    void leave(onRead)
   }
 
   // deletes the note
@@ -104,6 +117,18 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
         {(noteId !== null || status !== 'saved') && <SaveStatus status={status} onRetry={() => flush()} />}
         {(noteId !== null || draft.title || draft.content) && (
           <div className="ms-auto flex flex-wrap items-center gap-1">
+            {noteId !== null && (
+              <button
+                type="button"
+                onClick={goRead}
+                className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
+              >
+                <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M12 6.5C10.5 5 8 4.5 4 4.5v14c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-14c-4 0-6.5.5-8 2Zm0 0v14" />
+                </svg>
+                {t('courses.notes.read')}
+              </button>
+            )}
             {(draft.title.trim() || draft.content.trim()) && (
               <NoteDownloadButton
                 drawing={false}
@@ -118,13 +143,13 @@ export function TextNoteEditor({ courseId, note, onSaved, onDeleted, onClose }: 
         )}
       </div>
 
-      {confirmLeave && (
+      {leaveTo && (
         <div role="alert" className="flex flex-wrap items-center gap-3 border-b border-line bg-surface px-4 py-3 text-sm">
           <span className="flex-1">{t('courses.notes.leaveUnsaved')}</span>
-          <button type="button" onClick={() => setConfirmLeave(false)} className={smallSecondaryButton}>
+          <button type="button" onClick={() => setLeaveTo(null)} className={smallSecondaryButton}>
             {t('courses.notes.keepEditing')}
           </button>
-          <button type="button" onClick={onClose} className="h-9 rounded-lg px-3 text-sm text-danger hover:bg-bg">
+          <button type="button" onClick={leaveTo} className="h-9 rounded-lg px-3 text-sm text-danger hover:bg-bg">
             {t('courses.notes.leaveAnyway')}
           </button>
         </div>

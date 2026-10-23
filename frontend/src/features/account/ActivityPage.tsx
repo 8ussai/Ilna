@@ -11,6 +11,7 @@ import { secondaryButton } from '../../components/styles'
 import { formatDateTime, parseServerDate } from '../../lib/dates'
 import { inAppClick } from '../../lib/links'
 import { postPath } from '../../lib/tabs'
+import { plainLinkText } from '../blog/links'
 
 type Status = 'loading' | 'ready' | 'error'
 
@@ -110,7 +111,7 @@ export function ActivityPage({ me, catalog, onOpenPost }: ActivityPageProps) {
                     {item.is_anonymous && <OwnAnonymousTag />}
                   </span>
                   <span dir="auto" className="mt-1.5 line-clamp-3 block whitespace-pre-wrap break-words">
-                    {item.content}
+                    {plainLinkText(item.content)}
                   </span>
                 </a>
               </li>

@@ -26,13 +26,14 @@ export function FriendStar({ userId }: { userId: number }) {
   )
 }
 
-// Add or Remove; full lists can still remove. Test accounts can't add anyone.
+// Add or Remove; Remove asks first. Full lists can still remove. Test accounts can't add anyone.
 export function FriendButton({ profile }: { profile: PublicProfile }) {
   const { t } = useTranslation()
   const readOnly = useReadOnly()
   const { isFriend, add, remove, count, limit } = useFriends()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [confirming, setConfirming] = useState(false)
   const friend = isFriend(profile.id)
   const full = !friend && count >= limit
 
@@ -49,14 +50,46 @@ export function FriendButton({ profile }: { profile: PublicProfile }) {
       setError(err instanceof ApiError && err.status === 409 ? t('friends.full', { limit }) : t('errors.generic'))
     } finally {
       setBusy(false)
+      setConfirming(false)
     }
+  }
+
+  if (friend && confirming) {
+    return (
+      <span className="inline-flex flex-col items-end gap-1">
+        <span className="flex flex-wrap items-center justify-end gap-1 text-sm">
+          <span className="text-muted">{t('friends.confirmRemove', { name: profile.first_name })}</span>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={toggle}
+            className="rounded-md px-2 py-1 font-medium text-danger hover:bg-surface disabled:opacity-50"
+          >
+            {t('feed.yes')}
+          </button>
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => setConfirming(false)}
+            className="rounded-md px-2 py-1 text-muted hover:bg-surface disabled:opacity-50"
+          >
+            {t('feed.cancel')}
+          </button>
+        </span>
+        {error && (
+          <span role="alert" className="text-xs text-danger">
+            {error}
+          </span>
+        )}
+      </span>
+    )
   }
 
   return (
     <span className="inline-flex flex-col items-end gap-1">
       <button
         type="button"
-        onClick={toggle}
+        onClick={friend ? () => setConfirming(true) : toggle}
         disabled={busy || full}
         title={full ? t('friends.full', { limit }) : undefined}
         className={friend ? smallSecondaryButton : smallPrimaryButton}
@@ -72,10 +105,29 @@ export function FriendButton({ profile }: { profile: PublicProfile }) {
   )
 }
 
-// name, @username and where they study, as on a post
-export function ProfileSummary({ profile, catalog }: { profile: PublicProfile; catalog: Catalog | null }) {
+// name, @username and where they study, as on a post. In a list each line is cut to fit;
+// full (the profile card) wraps instead and shows university, college and major on their own lines.
+export function ProfileSummary({ profile, catalog, full = false }: { profile: PublicProfile; catalog: Catalog | null; full?: boolean }) {
   const { i18n } = useTranslation()
   const origin = postOriginNames(catalog, profile, i18n.language)
+  if (full) {
+    return (
+      <div className="min-w-0 flex-1 break-words">
+        <p className="font-medium">
+          <UserName user={profile} />
+          <FriendStar userId={profile.id} />
+        </p>
+        <p dir="ltr" className={`text-sm ${profile.is_premium ? goldClass : 'text-muted'} rtl:text-end`}>
+          @{profile.username}
+        </p>
+        {[origin.university, origin.college, origin.major].filter(Boolean).map((line) => (
+          <p key={line} className="text-sm text-muted">
+            {line}
+          </p>
+        ))}
+      </div>
+    )
+  }
   const originText = [origin.major, origin.university].filter(Boolean).join(' · ')
   return (
     <div className="min-w-0 flex-1">
@@ -110,12 +162,12 @@ export function ProfileDialog({ username, catalog, onClose }: { username: string
   }, [username])
 
   return (
-    <Dialog title={t('friends.profile')} onClose={onClose}>
+    <Dialog title={t('friends.profile')} onClose={onClose} centered>
       {profile ? (
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-start gap-4">
             <UserAvatar username={profile.username} size={64} />
-            <ProfileSummary profile={profile} catalog={catalog} />
+            <ProfileSummary profile={profile} catalog={catalog} full />
           </div>
           {!readOnly && (
             <div className="flex items-center justify-between gap-3 border-t border-line pt-4">

@@ -42,7 +42,7 @@ Open **My Courses** and create a course for each subject. A course holds:
 - **Files**: PDF and PowerPoint slides, up to 95 MB each. PDFs open right on the page.
 - **Recordings**: record a lecture in your browser, or upload an audio file. It's turned into text (Arabic or English) automatically. Tap any line of the text to jump to that moment in the audio.
 - **Links**: websites, videos or anything else you want to keep with the course.
-- **Notes**: type them, or draw them by hand.
+- **Notes**: type them, or draw them by hand on up to 20 pages. Notes open ready to read, with drawings shown as slides you swipe through; press **Edit** to change them. Download typed notes as .txt and drawings as PDF.
 
 ## AI summaries and quizzes
 
@@ -63,19 +63,21 @@ Every course has an **ID** like `K7Q2-M9XD`. Press **Share** in a course to choo
 
 Courses shared with you wait under **Shared with you** in My Courses, where you can **Add** or **Ignore** them. An added course shows with a **Shared** tag. You can open everything in it and take its quizzes, but only its owner can change it.
 
+Notes in a shared course can always be read there. To let people also download them as files, the owner turns on **Let people download notes** in the Share dialog.
+
 ## Blogs
 
 The home tabs are four blogs: **General** (everyone on Ilna), **your university**, **your college** and **your major**.
 
 - Write posts, reply to each other, and vote. Sort by Hot, New or Top.
 - Add up to **4 pictures** to a post. Hidden photo details, such as where it was taken, are removed automatically.
-- Web addresses become clickable links.
-- **Post anonymously** if you prefer. Others see "Anonymous" (with a number in each thread) instead of your name. You can switch between anonymous and named once per post or reply.
+- Web addresses become clickable links. To link words instead, like "exam schedule", press **Link** in a post or reply.
+- **Post anonymously** if you prefer. Others see "Anonymous" (with a number in each thread) instead of your name, and your university, college and major are hidden too. You can switch between anonymous and named once per post or reply.
 - See something that breaks the rules? **Report** it.
 
 ## Friends
 
-Click anyone's name on a post to see their profile and **Add friend**, or search by name or @username on the **Friends** page in the account menu. Adding a friend is private: they aren't told. Your friends get a **★** next to their names in the blogs.
+Click anyone's name on a post to see their profile and **Add friend**, or search by name or @username on the **Friends** page in the account menu. Adding a friend is private: they aren't told. Your friends get a **★** next to their names in the blogs. Click someone on the Friends page to see their profile again; removing a friend asks you first.
 
 ## Notifications and settings
 
@@ -110,7 +112,7 @@ The full rules are in **Settings → Policy** on the site.
 Ilna is built on open-source work. Thank you to the people behind it, including:
 
 - **Avatars:** [Blobatar](https://github.com/Alain00/blobatar) by Alain (MIT)
-- **Website:** [React](https://github.com/facebook/react), [i18next](https://github.com/i18next/i18next), [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss) and [perfect-freehand](https://github.com/steveruizok/perfect-freehand) (MIT)
+- **Website:** [React](https://github.com/facebook/react), [i18next](https://github.com/i18next/i18next), [Tailwind CSS](https://github.com/tailwindlabs/tailwindcss), [perfect-freehand](https://github.com/steveruizok/perfect-freehand) and [jsPDF](https://github.com/parallax/jsPDF) (MIT)
 - **Server:** [FastAPI](https://github.com/fastapi/fastapi), [SQLAlchemy](https://github.com/sqlalchemy/sqlalchemy), [LangChain](https://github.com/langchain-ai/langchain), [Chroma](https://github.com/chroma-core/chroma), [PyTorch](https://github.com/pytorch/pytorch), [faster-whisper](https://github.com/SYSTRAN/faster-whisper), [pypdf](https://github.com/py-pdf/pypdf) and more
 - **Fonts:** Inter, IBM Plex Sans Arabic, Source Serif 4 and Noto Naskh Arabic (SIL Open Font License)
 - **AI models:** [Qwen3-Embedding](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) (Apache-2.0), [Whisper](https://github.com/openai/whisper) by OpenAI (MIT), and Google Gemini

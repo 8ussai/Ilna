@@ -23,8 +23,9 @@ type NotesTabProps = {
   onDeleted: (noteId: number) => void
 }
 
-// which note the editor has open; `key` keeps the editor mounted when a new note gets its id
-type Editing = { key: number; note: CourseNote | null; kind: CourseNote['kind'] }
+// which note is open and how; `key` keeps the editor mounted when a new note gets its id.
+// The owner's existing notes open in read mode, new ones in the editor.
+type Editing = { key: number; note: CourseNote | null; kind: CourseNote['kind']; mode: 'read' | 'edit' }
 
 // the Notes tab: typed and drawn notes, opened in their editor (or read-only viewer)
 export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps) {
@@ -43,7 +44,7 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
   function open(note: CourseNote | null, kind: CourseNote['kind'] = note?.kind ?? 'text') {
     returnFocusRef.current = note?.id ?? 'new'
     setChoosing(false)
-    setEditing({ key: nextKey.current++, note, kind })
+    setEditing({ key: nextKey.current++, note, kind, mode: note ? 'read' : 'edit' })
   }
 
   useEffect(() => {
@@ -59,17 +60,32 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
     ;(listRef.current?.querySelector<HTMLElement>(selector) ?? listRef.current?.querySelector<HTMLElement>('[data-new-note]'))?.focus()
   }, [editing])
 
-  if (editing && !canEdit && editing.note) {
-    return <NoteViewer note={editing.note} onClose={() => setEditing(null)} />
+  if (editing && editing.note && (editing.mode === 'read' || !canEdit)) {
+    // the list's copy is the newest, after saves made in the editor
+    const latest = notes.find((n) => n.id === editing.note?.id) ?? editing.note
+    return (
+      <NoteViewer
+        // a fresh viewer each time, so it focuses its back button again
+        key={editing.key}
+        note={latest}
+        onClose={() => setEditing(null)}
+        // a new key gives a fresh editor that starts from the latest saved version
+        onEdit={canEdit ? () => setEditing({ ...editing, note: latest, mode: 'edit', key: nextKey.current++ }) : undefined}
+      />
+    )
   }
 
   if (editing) {
+    const editorKey = editing.key
     const editorProps = {
       courseId,
       note: editing.note,
       onSaved: (note: CourseNote) => {
         // a new note's row is where focus returns once it exists
         if (returnFocusRef.current === 'new') returnFocusRef.current = note.id
+        // read mode opens on this; same key, so the editor stays mounted. A save that finishes
+        // after this editor closed leaves whatever is open now alone.
+        setEditing((e) => (e && e.key === editorKey ? { ...e, note } : e))
         onSaved(note)
       },
       onDeleted: (id: number) => {
@@ -77,6 +93,7 @@ export function NotesTab({ courseId, notes, onSaved, onDeleted }: NotesTabProps)
         onDeleted(id)
       },
       onClose: () => setEditing(null),
+      onRead: () => setEditing((e) => (e?.note ? { ...e, mode: 'read' as const, key: nextKey.current++ } : e)),
     }
     return editing.kind === 'drawing' ? (
       <DrawingNoteEditor key={editing.key} {...editorProps} onSwitchToText={() => open(null, 'text')} />

@@ -45,8 +45,8 @@ async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T>
 }
 
 // a post's picture, fetched with the admin login
-export function fetchAdminPostImage(postId: number, imageId: number) {
-  return blobRequest(`/admin/posts/${postId}/images/${imageId}`, getAdminToken(), false)
+export function fetchAdminPostImage(postId: number, image: PostImage) {
+  return blobRequest(`/admin/posts/${postId}/images/${image.id}?v=${image.version}`, getAdminToken(), false)
 }
 
 // a POST with a JSON body

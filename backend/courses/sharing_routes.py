@@ -1,7 +1,7 @@
 import json
 from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from backend.accounts.models import User
@@ -29,9 +29,8 @@ from backend.courses.sharing_schemas import (
     AccessLoss,
     CoursePreview,
     CourseShareOut,
-    ShareCreate,
+    SharingApply,
     SharingOut,
-    SharingUpdate,
 )
 from backend.database import get_db
 from backend.notifications.models import Notification
@@ -185,36 +184,94 @@ def get_sharing(
     return _sharing_out(db, get_owned_course(db, course_id, current_user))
 
 
-@router.get("/{course_id}/sharing/impact", response_model=AccessLoss)
+# The shares the Share dialog asks for, as unsaved rows. A person who can't be shared with is a 404.
+def _wanted_shares(db: Session, course: Course, owner: User, data: SharingApply) -> list[CourseShare]:
+    shares = []
+    for group in dict.fromkeys(data.groups):
+        # the owner's own university, college or major; friends has no target
+        target = "" if group == ShareTarget.friends else getattr(owner, group.value)
+        shares.append(CourseShare(course_id=course.id, target_type=group.value, target=target))
+    for user_id in dict.fromkeys(data.user_ids):
+        recipient = db.get(User, user_id)
+        if (
+            recipient is None
+            or recipient.id == owner.id
+            or recipient.is_system
+            or recipient.is_test
+            or recipient.is_banned
+            or not recipient.is_verified
+        ):
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+        shares.append(CourseShare(course_id=course.id, target_type=ShareTarget.user.value, target=str(user_id)))
+    return shares
+
+
+def _send_again(db: Session, course: Course, owner: User) -> None:
+    """Sends the course again to everyone a share reaches who hasn't added it: it comes back under
+    "Shared with you" even for people who pressed Ignore or left it, and people shared with by name
+    get a new notification. Doesn't commit."""
+    for response in db.query(CourseShareResponse).filter(CourseShareResponse.course_id == course.id).all():
+        user = db.get(User, response.user_id)
+        # is_public=False: only a share brings it back, not the course being public
+        if (
+            user is not None
+            and db.get(CourseMember, (course.id, user.id)) is None
+            and is_covered(db, course, user, is_public=False)
+        ):
+            db.delete(response)
+    for share in course.shares:
+        if share.target_type != ShareTarget.user.value or db.get(CourseMember, (course.id, int(share.target))):
+            continue
+        db.add(
+            Notification(
+                user_id=int(share.target),
+                actor_id=owner.id,
+                type=NotificationType.course_shared.value,
+                message=json.dumps({"course_id": course.id, "title": course.title}, ensure_ascii=False),
+            )
+        )
+
+
+@router.post("/{course_id}/sharing/impact", response_model=AccessLoss)
 def get_sharing_impact(
     course_id: int,
-    make_private: bool = Query(False, description="How many would go if the course went private."),
-    remove_share: Optional[int] = Query(None, description="How many would go if this share were removed."),
+    data: SharingApply,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Shown before the owner confirms a change that takes the course away from people who added it."""
+    """How many people who added the course the Share dialog's changes would remove, asked before saving them."""
     course = get_owned_course(db, course_id, current_user)
-    is_public = False if make_private else None
-    shares = [s for s in course.shares if s.id != remove_share] if remove_share is not None else None
-    return AccessLoss(members_losing=members_losing_access(db, course, is_public=is_public, shares=shares))
+    wanted = _wanted_shares(db, course, current_user, data)
+    return AccessLoss(members_losing=members_losing_access(db, course, is_public=data.is_public, shares=wanted))
 
 
-@router.patch("/{course_id}/sharing", response_model=SharingOut)
-def update_sharing(
+@router.put("/{course_id}/sharing", response_model=SharingOut)
+def apply_sharing(
     course_id: int,
-    data: SharingUpdate,
+    data: SharingApply,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Public or private, and whether members can download notes. Going private removes the course
-    for members no share still reaches."""
+    """The Share button: saves the whole dialog at once (public or private, who it's shared with, note
+    downloads), then sends the course again to everyone it's shared with. Members no share or public
+    setting still reaches lose the course."""
     course = get_owned_course(db, course_id, current_user)
-    if data.is_public is not None:
-        course.is_public = data.is_public
-    if data.notes_downloadable is not None:
-        course.notes_downloadable = data.notes_downloadable
+    wanted = _wanted_shares(db, course, current_user, data)
+    wanted_keys = {(s.target_type, s.target) for s in wanted}
+    current = {(s.target_type, s.target): s for s in course.shares}
+    for key, share in current.items():
+        if key not in wanted_keys:
+            db.delete(share)
+    for share in wanted:
+        if (share.target_type, share.target) not in current:
+            db.add(share)
+    course.is_public = data.is_public
+    course.notes_downloadable = data.notes_downloadable
+    db.flush()
+    db.refresh(course)
+    _send_again(db, course, current_user)
     db.commit()
+    db.refresh(course)
     return _sharing_out(db, course)
 
 
@@ -228,73 +285,4 @@ def renew_share_code(
     course = get_owned_course(db, course_id, current_user)
     course.share_code = new_share_code(db)
     db.commit()
-    return _sharing_out(db, course)
-
-
-@router.post("/{course_id}/shares", response_model=SharingOut)
-def add_share(
-    course_id: int,
-    data: ShareCreate,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Shares the course with the owner's university, college or major, their friends, or one person.
-    A person shared with by name gets a notification; groups just see it under "Shared with you"."""
-    course = get_owned_course(db, course_id, current_user)
-    recipient = None
-    if data.target_type == ShareTarget.user:
-        recipient = db.get(User, data.user_id) if data.user_id is not None else None
-        if (
-            recipient is None
-            or recipient.id == current_user.id
-            or recipient.is_system
-            or recipient.is_test
-            or recipient.is_banned
-            or not recipient.is_verified
-        ):
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
-        target = str(recipient.id)
-    elif data.target_type == ShareTarget.friends:
-        target = ""
-    else:
-        # the owner's own university, college or major
-        target = getattr(current_user, data.target_type.value)
-
-    exists = (
-        db.query(CourseShare)
-        .filter(
-            CourseShare.course_id == course.id,
-            CourseShare.target_type == data.target_type.value,
-            CourseShare.target == target,
-        )
-        .first()
-    )
-    if exists is None:
-        db.add(CourseShare(course_id=course.id, target_type=data.target_type.value, target=target))
-        if recipient is not None and db.get(CourseMember, (course.id, recipient.id)) is None:
-            db.add(
-                Notification(
-                    user_id=recipient.id,
-                    actor_id=current_user.id,
-                    type=NotificationType.course_shared.value,
-                    message=json.dumps({"course_id": course.id, "title": course.title}, ensure_ascii=False),
-                )
-            )
-        db.commit()
-        db.refresh(course)
-    return _sharing_out(db, course)
-
-
-@router.delete("/{course_id}/shares/{share_id}", response_model=SharingOut)
-def remove_share(
-    course_id: int,
-    share_id: int,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """Members this share was the only way in for lose the course."""
-    course = get_owned_course(db, course_id, current_user)
-    db.query(CourseShare).filter(CourseShare.id == share_id, CourseShare.course_id == course.id).delete()
-    db.commit()
-    db.refresh(course)
     return _sharing_out(db, course)

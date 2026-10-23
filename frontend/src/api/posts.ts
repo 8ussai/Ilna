@@ -18,7 +18,8 @@ export type Author = {
 }
 
 // shown from /posts/{post id}/images/{id}; the size keeps the space while it loads
-export type PostImage = { id: number; width: number; height: number; is_animated: boolean }
+// version goes in the address: SQLite reuses a deleted post's ids, and the browser caches pictures for a day
+export type PostImage = { id: number; width: number; height: number; is_animated: boolean; version: string }
 
 // matches backend/config.py
 export const MAX_POST_IMAGES = 4
@@ -76,8 +77,8 @@ export function createPost(scope: PostScope, content: string, isAnonymous: boole
 }
 
 // a post's picture, fetched with the login
-export function fetchPostImage(postId: number, imageId: number) {
-  return authBlob(`/posts/${postId}/images/${imageId}`)
+export function fetchPostImage(postId: number, image: PostImage) {
+  return authBlob(`/posts/${postId}/images/${image.id}?v=${image.version}`)
 }
 
 // allowed once per post, by its author

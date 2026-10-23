@@ -68,6 +68,8 @@ class PostImageOut(BaseModel):
     width: int
     height: int
     is_animated: bool
+    # added to the picture's address so a reused id never shows a cached old picture
+    version: str
 
     model_config = {"from_attributes": True}
 

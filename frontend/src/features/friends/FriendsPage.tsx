@@ -12,12 +12,21 @@ import { useReadOnly } from '../../lib/readOnly'
 // waits for typing to pause before searching
 const SEARCH_DELAY_MS = 300
 
-// one person in search results or the friends list
+// one person in search results or the friends list; clicking them opens their profile card
 function PersonRow({ profile, catalog }: { profile: PublicProfile; catalog: Catalog | null }) {
+  const { t } = useTranslation()
+  const { openProfile } = useFriends()
   return (
     <li className="flex items-center gap-3 px-4 py-3">
-      <UserAvatar username={profile.username} size={40} />
-      <ProfileSummary profile={profile} catalog={catalog} />
+      <button
+        type="button"
+        onClick={() => openProfile(profile.username)}
+        title={t('friends.openProfile')}
+        className="-m-1 flex min-w-0 flex-1 items-center gap-3 rounded-lg p-1 text-start hover:bg-surface"
+      >
+        <UserAvatar username={profile.username} size={40} />
+        <ProfileSummary profile={profile} catalog={catalog} />
+      </button>
       <FriendButton profile={profile} />
     </li>
   )

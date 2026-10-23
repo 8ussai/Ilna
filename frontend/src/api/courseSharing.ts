@@ -18,6 +18,8 @@ export type CoursePreview = {
 }
 
 export type ShareTargetType = 'university' | 'college' | 'major' | 'friends' | 'user'
+// the targets shared with as a whole group; people are shared with one by one
+export type ShareGroup = Exclude<ShareTargetType, 'user'>
 
 export type CourseShare = { id: number; target_type: ShareTargetType; user: CourseOwner | null }
 
@@ -68,35 +70,20 @@ export function fetchSharing(courseId: number) {
   return authRequest<Sharing>(`/courses/${courseId}/sharing`)
 }
 
-// makes a course public or private
-export function setCoursePublic(courseId: number, isPublic: boolean) {
-  return authRequest<Sharing>(`/courses/${courseId}/sharing`, json('PATCH', { is_public: isPublic }))
-}
-
-// lets people who added the course download its notes, or stops them
-export function setNotesDownloadable(courseId: number, downloadable: boolean) {
-  return authRequest<Sharing>(`/courses/${courseId}/sharing`, json('PATCH', { notes_downloadable: downloadable }))
-}
-
 // gives a course a new ID; the old one stops working
 export function renewShareCode(courseId: number) {
   return authRequest<Sharing>(`/courses/${courseId}/sharing/new-code`, { method: 'POST' })
 }
 
-// shares a course with a group or one person
-export function addShare(courseId: number, targetType: ShareTargetType, userId?: number) {
-  return authRequest<Sharing>(`/courses/${courseId}/shares`, json('POST', { target_type: targetType, user_id: userId ?? null }))
+// Everything the Share dialog sets, saved at once by its Share button (backend SharingApply).
+export type SharingDraft = { is_public: boolean; notes_downloadable: boolean; groups: ShareGroup[]; user_ids: number[] }
+
+// saves the Share dialog and sends the course again to everyone it's shared with, even people who ignored it
+export function applySharing(courseId: number, draft: SharingDraft) {
+  return authRequest<Sharing>(`/courses/${courseId}/sharing`, json('PUT', draft))
 }
 
-// stops sharing with a group or person
-export function removeShare(courseId: number, shareId: number) {
-  return authRequest<Sharing>(`/courses/${courseId}/shares/${shareId}`, { method: 'DELETE' })
-}
-
-// how many people who added the course a change would remove, asked before confirming it
-export function fetchAccessLoss(courseId: number, change: { makePrivate: true } | { removeShare: number }) {
-  const params = new URLSearchParams(
-    'makePrivate' in change ? { make_private: 'true' } : { remove_share: String(change.removeShare) },
-  )
-  return authRequest<{ members_losing: number }>(`/courses/${courseId}/sharing/impact?${params}`)
+// how many people who added the course the draft would remove, asked before saving it
+export function fetchAccessLoss(courseId: number, draft: SharingDraft) {
+  return authRequest<{ members_losing: number }>(`/courses/${courseId}/sharing/impact`, json('POST', draft))
 }

@@ -61,16 +61,16 @@ def _map_to_post_out(
     my_vote: int = 0,
     replies_count: int = 0,
 ) -> PostOut:
-    """An anonymous post goes out without its author's id, name or username, even to the author:
-    is_mine is how their own page knows it's theirs."""
+    """An anonymous post goes out without its author's id, name, username, university, college or
+    major, even to the author: is_mine is how their own page knows it's theirs."""
     return PostOut(
         id=post.id,
         user_id=None if post.is_anonymous else post.user_id,
         content=post.content,
         scope=post.scope,
-        university=post.university,
-        college=post.college,
-        major=post.major,
+        university="" if post.is_anonymous else post.university,
+        college="" if post.is_anonymous else post.college,
+        major="" if post.is_anonymous else post.major,
         created_at=post.created_at,
         updated_at=post.updated_at,
         votes_count=votes_count,

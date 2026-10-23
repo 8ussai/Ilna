@@ -6,7 +6,7 @@ How to run, configure and deploy Ilna. For what the site does, see the [README](
 
 | Part | Built with |
 | --- | --- |
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, i18next |
+| Frontend | React 19, TypeScript, Vite, Tailwind CSS 4, i18next, perfect-freehand (drawn notes), jsPDF (drawing downloads) |
 | Backend | FastAPI, SQLAlchemy, SQLite, JWT auth |
 | Search index | [Qwen3-Embedding-0.6B](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) in ChromaDB, via LangChain |
 | Transcription | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) `large-v3-turbo` |
@@ -119,7 +119,7 @@ frontend/src/
     auth/                log in, sign up, email code, forgot password
     landing/             the page for visitors who aren't logged in
     home/                the logged-in app's shell: header, tabs, account drawer, routing
-    blog/                posts, replies, votes, reports, pictures, anonymous authors
+    blog/                posts, replies, votes, reports, pictures, anonymous authors, links
     friends/             profile cards, the Friends page, the shared friends list
     account/             settings, activity, notifications, contact, premium
     courses/             courses, files, recordings, notes, links, sharing, summaries, quizzes

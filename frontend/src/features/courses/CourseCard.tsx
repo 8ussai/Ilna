@@ -41,8 +41,9 @@ export function CourseCard({ course, onOpen, onUpdate, onDelete, onLeave }: Cour
   const created = parseServerDate(course.created_at)
 
   return (
-    <article className="relative flex flex-col overflow-hidden rounded-2xl border border-line bg-card hover:border-muted/50">
-      <div aria-hidden="true" className={`h-2 shrink-0 ${courseColorClass(course.color)}`} />
+    // no overflow-hidden here: the ⋯ menu has to reach past the card's edge, so the color bar rounds itself
+    <article className="relative flex flex-col rounded-2xl border border-line bg-card hover:border-muted/50">
+      <div aria-hidden="true" className={`h-2 shrink-0 rounded-t-[15px] ${courseColorClass(course.color)}`} />
       <a href={coursePath(course.id)} onClick={inAppClick(onOpen)} className="flex flex-1 flex-col p-4 pe-14 sm:p-5 sm:pe-14">
         <div className="flex items-center gap-3">
           <h2 dir="auto" className="min-w-0 break-words text-lg font-semibold leading-snug">
@@ -315,7 +316,7 @@ function LeaveDialog({ course, onClose, onLeave }: { course: CourseSummary; onCl
   const { busy, error, run } = useSave(onClose)
 
   return (
-    <Dialog title={t('courses.shared.leave')} onClose={onClose}>
+    <Dialog title={t('courses.shared.leave')} onClose={onClose} centered>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -344,7 +345,7 @@ function DeleteDialog({ course, onClose, onDelete }: { course: CourseSummary; on
   const files = course.documents_count + course.audio_count
 
   return (
-    <Dialog title={t('courses.delete.title')} onClose={onClose}>
+    <Dialog title={t('courses.delete.title')} onClose={onClose} centered>
       <form
         onSubmit={(e) => {
           e.preventDefault()

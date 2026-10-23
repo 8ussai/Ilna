@@ -8,6 +8,7 @@ import { secondaryButton } from '../../components/styles'
 import { formatDateTime, parseServerDate } from '../../lib/dates'
 import { inAppClick } from '../../lib/links'
 import { postPath, tabPath } from '../../lib/tabs'
+import { plainLinkText } from '../blog/links'
 
 type Status = 'loading' | 'ready' | 'error'
 
@@ -173,11 +174,11 @@ export function NotificationsPage({ onOpenPost, onOpenCourses, onMarkedRead }: N
                       dir="auto"
                       className={`mt-1 block whitespace-pre-wrap break-words ${expanded.has(n.id) ? '' : 'line-clamp-3'}`}
                     >
-                      {n.preview}
+                      {plainLinkText(n.preview)}
                     </span>
                   ) : (
                     <span dir="auto" className="mt-1 line-clamp-2 block break-words text-sm text-muted">
-                      {n.preview}
+                      {plainLinkText(n.preview)}
                     </span>
                   )}
                   {folds(n) && (

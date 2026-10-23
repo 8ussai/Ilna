@@ -80,10 +80,16 @@ export function PostCard({
   // anonymous authors and the admin account have no profile card
   const hasProfile = !post.is_anonymous && !post.is_admin_post
   const created = parseServerDate(post.created_at)
-  // a blog's readers already share its university/college/major, so show only what can differ
+  // a blog's readers already share its university/college/major, so show only what can differ;
+  // nothing for anonymous posts, so where the author studies can't give them away
   const origin = postOriginNames(catalog, post, i18n.language)
-  const originParts =
-    post.scope === 'general' ? [origin.major, origin.university] : post.scope === 'major' ? [] : [origin.major]
+  const originParts = post.is_anonymous
+    ? []
+    : post.scope === 'general'
+      ? [origin.major, origin.university]
+      : post.scope === 'major'
+        ? []
+        : [origin.major]
   const originText = originParts.filter(Boolean).join(' · ')
 
   return (
@@ -129,7 +135,7 @@ export function PostCard({
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
         <LinkifiedText text={post.content} />
       </p>
-      <PostImages images={post.images} fetchImage={(image) => fetchPostImage(post.id, image.id)} />
+      <PostImages images={post.images} fetchImage={(image) => fetchPostImage(post.id, image)} />
 
       <div className="-ms-1.5 mt-3 flex items-center gap-2">
         <VoteButtons count={post.votes_count} myVote={post.my_vote} disabled={voting} onVote={vote} />

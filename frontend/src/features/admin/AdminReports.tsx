@@ -171,7 +171,7 @@ function ReportRow({
           <p dir="auto" className="mt-1 line-clamp-4 whitespace-pre-wrap break-words">
             <LinkifiedText text={group.content} />
           </p>
-          <PostImages images={group.images} fetchImage={(image) => fetchAdminPostImage(group.post_id, image.id)} />
+          <PostImages images={group.images} fetchImage={(image) => fetchAdminPostImage(group.post_id, image)} />
         </div>
       </div>
 

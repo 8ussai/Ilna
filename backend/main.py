@@ -94,7 +94,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title="ilna API",
     description="Academic Platform API for managing courses, users, and authentication.",
-    version="2.2.4",
+    version="2.2.5",
     lifespan=lifespan,
 )
 

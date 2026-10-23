@@ -24,12 +24,14 @@ type DrawingNoteEditorProps = {
   onSaved: (note: CourseNote) => void
   onDeleted: (noteId: number) => void
   onClose: () => void
+  // switches to read mode; only offered once the drawing exists
+  onRead: () => void
   // offered on an empty new drawing, for anyone who'd rather (or needs to) type
   onSwitchToText: () => void
 }
 
 // Drawings save when Save is pressed, not on every stroke; leaving with changes asks first.
-export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose, onSwitchToText }: DrawingNoteEditorProps) {
+export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose, onRead, onSwitchToText }: DrawingNoteEditorProps) {
   const { t } = useTranslation()
   const [initial] = useState(() => (note ? parseDrawing(note.content) : emptyDrawing()))
   const [title, setTitle] = useState(note?.title ?? '')
@@ -46,7 +48,8 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [justSaved, setJustSaved] = useState(false)
-  const [leaving, setLeaving] = useState(false)
+  // where to go once the unsaved-changes question is answered: the notes list or read mode
+  const [leaveTo, setLeaveTo] = useState<(() => void) | null>(null)
   // state for rendering; the ref for the save, which can finish after a re-render
   const [noteId, setNoteId] = useState<number | null>(note?.id ?? null)
   const noteIdRef = useRef(noteId)
@@ -162,10 +165,20 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
     onDeleted(id)
   }
 
+  // goes on, asking first if there are unsaved changes
+  function leave(next: () => void) {
+    if (dirty) setLeaveTo(() => next)
+    else next()
+  }
+
   // closes, asking first if there are unsaved changes
   function requestClose() {
-    if (dirty) setLeaving(true)
-    else onClose()
+    leave(onClose)
+  }
+
+  // switches to read mode, asking first if there are unsaved changes
+  function goRead() {
+    leave(onRead)
   }
 
   // keyboard shortcuts, read through a ref so the listener is added once
@@ -225,6 +238,18 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
           {error || (dirty ? t('courses.drawing.unsaved') : justSaved ? t('courses.notes.saved') : '')}
         </p>
         <div className="ms-auto flex flex-wrap items-center gap-1">
+          {noteId !== null && (
+            <button
+              type="button"
+              onClick={goRead}
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted hover:bg-surface hover:text-fg"
+            >
+              <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M12 6.5C10.5 5 8 4.5 4 4.5v14c4 0 6.5.5 8 2 1.5-1.5 4-2 8-2v-14c-4 0-6.5.5-8 2Zm0 0v14" />
+              </svg>
+              {t('courses.notes.read')}
+            </button>
+          )}
           {!isNewAndEmpty && (
             // the pages as they are on screen, unsaved changes included
             <NoteDownloadButton
@@ -245,16 +270,16 @@ export function DrawingNoteEditor({ courseId, note, onSaved, onDeleted, onClose,
         </div>
       </div>
 
-      {leaving && (
+      {leaveTo && (
         <div role="alert" className="flex flex-wrap items-center gap-2 border-b border-line bg-surface px-4 py-3 text-sm">
           <span className="me-auto">{t('courses.drawing.leavePrompt')}</span>
-          <button type="button" onClick={async () => (await save()) && onClose()} disabled={saving} className={smallPrimaryButton}>
+          <button type="button" onClick={async () => (await save()) && leaveTo()} disabled={saving} className={smallPrimaryButton}>
             {t('courses.drawing.saveAndLeave')}
           </button>
-          <button type="button" onClick={onClose} className="h-9 rounded-lg px-3 text-sm text-danger hover:bg-bg">
+          <button type="button" onClick={leaveTo} className="h-9 rounded-lg px-3 text-sm text-danger hover:bg-bg">
             {t('courses.drawing.discard')}
           </button>
-          <button type="button" onClick={() => setLeaving(false)} className={smallSecondaryButton}>
+          <button type="button" onClick={() => setLeaveTo(null)} className={smallSecondaryButton}>
             {t('courses.notes.keepEditing')}
           </button>
         </div>

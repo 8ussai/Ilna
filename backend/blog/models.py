@@ -1,3 +1,5 @@
+import os
+
 from sqlalchemy import (
     Boolean,
     Column,
@@ -72,6 +74,12 @@ class PostImage(Base):
     # an animated GIF (or WebP/PNG), kept animated
     is_animated = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), default=func.now())
+
+    @property
+    def version(self) -> str:
+        """The file's random name. SQLite hands a deleted post's ids to the next post, so pages add this
+        to the picture's address: a browser that cached the old picture can't show it for the new one."""
+        return os.path.splitext(os.path.basename(self.file_path))[0]
 
 
 class ThreadAnonNumber(Base):

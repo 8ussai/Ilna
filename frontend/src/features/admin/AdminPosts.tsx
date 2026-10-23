@@ -364,7 +364,7 @@ function PostRow({
       <p dir="auto" className="mt-3 line-clamp-4 whitespace-pre-wrap break-words">
         <LinkifiedText text={post.content} />
       </p>
-      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image.id)} />
+      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image)} />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="me-2 text-sm text-muted">
           {t('admin.posts.score', { count: post.votes_count })} · {t('replies.count', { count: post.replies_count })}
@@ -416,7 +416,7 @@ export function PostThread({
       <p dir="auto" className="mt-3 whitespace-pre-wrap break-words">
         <LinkifiedText text={post.content} />
       </p>
-      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image.id)} />
+      <PostImages images={post.images} fetchImage={(image) => fetchAdminPostImage(post.id, image)} />
       <div className="mt-3 flex flex-wrap items-center gap-2">
         <span className="me-2 text-sm text-muted">
           {t('admin.posts.score', { count: post.votes_count })} · {t('replies.count', { count: post.replies_count })}

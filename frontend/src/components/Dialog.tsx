@@ -9,11 +9,13 @@ type DialogProps = {
   onClose: () => void
   children: ReactNode
   size?: 'sm' | 'lg'
+  // true: a card in the middle of the screen on phones too, instead of a sheet at the bottom
+  centered?: boolean
 }
 
-// A centered modal: focus stays inside, Esc and the backdrop close it, and focus goes back to
+// A centered modal (a bottom sheet on phones, unless centered): focus stays inside, Esc and the backdrop close it, and focus goes back to
 // whatever opened it. Render it only while open.
-export function Dialog({ title, onClose, children, size = 'sm' }: DialogProps) {
+export function Dialog({ title, onClose, children, size = 'sm', centered = false }: DialogProps) {
   const { t } = useTranslation()
   const titleId = useId()
   const panelRef = useRef<HTMLDivElement>(null)
@@ -62,18 +64,21 @@ export function Dialog({ title, onClose, children, size = 'sm' }: DialogProps) {
   }, [])
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
+    <div className={`fixed inset-0 z-50 flex justify-center sm:items-center sm:p-6 ${centered ? 'items-center p-4' : 'items-end'}`}>
       <div aria-hidden="true" onClick={onClose} className="absolute inset-0 bg-black/40" />
       <div
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={`relative flex max-h-[92vh] w-full flex-col rounded-t-2xl border border-line bg-card shadow-xl sm:rounded-2xl ${
+        // dvh is the height phones actually show (vh counts the space behind the address bar, which
+        // pushed tall dialogs' title and close button off the top); browsers without dvh keep the class's vh
+        style={{ maxHeight: '92dvh' }}
+        className={`relative flex max-h-[92vh] w-full min-w-0 flex-col border border-line bg-card shadow-xl sm:rounded-2xl ${centered ? 'rounded-2xl' : 'rounded-t-2xl'} ${
           size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-md'
         }`}
       >
-        <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-line px-5 py-4">
           <h2 id={titleId} className="font-serif text-xl font-semibold">
             {title}
           </h2>
@@ -88,7 +93,7 @@ export function Dialog({ title, onClose, children, size = 'sm' }: DialogProps) {
             </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto p-5">{children}</div>
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-5">{children}</div>
       </div>
     </div>
   )

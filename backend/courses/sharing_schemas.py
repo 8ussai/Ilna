@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 
 from backend.courses.schemas import CourseColor, CourseOwner
 from backend.courses.sharing import ShareTarget
@@ -25,13 +25,6 @@ class CoursePreview(BaseModel):
     created_at: datetime
 
 
-# sharing a course with a group or one person
-class ShareCreate(BaseModel):
-    target_type: ShareTarget
-    # only for target_type "user"
-    user_id: Optional[int] = None
-
-
 # one share, as the owner's Share dialog lists it
 class CourseShareOut(BaseModel):
     id: int
@@ -51,10 +44,21 @@ class SharingOut(BaseModel):
     members_count: int
 
 
-# making a course public or private, and letting members download its notes or not; either can be left out
-class SharingUpdate(BaseModel):
-    is_public: Optional[bool] = None
-    notes_downloadable: Optional[bool] = None
+class SharingApply(BaseModel):
+    """Everything the Share dialog sets, saved at once by its Share button."""
+
+    is_public: bool
+    notes_downloadable: bool
+    # university, college, major and friends; people go in user_ids
+    groups: list[ShareTarget] = Field(default_factory=list, max_length=4)
+    user_ids: list[int] = Field(default_factory=list, max_length=200)
+
+    @field_validator("groups")
+    @classmethod
+    def check_groups(cls, groups: list[ShareTarget]) -> list[ShareTarget]:
+        if ShareTarget.user in groups:
+            raise ValueError("People go in user_ids.")
+        return groups
 
 
 # the warning shown before a change that removes people's access
