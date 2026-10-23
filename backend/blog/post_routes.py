@@ -17,8 +17,6 @@ from sqlalchemy import case, func, select
 from sqlalchemy.orm import Session, joinedload, selectinload
 
 from backend.accounts.models import User
-from backend.accounts.storage import storage_used
-from backend.accounts.usage import storage_limit
 from backend.blog.anonymity import number_post_author_if_needed, public_post_author
 from backend.blog.models import Post, PostImage, PostVote, Reply
 from backend.blog.post_images import (
@@ -158,15 +156,6 @@ def create_post(
         processed = [process_image(read_upload(image.file)) for image in images]
     except ImageRejected as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
-
-    # counted after shrinking, since that's what's stored
-    if processed and sum(len(p.data) for p in processed) > storage_limit(current_user) - storage_used(
-        db, current_user.id
-    ):
-        raise HTTPException(
-            status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-            detail="These pictures would go over your storage limit.",
-        )
 
     new_post = Post(
         user_id=current_user.id,

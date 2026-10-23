@@ -10,10 +10,9 @@ import { UserName } from '../account/Premium'
 import { primaryButtonInline, smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
 import { courseColorClass } from './courseColors'
 
-// what the server says when adding would go over the course or storage limit
+// what the server says when adding would go over the course limit
 function addError(err: unknown, t: (key: string) => string) {
   if (err instanceof ApiError && err.status === 403) return t('courses.shared.limit')
-  if (err instanceof ApiError && err.status === 413) return t('courses.shared.storageFull')
   if (err instanceof ApiError && err.status === 404) return t('courses.shared.gone')
   return t('errors.generic')
 }

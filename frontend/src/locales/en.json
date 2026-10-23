@@ -177,7 +177,7 @@
       "by": "by",
       "readOnly": "You can view it but not change it.",
       "leave": "Remove from my courses",
-      "leaveConfirm": "It leaves your courses and frees its space in your storage. The owner's course isn't changed, and you can add it again by its ID.",
+      "leaveConfirm": "It leaves your courses. The owner's course isn't changed, and you can add it again by its ID.",
       "withYou": "Shared with you",
       "ignore": "Ignore",
       "add": "Add",
@@ -188,8 +188,7 @@
       "yours": "This is your course.",
       "alreadyAdded": "Already in your courses.",
       "limit": "You've reached your course limit. Remove a course or get Premium for unlimited courses.",
-      "gone": "This course isn't available anymore.",
-      "storageFull": "This course's files would go over your storage limit. Added courses count toward your storage."
+      "gone": "This course isn't available anymore."
     },
     "loadFailed": "Couldn't load your courses.",
     "loadOneFailed": "Couldn't load this course.",
@@ -634,8 +633,7 @@
     "photoType": "Pictures must be JPG, PNG, WebP or GIF.",
     "photoTooBig": "Pictures can be up to {{mb}} MB each.",
     "photoLimit": "A post can have up to {{count}} pictures.",
-    "photoRejected": "One of the pictures couldn't be used. Try another one.",
-    "storageFull": "These pictures would go over your storage limit."
+    "photoRejected": "One of the pictures couldn't be used. Try another one."
   },
   "images": {
     "open": "Open picture {{number}} of {{count}}",
@@ -732,7 +730,7 @@
     "storage": {
       "title": "Storage",
       "summary": "Space used by your uploaded files",
-      "description": "The files in your courses (including courses you added from others) and the pictures in your posts count toward this limit.",
+      "description": "Only the files you upload to your own courses count toward this limit. Courses you added from others and pictures in your posts don't.",
       "usedOf": "{{used}} of {{limit}} used",
       "left": "{{left}} left",
       "full": "Your storage is full. You can't upload more files.",
@@ -811,7 +809,7 @@
         "title": "Posts, replies and pictures",
         "body": [
           "You own what you write. By posting, you allow Ilna to show your content to the users who can see that blog.",
-          "A post can have up to 4 pictures (JPG, PNG, WebP or GIF, up to 10 MB each). Before a picture is saved, hidden photo details such as GPS location and camera information are removed, and it’s resized. Pictures count toward your storage.",
+          "A post can have up to 4 pictures (JPG, PNG, WebP or GIF, up to 10 MB each). Before a picture is saved, hidden photo details such as GPS location and camera information are removed, and it’s resized. Pictures don’t count toward your storage.",
           "Web addresses in posts and replies become links that open in a new tab. Ilna doesn’t check the sites they lead to.",
           "You can delete your own posts and replies. A deleted reply that others have answered stays as a “[deleted]” placeholder so the conversation still makes sense."
         ]
@@ -836,7 +834,7 @@
         "title": "Courses and files",
         "body": [
           "Only upload files you have the right to share, such as your own notes or materials your course allows you to use.",
-          "You can upload PDF and PowerPoint files and audio recordings, up to 95 MB each. Each account has 1 GB of storage and up to 5 courses (Premium: 5 GB and unlimited courses). Courses you add from others count toward both.",
+          "You can upload PDF and PowerPoint files and audio recordings, up to 95 MB each. Each account has 1 GB of storage and up to 5 courses (Premium: 5 GB and unlimited courses). Courses you add from others count toward your course limit, but not your storage.",
           "Recordings are transcribed on Ilna’s own server; they aren’t sent to an outside service for this."
         ]
       },

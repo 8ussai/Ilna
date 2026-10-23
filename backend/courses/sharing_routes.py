@@ -5,8 +5,6 @@ from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 
 from backend.accounts.models import User
-from backend.accounts.storage import course_bytes, storage_used
-from backend.accounts.usage import storage_limit
 from backend.core.dependencies import get_current_user
 from backend.courses.models import (
     Course,
@@ -106,18 +104,13 @@ def add_course(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Adds someone else's course to the user's courses, read-only. Counts toward the course limit, and its
-    files toward the user's storage."""
+    """Adds someone else's course to the user's courses, read-only. Counts toward the course limit, but its
+    files don't count toward the user's storage."""
     course = _reachable_course(db, course_id, current_user)
     if course.user_id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This is your own course.")
     if db.get(CourseMember, (course.id, current_user.id)) is None:
         check_course_limit(db, current_user)
-        if course_bytes(db, [course.id]) > storage_limit(current_user) - storage_used(db, current_user.id):
-            raise HTTPException(
-                status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
-                detail="This course's files would go over your storage limit.",
-            )
         db.add(CourseMember(course_id=course.id, user_id=current_user.id))
         # it's answered now, so it leaves "Shared with you"
         db.query(CourseShareResponse).filter(

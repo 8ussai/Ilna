@@ -96,7 +96,6 @@ export function Composer({
       setAnonymous(false)
     } catch (err) {
       if (err instanceof ApiError && err.status === 0) setError(t('errors.network'))
-      else if (err instanceof ApiError && err.status === 413 && picked.length) setError(t('composer.storageFull'))
       else if (err instanceof ApiError && err.status === 400 && picked.length) setError(t('composer.photoRejected'))
       else setError(t('errors.generic'))
     } finally {
