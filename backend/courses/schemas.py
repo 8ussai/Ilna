@@ -179,6 +179,8 @@ class CourseOut(CourseBase):
     created_at: datetime
     updated_at: datetime
     is_public: bool = False
+    # members see a download button on notes only when this is on
+    notes_downloadable: bool = False
     # false for a course the viewer added (read-only, shown with a "Shared" tag)
     is_owner: bool = True
     # set on added courses, so the grid can say whose it is

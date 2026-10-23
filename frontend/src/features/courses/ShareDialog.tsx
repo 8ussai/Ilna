@@ -8,6 +8,7 @@ import {
   removeShare,
   renewShareCode,
   setCoursePublic,
+  setNotesDownloadable,
 } from '../../api/courseSharing'
 import type { ShareTargetType, Sharing } from '../../api/courseSharing'
 import { searchUsers } from '../../api/friends'
@@ -23,7 +24,8 @@ const SEARCH_DELAY_MS = 300
 // a change that takes the course away from people who added it, waiting for the owner to confirm
 type Pending = { message: string; run: () => Promise<Sharing> }
 
-// The owner's sharing settings: the course ID, public or private, and who a private course is shared with.
+// The owner's sharing settings: the course ID, public or private, who a private course is shared with,
+// and whether people who add it can download its notes.
 export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number; onClose: () => void; onChanged: (sharing: Sharing) => void }) {
   const { t } = useTranslation()
   const [sharing, setSharing] = useState<Sharing | null>(null)
@@ -33,6 +35,7 @@ export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number
   const [pending, setPending] = useState<Pending | null>(null)
   const [copied, setCopied] = useState(false)
   const [renewing, setRenewing] = useState(false)
+  const downloadHintId = useId()
 
   useEffect(() => {
     fetchSharing(courseId)
@@ -233,6 +236,30 @@ export function ShareDialog({ courseId, onClose, onChanged }: { courseId: number
               ))}
             </ul>
           )}
+        </section>
+
+        <section>
+          <h3 className="font-semibold">{t('courses.share.notesTitle')}</h3>
+          <label className="mt-3 flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3 hover:bg-surface">
+            <input
+              type="checkbox"
+              role="switch"
+              checked={sharing.notes_downloadable}
+              disabled={busy}
+              aria-describedby={downloadHintId}
+              onChange={(e) => {
+                const downloadable = e.target.checked
+                void apply(() => setNotesDownloadable(courseId, downloadable))
+              }}
+              className="mt-1 size-4 shrink-0 accent-accent"
+            />
+            <span>
+              <span className="block font-medium">{t('courses.share.notesDownload')}</span>
+              <span id={downloadHintId} className="mt-0.5 block text-sm text-muted">
+                {t('courses.share.notesDownloadHint')}
+              </span>
+            </span>
+          </label>
         </section>
 
         {error && (

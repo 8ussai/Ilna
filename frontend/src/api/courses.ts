@@ -24,6 +24,8 @@ export type Course = {
   created_at: string
   updated_at: string
   is_public: boolean
+  // whether people who added the course can download its notes; the owner always can
+  notes_downloadable: boolean
   // false for a course added from someone else: read-only, with a "Shared" tag
   is_owner: boolean
   // set on added courses

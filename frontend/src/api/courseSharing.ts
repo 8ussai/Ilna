@@ -21,7 +21,13 @@ export type ShareTargetType = 'university' | 'college' | 'major' | 'friends' | '
 
 export type CourseShare = { id: number; target_type: ShareTargetType; user: CourseOwner | null }
 
-export type Sharing = { share_code: string; is_public: boolean; shares: CourseShare[]; members_count: number }
+export type Sharing = {
+  share_code: string
+  is_public: boolean
+  notes_downloadable: boolean
+  shares: CourseShare[]
+  members_count: number
+}
 
 // a request with a JSON body
 const json = (method: string, body?: unknown): RequestInit => ({
@@ -65,6 +71,11 @@ export function fetchSharing(courseId: number) {
 // makes a course public or private
 export function setCoursePublic(courseId: number, isPublic: boolean) {
   return authRequest<Sharing>(`/courses/${courseId}/sharing`, json('PATCH', { is_public: isPublic }))
+}
+
+// lets people who added the course download its notes, or stops them
+export function setNotesDownloadable(courseId: number, downloadable: boolean) {
+  return authRequest<Sharing>(`/courses/${courseId}/sharing`, json('PATCH', { notes_downloadable: downloadable }))
 }
 
 // gives a course a new ID; the old one stops working

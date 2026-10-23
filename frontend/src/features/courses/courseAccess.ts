@@ -9,3 +9,12 @@ export const CourseCanEditContext = createContext(true)
 export function useCourseCanEdit() {
   return useContext(CourseCanEditContext)
 }
+
+// Whether the viewer can download the course's notes: always for the owner, and for members when
+// the owner turned it on in the Share dialog. CoursePage provides it.
+export const CourseCanDownloadNotesContext = createContext(true)
+
+// whether note download buttons show
+export function useCourseCanDownloadNotes() {
+  return useContext(CourseCanDownloadNotesContext)
+}

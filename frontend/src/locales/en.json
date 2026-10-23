@@ -170,7 +170,10 @@
       "shared": "Shared",
       "losing_one": "This removes the course for {{count}} person who added it.",
       "losing_other": "This removes the course for {{count}} people who added it.",
-      "continue": "Continue"
+      "continue": "Continue",
+      "notesTitle": "Notes",
+      "notesDownload": "Let people download notes",
+      "notesDownloadHint": "People who added this course can save its notes as files: typed notes as .txt, drawings as .pdf. They can always read them here. You can always download your own."
     },
     "shared": {
       "tag": "Shared",

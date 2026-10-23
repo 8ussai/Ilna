@@ -169,6 +169,7 @@ def _sharing_out(db: Session, course: Course) -> SharingOut:
     return SharingOut(
         share_code=course.share_code,
         is_public=course.is_public,
+        notes_downloadable=course.notes_downloadable,
         shares=[_share_out(db, s) for s in sorted(course.shares, key=lambda s: s.id)],
         members_count=members,
     )
@@ -206,9 +207,13 @@ def update_sharing(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Public or private. Going private removes the course for members no share still reaches."""
+    """Public or private, and whether members can download notes. Going private removes the course
+    for members no share still reaches."""
     course = get_owned_course(db, course_id, current_user)
-    course.is_public = data.is_public
+    if data.is_public is not None:
+        course.is_public = data.is_public
+    if data.notes_downloadable is not None:
+        course.notes_downloadable = data.notes_downloadable
     db.commit()
     return _sharing_out(db, course)
 

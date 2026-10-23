@@ -45,14 +45,16 @@ class SharingOut(BaseModel):
 
     share_code: str
     is_public: bool
+    notes_downloadable: bool
     shares: list[CourseShareOut]
     # people who added it and can still open it
     members_count: int
 
 
-# making a course public or private
+# making a course public or private, and letting members download its notes or not; either can be left out
 class SharingUpdate(BaseModel):
-    is_public: bool
+    is_public: Optional[bool] = None
+    notes_downloadable: Optional[bool] = None
 
 
 # the warning shown before a change that removes people's access

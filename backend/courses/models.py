@@ -34,6 +34,9 @@ class Course(Base):
     share_code = Column(String, nullable=False, unique=True, index=True)
     # anyone with the code can add a public course; a private one only reaches the people it's shared with
     is_public = Column(Boolean, nullable=False, default=False, server_default="0")
+    # whether people who added the course can download its notes (typed as .txt, drawn as .pdf);
+    # the owner always can. Members still read the notes either way.
+    notes_downloadable = Column(Boolean, nullable=False, default=False, server_default="0")
     created_at = Column(DateTime(timezone=True), default=func.now())
     updated_at = Column(DateTime(timezone=True), default=func.now(), onupdate=func.now())
 

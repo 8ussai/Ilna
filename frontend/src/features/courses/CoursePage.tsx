@@ -10,7 +10,7 @@ import { fetchStudyItems, isStudyItemWorking } from '../../api/study'
 import type { StudyItemSummary, StudyKind } from '../../api/study'
 import { AiRail } from './AiRail'
 import { CourseDetailsForm } from './CourseDetailsForm'
-import { CourseCanEditContext } from './courseAccess'
+import { CourseCanDownloadNotesContext, CourseCanEditContext } from './courseAccess'
 import { ShareDialog } from './ShareDialog'
 import { DeleteButton } from '../../components/DeleteButton'
 import { UserName } from '../account/Premium'
@@ -244,6 +244,7 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
       </header>
 
       <CourseCanEditContext.Provider value={canEdit}>
+      <CourseCanDownloadNotesContext.Provider value={canEdit || course.notes_downloadable}>
       <div className="flex gap-6">
         {canEdit && <AiRail onUse={(feature) => feature !== 'voice' && setGenerating(feature === 'summarize' ? 'summary' : 'quiz')} />}
 
@@ -291,13 +292,16 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
           </div>
         </div>
       </div>
+      </CourseCanDownloadNotesContext.Provider>
       </CourseCanEditContext.Provider>
 
       {sharingOpen && (
         <ShareDialog
           courseId={course.id}
           onClose={() => setSharingOpen(false)}
-          onChanged={(sharing) => update({ is_public: sharing.is_public, share_code: sharing.share_code })}
+          onChanged={(sharing) =>
+            update({ is_public: sharing.is_public, notes_downloadable: sharing.notes_downloadable, share_code: sharing.share_code })
+          }
         />
       )}
 
