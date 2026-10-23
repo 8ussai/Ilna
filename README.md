@@ -18,6 +18,23 @@ Questions or feedback: **support@ilna-academic.com**
 
 Your name, username, university, college and major can't be changed later, so check them before you finish. Forgot your password? Choose **Forgot password?** on the login screen and we'll email you a code.
 
+## Supported universities
+
+Ilna is open to students at these universities in Jordan. You sign up with an email address at your university's domain (or one of its subdomains, such as a student mail address).
+
+| University | | Email domain |
+| --- | --- | --- |
+| Al Al Bayt University | جامعة آل البيت | `aabu.edu.jo` |
+| University of Jordan | الجامعة الأردنية | `ju.edu.jo` |
+| Princess Sumaya University for Technology | جامعة الأميرة سمية للتكنولوجيا | `psut.edu.jo` |
+| Applied Science Private University | جامعة العلوم التطبيقية الخاصة | `asu.edu.jo` |
+| Jordan University of Science and Technology | جامعة العلوم والتكنولوجيا الأردنية | `just.edu.jo` |
+| The Hashemite University | الجامعة الهاشمية | `hu.edu.jo` |
+| Yarmouk University | جامعة اليرموك | `yu.edu.jo` |
+| Amman Arab University | جامعة عمان العربية | `aau.edu.jo` |
+
+Is your university, college or major missing? Email **support@ilna-academic.com** and we'll add it.
+
 ## Your courses
 
 Open **My Courses** and create a course for each subject. A course holds:

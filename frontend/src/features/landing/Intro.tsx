@@ -154,13 +154,23 @@ export function Intro() {
 
       <FeatureCarousel />
 
-      <p className="mt-8 text-sm text-muted">
-        {t('intro.free')}{' '}
-        {t('intro.support')}{' '}
-        <a href={`mailto:${SUPPORT_EMAIL}`} dir="ltr" className="font-medium text-accent hover:underline">
-          {SUPPORT_EMAIL}
-        </a>
-      </p>
+      <IntroNote className="mt-8 hidden lg:block" />
     </section>
+  )
+}
+
+// "Ilna is free … email us". Beside the intro on desktop; Landing shows it
+// under the sign-in card on phones instead.
+export function IntroNote({ className = '' }: { className?: string }) {
+  const { t } = useTranslation()
+
+  return (
+    <p className={`text-sm text-muted ${className}`}>
+      {t('intro.free')}{' '}
+      {t('intro.support')}{' '}
+      <a href={`mailto:${SUPPORT_EMAIL}`} dir="ltr" className="font-medium text-accent hover:underline">
+        {SUPPORT_EMAIL}
+      </a>
+    </p>
   )
 }
