@@ -29,6 +29,11 @@ def send_contact_email(user: User, subject: str, message: str) -> None:
     _send(email)
 
 
+def _arabic_minutes(n: int) -> str:
+    """'n minutes' in Arabic: 3 to 10 take the plural (دقائق), other counts the singular (دقيقة)."""
+    return f"{n} دقائق" if 3 <= n <= 10 else f"{n} دقيقة"
+
+
 def send_otp_email(user: User, code: str) -> None:
     """Email the 6-digit sign-up code, in English and Arabic.
     Raises smtplib.SMTPException or OSError if it can't be sent."""
@@ -42,7 +47,7 @@ def send_otp_email(user: User, code: str) -> None:
         f"Your Ilna verification code is: {code}\n"
         f"It expires in {minutes} minutes.\n\n"
         f"رمز التحقق الخاص بك في Ilna هو: {code}\n"
-        f"ينتهي خلال {minutes} دقيقة.\n\n"
+        f"ينتهي خلال {_arabic_minutes(minutes)}.\n\n"
         "If you didn't create an Ilna account, you can ignore this email.\n"
         "إذا لم تنشئ حسابًا في Ilna، يمكنك تجاهل هذه الرسالة.\n"
     )
@@ -62,7 +67,7 @@ def send_password_reset_email(user: User, code: str) -> None:
         f"Your code to reset your Ilna password is: {code}\n"
         f"It expires in {minutes} minutes.\n\n"
         f"رمز إعادة تعيين كلمة المرور الخاصة بك في Ilna هو: {code}\n"
-        f"ينتهي خلال {minutes} دقيقة.\n\n"
+        f"ينتهي خلال {_arabic_minutes(minutes)}.\n\n"
         "If you didn't ask for this, you can ignore this email. Your password hasn't changed.\n"
         "إذا لم تطلب ذلك، يمكنك تجاهل هذه الرسالة. لم تتغير كلمة المرور الخاصة بك.\n"
     )

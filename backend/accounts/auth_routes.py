@@ -59,8 +59,11 @@ def send_code(user: User, db: Session) -> bool:
             detail="Couldn't send the verification email",
         )
 
-    # saved only once sent, so a failed send doesn't start the cooldown
-    user.otp_hash = get_password_hash(code)
+    # saved only once sent, so a failed send doesn't start the cooldown.
+    # otp_hash holds the recent codes' hashes, space-separated; they stay valid until the newest expires
+    still_valid = user.otp_hash and user.otp_expires_at and now < user.otp_expires_at
+    hashes = [*(user.otp_hash.split() if still_valid else []), get_password_hash(code)]
+    user.otp_hash = " ".join(hashes[-config.OTP_CODES_KEPT :])
     user.otp_sent_at = now
     user.otp_expires_at = now + timedelta(minutes=config.OTP_EXPIRE_MINUTES)
     user.otp_attempts = 0
@@ -137,10 +140,17 @@ def verify_otp(otp_data: OtpVerify, db: Session = Depends(get_db)):
         detail = "Code expired, new code sent" if sent else "Code expired"
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
-    if not verify_password(otp_data.code.strip(), user.otp_hash):
+    # any recent code works, newest first
+    code = otp_data.code.strip()
+    hashes = user.otp_hash.split()[::-1]
+    match = next((i for i, h in enumerate(hashes) if verify_password(code, h)), None)
+    if match is None:
         user.otp_attempts += 1
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
+    if match > 0:
+        # logged so late or out-of-order emails show up in the server log
+        logger.info("User %s verified with an older sign-up code (%s newer sent)", user.id, match)
     # the code was right, so it's safe to say the account is suspended
     if user.is_banned:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=ACCOUNT_SUSPENDED)
