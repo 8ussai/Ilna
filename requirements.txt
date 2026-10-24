@@ -4,6 +4,7 @@ sqlalchemy
 alembic
 pydantic
 passlib[bcrypt]
+bcrypt==4.0.1  # passlib 1.7.4 breaks on bcrypt 4.1+ (hashing raises ValueError)
 python-multipart
 email-validator
 python-jose[cryptography]
