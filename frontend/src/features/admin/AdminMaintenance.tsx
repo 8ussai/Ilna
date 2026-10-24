@@ -64,6 +64,8 @@ export function AdminMaintenance({ maintenance }: { maintenance: AdminMaintenanc
     if (filledFrom.current === key) return
     filledFrom.current = key
     if (hasWindow && status.starts_at && status.ends_at) {
+      // filling the form from the server is this effect's job, and filledFrom keeps it to once per window
+      // oxlint-disable-next-line react/set-state-in-effect
       setMessage(status.message ?? '')
       setStartNow(status.state === 'on')
       setStartAt(toLocalInput(parseServerDate(status.starts_at)))

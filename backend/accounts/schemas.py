@@ -62,8 +62,7 @@ class UserCreate(UserBase):
 
         if not is_student_email(self.email, university):
             raise ValueError(
-                f"Please register with your student email (ID@{university['domain']}). "
-                "Staff addresses can't sign up."
+                f"Please register with your student email (ID@{university['domain']}). Staff addresses can't sign up."
             )
 
         return self

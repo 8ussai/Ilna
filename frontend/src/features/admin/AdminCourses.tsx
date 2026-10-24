@@ -147,6 +147,8 @@ function CourseRow({ course, onRemove }: { course: AdminCourse; onRemove: () => 
       const blob = await fetchAdminCourseFile(course.id, materialId)
       const url = URL.createObjectURL(blob)
       if (tab) tab.location.href = url
+      // if the browser blocked the new tab, open the file here instead
+      // oxlint-disable-next-line react/immutability
       else window.location.href = url
       setTimeout(() => URL.revokeObjectURL(url), 60_000)
     } catch {
