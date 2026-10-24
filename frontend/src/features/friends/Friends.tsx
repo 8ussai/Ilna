@@ -13,6 +13,7 @@ import { Dialog } from '../../components/Dialog'
 import { goldClass, UserName } from '../account/Premium'
 import { smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
+import { ProfileCourses } from '../courses/SharedCourses'
 
 // next to a friend's name; never on anonymous posts, whose authors the page doesn't know
 export function FriendStar({ userId }: { userId: number }) {
@@ -175,6 +176,7 @@ export function ProfileDialog({ username, catalog, onClose }: { username: string
               <FriendButton profile={profile} />
             </div>
           )}
+          <ProfileCourses username={profile.username} />
         </div>
       ) : (
         <p className="py-6 text-center text-muted" role="status">

@@ -194,6 +194,11 @@
       "find": "Find",
       "notFound": "No course with this ID, or it's private.",
       "yours": "This is your course.",
+      "profileTitle": "Public courses",
+      "profileEmpty": "No public courses yet.",
+      "profileFailed": "Couldn't load their courses.",
+      "yoursShort": "Yours",
+      "added": "Added",
       "alreadyAdded": "Already in your courses.",
       "limit": "You've reached your course limit. Remove a course or get Premium for unlimited courses.",
       "gone": "This course isn't available anymore."

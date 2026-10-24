@@ -16,7 +16,7 @@ from backend.friends.schemas import FriendList, PublicProfile
 router = APIRouter()
 
 
-def _findable(query: OrmQuery) -> OrmQuery:
+def findable_users(query: OrmQuery) -> OrmQuery:
     """Students who can be searched, looked up and added: not the admin account, test accounts,
     banned users, or sign-ups that were never verified."""
     return query.filter(
@@ -65,7 +65,7 @@ def search_users(
     if not words:
         return []
 
-    query = _findable(db.query(User)).filter(User.id != current_user.id)
+    query = findable_users(db.query(User)).filter(User.id != current_user.id)
     # every word has to match somewhere, so "sara ali" finds Sara Ali
     for word in words:
         pattern = _like(word)
@@ -94,7 +94,7 @@ def get_profile(
     current_user: User = Depends(get_current_user),
 ):
     """The card shown when an author's name is clicked."""
-    user = _findable(db.query(User)).filter(User.username == username.lower()).first()
+    user = findable_users(db.query(User)).filter(User.username == username.lower()).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     is_friend = db.get(Friend, (current_user.id, user.id)) is not None
@@ -104,7 +104,7 @@ def get_profile(
 def _visible_friends(db: Session, user_id: int) -> list[User]:
     """The list, newest first. Banned users are left out while banned and come back when unbanned."""
     return (
-        _findable(db.query(User))
+        findable_users(db.query(User))
         .join(Friend, Friend.friend_id == User.id)
         .filter(Friend.user_id == user_id)
         .order_by(Friend.created_at.desc(), User.id.desc())
@@ -136,7 +136,7 @@ def add_friend(
     someone over it (premium turned off) keeps their list but can't add more."""
     if user_id == current_user.id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="You can't add yourself.")
-    user = _findable(db.query(User)).filter(User.id == user_id).first()
+    user = findable_users(db.query(User)).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     if db.get(Friend, (current_user.id, user_id)) is not None:

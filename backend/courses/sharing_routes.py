@@ -33,6 +33,7 @@ from backend.courses.sharing_schemas import (
     SharingOut,
 )
 from backend.database import get_db
+from backend.friends.routes import findable_users
 from backend.notifications.models import Notification
 from backend.notifications.service import NotificationType
 
@@ -95,6 +96,27 @@ def find_course_by_code(
     if course is None or not is_covered(db, course, current_user):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No course with this ID.")
     return _preview(db, course, current_user)
+
+
+@router.get("/public-by/{username}", response_model=List[CoursePreview])
+def get_public_courses_of(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """A student's public courses, newest first, for their profile card. Private courses never show,
+    even ones shared with the viewer."""
+    owner = findable_users(db.query(User)).filter(User.username == username.lower()).first()
+    if owner is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
+    courses = (
+        db.query(Course)
+        .filter(Course.user_id == owner.id, Course.is_public.is_(True))
+        .order_by(Course.created_at.desc(), Course.id.desc())
+        .all()
+    )
+    counts = course_counts(db, [c.id for c in courses])
+    return [_preview(db, c, current_user, counts) for c in courses]
 
 
 @router.post("/{course_id}/membership", response_model=CoursePreview)

@@ -48,6 +48,11 @@ export function findCourseByCode(code: string) {
   return authRequest<CoursePreview>(`/courses/by-code/${encodeURIComponent(code.trim())}`)
 }
 
+// a student's public courses, for their profile card
+export function fetchPublicCoursesOf(username: string) {
+  return authRequest<CoursePreview[]>(`/courses/public-by/${encodeURIComponent(username)}`)
+}
+
 // adds someone else's course to the student's courses, read-only
 export function addSharedCourse(courseId: number) {
   return authRequest<CoursePreview>(`/courses/${courseId}/membership`, { method: 'POST' })
