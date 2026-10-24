@@ -167,11 +167,6 @@ export type TranscriptLanguage = 'ar' | 'en'
 export type TranscriptSegment = { start: number; end: number; text: string }
 export type Transcript = NonNullable<CourseMaterial['transcript']> & { segments: TranscriptSegment[] | null }
 
-// a recording's transcript with its timed lines
-export function fetchTranscript(courseId: number, materialId: number) {
-  return authRequest<Transcript>(`/courses/${courseId}/materials/${materialId}/transcript`)
-}
-
 // null language = detect it
 export function retryTranscript(courseId: number, materialId: number, language: TranscriptLanguage | null) {
   return authRequest<Transcript>(`/courses/${courseId}/materials/${materialId}/transcript/retry`, {
