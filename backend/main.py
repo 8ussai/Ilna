@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -36,6 +37,15 @@ from backend.migrations.runner import run_migrations
 from backend.notifications import routes as notification_routes
 from backend.study import generator as study_generator
 from backend.study import routes as study_routes
+
+# the app's own info messages (like sign-up code problems) go to the server log;
+# libraries stay quiet below warnings
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(logging.Formatter("%(levelname)s:     %(name)s - %(message)s"))
+_app_logger = logging.getLogger("backend")
+_app_logger.addHandler(_log_handler)
+_app_logger.setLevel(logging.INFO)
+_app_logger.propagate = False
 
 
 def _requeue_unfinished_work():

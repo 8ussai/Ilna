@@ -62,12 +62,13 @@ def send_code(user: User, db: Session) -> bool:
     # saved only once sent, so a failed send doesn't start the cooldown.
     # otp_hash holds the recent codes' hashes, space-separated; they stay valid until the newest expires
     still_valid = user.otp_hash and user.otp_expires_at and now < user.otp_expires_at
-    hashes = [*(user.otp_hash.split() if still_valid else []), get_password_hash(code)]
-    user.otp_hash = " ".join(hashes[-config.OTP_CODES_KEPT :])
+    hashes = [*(user.otp_hash.split() if still_valid else []), get_password_hash(code)][-config.OTP_CODES_KEPT :]
+    user.otp_hash = " ".join(hashes)
     user.otp_sent_at = now
     user.otp_expires_at = now + timedelta(minutes=config.OTP_EXPIRE_MINUTES)
     user.otp_attempts = 0
     db.commit()
+    logger.info("Sent a sign-up code to user %s (%s codes now valid)", user.id, len(hashes))
     return True
 
 
@@ -147,6 +148,12 @@ def verify_otp(otp_data: OtpVerify, db: Session = Depends(get_db)):
     if match is None:
         user.otp_attempts += 1
         db.commit()
+        logger.info(
+            "Wrong sign-up code for user %s (attempt %s, last code sent %s)",
+            user.id,
+            user.otp_attempts,
+            user.otp_sent_at,
+        )
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid code")
     if match > 0:
         # logged so late or out-of-order emails show up in the server log
