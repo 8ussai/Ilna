@@ -1,9 +1,9 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
-import { AUDIO_EXTENSIONS, deleteMaterial, fetchTranscript, MAX_UPLOAD_BYTES, renameMaterial, retryTranscript } from '../../api/courses'
-import type { CourseMaterial, Transcript, TranscriptLanguage, TranscriptSegment } from '../../api/courses'
+import { AUDIO_EXTENSIONS, deleteMaterial, MAX_UPLOAD_BYTES, renameMaterial, retryTranscript } from '../../api/courses'
+import type { CourseMaterial, TranscriptLanguage } from '../../api/courses'
 import { formatBytes } from '../../lib/bytes'
 import { formatDate, formatDuration, parseServerDate } from '../../lib/dates'
 import { DeleteButton } from '../../components/DeleteButton'
@@ -236,7 +236,7 @@ function TranscriptBadge({ material }: { material: CourseMaterial }) {
   )
 }
 
-// The player and the transcript under it; clicking a line plays from there.
+// The player and how its transcription is going. Finished transcripts aren't shown: they feed the AI features.
 function RecordingPanel({
   courseId,
   material,
@@ -249,40 +249,12 @@ function RecordingPanel({
   const { t } = useTranslation()
   const canEdit = useCourseCanEdit()
   const file = useMaterialUrl(courseId, material.id, true)
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const pendingSeek = useRef<number | null>(null)
-  const [currentTime, setCurrentTime] = useState(0)
   const status = material.transcript?.status
-
-  // jumps the audio to a transcript line and plays
-  function seek(seconds: number) {
-    const audio = audioRef.current
-    // the file may still be loading; play from there once it can
-    if (!audio || audio.readyState < 1) {
-      pendingSeek.current = seconds
-      return
-    }
-    audio.currentTime = seconds
-    audio.play().catch(() => {})
-  }
 
   return (
     <div className="space-y-4 border-t border-line px-4 py-4">
       {file.status === 'ready' && file.url ? (
-        <audio
-          ref={audioRef}
-          src={file.url}
-          controls
-          preload="metadata"
-          onLoadedMetadata={() => {
-            if (pendingSeek.current !== null) {
-              seek(pendingSeek.current)
-              pendingSeek.current = null
-            }
-          }}
-          onTimeUpdate={(e) => setCurrentTime(e.currentTarget.currentTime)}
-          className="w-full"
-        />
+        <audio src={file.url} controls preload="metadata" className="w-full" />
       ) : file.status === 'error' ? (
         <p className="text-sm text-muted">
           {t('courses.voice.loadFailed')}{' '}
@@ -297,13 +269,7 @@ function RecordingPanel({
       )}
 
       {status === 'done' ? (
-        <TranscriptView
-          courseId={courseId}
-          material={material}
-          currentTime={currentTime}
-          onSeek={seek}
-          onRetried={onChanged}
-        />
+        <TranscribedAs courseId={courseId} material={material} onRetried={onChanged} />
       ) : status === 'failed' ? (
         <div className="space-y-3 rounded-xl bg-surface p-4">
           <p className="text-sm text-danger">{t('courses.voice.failedLong')}</p>
@@ -342,114 +308,53 @@ function TranscriptProgress({ material }: { material: CourseMaterial }) {
   )
 }
 
-// the transcript, with the line being played highlighted
-function TranscriptView({
+// The language a finished recording was transcribed in, which the owner can change if it guessed wrong.
+function TranscribedAs({
   courseId,
   material,
-  currentTime,
-  onSeek,
   onRetried,
 }: {
   courseId: number
   material: CourseMaterial
-  currentTime: number
-  onSeek: (seconds: number) => void
   onRetried: (material: CourseMaterial) => void
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const canEdit = useCourseCanEdit()
-  const [transcript, setTranscript] = useState<Transcript | null>(null)
-  const [failed, setFailed] = useState(false)
-  const [attempt, setAttempt] = useState(0)
-  const [redoing, setRedoing] = useState(false)
-
-  // a redone transcript passes through pending first, which unmounts this, so mounting is when to fetch
-  useEffect(() => {
-    let ignore = false
-    fetchTranscript(courseId, material.id)
-      .then((result) => {
-        if (ignore) return
-        setTranscript(result)
-        setFailed(false)
-      })
-      .catch(() => {
-        if (!ignore) setFailed(true)
-      })
-    return () => {
-      ignore = true
-    }
-  }, [courseId, material.id, attempt])
-
-  if (failed) {
-    return (
-      <p className="text-sm text-muted">
-        {t('courses.voice.transcriptFailed')}{' '}
-        <button type="button" onClick={() => setAttempt((n) => n + 1)} className="font-medium text-fg underline">
-          {t('auth.retry')}
-        </button>
-      </p>
-    )
-  }
-  if (!transcript) {
-    return (
-      <p className="text-sm text-muted" role="status">
-        {t('feed.loading')}
-      </p>
-    )
-  }
-
-  const segments = transcript.segments ?? []
-  // the line being played; the last one that has started
-  let activeIndex = -1
-  segments.forEach((segment: TranscriptSegment, i) => {
-    if (segment.start <= currentTime) activeIndex = i
-  })
+  const [changing, setChanging] = useState(false)
+  const language = material.transcript?.language
 
   return (
-    <section aria-labelledby={`transcript-${material.id}`} className="space-y-2">
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h4 id={`transcript-${material.id}`} className="font-semibold">
-          {t('courses.voice.transcript')}
-        </h4>
-        <p className="text-xs text-muted">{t('courses.voice.seekHint')}</p>
-      </div>
-      {segments.length === 0 ? (
-        <p className="text-sm text-muted">{t('courses.voice.noSpeech')}</p>
-      ) : (
-        <ol
-          dir={transcript.language === 'ar' ? 'rtl' : transcript.language ? 'ltr' : 'auto'}
-          className="max-h-96 space-y-0.5 overflow-y-auto rounded-xl bg-surface p-2"
-        >
-          {segments.map((segment, i) => (
-            <li key={`${segment.start}-${i}`}>
-              <button
-                type="button"
-                onClick={() => onSeek(segment.start)}
-                aria-current={i === activeIndex ? 'true' : undefined}
-                className={`flex w-full gap-3 rounded-lg px-2 py-1.5 text-start hover:bg-bg ${i === activeIndex ? 'bg-bg ring-1 ring-accent' : ''}`}
-              >
-                <span dir="ltr" className="w-14 shrink-0 pt-0.5 font-mono text-xs text-muted tabular-nums">
-                  {formatDuration(segment.start)}
-                </span>
-                <span className="min-w-0 flex-1">{segment.text}</span>
-              </button>
-            </li>
-          ))}
-        </ol>
-      )}
-      <div className={canEdit ? 'pt-1' : 'hidden'}>
-        {redoing ? (
-          <div className="rounded-xl bg-surface p-4">
-            <RetryTranscript courseId={courseId} material={material} onRetried={onRetried} onCancel={() => setRedoing(false)} redo />
-          </div>
-        ) : (
-          <button type="button" onClick={() => setRedoing(true)} className="text-sm text-muted underline hover:text-fg">
-            {t('courses.voice.redo')}
-          </button>
+    <div className="space-y-3 rounded-xl bg-surface p-4">
+      <p className="text-sm">
+        {t('courses.voice.transcribedAs', { language: language ? languageName(language, i18n.language) : '?' })}
+        {canEdit && !changing && (
+          <>
+            {' · '}
+            <button
+              type="button"
+              onClick={() => setChanging(true)}
+              aria-label={t('courses.voice.changeLanguage')}
+              className="font-medium text-fg underline"
+            >
+              {t('courses.voice.change')}
+            </button>
+          </>
         )}
-      </div>
-    </section>
+      </p>
+      {changing && (
+        <RetryTranscript courseId={courseId} material={material} onRetried={onRetried} onCancel={() => setChanging(false)} redo />
+      )}
+    </div>
   )
+}
+
+// a language code ("ar") in the reader's language ("Arabic" / "العربية"); the code itself if the browser can't name it
+function languageName(code: string, uiLanguage: string) {
+  try {
+    return new Intl.DisplayNames([uiLanguage], { type: 'language' }).of(code) ?? code
+  } catch {
+    return code
+  }
 }
 
 // Transcribe again, optionally telling Whisper the language when it guessed wrong.

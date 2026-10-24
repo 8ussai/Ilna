@@ -25,4 +25,5 @@ python-pptx
 
 langchain-google-genai
 faster-whisper
+psutil
 av<17  # faster-whisper 1.2.1 passes metadata_errors to av.open(), which PyAV 17 removed

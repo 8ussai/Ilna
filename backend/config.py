@@ -2,6 +2,7 @@ import os
 from datetime import timedelta
 from pathlib import Path
 
+import psutil
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 
@@ -102,6 +103,19 @@ CHROMA_COLLECTION_NAME = "course_chunks_qwen3"
 # transcript segments are merged into chunks about this long too, but without overlap
 CHUNK_CHARS = 1500
 CHUNK_OVERLAP_CHARS = 200
+
+# A machine with this much memory keeps Whisper loaded between recordings and runs transcription and
+# indexing side by side. A smaller one (a 16 GB laptop) runs out with both models loaded, so it unloads
+# Whisper after each recording and runs the two lines on one worker, one job at a time.
+ROOMY_MEMORY = psutil.virtual_memory().total >= 20 * 1024**3
+
+# AI job lines (core/jobs.py): work a user got within this window counts against their next turn
+JOB_TURN_WINDOW_SEC = 3600
+# rough job sizes, so small jobs can go first; only their order matters, not their accuracy
+TRANSCRIBE_SEC_PER_AUDIO_SEC = 1.0
+INDEX_SEC_PER_CHUNK = 3.0
+# a document's chunk count is guessed from its file size before it's read
+DOCUMENT_BYTES_PER_CHUNK = 20_000
 
 # recordings are transcribed with this faster-whisper model
 WHISPER_MODEL = "large-v3-turbo"

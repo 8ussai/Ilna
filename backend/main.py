@@ -20,14 +20,13 @@ from backend.admin import user_routes as admin_user_routes
 from backend.admin.account import get_admin_account
 from backend.blog import post_routes, reply_routes, report_routes
 from backend.contact import routes as contact_routes
-from backend.core import jobs
 from backend.core.security import is_maintenance_bypass
 from backend.courses import routes as course_routes
 from backend.courses import sharing_routes as course_sharing_routes
 from backend.courses.models import CourseMaterial, MaterialTranscript
-from backend.courses.note_index import index_note, stale_note_ids
-from backend.courses.rag_pipeline import index_course_material
-from backend.courses.transcription import index_transcript, transcribe_material
+from backend.courses.note_index import queue_note_index, stale_note_ids
+from backend.courses.rag_pipeline import queue_document_index
+from backend.courses.transcription import queue_transcript_index, queue_transcription
 from backend.database import SessionLocal, utc_now
 from backend.friends import routes as friend_routes
 from backend.maintenance import routes as maintenance_routes
@@ -69,7 +68,7 @@ def _requeue_unfinished_work():
         notes = stale_note_ids(db)
         study_items = study_generator.requeue_unfinished(db)
         documents = (
-            db.query(CourseMaterial.id, CourseMaterial.file_path, CourseMaterial.course_id)
+            db.query(CourseMaterial.id)
             .filter(CourseMaterial.kind == "document", CourseMaterial.is_rag_indexed.is_(False))
             .order_by(CourseMaterial.id)
             .all()
@@ -78,13 +77,13 @@ def _requeue_unfinished_work():
         db.close()
 
     for (material_id,) in transcripts:
-        jobs.submit(transcribe_material, material_id)
+        queue_transcription(material_id)
     for (material_id,) in unindexed_transcripts:
-        jobs.submit(index_transcript, material_id)
-    for material_id, file_path, course_id in documents:
-        jobs.submit(index_course_material, file_path, material_id, course_id)
+        queue_transcript_index(material_id)
+    for (material_id,) in documents:
+        queue_document_index(material_id)
     for note_id in notes:
-        jobs.submit(index_note, note_id)
+        queue_note_index(note_id)
     if transcripts or unindexed_transcripts or documents or notes:
         print(
             f"[Jobs] Re-queued {len(transcripts) + len(unindexed_transcripts)} recordings, "

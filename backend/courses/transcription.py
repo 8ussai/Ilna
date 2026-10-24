@@ -1,21 +1,27 @@
 import gc
 import json
+import os
 import threading
 import time
 
+import av
 import ctranslate2
 from faster_whisper import WhisperModel
 from langchain_core.documents import Document
 
 # first, so the models folder is set before the Hugging Face libraries load
 import backend.config  # noqa: F401
-from backend.config import CHUNK_CHARS, TRANSCRIBE_PROGRESS_EVERY_SEC, WHISPER_MODEL
-from backend.courses.embeddings import (
-    TORCH_THREADS,
-    delete_material_vectors,
-    get_vectorstore,
+from backend.config import (
+    CHUNK_CHARS,
+    ROOMY_MEMORY,
+    TRANSCRIBE_PROGRESS_EVERY_SEC,
+    TRANSCRIBE_SEC_PER_AUDIO_SEC,
+    WHISPER_MODEL,
 )
+from backend.core import jobs
+from backend.courses.embeddings import delete_material_vectors, get_vectorstore
 from backend.courses.models import CourseMaterial, MaterialTranscript
+from backend.courses.rag_pipeline import index_estimate_sec
 from backend.database import SessionLocal
 
 # uses the GPU when the machine has one, otherwise the CPU with 8-bit weights
@@ -23,6 +29,8 @@ if ctranslate2.get_cuda_device_count() > 0:
     DEVICE, COMPUTE_TYPE = "cuda", "float16"
 else:
     DEVICE, COMPUTE_TYPE = "cpu", "int8"
+# on CPU Whisper is the slowest job, so it gets most of the cores (3 of 4 on the server); the rest serve the API
+WHISPER_CPU_THREADS = max(1, (os.cpu_count() or 2) * 3 // 4)
 
 _model_lock = threading.Lock()
 _model = None
@@ -38,16 +46,18 @@ def _get_model() -> WhisperModel:
     global _model
     with _model_lock:
         if _model is None:
-            _model = WhisperModel(WHISPER_MODEL, device=DEVICE, compute_type=COMPUTE_TYPE, cpu_threads=TORCH_THREADS)
+            _model = WhisperModel(
+                WHISPER_MODEL, device=DEVICE, compute_type=COMPUTE_TYPE, cpu_threads=WHISPER_CPU_THREADS
+            )
         return _model
 
 
-# unloads Whisper on a CPU-only machine, to leave memory for the embedding model
+# unloads Whisper on a CPU-only machine with little memory, to leave room for the embedding model
 def _release_model_on_cpu():
-    # on a machine with little memory, Whisper and the embedding model together can exhaust it, so Whisper is
-    # unloaded before indexing; a GPU server keeps it loaded for the next recording
+    # there Whisper and the embedding model together can exhaust memory, so Whisper is unloaded before indexing;
+    # a GPU server or a roomy one keeps it loaded, saving the reload on every recording
     global _model
-    if DEVICE == "cpu":
+    if DEVICE == "cpu" and not ROOMY_MEMORY:
         with _model_lock:
             _model = None
         gc.collect()
@@ -127,7 +137,7 @@ def index_transcript(material_id: int):
 
 
 def transcribe_material(material_id: int):
-    """Transcribes a recording, saves its timestamped segments, then indexes them for AI search."""
+    """Transcribes a recording and saves its timestamped segments, then queues them for AI search."""
     db = SessionLocal()
     try:
         material = db.get(CourseMaterial, material_id)
@@ -204,4 +214,55 @@ def transcribe_material(material_id: int):
         db.close()
         _release_model_on_cpu()
 
-    index_transcript(material_id)
+    queue_transcript_index(material_id)
+
+
+# a recording's length in seconds, read from the file's header (milliseconds); None when it doesn't say
+def _audio_length(file_path: str):
+    try:
+        with av.open(file_path) as container:
+            if container.duration:
+                return round(container.duration / av.time_base, 2)
+    except Exception:
+        pass
+    return None
+
+
+def queue_transcription(material_id: int):
+    """Puts a recording on the transcription line for its course owner, sized by its length."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None:
+            return
+        # uploaded files (not browser recordings) arrive without a length; most files say it in their header
+        if material.duration_sec is None:
+            material.duration_sec = _audio_length(material.file_path)
+            db.commit()
+        # a file that doesn't say is guessed from its size, as if it were 128 kbps
+        seconds = material.duration_sec if material.duration_sec is not None else material.size_bytes / 16_000
+        user_id = material.course.user_id
+    finally:
+        db.close()
+    jobs.submit(
+        transcribe_material,
+        material_id,
+        line=jobs.TRANSCRIBE,
+        user_id=user_id,
+        estimate_sec=seconds * TRANSCRIBE_SEC_PER_AUDIO_SEC,
+    )
+
+
+def queue_transcript_index(material_id: int):
+    """Puts a finished transcript on the index line for its course owner, sized by its text."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None or material.transcript is None:
+            return
+        user_id = material.course.user_id
+        segments = json.loads(material.transcript.segments or "[]")
+        chars = sum(len(segment["text"]) for segment in segments)
+    finally:
+        db.close()
+    jobs.submit(index_transcript, material_id, line=jobs.INDEX, user_id=user_id, estimate_sec=index_estimate_sec(chars))
