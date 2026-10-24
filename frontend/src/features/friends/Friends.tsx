@@ -13,6 +13,7 @@ import { Dialog } from '../../components/Dialog'
 import { goldClass, UserName } from '../account/Premium'
 import { smallPrimaryButton, smallSecondaryButton } from '../../components/styles'
 import { UserAvatar } from '../../components/UserAvatar'
+import { ProfileCourses } from '../courses/SharedCourses'
 
 // next to a friend's name; never on anonymous posts, whose authors the page doesn't know
 export function FriendStar({ userId }: { userId: number }) {
@@ -169,12 +170,13 @@ export function ProfileDialog({ username, catalog, onClose }: { username: string
             <UserAvatar username={profile.username} size={64} />
             <ProfileSummary profile={profile} catalog={catalog} full />
           </div>
-          {!readOnly && (
+          {!readOnly && !profile.is_self && (
             <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
               <span className="text-sm text-muted">{t('friends.counter', { count, limit })}</span>
               <FriendButton profile={profile} />
             </div>
           )}
+          <ProfileCourses username={profile.username} />
         </div>
       ) : (
         <p className="py-6 text-center text-muted" role="status">

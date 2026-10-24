@@ -199,9 +199,10 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
 
       <header className="overflow-hidden rounded-2xl border border-line bg-card">
         <div aria-hidden="true" className={`h-2 ${courseColorClass(course.color)}`} />
-        <div className="flex items-start gap-4 p-5">
-          <div className="min-w-0 flex-1">
-            <h1 dir="auto" className="break-words font-serif text-3xl font-semibold">
+        {/* on phones the buttons go under the title, so they don't squeeze it into broken words */}
+        <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:gap-4">
+          <div className="w-full min-w-0 flex-1">
+            <h1 dir="auto" className="break-words font-serif text-2xl font-semibold sm:text-3xl">
               {course.title}
             </h1>
             {course.description && (
@@ -211,7 +212,7 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
             )}
           </div>
           {canEdit ? (
-            <div className="flex shrink-0 flex-wrap justify-end gap-2">
+            <div className="flex shrink-0 flex-wrap gap-2 sm:justify-end">
               <button type="button" onClick={() => setSharingOpen(true)} className={smallSecondaryButton}>
                 {course.is_public ? t('courses.share.buttonPublic') : t('courses.share.button')}
               </button>

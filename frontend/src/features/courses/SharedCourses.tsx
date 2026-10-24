@@ -3,7 +3,7 @@ import type { FormEvent, ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ApiError } from '../../api/client'
-import { addSharedCourse, fetchSharedWithMe, findCourseByCode, ignoreSharedCourse } from '../../api/courseSharing'
+import { addSharedCourse, fetchPublicCoursesOf, fetchSharedWithMe, findCourseByCode, ignoreSharedCourse } from '../../api/courseSharing'
 import type { CoursePreview } from '../../api/courseSharing'
 import { Dialog } from '../../components/Dialog'
 import { UserName } from '../account/Premium'
@@ -18,7 +18,8 @@ function addError(err: unknown, t: (key: string) => string) {
 }
 
 // a course someone else owns, before it's added
-function PreviewCard({ course, children }: { course: CoursePreview; children?: ReactNode }) {
+// showOwner is off on a profile card, where the owner is the person shown
+function PreviewCard({ course, children, showOwner = true }: { course: CoursePreview; children?: ReactNode; showOwner?: boolean }) {
   const { t } = useTranslation()
   const counts = [
     t('courses.counts.files', { count: course.documents_count }),
@@ -34,9 +35,11 @@ function PreviewCard({ course, children }: { course: CoursePreview; children?: R
           <h3 dir="auto" className="break-words font-semibold">
             {course.title}
           </h3>
-          <p className="mt-0.5 text-sm text-muted">
-            {t('courses.shared.by')} <UserName user={course.owner} /> <span dir="ltr">@{course.owner.username}</span>
-          </p>
+          {showOwner && (
+            <p className="mt-0.5 text-sm text-muted">
+              {t('courses.shared.by')} <UserName user={course.owner} /> <span dir="ltr">@{course.owner.username}</span>
+            </p>
+          )}
           {course.description && (
             <p dir="auto" className="mt-1 line-clamp-2 text-sm text-muted">
               {course.description}
@@ -201,5 +204,80 @@ export function AddByIdDialog({ onClose, onAdded }: { onClose: () => void; onAdd
         </p>
       )}
     </Dialog>
+  )
+}
+
+// The "Public courses" part of a profile card: each one can be added from here, like with its course ID.
+export function ProfileCourses({ username }: { username: string }) {
+  const { t } = useTranslation()
+  const [courses, setCourses] = useState<CoursePreview[] | null>(null)
+  const [failed, setFailed] = useState(false)
+  const [busyId, setBusyId] = useState<number | null>(null)
+  const [error, setError] = useState<{ id: number; message: string } | null>(null)
+
+  useEffect(() => {
+    let ignore = false
+    fetchPublicCoursesOf(username)
+      .then((list) => !ignore && setCourses(list))
+      .catch(() => !ignore && setFailed(true))
+    return () => {
+      ignore = true
+    }
+  }, [username])
+
+  // adds one of the courses to the viewer's courses
+  async function add(course: CoursePreview) {
+    setBusyId(course.id)
+    setError(null)
+    try {
+      const added = await addSharedCourse(course.id)
+      setCourses((current) => current?.map((c) => (c.id === added.id ? added : c)) ?? null)
+    } catch (err) {
+      setError({ id: course.id, message: addError(err, t) })
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  return (
+    <section aria-labelledby="profile-courses" className="space-y-2 border-t border-line pt-4">
+      <h3 id="profile-courses" className="text-sm font-medium">
+        {t('courses.shared.profileTitle')}
+      </h3>
+      {failed ? (
+        <p className="text-sm text-muted">{t('courses.shared.profileFailed')}</p>
+      ) : courses === null ? (
+        <p className="text-sm text-muted" role="status">
+          {t('feed.loading')}
+        </p>
+      ) : courses.length === 0 ? (
+        <p className="text-sm text-muted">{t('courses.shared.profileEmpty')}</p>
+      ) : (
+        <ul className="max-h-72 space-y-2 overflow-y-auto">
+          {courses.map((course) => (
+            <li key={course.id}>
+              <PreviewCard course={course} showOwner={false}>
+                <div className="flex shrink-0 flex-col items-end gap-1">
+                  {course.is_owner ? (
+                    <span className="text-sm text-muted">{t('courses.shared.yoursShort')}</span>
+                  ) : course.is_member ? (
+                    <span className="text-sm text-muted">{t('courses.shared.added')}</span>
+                  ) : (
+                    <button type="button" disabled={busyId === course.id} onClick={() => add(course)} className={smallPrimaryButton}>
+                      {t('courses.shared.add')}
+                    </button>
+                  )}
+                  {error?.id === course.id && (
+                    <span role="alert" className="max-w-48 text-end text-xs text-danger">
+                      {error.message}
+                    </span>
+                  )}
+                </div>
+              </PreviewCard>
+            </li>
+          ))}
+        </ul>
+      )}
+    </section>
   )
 }

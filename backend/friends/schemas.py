@@ -15,6 +15,8 @@ class PublicProfile(BaseModel):
     major: str
     # on the viewer's friends list
     is_friend: bool = False
+    # the viewer's own profile, which has no friend button
+    is_self: bool = False
 
 
 # the student's friends list with its count and cap
