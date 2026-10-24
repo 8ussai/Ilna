@@ -161,8 +161,9 @@ CONTACT_MESSAGES_PER_HOUR = 5
 # at most this many reports per user per hour
 REPORTS_PER_HOUR = 20
 
-# new accounts confirm their email with a 6-digit code before they can log in
-OTP_EXPIRE_MINUTES = 10
+# new accounts confirm their email with a 6-digit code before they can log in.
+# 30 minutes, not 10: university mail servers can hold an email for several minutes before it arrives
+OTP_EXPIRE_MINUTES = 30
 # wrong guesses allowed per code; after that a new one has to be sent
 OTP_MAX_ATTEMPTS = 5
 # seconds before another code can be sent to the same account

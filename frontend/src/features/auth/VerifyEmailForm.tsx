@@ -49,7 +49,13 @@ export function VerifyEmailForm({
       onAuthenticated(await verifyOtp(email, code))
     } catch (err) {
       if (err instanceof ApiError && err.detail === ACCOUNT_SUSPENDED) setFormError(t('errors.suspended'))
-      else if (err instanceof ApiError && err.detail === 'Code expired') setFormError(t('errors.otpExpired'))
+      else if (err instanceof ApiError && err.detail === 'Code expired, new code sent') {
+        // the server already emailed a fresh code
+        setCode('')
+        setSubmitted(false)
+        setCooldown(RESEND_COOLDOWN)
+        setNotice(t('errors.otpExpiredResent'))
+      } else if (err instanceof ApiError && err.detail === 'Code expired') setFormError(t('errors.otpExpired'))
       else if (err instanceof ApiError && err.detail === 'Too many attempts') setFormError(t('errors.otpTooMany'))
       else if (err instanceof ApiError && err.status === 400) setFormError(t('errors.otpWrong'))
       else if (err instanceof ApiError && err.status === 0) setFormError(t('errors.network'))
