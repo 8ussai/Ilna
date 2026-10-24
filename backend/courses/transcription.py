@@ -3,19 +3,27 @@ import json
 import threading
 import time
 
+import av
 import ctranslate2
 from faster_whisper import WhisperModel
 from langchain_core.documents import Document
 
 # first, so the models folder is set before the Hugging Face libraries load
 import backend.config  # noqa: F401
-from backend.config import CHUNK_CHARS, TRANSCRIBE_PROGRESS_EVERY_SEC, WHISPER_MODEL
+from backend.config import (
+    CHUNK_CHARS,
+    TRANSCRIBE_PROGRESS_EVERY_SEC,
+    TRANSCRIBE_SEC_PER_AUDIO_SEC,
+    WHISPER_MODEL,
+)
+from backend.core import jobs
 from backend.courses.embeddings import (
     TORCH_THREADS,
     delete_material_vectors,
     get_vectorstore,
 )
 from backend.courses.models import CourseMaterial, MaterialTranscript
+from backend.courses.rag_pipeline import index_estimate_sec
 from backend.database import SessionLocal
 
 # uses the GPU when the machine has one, otherwise the CPU with 8-bit weights
@@ -127,7 +135,7 @@ def index_transcript(material_id: int):
 
 
 def transcribe_material(material_id: int):
-    """Transcribes a recording, saves its timestamped segments, then indexes them for AI search."""
+    """Transcribes a recording and saves its timestamped segments, then queues them for AI search."""
     db = SessionLocal()
     try:
         material = db.get(CourseMaterial, material_id)
@@ -204,4 +212,55 @@ def transcribe_material(material_id: int):
         db.close()
         _release_model_on_cpu()
 
-    index_transcript(material_id)
+    queue_transcript_index(material_id)
+
+
+# a recording's length in seconds, read from the file's header (milliseconds); None when it doesn't say
+def _audio_length(file_path: str):
+    try:
+        with av.open(file_path) as container:
+            if container.duration:
+                return round(container.duration / av.time_base, 2)
+    except Exception:
+        pass
+    return None
+
+
+def queue_transcription(material_id: int):
+    """Puts a recording on the transcription line for its course owner, sized by its length."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None:
+            return
+        # uploaded files (not browser recordings) arrive without a length; most files say it in their header
+        if material.duration_sec is None:
+            material.duration_sec = _audio_length(material.file_path)
+            db.commit()
+        # a file that doesn't say is guessed from its size, as if it were 128 kbps
+        seconds = material.duration_sec if material.duration_sec is not None else material.size_bytes / 16_000
+        user_id = material.course.user_id
+    finally:
+        db.close()
+    jobs.submit(
+        transcribe_material,
+        material_id,
+        line=jobs.TRANSCRIBE,
+        user_id=user_id,
+        estimate_sec=seconds * TRANSCRIBE_SEC_PER_AUDIO_SEC,
+    )
+
+
+def queue_transcript_index(material_id: int):
+    """Puts a finished transcript on the index line for its course owner, sized by its text."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None or material.transcript is None:
+            return
+        user_id = material.course.user_id
+        segments = json.loads(material.transcript.segments or "[]")
+        chars = sum(len(segment["text"]) for segment in segments)
+    finally:
+        db.close()
+    jobs.submit(index_transcript, material_id, line=jobs.INDEX, user_id=user_id, estimate_sec=index_estimate_sec(chars))

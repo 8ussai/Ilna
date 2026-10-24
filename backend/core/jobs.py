@@ -1,6 +1,7 @@
 """Two background lines for the heavy AI work: one transcribes recordings, one indexes text for AI search.
 
-Each line runs one job at a time, so a PDF never waits behind a lecture that's being transcribed.
+Each line runs one job at a time, so a PDF never waits behind a lecture that's being transcribed
+(on a machine with little memory both share one worker; see ROOMY_MEMORY in config.py).
 When a line is free it starts the waiting job with the lowest score:
 
     estimated seconds - seconds waited + seconds of work this user got from the line lately
@@ -18,7 +19,7 @@ from collections import deque
 from dataclasses import dataclass
 from typing import Callable, Optional
 
-from backend.config import JOB_TURN_WINDOW_SEC
+from backend.config import JOB_TURN_WINDOW_SEC, ROOMY_MEMORY
 
 TRANSCRIBE = "transcribe"
 INDEX = "index"
@@ -98,7 +99,12 @@ class _Line:
                 self._done.append((finished, job.user_id, finished - started))
 
 
-_lines = {TRANSCRIBE: _Line(TRANSCRIBE), INDEX: _Line(INDEX)}
+# with little memory the two models can't be loaded together, so both lines share one worker
+if ROOMY_MEMORY:
+    _lines = {TRANSCRIBE: _Line(TRANSCRIBE), INDEX: _Line(INDEX)}
+else:
+    _shared = _Line("ai")
+    _lines = {TRANSCRIBE: _shared, INDEX: _shared}
 _order = itertools.count()
 
 

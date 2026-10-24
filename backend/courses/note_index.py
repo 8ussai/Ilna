@@ -15,7 +15,7 @@ from backend.config import NOTE_INDEX_DELAY_SEC
 from backend.core import jobs
 from backend.courses.embeddings import delete_note_vectors, get_vectorstore
 from backend.courses.models import CourseNote
-from backend.courses.rag_pipeline import text_splitter
+from backend.courses.rag_pipeline import index_estimate_sec, text_splitter
 from backend.database import SessionLocal
 
 _timers_lock = threading.Lock()
@@ -46,8 +46,19 @@ def cancel_note_index(note_id: int):
 def _queue_index(note_id: int):
     with _timers_lock:
         _timers.pop(note_id, None)
-    # through the shared worker, so embedding a note never runs alongside a transcription
-    jobs.submit(index_note, note_id)
+    queue_note_index(note_id)
+
+
+def queue_note_index(note_id: int):
+    """Puts a note on the index line for its course owner, sized by its text (a gone note still runs, to clear it)."""
+    db = SessionLocal()
+    try:
+        note = db.get(CourseNote, note_id)
+        user_id = note.course.user_id if note is not None else None
+        chars = len(note.title or "") + len(note.content or "") if note is not None and note.kind == "text" else 0
+    finally:
+        db.close()
+    jobs.submit(index_note, note_id, line=jobs.INDEX, user_id=user_id, estimate_sec=index_estimate_sec(chars))
 
 
 def index_note(note_id: int):

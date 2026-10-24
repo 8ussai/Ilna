@@ -22,7 +22,6 @@ from backend.config import (
     UPLOAD_CHUNK_BYTES,
     UPLOAD_DIR,
 )
-from backend.core import jobs
 from backend.core.dependencies import get_current_user
 from backend.core.files import remove_files
 from backend.courses.embeddings import (
@@ -40,7 +39,7 @@ from backend.courses.models import (
     MaterialTranscript,
 )
 from backend.courses.note_index import cancel_note_index, schedule_note_index
-from backend.courses.rag_pipeline import index_course_material
+from backend.courses.rag_pipeline import queue_document_index
 from backend.courses.schemas import (
     CourseCreate,
     CourseDetailOut,
@@ -72,7 +71,7 @@ from backend.courses.sharing import (
     member_courses,
     new_share_code,
 )
-from backend.courses.transcription import transcribe_material
+from backend.courses.transcription import queue_transcription
 from backend.database import get_db
 
 router = APIRouter()
@@ -450,9 +449,9 @@ def upload_course_material(
     db.refresh(new_material)
 
     if is_audio:
-        jobs.submit(transcribe_material, new_material.id)
+        queue_transcription(new_material.id)
     else:
-        jobs.submit(index_course_material, file_path, new_material.id, course_id)
+        queue_document_index(new_material.id)
 
     return new_material
 
@@ -566,6 +565,6 @@ def retry_material_transcript(
     db.commit()
     db.refresh(transcript)
 
-    jobs.submit(transcribe_material, material_id)
+    queue_transcription(material_id)
 
     return transcript

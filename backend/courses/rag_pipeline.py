@@ -4,7 +4,8 @@ from langchain_community.document_loaders import (
 )
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from backend.config import CHUNK_CHARS, CHUNK_OVERLAP_CHARS
+from backend.config import CHUNK_CHARS, CHUNK_OVERLAP_CHARS, DOCUMENT_BYTES_PER_CHUNK, INDEX_SEC_PER_CHUNK
+from backend.core import jobs
 from backend.courses.embeddings import delete_material_vectors, get_vectorstore
 from backend.courses.models import CourseMaterial
 from backend.database import SessionLocal
@@ -26,6 +27,28 @@ def get_document_loader(file_path: str):
         return UnstructuredPowerPointLoader(file_path)
     else:
         return None
+
+
+def index_estimate_sec(chars: int) -> float:
+    """Roughly how long embedding this much text takes, so the index line can put small jobs first."""
+    return max(1, -(-chars // CHUNK_CHARS)) * INDEX_SEC_PER_CHUNK
+
+
+def queue_document_index(material_id: int):
+    """Puts a document on the index line for its course owner, sized by its file size."""
+    db = SessionLocal()
+    try:
+        material = db.get(CourseMaterial, material_id)
+        if material is None:
+            return
+        args = (material.file_path, material.id, material.course_id)
+        user_id = material.course.user_id
+        chunks = max(1, (material.size_bytes or 0) // DOCUMENT_BYTES_PER_CHUNK)
+    finally:
+        db.close()
+    jobs.submit(
+        index_course_material, *args, line=jobs.INDEX, user_id=user_id, estimate_sec=chunks * INDEX_SEC_PER_CHUNK
+    )
 
 
 def _set_indexed(material_id: int) -> bool:
