@@ -21,6 +21,10 @@ if [ ! -d venv ]; then
     python3 -m venv venv
 fi
 venv/bin/pip install --upgrade pip
+# without an NVIDIA GPU, install the CPU-only torch first; the default one brings ~4 GB of unused GPU libraries
+if ! command -v nvidia-smi > /dev/null; then
+    venv/bin/pip install torch --index-url https://download.pytorch.org/whl/cpu
+fi
 venv/bin/pip install -r requirements.txt
 
 echo "== Data folders"

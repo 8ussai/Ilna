@@ -18,7 +18,7 @@ from backend.courses.embeddings import (
 from backend.courses.models import CourseMaterial, MaterialTranscript
 from backend.database import SessionLocal
 
-# production runs on a GPU; development laptops fall back to the CPU with 8-bit weights
+# uses the GPU when the machine has one, otherwise the CPU with 8-bit weights
 if ctranslate2.get_cuda_device_count() > 0:
     DEVICE, COMPUTE_TYPE = "cuda", "float16"
 else:
@@ -44,7 +44,7 @@ def _get_model() -> WhisperModel:
 
 # unloads Whisper on a CPU-only machine, to leave memory for the embedding model
 def _release_model_on_cpu():
-    # on a laptop, Whisper and the embedding model together can exhaust memory, so Whisper is
+    # on a machine with little memory, Whisper and the embedding model together can exhaust it, so Whisper is
     # unloaded before indexing; a GPU server keeps it loaded for the next recording
     global _model
     if DEVICE == "cpu":

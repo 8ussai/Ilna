@@ -3,6 +3,10 @@
 {
   "name": "ilna",
   "compatibility_date": "2026-09-01",
+  // only ilna-academic.com is used: logins can't work on workers.dev or branch preview links,
+  // because the backend only accepts requests from the real domain
+  "workers_dev": false,
+  "preview_urls": false,
   "assets": {
     "directory": "./dist",
     // the app picks the page from the URL itself, so unknown paths like /courses/5 get index.html

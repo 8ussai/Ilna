@@ -12,7 +12,7 @@ from backend.config import CHROMA_COLLECTION_NAME, CHROMA_DB_DIR, EMBEDDING_MODE
 # Qwen3 is instruction-aware: queries get a task line, stored chunks don't
 QUERY_PROMPT = "Instruct: Given a request about a university course, retrieve passages from the course material that answer it\nQuery:"
 
-# production runs on a GPU; development laptops fall back to the CPU
+# uses the GPU when the machine has one, otherwise the CPU
 DEVICE = "cuda" if torch.cuda.is_available() else "cpu"
 # on CPU, leave half the cores for the API while a file is being indexed
 TORCH_THREADS = max(1, (os.cpu_count() or 2) // 2)
@@ -47,6 +47,9 @@ def get_vectorstore() -> Chroma:
                 # half precision: half the GPU memory and faster, with no meaningful loss for retrieval
                 model_kwargs["model_kwargs"] = {"torch_dtype": torch.float16}
             else:
+                # full precision: the model loads as bfloat16 by default, which CPUs without bfloat16 support
+                # (the Oracle ARM server, most laptops) run ~9x slower
+                model_kwargs["model_kwargs"] = {"torch_dtype": torch.float32}
                 torch.set_num_threads(TORCH_THREADS)
             embeddings = HuggingFaceEmbeddings(
                 model_name=EMBEDDING_MODEL,

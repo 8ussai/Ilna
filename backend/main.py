@@ -94,7 +94,7 @@ async def lifespan(_app: FastAPI):
 app = FastAPI(
     title="ilna API",
     description="Academic Platform API for managing courses, users, and authentication.",
-    version="2.2.5",
+    version="2.2.6",
     lifespan=lifespan,
 )
 
@@ -126,12 +126,11 @@ app.add_middleware(BaseHTTPMiddleware, dispatch=_maintenance_gate)
 
 app.add_middleware(
     CORSMiddleware,
-    # the public site and the local dev/preview servers
+    # the public site and the local dev server
     allow_origins=[
         "https://ilna-academic.com",
         "https://www.ilna-academic.com",
         "http://localhost:5173",
-        "http://localhost:4173",
     ],
     allow_credentials=True,
     allow_methods=["*"],

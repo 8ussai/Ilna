@@ -71,7 +71,6 @@ Open http://localhost:5173.
 | --- | --- |
 | `npm run dev` | Development server with hot reload |
 | `npm run build` | Type-checks and builds to `frontend/dist`, using the API URL in `.env.production` |
-| `npm run preview` | Serves the built site on port 4173 |
 | `npm run lint` | Runs oxlint |
 
 ## Configuration
@@ -131,7 +130,6 @@ frontend/src/
   lib/                   small helpers: dates, sizes, links, routes, theme color, catalog names
   locales/               English and Arabic text
 deploy/              free hosting on an Oracle Cloud VM: setup, update and backup scripts, and the guide
-start-demo.ps1       builds and runs the old laptop demo on Windows
 ```
 
 ## Universities
@@ -224,7 +222,5 @@ Some limits to know:
 ## Deployment
 
 The frontend is hosted on Cloudflare Workers as static assets (`frontend/wrangler.jsonc`), which rebuilds on every push to `main`. The backend, database and uploads run on a free Oracle Cloud ARM VM as the `ilna-backend` service, and a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) sends `api.ilna-academic.com` to it on port 8000. The full setup, updates, backups and restores are in [deploy/DEPLOY.md](deploy/DEPLOY.md).
-
-Before that, the site ran on a Windows laptop: `start-demo.ps1` builds the frontend, then starts the API on port 8000 and `vite preview` on port 4173.
 
 Cloudflare's free plan rejects request bodies over 100 MB, which is why uploads stop at 95 MB.

@@ -1,184 +1,84 @@
-# Hosting Ilna for free
+# Hosting Ilna
 
-This guide moves the public site off the laptop:
+Ilna is hosted for free:
 
-- **Frontend** goes to **Cloudflare Workers** (static assets). It's free and rebuilds on every push to `main`.
-- **Backend, database and files** go to an **Oracle Cloud "Always Free" ARM VM** (4 cores, 24 GB RAM, up to 200 GB disk).
-- The **Cloudflare tunnel** keeps bringing `api.ilna-academic.com` to the backend, so no ports are opened on the server.
+- **Frontend:** a **Cloudflare Worker** named `ilna` serves the built site at `ilna-academic.com` and `www.ilna-academic.com`. It rebuilds on every push to `main` (`frontend/wrangler.jsonc`).
+- **Backend, database and files:** an **Oracle Cloud "Always Free" ARM VM** runs the API as the `ilna-backend` service. It also holds `ilna.db`, `uploads/` and `chroma_db/`.
+- **Cloudflare tunnel** `ilna-server` brings `api.ilna-academic.com` to the backend on `localhost:8000`, so no ports are open on the server.
 
-Do the parts in order. Parts 1–5 can be done while the laptop demo keeps running. The site is only briefly down during parts 6–7.
+## The current setup
+
+| | |
+|---|---|
+| Server | Oracle VM in **Saudi Arabia Central (Riyadh)**, Ubuntu 24.04 ARM, 4 cores, 24 GB RAM, 150 GB disk |
+| Address | `84.13.147.223`. It's an ephemeral IP that changes if the VM is stopped; the site keeps working through the tunnel, only SSH needs the new IP. |
+| Login | `ssh -i ~/.ssh/ilna-oracle ubuntu@84.13.147.223` (the key is on the dev laptop) |
+| Project folder | `~/ilna` (a clone of `main`), with `.env`, `ilna.db`, `uploads/`, `chroma_db/`, `models/` |
+| Backups | `~/ilna-backups`, nightly at 03:30 UTC, last 3 kept |
+
+`.env`, the database, uploads, the search index and the AI models are **not in git**. Each machine has its own copy, so the laptop's copy is only for development.
 
 ---
 
-## 1. Create the Oracle VM
+## Working on changes
 
-1. Sign up at <https://signup.cloud.oracle.com>. Oracle asks for a card to verify you; Always Free resources are never charged.
-   - **The home region you pick is permanent.** The free ARM VM only exists in it. Pick a region close to your users.
-2. Go to **Compute → Instances → Create instance**.
-   - **Image:** change it to **Canonical Ubuntu 24.04**. The default is Oracle Linux, which the setup script doesn't support.
-   - **Shape:** Ampere → `VM.Standard.A1.Flex`, then set **4 OCPUs, 24 GB memory**. The default (1 OCPU, 6 GB) is too small for the AI models.
-   - **Networking:** "Create new virtual cloud network" + "Create new public subnet", with "Automatically assign public IPv4 address" on.
-   - **SSH keys:** "Generate a key pair for me" → **download the private key**. You can't download it later. Or paste the public half of a key you made with `ssh-keygen`.
-   - **Boot volume:** tick "Specify a custom boot volume size" and set **150 GB**. Up to 200 GB total is free.
-3. Click Create. If you get **"Out of capacity"**, free ARM servers in your region are taken for now. Try another availability domain in the same form, or retry later.
-4. Copy the instance's **Public IP address** from its page.
+1. Work on a branch and test it on the laptop (`DEVELOPMENT.md` covers running it). Run `npm run build` in `frontend` before merging; Cloudflare runs the same build.
+2. Merge into `main` and push. Only `main` is live.
+3. What happens next:
 
-If the instance has **no public IP** (the toggle was greyed out):
-- On the instance's **Networking** tab, run the quick action **"Connect public subnet to internet"**.
-- Then open the VNIC → **IP administration** → **⋯** on the private IP → **Edit** → **Ephemeral public IP**.
+| Change | What to do |
+|---|---|
+| Frontend only | Nothing. Cloudflare rebuilds and deploys within a minute or two (Workers & Pages → ilna → Deployments). |
+| Backend | Run `update.sh` on the server (below). It pulls `main`, installs packages only if `requirements.txt` changed, and restarts. Migrations run on startup. |
+| Both | Push, then run `update.sh` right away, so the new frontend isn't left waiting on the old backend. |
+| A new setting in `.env` | Add it to `.env.example` in the branch, and put the real value in `~/ilna/.env` on the server **before** running `update.sh`. |
 
-**Recommended:** upgrade the account to **Pay As You Go** (Billing → Upgrade). Always Free resources stay free. Oracle only reclaims idle VMs on free-only accounts, so this stops the server from being taken away. Also add a budget alert of $1 (Billing → Budgets) so you'd know if anything ever costs money.
-
-## 2. Connect to the server from Windows
-
-In PowerShell on the laptop, put the key in place and lock it down (Windows SSH refuses keys others can read):
+From the laptop:
 
 ```powershell
-mkdir $HOME\.ssh -Force
-Move-Item $HOME\Downloads\ssh-key-*.key $HOME\.ssh\ilna-oracle.key
-icacls $HOME\.ssh\ilna-oracle.key /inheritance:r /grant:r "$($env:USERNAME):R"
-ssh -i $HOME\.ssh\ilna-oracle.key ubuntu@<PUBLIC-IP>
+ssh -i ~/.ssh/ilna-oracle ubuntu@84.13.147.223 "bash ~/ilna/deploy/update.sh"
 ```
 
-The user is `ubuntu` on Ubuntu images. If it says "Permission denied" for `ubuntu`, the image is probably Oracle Linux (user `opc`). Recreate the instance with Ubuntu.
+## Day to day on the server
 
-All commands in parts 3–5 run **on the server** (inside that SSH session), unless the step says otherwise.
+| Task | How |
+|---|---|
+| Backend logs | `journalctl -u ilna-backend -f` (live) or `journalctl -u ilna-backend --since "1 hour ago"` |
+| Restart / stop the backend | `sudo systemctl restart ilna-backend` / `sudo systemctl stop ilna-backend` |
+| Change a setting or secret | `nano ~/ilna/.env`, then restart the backend. Changing `SECRET_KEY` logs everyone out. |
+| Look in the database | `sqlite3 ~/ilna/ilna.db`. Try risky changes on a copy first: `cp ilna.db /tmp/test.db`. |
+| Back up now (before something risky) | `bash ~/ilna/deploy/backup.sh` |
+| Tunnel status | `systemctl status cloudflared`, or the Cloudflare dashboard → Zero Trust → Networks → Tunnels |
+| Browse files | VS Code **Remote - SSH**, or WinSCP with the same key |
+| Disk space | `df -h /` and `du -sh ~/ilna/uploads` |
 
-Tip: VS Code's **Remote - SSH** extension opens the server's folders and a terminal like a local project.
+## Backups
 
-## 3. Get the code
+`deploy/backup.sh` runs every night from cron. It saves `ilna.db` (copied safely while the app runs), `uploads/` and `chroma_db/` into one file, `~/ilna-backups/ilna-<date>.tar.gz`, and keeps the newest 3.
 
-The repo is public, so the server can clone it over HTTPS:
+Left out: `.env`, which you should **keep in a password manager**, and `models/`, which downloads again by itself.
 
-```bash
-git clone https://github.com/8ussai/Ilna.git ~/ilna
-cd ~/ilna
-bash deploy/setup.sh
-```
-
-If the repo is ever made private, give the server a read-only key to it instead:
-
-```bash
-ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
-cat ~/.ssh/id_ed25519.pub
-```
-
-On GitHub: **repo → Settings → Deploy keys → Add deploy key**. Paste the line and leave "Allow write access" off. Then:
-
-```bash
-ssh -o StrictHostKeyChecking=accept-new -T git@github.com   # says "successfully authenticated"
-git clone git@github.com:8ussai/Ilna.git ~/ilna
-cd ~/ilna
-bash deploy/setup.sh
-```
-
-`setup.sh` installs system packages, creates `venv` and installs the Python packages (10–20 minutes). It also registers the backend as a background service and schedules the nightly backup. It does **not** start the backend yet.
-
-## 4. Copy your settings and data
-
-**On the laptop**, close the backend window first so the database isn't changing. Then, in PowerShell in `D:\Ilna`:
+**Copy the backups to the laptop now and then** (PowerShell):
 
 ```powershell
-$key = "$HOME\.ssh\ilna-oracle.key"
-$server = "ubuntu@<PUBLIC-IP>"
-scp -i $key .env ilna.db "${server}:~/ilna/"
-scp -i $key -r uploads chroma_db "${server}:~/ilna/"
+mkdir D:\ilna-backups -Force
+scp -i ~/.ssh/ilna-oracle "ubuntu@84.13.147.223:~/ilna-backups/*.tar.gz" D:\ilna-backups\
 ```
 
-To start with an empty site instead, copy only `.env`. The database is created on first start.
+**Optional: off-server copies in Cloudflare R2.** The script also uploads each backup and keeps 14 days there, once rclone has a remote named `r2`:
 
-The AI models (`models/`, 2.7 GB) aren't copied. The server downloads them the first time they're needed.
-
-## 5. Start the backend
-
-On the server:
-
-```bash
-sudo systemctl start ilna-backend
-journalctl -u ilna-backend -f          # watch it start; Ctrl+C stops watching, not the app
-curl -s localhost:8000/docs | head -5  # should print HTML
-```
-
-From now on it starts by itself at boot and restarts if it crashes.
-
-## 6. Point the API at the server (Cloudflare tunnel)
-
-In the Cloudflare dashboard → **Zero Trust → Networks → Tunnels**:
-
-1. Open the **existing (laptop) tunnel** → Public Hostname. **Delete the `api.ilna-academic.com` route.** The API is down from here until step 3.
-2. **Create a tunnel** → Cloudflared → name it `ilna-server`. Pick **Debian, arm64**, copy the install command it shows, and run it **on the server**. The connector shows as "Healthy".
-3. In the new tunnel, add a Public Hostname: subdomain `api`, domain `ilna-academic.com`, service **HTTP** `localhost:8000`.
-
-Check that <https://api.ilna-academic.com/docs> opens.
-
-## 7. Put the frontend on Cloudflare Workers
-
-Cloudflare now sets up static sites as Workers. `frontend/wrangler.jsonc` tells it to serve the built `dist/` folder and send unknown paths to `index.html`.
-
-1. Cloudflare → **DNS → Records** for ilna-academic.com: delete any `@` / `www` CNAME that points to an old `….cfargotunnel.com` tunnel. Keep `api` and the MX/TXT email records.
-2. **Workers & Pages → Create → Import a repository** → `8ussai/Ilna`.
-3. Settings:
-   - Project name: `ilna` (must match `name` in `wrangler.jsonc`)
-   - Build command: `npm run build`
-   - Deploy command: `npx wrangler deploy`
-   - Advanced → **Root directory / path:** `frontend`
-   - Advanced → build variable `NODE_VERSION` = `24`
-
-   `frontend/.env.production` already points the build at `https://api.ilna-academic.com`.
-4. **Deploy**, and check the `*.workers.dev` link it gives.
-5. In the Worker → **Settings → Domains & Routes → Add → Custom domain**: add `ilna-academic.com`, then `www.ilna-academic.com`.
-
-## 8. Turn off the laptop demo
-
-Once both parts work, delete the old tunnel in the dashboard (Tunnels → old tunnel → Delete). Then, in an **admin** PowerShell on the laptop:
-
-```powershell
-Stop-Service cloudflared
-Set-Service cloudflared -StartupType Disabled
-```
-
-`start-demo.ps1` is no longer needed for the public site. `npm run dev` + uvicorn on the laptop keep working for development as before.
-
-## 9. Off-server backups (Cloudflare R2)
-
-The nightly backup already keeps the last 3 copies on the server (`~/ilna-backups`). To also keep 14 days off the server:
-
-1. Dashboard → **R2** → create a bucket named `ilna-backups`. R2 asks for a payment method; up to 10 GB is free.
-2. R2 → **Manage API tokens → Create API token**: permission "Object Read & Write", limited to that bucket. Note the **Access Key ID**, **Secret Access Key** and the **endpoint** (`https://<account-id>.r2.cloudflarestorage.com`).
+1. Cloudflare → **R2** → create a bucket `ilna-backups`. R2 asks for a payment method; 10 GB is free.
+2. R2 → **Manage API tokens → Create API token**: "Object Read & Write", limited to that bucket. Note the Access Key ID, Secret Access Key and endpoint.
 3. On the server:
 
    ```bash
    rclone config create r2 s3 provider=Cloudflare acl=private \
        access_key_id=<ACCESS-KEY-ID> secret_access_key=<SECRET> \
        endpoint=https://<account-id>.r2.cloudflarestorage.com
-   bash ~/ilna/deploy/backup.sh       # test it; the last line should say "uploaded"
+   bash ~/ilna/deploy/backup.sh       # the last line should say "uploaded"
    ```
 
-**Keep `.env` in a password manager.** Backups leave it out on purpose. Without `SECRET_KEY` everyone gets logged out, and the API keys would need to be made again.
-
-To pull a copy to the laptop now and then (PowerShell in `D:\`):
-
-```powershell
-scp -i $HOME\.ssh\ilna-oracle.key "ubuntu@<PUBLIC-IP>:~/ilna-backups/*.tar.gz" D:\ilna-backups\
-```
-
----
-
-## Day to day
-
-| Task | How |
-|---|---|
-| Put frontend changes live | `git push`. Cloudflare rebuilds by itself (watch it under Workers & Pages → ilna → Deployments). |
-| Put backend changes live | `git push`, then on the server: `bash ~/ilna/deploy/update.sh`. Migrations run on startup. |
-| A change touching both | Push, then run `update.sh` right away, so the new frontend isn't waiting long on the old backend. |
-| See backend logs | `journalctl -u ilna-backend -f` (live), or `journalctl -u ilna-backend --since "1 hour ago"` |
-| Restart / stop the backend | `sudo systemctl restart ilna-backend` / `sudo systemctl stop ilna-backend` |
-| Look in the database | `sqlite3 ~/ilna/ilna.db`. For risky changes, try them on a copy first: `cp ilna.db /tmp/test.db`. |
-| Browse files | VS Code Remote - SSH, or WinSCP with the same key |
-| Check disk space | `df -h /` and `du -sh ~/ilna/uploads` |
-| Change a secret | Edit `~/ilna/.env`, then restart the backend |
-
-## Restoring a backup
+### Restoring a backup
 
 ```bash
 sudo systemctl stop ilna-backend
@@ -190,8 +90,83 @@ sudo systemctl start ilna-backend
 
 Once the site looks right, delete the `.old` copies.
 
+---
+
+## Setting it up from scratch
+
+Use this to rebuild the server, or to move to a new one. Do the parts in order.
+
+### 1. Create the Oracle VM
+
+1. Sign up at <https://signup.cloud.oracle.com>. Oracle asks for a card to verify you; Always Free resources are never charged. **The home region is permanent**, and the free ARM VM only exists there.
+2. **Upgrade to Pay As You Go** (Billing → Upgrade) and add a $1 budget alert. Always Free resources stay free, and Oracle stops reclaiming idle free VMs.
+3. **Compute → Instances → Create instance**:
+   - **Image:** **Canonical Ubuntu 24.04**. The default is Oracle Linux, which `setup.sh` doesn't support.
+   - **Shape:** Ampere → `VM.Standard.A1.Flex`, **4 OCPUs, 24 GB**. The default (1 OCPU, 6 GB) is too small for the AI models. If it's "Out of capacity", retry later or start with 2 OCPUs / 12 GB.
+   - **Networking:** "Create new virtual cloud network" + "Create new public subnet", with "Automatically assign public IPv4 address" on. You can reuse an existing VCN instead.
+   - **SSH keys:** paste the public key (`~/.ssh/ilna-oracle.pub` on the laptop; make one with `ssh-keygen -t ed25519 -f ~/.ssh/ilna-oracle`). Or let Oracle generate one and **download the private key**, which you can't download later.
+   - **Boot volume:** custom size **150 GB**. 200 GB total is free, and boot volumes of terminated VMs count too, so delete those.
+4. If the VM has **no public IP**: on its **Networking** tab, run the quick action **"Connect public subnet to internet"**. Then open the VNIC → **IP administration** → **⋯** on the private IP → **Edit** → **Ephemeral public IP**.
+5. Log in: `ssh -i ~/.ssh/ilna-oracle ubuntu@<PUBLIC-IP>`. "Permission denied" for `ubuntu` usually means the image is Oracle Linux (user `opc`); recreate it with Ubuntu.
+
+### 2. Install
+
+On the server:
+
+```bash
+git clone https://github.com/8ussai/Ilna.git ~/ilna
+cd ~/ilna
+bash deploy/setup.sh
+```
+
+`setup.sh` takes 10–20 minutes. It installs system packages and the Python packages (the CPU-only torch when there's no NVIDIA GPU), registers the `ilna-backend` service, and schedules the nightly backup. It does **not** start the backend.
+
+If the repo is ever private, add a read-only deploy key first: on the server, run `ssh-keygen -t ed25519` and add `~/.ssh/id_ed25519.pub` under GitHub → repo → Settings → Deploy keys. Then clone `git@github.com:8ussai/Ilna.git`.
+
+### 3. Copy settings and data, then start
+
+From the laptop, or from a backup, put `.env` and the data into `~/ilna`. With the old backend stopped, so the database isn't changing:
+
+```powershell
+scp -i ~/.ssh/ilna-oracle .env "ubuntu@<PUBLIC-IP>:~/ilna/"
+```
+
+```bash
+# on the server, from the newest backup (copied over with scp first)
+cd ~/ilna && tar -xzf ~/ilna-backups/ilna-<DATE>.tar.gz
+```
+
+For an empty site, copy only `.env`; the database is created on first start. The AI models (2.7 GB) download the first time they're needed.
+
+```bash
+sudo systemctl start ilna-backend
+journalctl -u ilna-backend -f          # Ctrl+C stops watching, not the app
+curl -s localhost:8000/docs | head -5  # should print HTML
+```
+
+### 4. Tunnel for the API
+
+In Cloudflare → **Zero Trust → Networks → Tunnels**:
+
+1. Moving to a new server? Just run the `ilna-server` tunnel's install command on the new server (tunnel → **Add a replica**), then uninstall cloudflared from the old one. The route stays.
+2. Otherwise, **Create a tunnel** → Cloudflared → `ilna-server` → **Debian, arm64**. Run its install and `sudo cloudflared service install <token>` commands on the server.
+3. Add a route: subdomain `api`, domain `ilna-academic.com`, service URL **`http://localhost:8000`** (it must start with `http://`).
+
+Check that <https://api.ilna-academic.com/docs> opens.
+
+### 5. Frontend on Cloudflare Workers
+
+Only needed if the `ilna` Worker doesn't exist yet.
+
+1. **Workers & Pages → Create → Import a repository** → `8ussai/Ilna`.
+2. Project name `ilna` (must match `wrangler.jsonc`), build command `npm run build`, deploy command `npx wrangler deploy`.
+3. In the Worker → **Settings → Builds**: **Root directory** `/frontend`, build variable `NODE_VERSION` = `24`, and builds for non-production branches **off**.
+4. **Settings → Domains & Routes → Add → Custom domain**: `ilna-academic.com` and `www.ilna-academic.com`. Delete any old `@`/`www` DNS records pointing to a tunnel first.
+
+`frontend/.env.production` points the build at `https://api.ilna-academic.com`. The backend only accepts requests from `ilna-academic.com` (CORS in `backend/main.py`), so logins don't work on other addresses.
+
 ## Limits to know
 
-- **No GPU.** Transcription and embeddings run on the CPU, about as fast as on the laptop. A GPU server costs money; the code already switches to CUDA when one exists.
-- **Disk:** 150–200 GB in total. Premium users can use 5 GB each.
-- Uploads still stop at 95 MB because of Cloudflare's 100 MB limit.
+- **No GPU.** Transcription and embeddings run on the CPU. A GPU server costs money; the code switches to CUDA by itself when there is one, and `setup.sh` then installs the GPU build of torch.
+- **Disk:** 150 GB now, 200 GB free in total. Premium users can use 5 GB each.
+- Uploads stop at 95 MB because of Cloudflare's 100 MB limit.
