@@ -545,7 +545,7 @@
         }
       },
       "errors": {
-        "quota": "Gemini's daily limit was reached. Try again later.",
+        "quota": "Gemini is busy or has reached its daily limit. Try again later.",
         "no_text": "What you chose had no text to read, or was deleted.",
         "empty_answer": "Gemini sent back an empty answer.",
         "no_summary": "Gemini couldn't summarize this material.",

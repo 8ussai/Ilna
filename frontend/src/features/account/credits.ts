@@ -65,7 +65,7 @@ export const CREDITS: CreditGroup[] = [
     items: [
       { name: 'Qwen3-Embedding-0.6B', by: 'Qwen team, Alibaba Cloud', license: 'Apache-2.0', url: 'https://huggingface.co/Qwen/Qwen3-Embedding-0.6B' },
       { name: 'Whisper large-v3-turbo', by: 'OpenAI', license: 'MIT', url: 'https://github.com/openai/whisper' },
-      { name: 'Gemini 2.5 Flash', by: 'Google (used as an online service)', license: 'Google API Terms of Service', url: 'https://ai.google.dev/gemini-api/terms' },
+      { name: 'Gemini Flash', by: 'Google (used as an online service)', license: 'Google API Terms of Service', url: 'https://ai.google.dev/gemini-api/terms' },
     ],
   },
 ]

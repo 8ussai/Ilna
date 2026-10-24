@@ -14,13 +14,18 @@ import os
 import random
 import re
 import threading
+import time
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
+from langchain_core.exceptions import ModelAPIError, ModelNotFoundError, ModelRateLimitError
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from backend.config import (
-    GEMINI_MODEL,
+    GEMINI_BUSY_REST_SEC,
+    GEMINI_DEFAULT_REST_SEC,
+    GEMINI_GONE_REST_SEC,
+    GEMINI_MODELS,
     QUIZ_OPTIONS_PER_QUESTION,
     STUDY_ATTEMPTS,
     STUDY_MAX_OVERLAP_CHARS,
@@ -36,10 +41,13 @@ LANGUAGE_NAMES = {"ar": "Arabic", "en": "English"}
 
 _executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix="ai-study")
 _llm_lock = threading.Lock()
-_llm = None
+_llms: dict[str, ChatGoogleGenerativeAI] = {}
+# model -> time.monotonic() when it can be tried again, after it ran out of quota, was overloaded or was gone
+_resting_until: dict[str, float] = {}
 
 
 # the failures a user can be told about, by code; the page shows its own words for each, in its language
+# (error_code matches stored messages by exact text, so changing one turns old failures into "other")
 ERRORS = {
     "quota": "Gemini's usage limit was reached. Try again later.",
     "no_text": "The chosen files, recordings and notes have no text to read, or were deleted.",
@@ -75,14 +83,47 @@ def gemini_configured() -> bool:
     return bool(os.getenv("GOOGLE_API_KEY"))
 
 
-# the Gemini client, made on first use so the server starts without an API key
-def _get_llm() -> ChatGoogleGenerativeAI:
-    # made on first use, so the server starts (and everything else works) without an API key
-    global _llm
+# one model's client, made on first use so the server starts (and everything else works) without an API key
+def _llm_for(model: str) -> ChatGoogleGenerativeAI:
     with _llm_lock:
-        if _llm is None:
-            _llm = ChatGoogleGenerativeAI(model=GEMINI_MODEL, temperature=0.3, timeout=300, max_retries=2)
-        return _llm
+        if model not in _llms:
+            # no temperature: Gemini 3 and later use fixed sampling and warn when one is set
+            _llms[model] = ChatGoogleGenerativeAI(model=model, timeout=300, max_retries=2)
+        return _llms[model]
+
+
+_RETRY_IN = re.compile(r"retry in (?:(\d+)h)?(?:(\d+)m)?(?:([\d.]+)s)?")
+
+
+# seconds until a model's quota resets, read from Google's "Please retry in 7h22m7.2s"
+def _rest_seconds(error: Exception) -> float:
+    match = _RETRY_IN.search(str(error))
+    if not match or not any(match.groups()):
+        return GEMINI_DEFAULT_REST_SEC
+    hours, minutes, seconds = match.groups()
+    return int(hours or 0) * 3600 + int(minutes or 0) * 60 + float(seconds or 0) + 1
+
+
+def _call(run):
+    """Runs run(llm) on the first model in GEMINI_MODELS that can answer, moving down the list when one has run
+    out of quota, is overloaded, or is no longer offered. Each is skipped for a while, so later calls go straight on."""
+    for model in GEMINI_MODELS:
+        with _llm_lock:
+            if _resting_until.get(model, 0) > time.monotonic():
+                continue
+        try:
+            return run(_llm_for(model))
+        except (ModelRateLimitError, ModelAPIError, ModelNotFoundError) as e:
+            if isinstance(e, ModelRateLimitError):
+                reason, rest = "out of quota", _rest_seconds(e)
+            elif isinstance(e, ModelNotFoundError):
+                reason, rest = "no longer offered", GEMINI_GONE_REST_SEC
+            else:
+                reason, rest = "overloaded", GEMINI_BUSY_REST_SEC
+            with _llm_lock:
+                _resting_until[model] = time.monotonic() + rest
+            print(f"[Study] {model} is {reason}; skipping it for {rest / 60:.0f} min")
+    raise StudyError("quota")
 
 
 # runs a writing job on its own thread, so the request that started it can return
@@ -288,7 +329,7 @@ def _translate_prompt(content, kind: str, source: str, target: str) -> str:
 
 # asks Gemini for an answer in the given shape
 def _ask(schema, prompt: str):
-    result = _get_llm().with_structured_output(schema).invoke(prompt)
+    result = _call(lambda llm: llm.with_structured_output(schema).invoke(prompt))
     if result is None:
         raise StudyError("empty_answer")
     return result
@@ -318,7 +359,8 @@ def _write_summary(parts: list[str], length: str, language: str) -> SummaryConte
     else:
         # too long for one request: notes on each part first, then one summary of all the notes
         notes = [
-            _get_llm().invoke(_notes_prompt(part, i, len(parts), language)).text for i, part in enumerate(parts, 1)
+            _call(lambda llm, prompt=_notes_prompt(part, i, len(parts), language): llm.invoke(prompt).text)
+            for i, part in enumerate(parts, 1)
         ]
         text = "\n\n".join(notes)
     summary = _clean_summary(_ask(SummaryContent, _summary_prompt(text, length, language)))
@@ -417,10 +459,8 @@ def _translate(original, kind: str, source: str, target: str):
 def _message(error: Exception) -> str:
     if isinstance(error, StudyError):
         return str(error)
-    text = str(error)
-    if "RESOURCE_EXHAUSTED" in text or "429" in text:
-        return ERRORS["quota"]
-    return f"Gemini couldn't finish this: {text}"[:500]
+    # running out of quota is already a StudyError, raised by _call once every model is out
+    return f"Gemini couldn't finish this: {error}"[:500]
 
 
 # --- jobs ---

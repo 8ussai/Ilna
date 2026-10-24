@@ -10,7 +10,7 @@ How to run, configure and deploy Ilna. For what the site does, see the [README](
 | Backend | FastAPI, SQLAlchemy, SQLite, JWT auth |
 | Search index | [Qwen3-Embedding-0.6B](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B) in ChromaDB, via LangChain |
 | Transcription | [faster-whisper](https://github.com/SYSTRAN/faster-whisper) `large-v3-turbo` |
-| Summaries & quizzes | Google Gemini 2.5 Flash |
+| Summaries & quizzes | Google Gemini Flash (falls back through `GEMINI_MODELS` as each runs out of quota) |
 | Email | Any SMTP server (production uses Brevo) |
 
 The AI models run locally. They use a GPU (CUDA) when there is one and fall back to the CPU otherwise.
@@ -84,6 +84,7 @@ Limits and other settings live in [`backend/config.py`](backend/config.py). The 
 | Storage per user | 1 GB (premium: 5 GB) |
 | Largest single file or recording | 95 MB |
 | Summaries and quizzes per day | 2 of each (premium: shown as unlimited) |
+| Gemini models (`GEMINI_MODELS`) | 3.6 Flash, 2.5 Flash, then 3.1 Flash-Lite; tried in that order, each skipped while it's out of quota, overloaded or retired |
 | Friends per user | 100 (premium: 500) |
 | Pictures per post | 4, up to 10 MB each |
 | Login lasts | 7 days |

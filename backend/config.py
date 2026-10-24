@@ -106,8 +106,19 @@ TRANSCRIPT_LANGUAGES = {"ar", "en"}
 # write progress at most this often, so a long lecture isn't thousands of tiny commits
 TRANSCRIBE_PROGRESS_EVERY_SEC = 2
 
-# summaries and quizzes are written by Gemini; GOOGLE_API_KEY goes in .env
-GEMINI_MODEL = "gemini-2.5-flash"
+# summaries and quizzes are written by Gemini; GOOGLE_API_KEY goes in .env.
+# Tried in order: each request uses the first model that still has quota, and a model that runs out is skipped
+# until Google says its limit resets. Each model has its own free-tier quota on the same key.
+GEMINI_MODELS = (
+    "gemini-3.6-flash",
+    "gemini-2.5-flash",
+    "gemini-3.1-flash-lite",
+)
+# how long to skip a model that ran out when Google doesn't say when it resets
+GEMINI_DEFAULT_REST_SEC = 60
+# how long to skip a model Google says is overloaded (503), and one it no longer offers (404)
+GEMINI_BUSY_REST_SEC = 5 * 60
+GEMINI_GONE_REST_SEC = 24 * 3600
 # summaries and quizzes one user can start in any 24 hours, by kind (retries of failed ones don't count)
 STUDY_DAILY_LIMITS = {"summary": 2, "quiz": 2}
 # premium is shown as unlimited; this hidden cap only guards the Gemini quota
