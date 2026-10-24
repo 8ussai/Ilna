@@ -200,8 +200,8 @@ export function CoursePage({ courseId, section, studyItemId, onSectionChange, on
       <header className="overflow-hidden rounded-2xl border border-line bg-card">
         <div aria-hidden="true" className={`h-2 ${courseColorClass(course.color)}`} />
         {/* on phones the buttons go under the title, so they don't squeeze it into broken words */}
-        <div className="flex flex-col gap-3 p-5 sm:flex-row sm:items-start sm:gap-4">
-          <div className="min-w-0 flex-1">
+        <div className="flex flex-col items-start gap-3 p-5 sm:flex-row sm:gap-4">
+          <div className="w-full min-w-0 flex-1">
             <h1 dir="auto" className="break-words font-serif text-2xl font-semibold sm:text-3xl">
               {course.title}
             </h1>
