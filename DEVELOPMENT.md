@@ -130,7 +130,8 @@ frontend/src/
   hooks/                 shared React hooks (autosave, polling, unread count)
   lib/                   small helpers: dates, sizes, links, routes, theme color, catalog names
   locales/               English and Arabic text
-start-demo.ps1       builds and runs the public demo on Windows
+deploy/              free hosting on an Oracle Cloud VM: setup, update and backup scripts, and the guide
+start-demo.ps1       builds and runs the old laptop demo on Windows
 ```
 
 ## Universities
@@ -222,6 +223,8 @@ Some limits to know:
 
 ## Deployment
 
-The public site runs on a single Windows machine behind a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/). `start-demo.ps1` builds the frontend, then starts the API on port 8000 and `vite preview` on port 4173. The tunnel sends `ilna-academic.com` to 4173 and `api.ilna-academic.com` to 8000.
+The frontend is hosted on Cloudflare Pages, which rebuilds on every push to `main`. The backend, database and uploads run on a free Oracle Cloud ARM VM as the `ilna-backend` service, and a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) sends `api.ilna-academic.com` to it on port 8000. The full setup, updates, backups and restores are in [deploy/DEPLOY.md](deploy/DEPLOY.md).
+
+Before that, the site ran on a Windows laptop: `start-demo.ps1` builds the frontend, then starts the API on port 8000 and `vite preview` on port 4173.
 
 Cloudflare's free plan rejects request bodies over 100 MB, which is why uploads stop at 95 MB.

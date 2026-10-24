@@ -5,9 +5,13 @@ from pathlib import Path
 from dotenv import load_dotenv
 from fastapi.security import OAuth2PasswordBearer
 
-load_dotenv()
-
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# the database, uploads and search index are found relative to the project folder, and file paths saved in the
+# database (uploads/courses/...) are relative too, so always run from there whatever folder the app was started in
+os.chdir(PROJECT_ROOT)
+
+load_dotenv(os.path.join(PROJECT_ROOT, ".env"))
 
 # the AI models (~3 GB) live in the project's models/ folder instead of the user's home cache;
 # Hugging Face reads this when its libraries are first imported, so anything that loads a model imports this file first

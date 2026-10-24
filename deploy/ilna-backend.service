@@ -1,0 +1,19 @@
+# Runs the Ilna API in the background, starts it at boot and restarts it if it crashes.
+# deploy/setup.sh fills in __USER__ and __ROOT__ and installs it to /etc/systemd/system/.
+# Logs:  journalctl -u ilna-backend -f
+[Unit]
+Description=Ilna backend (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=__USER__
+WorkingDirectory=__ROOT__
+# only reachable from this machine; the Cloudflare tunnel brings outside traffic in
+ExecStart=__ROOT__/venv/bin/uvicorn backend.main:app --host 127.0.0.1 --port 8000
+Environment=PYTHONUNBUFFERED=1
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
