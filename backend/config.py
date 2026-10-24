@@ -103,6 +103,14 @@ CHROMA_COLLECTION_NAME = "course_chunks_qwen3"
 CHUNK_CHARS = 1500
 CHUNK_OVERLAP_CHARS = 200
 
+# AI job lines (core/jobs.py): work a user got within this window counts against their next turn
+JOB_TURN_WINDOW_SEC = 3600
+# rough job sizes, so small jobs can go first; only their order matters, not their accuracy
+TRANSCRIBE_SEC_PER_AUDIO_SEC = 1.0
+INDEX_SEC_PER_CHUNK = 3.0
+# a document's chunk count is guessed from its file size before it's read
+DOCUMENT_BYTES_PER_CHUNK = 20_000
+
 # recordings are transcribed with this faster-whisper model
 WHISPER_MODEL = "large-v3-turbo"
 # languages a recording can be transcribed as; anything else is detected
