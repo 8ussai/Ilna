@@ -182,7 +182,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
           </div>
 
           {kind === 'summary' ? (
-            <fieldset>
+            <fieldset className="min-w-0">
               <legend className="mb-2 text-sm font-medium">{t('courses.study.generate.length')}</legend>
               <div className="grid gap-2 sm:grid-cols-2">
                 {(['brief', 'detailed'] as const).map((value) => (
@@ -194,7 +194,7 @@ export function GenerateDialog({ kind, courseId, materials, notes, onClose, onCr
               </div>
             </fieldset>
           ) : (
-            <fieldset>
+            <fieldset className="min-w-0">
               <legend className="mb-2 text-sm font-medium">{t('courses.study.generate.questions')}</legend>
               <div className="flex flex-wrap gap-2">
                 {QUESTION_COUNTS.map((value) => (
@@ -287,7 +287,7 @@ function SourceGroup({
   }, [picked, all])
 
   return (
-    <fieldset className="rounded-xl border border-line">
+    <fieldset className="min-w-0 rounded-xl border border-line">
       <legend className="sr-only">{label}</legend>
       <div className="flex items-center justify-between gap-3 border-b border-line bg-surface/60 px-4 py-2.5">
         <span aria-hidden="true" className="font-medium">
