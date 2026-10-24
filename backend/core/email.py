@@ -42,7 +42,7 @@ def send_otp_email(user: User, code: str) -> None:
         f"Your Ilna verification code is: {code}\n"
         f"It expires in {minutes} minutes.\n\n"
         f"رمز التحقق الخاص بك في Ilna هو: {code}\n"
-        f"ينتهي خلال {minutes} دقائق.\n\n"
+        f"ينتهي خلال {minutes} دقيقة.\n\n"
         "If you didn't create an Ilna account, you can ignore this email.\n"
         "إذا لم تنشئ حسابًا في Ilna، يمكنك تجاهل هذه الرسالة.\n"
     )
@@ -62,7 +62,7 @@ def send_password_reset_email(user: User, code: str) -> None:
         f"Your code to reset your Ilna password is: {code}\n"
         f"It expires in {minutes} minutes.\n\n"
         f"رمز إعادة تعيين كلمة المرور الخاصة بك في Ilna هو: {code}\n"
-        f"ينتهي خلال {minutes} دقائق.\n\n"
+        f"ينتهي خلال {minutes} دقيقة.\n\n"
         "If you didn't ask for this, you can ignore this email. Your password hasn't changed.\n"
         "إذا لم تطلب ذلك، يمكنك تجاهل هذه الرسالة. لم تتغير كلمة المرور الخاصة بك.\n"
     )

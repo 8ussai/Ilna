@@ -42,12 +42,12 @@ router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
-def send_code(user: User, db: Session) -> None:
+def send_code(user: User, db: Session) -> bool:
     """Emails the user a new sign-up code, unless one was sent within the cooldown.
-    Raises 502 if the email can't be sent."""
+    Returns whether a code was sent. Raises 502 if the email can't be sent."""
     now = utc_now()
     if user.otp_sent_at and now - user.otp_sent_at < timedelta(seconds=config.OTP_RESEND_COOLDOWN_SECONDS):
-        return
+        return False
 
     code = f"{secrets.randbelow(1_000_000):06d}"
     try:
@@ -65,6 +65,7 @@ def send_code(user: User, db: Session) -> None:
     user.otp_expires_at = now + timedelta(minutes=config.OTP_EXPIRE_MINUTES)
     user.otp_attempts = 0
     db.commit()
+    return True
 
 
 # signs a student up and emails a 6-digit code to verify the address
@@ -124,7 +125,17 @@ def verify_otp(otp_data: OtpVerify, db: Session = Depends(get_db)):
     if user.otp_attempts >= config.OTP_MAX_ATTEMPTS:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Too many attempts")
     if utc_now() > user.otp_expires_at:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired")
+        # logged so late emails show up in the server log
+        logger.info(
+            "Sign-up code for user %s was entered %s after it expired", user.id, utc_now() - user.otp_expires_at
+        )
+        # email a fresh code right away, so the student doesn't have to ask for one
+        try:
+            sent = send_code(user, db)
+        except HTTPException:
+            sent = False
+        detail = "Code expired, new code sent" if sent else "Code expired"
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=detail)
 
     if not verify_password(otp_data.code.strip(), user.otp_hash):
         user.otp_attempts += 1
