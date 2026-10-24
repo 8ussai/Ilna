@@ -27,6 +27,7 @@ Ilna is open to students at these universities in Jordan. You sign up with your 
 | Al Al Bayt University | جامعة آل البيت | `st.aabu.edu.jo` |
 | University of Jordan | الجامعة الأردنية | `ju.edu.jo` |
 | Princess Sumaya University for Technology | جامعة الأميرة سمية للتكنولوجيا | `std.psut.edu.jo` |
+| Zarqa University | جامعة الزرقاء | `zu.edu.jo` |
 | Applied Science Private University | جامعة العلوم التطبيقية الخاصة | `students.asu.edu.jo` |
 | Jordan University of Science and Technology | جامعة العلوم والتكنولوجيا الأردنية | `just.edu.jo` |
 | The Hashemite University | الجامعة الهاشمية | `std.hu.edu.jo` |

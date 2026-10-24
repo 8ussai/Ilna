@@ -1087,6 +1087,332 @@
           ]
         },
         {
+          "id": "zu",
+          "name_en": "Zarqa University",
+          "name_ar": "جامعة الزرقاء",
+          "domain": "zu.edu.jo",
+          "colleges": [
+            {
+              "id": "zu-arts",
+              "name_en": "Arts",
+              "name_ar": "الاداب",
+              "majors": [
+                {
+                  "id": "zu-arts-his",
+                  "name_en": "History",
+                  "name_ar": "التاريخ"
+                },
+                {
+                  "id": "zu-arts-tr",
+                  "name_en": "Translation",
+                  "name_ar": "الترجمة"
+                },
+                {
+                  "id": "zu-arts-aen",
+                  "name_en": "Applied English",
+                  "name_ar": "اللغة الانجليزية التطبيقية"
+                },
+                {
+                  "id": "zu-arts-en",
+                  "name_en": "English Language and Literature",
+                  "name_ar": "اللغة الانجليزية وادابها"
+                },
+                {
+                  "id": "zu-arts-ar",
+                  "name_en": "Arabic Language and Literature",
+                  "name_ar": "اللغة العربية وادابها"
+                }
+              ]
+            },
+            {
+              "id": "zu-media",
+              "name_en": "Media",
+              "name_ar": "الاعلام",
+              "majors": [
+                {
+                  "id": "zu-media-rtv",
+                  "name_en": "Radio and Television",
+                  "name_ar": "الاذاعة والتلفزيون"
+                },
+                {
+                  "id": "zu-media-jdm",
+                  "name_en": "Journalism and Digital Media",
+                  "name_ar": "الصحافة والاعلام الرقمي"
+                },
+                {
+                  "id": "zu-media-pr",
+                  "name_en": "Public Relations and Advertising",
+                  "name_ar": "العلاقات العامة والاعلان"
+                }
+              ]
+            },
+            {
+              "id": "zu-econ",
+              "name_en": "Economics and Administrative Sciences",
+              "name_ar": "الاقتصاد والعلوم الادارية",
+              "majors": [
+                {
+                  "id": "zu-econ-ba",
+                  "name_en": "Business Administration",
+                  "name_ar": "ادارة الاعمال"
+                },
+                {
+                  "id": "zu-econ-eco",
+                  "name_en": "Economics",
+                  "name_ar": "الاقتصاد"
+                },
+                {
+                  "id": "zu-econ-emk",
+                  "name_en": "E-Marketing and Social Media",
+                  "name_ar": "التسويق الالكتروني والتواصل الاجتماعي"
+                },
+                {
+                  "id": "zu-econ-fintech",
+                  "name_en": "Financial Technology",
+                  "name_ar": "التكنولوجيا المالية"
+                },
+                {
+                  "id": "zu-econ-bit",
+                  "name_en": "Business Information Technology",
+                  "name_ar": "تكنولوجيا معلومات الاعمال"
+                },
+                {
+                  "id": "zu-econ-acc",
+                  "name_en": "Accounting",
+                  "name_ar": "المحاسبة"
+                },
+                {
+                  "id": "zu-econ-ib",
+                  "name_en": "Islamic Banking",
+                  "name_ar": "المصارف الاسلامية"
+                },
+                {
+                  "id": "zu-econ-ais",
+                  "name_en": "Accounting Information Systems",
+                  "name_ar": "نظم المعلومات المحاسبية"
+                }
+              ]
+            },
+            {
+              "id": "zu-it",
+              "name_en": "Information Technology",
+              "name_ar": "تكنولوجيا المعلومات",
+              "majors": [
+                {
+                  "id": "zu-it-cyber",
+                  "name_en": "Cybersecurity",
+                  "name_ar": "الامن السيبراني"
+                },
+                {
+                  "id": "zu-it-ai",
+                  "name_en": "Artificial Intelligence",
+                  "name_ar": "الذكاء الاصطناعي"
+                },
+                {
+                  "id": "zu-it-cs",
+                  "name_en": "Computer Science",
+                  "name_ar": "علم الحاسوب"
+                },
+                {
+                  "id": "zu-it-se",
+                  "name_en": "Software Engineering",
+                  "name_ar": "هندسة البرمجيات"
+                }
+              ]
+            },
+            {
+              "id": "zu-nurs",
+              "name_en": "Nursing",
+              "name_ar": "التمريض",
+              "majors": [
+                {
+                  "id": "zu-nurs-nurs",
+                  "name_en": "Nursing",
+                  "name_ar": "التمريض"
+                }
+              ]
+            },
+            {
+              "id": "zu-law",
+              "name_en": "Law",
+              "name_ar": "الحقوق",
+              "majors": [
+                {
+                  "id": "zu-law-law",
+                  "name_en": "Law",
+                  "name_ar": "الحقوق"
+                }
+              ]
+            },
+            {
+              "id": "zu-sharia",
+              "name_en": "Sharia",
+              "name_ar": "الشريعة",
+              "majors": [
+                {
+                  "id": "zu-sharia-usul",
+                  "name_en": "Fundamentals of Religion",
+                  "name_ar": "اصول الدين"
+                },
+                {
+                  "id": "zu-sharia-fiqh",
+                  "name_en": "Fiqh and Its Foundations",
+                  "name_ar": "الفقه وأصوله"
+                }
+              ]
+            },
+            {
+              "id": "zu-pharm",
+              "name_en": "Pharmacy",
+              "name_ar": "الصيدلة",
+              "majors": [
+                {
+                  "id": "zu-pharm-pharm",
+                  "name_en": "Pharmacy",
+                  "name_ar": "الصيدلة"
+                }
+              ]
+            },
+            {
+              "id": "zu-dent",
+              "name_en": "Dentistry",
+              "name_ar": "طب الاسنان",
+              "majors": [
+                {
+                  "id": "zu-dent-dds",
+                  "name_en": "Doctor of Dental Surgery",
+                  "name_ar": "دكتور طب اسنان"
+                }
+              ]
+            },
+            {
+              "id": "zu-sci",
+              "name_en": "Science",
+              "name_ar": "العلوم",
+              "majors": [
+                {
+                  "id": "zu-sci-math",
+                  "name_en": "Mathematics",
+                  "name_ar": "الرياضيات"
+                },
+                {
+                  "id": "zu-sci-phys",
+                  "name_en": "Physics",
+                  "name_ar": "الفيزياء"
+                }
+              ]
+            },
+            {
+              "id": "zu-edu",
+              "name_en": "Educational Sciences",
+              "name_ar": "العلوم التربوية",
+              "majors": [
+                {
+                  "id": "zu-edu-pe",
+                  "name_en": "Physical Education",
+                  "name_ar": "التربية الرياضية"
+                },
+                {
+                  "id": "zu-edu-ec",
+                  "name_en": "Early Childhood",
+                  "name_ar": "الطفولة المبكرة"
+                },
+                {
+                  "id": "zu-edu-ct",
+                  "name_en": "Class Teacher",
+                  "name_ar": "معلم الصف"
+                }
+              ]
+            },
+            {
+              "id": "zu-ams",
+              "name_en": "Allied Medical Sciences",
+              "name_ar": "العلوم الطبية المساندة",
+              "majors": [
+                {
+                  "id": "zu-ams-lab",
+                  "name_en": "Medical Laboratory Sciences",
+                  "name_ar": "التحاليل الطبية"
+                },
+                {
+                  "id": "zu-ams-rad",
+                  "name_en": "Medical Imaging Technology",
+                  "name_ar": "تقنيات الاشعة الطبية"
+                },
+                {
+                  "id": "zu-ams-nut",
+                  "name_en": "Clinical Nutrition and Dietetics Technology",
+                  "name_ar": "تكنولوجيا التغذية العلاجية والحمية"
+                },
+                {
+                  "id": "zu-ams-hs",
+                  "name_en": "Applied Hearing and Speech",
+                  "name_ar": "السمع والنطق التطبيقي"
+                },
+                {
+                  "id": "zu-ams-pt",
+                  "name_en": "Physiotherapy",
+                  "name_ar": "العلاج الطبيعي"
+                },
+                {
+                  "id": "zu-ams-cos",
+                  "name_en": "Applied Cosmetology",
+                  "name_ar": "علم التجميل التطبيقي"
+                }
+              ]
+            },
+            {
+              "id": "zu-design",
+              "name_en": "Arts and Design",
+              "name_ar": "الفنون والتصميم",
+              "majors": [
+                {
+                  "id": "zu-design-gd",
+                  "name_en": "Graphic Design",
+                  "name_ar": "التصميم الجرافيكي"
+                },
+                {
+                  "id": "zu-design-id",
+                  "name_en": "Interior Design",
+                  "name_ar": "التصميم الداخلي"
+                }
+              ]
+            },
+            {
+              "id": "zu-eng",
+              "name_en": "Engineering Technology",
+              "name_ar": "الهندسة التكنولوجية",
+              "majors": [
+                {
+                  "id": "zu-eng-energy",
+                  "name_en": "Energy Engineering",
+                  "name_ar": "هندسة الطاقة"
+                },
+                {
+                  "id": "zu-eng-arch",
+                  "name_en": "Architecture Engineering",
+                  "name_ar": "هندسة العمارة"
+                },
+                {
+                  "id": "zu-eng-civil",
+                  "name_en": "Civil Engineering",
+                  "name_ar": "الهندسة المدنية"
+                },
+                {
+                  "id": "zu-eng-me",
+                  "name_en": "Mechanical Engineering",
+                  "name_ar": "الهندسة الميكانيكية"
+                },
+                {
+                  "id": "zu-eng-ee",
+                  "name_en": "Electrical Engineering",
+                  "name_ar": "هندسة كهربائية"
+                }
+              ]
+            }
+          ]
+        },
+        {
           "id": "asu",
           "name_en": "Applied Science Private University",
           "name_ar": "جامعة العلوم التطبيقية الخاصة",

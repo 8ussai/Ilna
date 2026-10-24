@@ -143,6 +143,7 @@ All in Jordan (country id `jordan`):
 | `aabu` | Al Al Bayt University | `st.aabu.edu.jo` | 14 | 56 |
 | `ju` | University of Jordan | `ju.edu.jo` | 19 | 91 |
 | `psut` | Princess Sumaya University for Technology | `std.psut.edu.jo` | 3 | 14 |
+| `zu` | Zarqa University | `zu.edu.jo` | 14 | 44 |
 | `asu` | Applied Science Private University | `students.asu.edu.jo` | 11 | 44 |
 | `just` | Jordan University of Science and Technology | `just.edu.jo` | 11 | 77 |
 | `hu` | The Hashemite University | `std.hu.edu.jo` | 15 | 57 |
