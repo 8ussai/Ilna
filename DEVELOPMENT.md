@@ -223,7 +223,7 @@ Some limits to know:
 
 ## Deployment
 
-The frontend is hosted on Cloudflare Pages, which rebuilds on every push to `main`. The backend, database and uploads run on a free Oracle Cloud ARM VM as the `ilna-backend` service, and a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) sends `api.ilna-academic.com` to it on port 8000. The full setup, updates, backups and restores are in [deploy/DEPLOY.md](deploy/DEPLOY.md).
+The frontend is hosted on Cloudflare Workers as static assets (`frontend/wrangler.jsonc`), which rebuilds on every push to `main`. The backend, database and uploads run on a free Oracle Cloud ARM VM as the `ilna-backend` service, and a [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) sends `api.ilna-academic.com` to it on port 8000. The full setup, updates, backups and restores are in [deploy/DEPLOY.md](deploy/DEPLOY.md).
 
 Before that, the site ran on a Windows laptop: `start-demo.ps1` builds the frontend, then starts the API on port 8000 and `vite preview` on port 4173.
 

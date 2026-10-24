@@ -2,7 +2,7 @@
 
 This guide moves the public site off the laptop:
 
-- **Frontend** goes to **Cloudflare Pages**. It's free and rebuilds on every push to `main`.
+- **Frontend** goes to **Cloudflare Workers** (static assets). It's free and rebuilds on every push to `main`.
 - **Backend, database and files** go to an **Oracle Cloud "Always Free" ARM VM** (4 cores, 24 GB RAM, up to 200 GB disk).
 - The **Cloudflare tunnel** keeps bringing `api.ilna-academic.com` to the backend, so no ports are opened on the server.
 
@@ -15,13 +15,17 @@ Do the parts in order. Parts 1–5 can be done while the laptop demo keeps runni
 1. Sign up at <https://signup.cloud.oracle.com>. Oracle asks for a card to verify you; Always Free resources are never charged.
    - **The home region you pick is permanent.** The free ARM VM only exists in it. Pick a region close to your users.
 2. Go to **Compute → Instances → Create instance**.
-   - **Image:** Canonical Ubuntu 24.04.
-   - **Shape:** Ampere → `VM.Standard.A1.Flex`, **4 OCPUs, 24 GB memory**.
-   - **Networking:** keep the defaults, with "Assign a public IPv4 address" on.
-   - **SSH keys:** "Generate a key pair for me" → **download the private key**. You can't download it later.
+   - **Image:** change it to **Canonical Ubuntu 24.04**. The default is Oracle Linux, which the setup script doesn't support.
+   - **Shape:** Ampere → `VM.Standard.A1.Flex`, then set **4 OCPUs, 24 GB memory**. The default (1 OCPU, 6 GB) is too small for the AI models.
+   - **Networking:** "Create new virtual cloud network" + "Create new public subnet", with "Automatically assign public IPv4 address" on.
+   - **SSH keys:** "Generate a key pair for me" → **download the private key**. You can't download it later. Or paste the public half of a key you made with `ssh-keygen`.
    - **Boot volume:** tick "Specify a custom boot volume size" and set **150 GB**. Up to 200 GB total is free.
 3. Click Create. If you get **"Out of capacity"**, free ARM servers in your region are taken for now. Try another availability domain in the same form, or retry later.
 4. Copy the instance's **Public IP address** from its page.
+
+If the instance has **no public IP** (the toggle was greyed out):
+- On the instance's **Networking** tab, run the quick action **"Connect public subnet to internet"**.
+- Then open the VNIC → **IP administration** → **⋯** on the private IP → **Edit** → **Ephemeral public IP**.
 
 **Recommended:** upgrade the account to **Pay As You Go** (Billing → Upgrade). Always Free resources stay free. Oracle only reclaims idle VMs on free-only accounts, so this stops the server from being taken away. Also add a budget alert of $1 (Billing → Budgets) so you'd know if anything ever costs money.
 
@@ -36,13 +40,23 @@ icacls $HOME\.ssh\ilna-oracle.key /inheritance:r /grant:r "$($env:USERNAME):R"
 ssh -i $HOME\.ssh\ilna-oracle.key ubuntu@<PUBLIC-IP>
 ```
 
+The user is `ubuntu` on Ubuntu images. If it says "Permission denied" for `ubuntu`, the image is probably Oracle Linux (user `opc`). Recreate the instance with Ubuntu.
+
 All commands in parts 3–5 run **on the server** (inside that SSH session), unless the step says otherwise.
 
 Tip: VS Code's **Remote - SSH** extension opens the server's folders and a terminal like a local project.
 
 ## 3. Get the code
 
-Give the server a read-only key to the GitHub repo. This works whether the repo is public or private:
+The repo is public, so the server can clone it over HTTPS:
+
+```bash
+git clone https://github.com/8ussai/Ilna.git ~/ilna
+cd ~/ilna
+bash deploy/setup.sh
+```
+
+If the repo is ever made private, give the server a read-only key to it instead:
 
 ```bash
 ssh-keygen -t ed25519 -N "" -f ~/.ssh/id_ed25519
@@ -97,23 +111,22 @@ In the Cloudflare dashboard → **Zero Trust → Networks → Tunnels**:
 
 Check that <https://api.ilna-academic.com/docs> opens.
 
-## 7. Move the frontend to Cloudflare Pages
+## 7. Put the frontend on Cloudflare Workers
 
-1. Dashboard → **Workers & Pages → Create → Pages → Connect to Git** → choose the `Ilna` repo.
-2. Build settings:
-   - Production branch: `main`
-   - Framework preset: None
-   - **Root directory:** `frontend`
-   - **Build command:** `npm run build`
-   - **Build output directory:** `dist`
-   - Environment variable: `NODE_VERSION` = `24`
-   
+Cloudflare now sets up static sites as Workers. `frontend/wrangler.jsonc` tells it to serve the built `dist/` folder and send unknown paths to `index.html`.
+
+1. Cloudflare → **DNS → Records** for ilna-academic.com: delete any `@` / `www` CNAME that points to an old `….cfargotunnel.com` tunnel. Keep `api` and the MX/TXT email records.
+2. **Workers & Pages → Create → Import a repository** → `8ussai/Ilna`.
+3. Settings:
+   - Project name: `ilna` (must match `name` in `wrangler.jsonc`)
+   - Build command: `npm run build`
+   - Deploy command: `npx wrangler deploy`
+   - Advanced → **Root directory / path:** `frontend`
+   - Advanced → build variable `NODE_VERSION` = `24`
+
    `frontend/.env.production` already points the build at `https://api.ilna-academic.com`.
-3. Wait for the first build to pass, and check the `*.pages.dev` link it gives.
-4. In the **old tunnel**, delete the `ilna-academic.com` route (and `www` if it has one).
-5. In the Pages project → **Custom domains**, add `ilna-academic.com` and `www.ilna-academic.com`.
-
-Within a few minutes <https://ilna-academic.com> is served by Pages and talks to the API on the server.
+4. **Deploy**, and check the `*.workers.dev` link it gives.
+5. In the Worker → **Settings → Domains & Routes → Add → Custom domain**: add `ilna-academic.com`, then `www.ilna-academic.com`.
 
 ## 8. Turn off the laptop demo
 
@@ -155,7 +168,7 @@ scp -i $HOME\.ssh\ilna-oracle.key "ubuntu@<PUBLIC-IP>:~/ilna-backups/*.tar.gz" D
 
 | Task | How |
 |---|---|
-| Put frontend changes live | `git push`. Pages rebuilds by itself (watch it under Workers & Pages → Deployments). |
+| Put frontend changes live | `git push`. Cloudflare rebuilds by itself (watch it under Workers & Pages → ilna → Deployments). |
 | Put backend changes live | `git push`, then on the server: `bash ~/ilna/deploy/update.sh`. Migrations run on startup. |
 | A change touching both | Push, then run `update.sh` right away, so the new frontend isn't waiting long on the old backend. |
 | See backend logs | `journalctl -u ilna-backend -f` (live), or `journalctl -u ilna-backend --since "1 hour ago"` |

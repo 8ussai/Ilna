@@ -1,0 +1,11 @@
+// Hosting settings for Cloudflare Workers, which serves the built site (dist/) at ilna-academic.com.
+// Every push to main rebuilds and redeploys it; see deploy/DEPLOY.md.
+{
+  "name": "ilna",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "./dist",
+    // the app picks the page from the URL itself, so unknown paths like /courses/5 get index.html
+    "not_found_handling": "single-page-application"
+  }
+}
