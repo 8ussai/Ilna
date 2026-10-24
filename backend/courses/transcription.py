@@ -1,5 +1,6 @@
 import gc
 import json
+import os
 import threading
 import time
 
@@ -12,16 +13,13 @@ from langchain_core.documents import Document
 import backend.config  # noqa: F401
 from backend.config import (
     CHUNK_CHARS,
+    ROOMY_MEMORY,
     TRANSCRIBE_PROGRESS_EVERY_SEC,
     TRANSCRIBE_SEC_PER_AUDIO_SEC,
     WHISPER_MODEL,
 )
 from backend.core import jobs
-from backend.courses.embeddings import (
-    TORCH_THREADS,
-    delete_material_vectors,
-    get_vectorstore,
-)
+from backend.courses.embeddings import delete_material_vectors, get_vectorstore
 from backend.courses.models import CourseMaterial, MaterialTranscript
 from backend.courses.rag_pipeline import index_estimate_sec
 from backend.database import SessionLocal
@@ -31,6 +29,8 @@ if ctranslate2.get_cuda_device_count() > 0:
     DEVICE, COMPUTE_TYPE = "cuda", "float16"
 else:
     DEVICE, COMPUTE_TYPE = "cpu", "int8"
+# on CPU Whisper is the slowest job, so it gets most of the cores (3 of 4 on the server); the rest serve the API
+WHISPER_CPU_THREADS = max(1, (os.cpu_count() or 2) * 3 // 4)
 
 _model_lock = threading.Lock()
 _model = None
@@ -46,16 +46,18 @@ def _get_model() -> WhisperModel:
     global _model
     with _model_lock:
         if _model is None:
-            _model = WhisperModel(WHISPER_MODEL, device=DEVICE, compute_type=COMPUTE_TYPE, cpu_threads=TORCH_THREADS)
+            _model = WhisperModel(
+                WHISPER_MODEL, device=DEVICE, compute_type=COMPUTE_TYPE, cpu_threads=WHISPER_CPU_THREADS
+            )
         return _model
 
 
-# unloads Whisper on a CPU-only machine, to leave memory for the embedding model
+# unloads Whisper on a CPU-only machine with little memory, to leave room for the embedding model
 def _release_model_on_cpu():
-    # on a machine with little memory, Whisper and the embedding model together can exhaust it, so Whisper is
-    # unloaded before indexing; a GPU server keeps it loaded for the next recording
+    # there Whisper and the embedding model together can exhaust memory, so Whisper is unloaded before indexing;
+    # a GPU server or a roomy one keeps it loaded, saving the reload on every recording
     global _model
-    if DEVICE == "cpu":
+    if DEVICE == "cpu" and not ROOMY_MEMORY:
         with _model_lock:
             _model = None
         gc.collect()
