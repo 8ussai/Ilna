@@ -170,7 +170,7 @@ export function ProfileDialog({ username, catalog, onClose }: { username: string
             <UserAvatar username={profile.username} size={64} />
             <ProfileSummary profile={profile} catalog={catalog} full />
           </div>
-          {!readOnly && (
+          {!readOnly && !profile.is_self && (
             <div className="flex items-center justify-between gap-3 border-t border-line pt-4">
               <span className="text-sm text-muted">{t('friends.counter', { count, limit })}</span>
               <FriendButton profile={profile} />

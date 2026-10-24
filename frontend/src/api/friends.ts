@@ -12,6 +12,8 @@ export type PublicProfile = {
   major: string
   // on the viewer's friends list
   is_friend: boolean
+  // the viewer's own profile, which has no friend button
+  is_self: boolean
 }
 
 // limit is 100, or 500 for premium

@@ -33,7 +33,7 @@ def _friend_ids(db: Session, user_id: int) -> set[int]:
 
 
 # a student's public profile card
-def _profile(user: User, is_friend: bool) -> PublicProfile:
+def _profile(user: User, is_friend: bool, is_self: bool = False) -> PublicProfile:
     return PublicProfile(
         id=user.id,
         username=user.username,
@@ -44,6 +44,7 @@ def _profile(user: User, is_friend: bool) -> PublicProfile:
         college=user.college,
         major=user.major,
         is_friend=is_friend,
+        is_self=is_self,
     )
 
 
@@ -98,7 +99,7 @@ def get_profile(
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     is_friend = db.get(Friend, (current_user.id, user.id)) is not None
-    return _profile(user, is_friend)
+    return _profile(user, is_friend, is_self=user.id == current_user.id)
 
 
 def _visible_friends(db: Session, user_id: int) -> list[User]:
